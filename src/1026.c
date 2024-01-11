@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,19 +13,20 @@
  *     struct TreeNode *right;
  * };
  */
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
-int dfs(struct TreeNode* root, int max, int min) {
+int dfs(struct TreeNode* root, int maxAncestor, int minAncestor) {
+    int retVal = maxAncestor - minAncestor;
+
     if (root == NULL) {
-        return (max - min);
+        return retVal;
     }
 
-    max = MAX(max, root->val);
-    min = MIN(min, root->val);
-    int left = dfs(root->left, max, min);
-    int right = dfs(root->right, max, min);
+    maxAncestor = fmax(root->val, maxAncestor);
+    minAncestor = fmin(root->val, minAncestor);
+    int left = dfs(root->left, maxAncestor, minAncestor);
+    int right = dfs(root->right, maxAncestor, minAncestor);
+    retVal = fmax(left, right);
 
-    return MAX(left, right);
+    return retVal;
 }
 int maxAncestorDiff(struct TreeNode* root) {
     int retVal = 0;
@@ -38,7 +40,7 @@ int maxAncestorDiff(struct TreeNode* root) {
 }
 
 int main(int argc, char** argv) {
-#define MAX_SIZE (100)
+#define MAX_SIZE (5000)
     struct testCaseType {
         int nums[MAX_SIZE];
         int numsSize;

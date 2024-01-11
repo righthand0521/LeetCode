@@ -9268,7 +9268,7 @@ class Solution {
 
 ## [1026. Maximum Difference Between Node and Ancestor](https://leetcode.com/problems/maximum-difference-between-node-and-ancestor/)  1446
 
-- [Official](https://leetcode.com/problems/maximum-difference-between-node-and-ancestor/solutions/895566/maximum-difference-between-node-and-ancestor/)
+- [Official](https://leetcode.cn/problems/maximum-difference-between-node-and-ancestor/solutions/2231286/jie-dian-yu-qi-zu-xian-zhi-jian-de-zui-d-2ykj/)
 
 <details><summary>Description</summary>
 
@@ -9324,19 +9324,20 @@ The number of nodes in the tree is in the range [2, 5000].
  *     struct TreeNode *right;
  * };
  */
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
-int dfs(struct TreeNode* root, int max, int min) {
+int dfs(struct TreeNode* root, int maxAncestor, int minAncestor) {
+    int retVal = maxAncestor - minAncestor;
+
     if (root == NULL) {
-        return (max - min);
+        return retVal;
     }
 
-    max = MAX(max, root->val);
-    min = MIN(min, root->val);
-    int left = dfs(root->left, max, min);
-    int right = dfs(root->right, max, min);
+    maxAncestor = fmax(root->val, maxAncestor);
+    minAncestor = fmin(root->val, minAncestor);
+    int left = dfs(root->left, maxAncestor, minAncestor);
+    int right = dfs(root->right, maxAncestor, minAncestor);
+    retVal = fmax(left, right);
 
-    return MAX(left, right);
+    return retVal;
 }
 int maxAncestorDiff(struct TreeNode* root) {
     int retVal = 0;
@@ -9348,6 +9349,88 @@ int maxAncestorDiff(struct TreeNode* root) {
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   public:
+    int dfs(TreeNode* root, int maxAncestor, int minAncestor) {
+        int retVal = maxAncestor - minAncestor;
+
+        if (root == nullptr) {
+            return retVal;
+        }
+
+        maxAncestor = max(root->val, maxAncestor);
+        minAncestor = min(root->val, minAncestor);
+        int left = dfs(root->left, maxAncestor, minAncestor);
+        int right = dfs(root->right, maxAncestor, minAncestor);
+        retVal = max(left, right);
+
+        return retVal;
+    }
+    int maxAncestorDiff(TreeNode* root) {
+        int retVal = 0;
+
+        if (root == nullptr) {
+            return retVal;
+        }
+        retVal = dfs(root, root->val, root->val);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def dfs(self, root: Optional[TreeNode], maxAncestor: int, minAncestor: int) -> int:
+        retVal = maxAncestor - minAncestor
+
+        if root is None:
+            return retVal
+
+        maxAncestor = max(root.val, maxAncestor)
+        minAncestor = min(root.val, minAncestor)
+        left = self.dfs(root.left, maxAncestor, minAncestor)
+        right = self.dfs(root.right, maxAncestor, minAncestor)
+        retVal = max(left, right)
+
+        return retVal
+
+    def maxAncestorDiff(self, root: Optional[TreeNode]) -> int:
+        retVal = 0
+
+        if root is None:
+            return retVal
+        retVal = self.dfs(root, root.val, root.val)
+
+        return retVal
 ```
 
 </details>
