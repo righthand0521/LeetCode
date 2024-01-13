@@ -4021,6 +4021,8 @@ char* interpret(char* command) {
 
 ## [1704. Determine if String Halves Are Alike](https://leetcode.com/problems/determine-if-string-halves-are-alike/)  1207
 
+- [Official](https://leetcode.cn/problems/determine-if-string-halves-are-alike/solutions/1960619/pan-duan-zi-fu-chuan-de-liang-ban-shi-fo-d21g/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -4049,6 +4051,14 @@ s.length is even.
 s consists of uppercase and lowercase letters.
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. Create a function that checks if a character is a vowel, either uppercase or lowercase.
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
@@ -4057,31 +4067,94 @@ s consists of uppercase and lowercase letters.
 bool halvesAreAlike(char* s) {
     bool retVal = true;
 
+    char* vowels = "aeiouAEIOU";
+
     int count = 0;
     int head = 0;
     int tail = strlen(s) - 1;
     while (head < tail) {
-        if ((*(s + head) == 'a') || (*(s + head) == 'e') || (*(s + head) == 'i') || (*(s + head) == 'o') ||
-            (*(s + head) == 'u') || (*(s + head) == 'A') || (*(s + head) == 'E') || (*(s + head) == 'I') ||
-            (*(s + head) == 'O') || (*(s + head) == 'U')) {
+        if (strchr(vowels, s[head])) {
             ++count;
         }
+        ++head;
 
-        if ((*(s + tail) == 'a') || (*(s + tail) == 'e') || (*(s + tail) == 'i') || (*(s + tail) == 'o') ||
-            (*(s + tail) == 'u') || (*(s + tail) == 'A') || (*(s + tail) == 'E') || (*(s + tail) == 'I') ||
-            (*(s + tail) == 'O') || (*(s + tail) == 'U')) {
+        if (strchr(vowels, s[tail])) {
             --count;
         }
-
-        ++head;
         --tail;
     }
+
     if (count != 0) {
         retVal = false;
     }
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool halvesAreAlike(string s) {
+        bool retVal = true;
+
+        string vowels = "aeiouAEIOU";
+
+        int count = 0;
+        int head = 0;
+        int tail = s.size() - 1;
+        while (head < tail) {
+            if (vowels.find(s[head]) != string::npos) {
+                ++count;
+            }
+            ++head;
+
+            if (vowels.find(s[tail]) != string::npos) {
+                --count;
+            }
+            --tail;
+        }
+
+        if (count != 0) {
+            retVal = false;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def halvesAreAlike(self, s: str) -> bool:
+        retVal = True
+
+        vowels = "aeiouAEIOU"
+
+        count = 0
+        head = 0
+        tail = len(s) - 1
+        while head < tail:
+            if s[head] in vowels:
+                count += 1
+            head += 1
+
+            if s[tail] in vowels:
+                count -= 1
+            tail -= 1
+
+        if count != 0:
+            retVal = False
+
+        return retVal
 ```
 
 </details>

@@ -6,25 +6,23 @@
 bool halvesAreAlike(char* s) {
     bool retVal = true;
 
+    char* vowels = "aeiouAEIOU";
+
     int count = 0;
     int head = 0;
     int tail = strlen(s) - 1;
     while (head < tail) {
-        if ((*(s + head) == 'a') || (*(s + head) == 'e') || (*(s + head) == 'i') || (*(s + head) == 'o') ||
-            (*(s + head) == 'u') || (*(s + head) == 'A') || (*(s + head) == 'E') || (*(s + head) == 'I') ||
-            (*(s + head) == 'O') || (*(s + head) == 'U')) {
+        if (strchr(vowels, s[head])) {
             ++count;
         }
+        ++head;
 
-        if ((*(s + tail) == 'a') || (*(s + tail) == 'e') || (*(s + tail) == 'i') || (*(s + tail) == 'o') ||
-            (*(s + tail) == 'u') || (*(s + tail) == 'A') || (*(s + tail) == 'E') || (*(s + tail) == 'I') ||
-            (*(s + tail) == 'O') || (*(s + tail) == 'U')) {
+        if (strchr(vowels, s[tail])) {
             --count;
         }
-
-        ++head;
         --tail;
     }
+
     if (count != 0) {
         retVal = false;
     }
@@ -37,6 +35,13 @@ int main(int argc, char** argv) {
         char* s;
     } testCase[] = {{"book"}, {"textbook"}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: s = "book"
+     *  Output: true
+     *
+     *  Input: s = "textbook"
+     *  Output: false
+     */
 
     bool answer = false;
     int i;
