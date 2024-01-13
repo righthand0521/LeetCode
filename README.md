@@ -295,6 +295,13 @@
 
 </details>
 
+<details><summary>Valid Anagram</summary>
+
+- [242. Valid Anagram](https://leetcode.com/problems/valid-anagram/)
+- [1347. Minimum Number of Steps to Make Two Strings Anagram](https://leetcode.com/problems/minimum-number-of-steps-to-make-two-strings-anagram/)
+
+</details>
+
 ## Linked List
 
 <details><summary>Reverse Linked List</summary>

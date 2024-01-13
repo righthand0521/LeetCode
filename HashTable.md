@@ -4872,6 +4872,132 @@ class Solution {
 
 </details>
 
+## [1347. Minimum Number of Steps to Make Two Strings Anagram](https://leetcode.com/problems/minimum-number-of-steps-to-make-two-strings-anagram/)  1330
+
+- [Official](https://leetcode.com/problems/minimum-number-of-steps-to-make-two-strings-anagram/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given two strings of the same length s and t.
+In one step you can choose any character of t and replace it with another character.
+
+Return the minimum number of steps to make t an anagram of s.
+
+An Anagram of a string is a string that contains the same characters with a different (or the same) ordering.
+
+Example 1:
+Input: s = "bab", t = "aba"
+Output: 1
+Explanation: Replace the first 'a' in t with b, t = "bba" which is anagram of s.
+
+Example 2:
+Input: s = "leetcode", t = "practice"
+Output: 5
+Explanation: Replace 'p', 'r', 'a', 'i' and 'c' from t with proper characters to make t anagram of s.
+
+Example 3:
+Input: s = "anagram", t = "mangaar"
+Output: 0
+Explanation: "anagram" and "mangaar" are anagrams.
+
+Constraints:
+1 <= s.length <= 5 * 10^4
+s.length == t.length
+s and t consist of lowercase English letters only.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Count the frequency of characters of each string.
+2. Loop over all characters if the frequency of a character in t is less than the frequency of the same character in s
+   then add the difference between the frequencies to the answer.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int minSteps(char* s, char* t) {
+    int retVal = 0;
+
+    int sSize = strlen(s);  // s.length == t.length
+    int i;
+
+#define MAX_HASHTABLE_SIZE (26)  // s and t consist of lowercase English letters only.
+    int hashTable[MAX_HASHTABLE_SIZE];
+    memset(hashTable, 0, sizeof(hashTable));
+    for (i = 0; i < sSize; ++i) {
+        hashTable[s[i] - 'a']++;
+        hashTable[t[i] - 'a']--;
+    }
+
+    for (i = 0; i < MAX_HASHTABLE_SIZE; ++i) {
+        if (hashTable[i] > 0) {
+            retVal += hashTable[i];
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minSteps(string s, string t) {
+        int retVal = 0;
+
+        int sSize = s.size();  // s and t consist of lowercase English letters only.
+
+        unordered_map<char, int> hashTable;
+        for (int i = 0; i < sSize; ++i) {
+            ++hashTable[s[i]];
+            --hashTable[t[i]];
+        }
+
+        for (auto [key, value] : hashTable) {
+            if (value > 0) {
+                retVal += value;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minSteps(self, s: str, t: str) -> int:
+        retVal = 0
+
+        hashTable = defaultdict(int)
+        for cS, cT in zip(s, t):
+            hashTable[cS] += 1
+            hashTable[cT] -= 1
+
+        for key in hashTable:
+            if hashTable[key] > 0:
+                retVal += hashTable[key]
+
+        return retVal
+```
+
+</details>
+
 ## [1394. Find Lucky Integer in an Array](https://leetcode.com/problems/find-lucky-integer-in-an-array)  1118
 
 - [Official](https://leetcode.cn/problems/find-lucky-integer-in-an-array/solutions/186438/zhao-chu-shu-zu-zhong-de-xing-yun-shu-by-leetcode-/)
