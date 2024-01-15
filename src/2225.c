@@ -132,7 +132,7 @@ int** findWinners(int** matches, int matchesSize, int* matchesColSize, int* retu
 }
 
 int main(int argc, char** argv) {
-#define MAX_SIZE (100000)
+#define MAX_SIZE (int)(1e5)
     struct testCaseType {
         int matches[MAX_SIZE][2];
         int matchesSize;
@@ -146,6 +146,13 @@ int main(int argc, char** argv) {
                      NULL},
                     {{{2, 3}, {1, 3}, {5, 4}, {6, 4}}, 4, {2, 2, 2, 2}, 0, NULL}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: matches = [[1,3],[2,3],[3,6],[5,6],[5,7],[4,5],[4,8],[4,9],[10,4],[10,9]]
+     *  Output: [[1,2,10],[4,5,7,8]]
+     *
+     *  Input: matches = [[2,3],[1,3],[5,4],[6,4]]
+     *  Output: [[1,2,5,6],[]]
+     */
 
     int** pMatches = NULL;
     int** pAnswer = NULL;

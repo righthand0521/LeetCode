@@ -8154,7 +8154,7 @@ class Solution:
 
 ## [2225. Find Players With Zero or One Losses](https://leetcode.com/problems/find-players-with-zero-or-one-losses/)  1316
 
-- [Official](https://leetcode.com/problems/find-players-with-zero-or-one-losses/solutions/2655744/find-players-with-zero-or-one-losses/)
+- [Official](https://leetcode.cn/problems/find-players-with-zero-or-one-losses/solutions/1418074/zhao-chu-shu-diao-ling-chang-huo-yi-chan-fpsj/)
 
 <details><summary>Description</summary>
 
@@ -8195,6 +8195,14 @@ matches[i].length == 2
 winneri != loseri
 All matches[i] are unique.
 ```
+
+<details><summary>Hint</summary>
+
+```text
+1. Count the number of times a player loses while iterating through the matches.
+```
+
+</details>
 
 </details>
 
@@ -8327,6 +8335,78 @@ int** findWinners(int** matches, int matchesSize, int* matchesColSize, int* retu
 
     return pRetVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<vector<int>> findWinners(vector<vector<int>>& matches) {
+        vector<vector<int>> retVal;
+
+        unordered_map<int, int> lostHashTable;
+        for (auto& match : matches) {
+            int win = match[0];
+            int lost = match[1];
+            auto iterator = lostHashTable.find(win);
+            if (iterator == lostHashTable.end()) {
+                lostHashTable[win] = 0;
+            }
+            lostHashTable[lost]++;
+        }
+
+        vector<int> notLost;
+        vector<int> lostExactlyOne;
+        for (auto& iterator : lostHashTable) {
+            if (iterator.second == 0) {
+                notLost.emplace_back(iterator.first);
+            } else if (iterator.second == 1) {
+                lostExactlyOne.emplace_back(iterator.first);
+            }
+        }
+        sort(notLost.begin(), notLost.end());
+        sort(lostExactlyOne.begin(), lostExactlyOne.end());
+        retVal.emplace_back(notLost);
+        retVal.emplace_back(lostExactlyOne);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def findWinners(self, matches: List[List[int]]) -> List[List[int]]:
+        retVal = []
+
+        winHashTable = defaultdict(int)
+        lostHashTable = defaultdict(int)
+        for win, lost in matches:
+            winHashTable[win] += 1
+            lostHashTable[lost] += 1
+
+        lostExactlyOne = []
+        for i in lostHashTable:
+            if lostHashTable[i] == 1:
+                lostExactlyOne.append(i)
+        lostExactlyOne.sort()
+
+        notLost = []
+        for i in winHashTable:
+            if i not in lostHashTable:
+                notLost.append(i)
+        notLost.sort()
+
+        retVal = [notLost, lostExactlyOne]
+
+        return retVal
 ```
 
 </details>
