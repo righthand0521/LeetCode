@@ -2,14 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MATH (1)
-#define ONE_TRAVERSAL (1)
-#define BRUTE_FORCE (1)  // Time Limit Exceeded
 int canCompleteCircuit(int* gas, int gasSize, int* cost, int costSize) {
     int retVal = -1;
 
-#if (MATH)
-    printf("MATH\n");
     /* https://leetcode.cn/problems/gas-station/solutions/488498/shou-hua-tu-jie-liang-ge-guan-jian-jie-lun-de-jian/
      *  1. if sum(gas) < sum(cost), then it has no solution(-1).
      *  2. if sum(gas) >= sum(cost), then it has solution(i).
@@ -18,7 +13,6 @@ int canCompleteCircuit(int* gas, int gasSize, int* cost, int costSize) {
      *     /                    \   /                     \
      *  [0]----------------------[i]-----------------------[n]
      */
-
     int tank = 0;
     int totalSum = 0;
     int start = 0;
@@ -36,50 +30,6 @@ int canCompleteCircuit(int* gas, int gasSize, int* cost, int costSize) {
     if (totalSum >= 0) {
         retVal = start;
     }
-#elif (ONE_TRAVERSAL)
-    printf("ONE_TRAVERSAL\n");
-
-    int tank;
-    int count;
-    int index;
-    int i = 0;
-    while (i < gasSize) {
-        tank = 0;
-        count = 0;
-        while (count < gasSize) {
-            index = (i + count) % gasSize;
-            tank += (gas[index] - cost[index]);
-            if (tank < 0) {
-                break;
-            }
-            count++;
-        }
-
-        if (count == gasSize) {
-            retVal = i;
-            break;
-        }
-        i = i + count + 1;
-    }
-#elif (BRUTE_FORCE)
-    printf("BRUTE_FORCE\n");
-
-    int tank = 0;
-    int i, j;
-    for (i = 0; i < gasSize; ++i) {
-        tank = gas[i] - cost[i];
-        j = (i + 1) % gasSize;
-        while ((tank > 0) && (j != i)) {
-            tank += (gas[j] - cost[j]);
-            j = (j + 1) % gasSize;
-        }
-
-        if ((tank >= 0) && (j == i)) {
-            retVal = i;
-            break;
-        }
-    }
-#endif
 
     return retVal;
 }
@@ -93,6 +43,13 @@ int main(int argc, char** argv) {
         int costSize;
     } testCase[] = {{{1, 2, 3, 4, 5}, 5, {3, 4, 5, 1, 2}, 5}, {{2, 3, 4}, 3, {3, 4, 3}, 3}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: gas = [1,2,3,4,5], cost = [3,4,5,1,2]
+     *  Output: 3
+     *
+     *  Input: gas = [2,3,4], cost = [3,4,3]
+     *  Output: -1
+     */
 
     int answer = 0;
     int i, j;
