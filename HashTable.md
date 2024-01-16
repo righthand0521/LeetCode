@@ -2608,43 +2608,50 @@ RandomizedSet* randomizedSetCreate() {
     return pNew;
 }
 bool randomizedSetInsert(RandomizedSet* obj, int val) {
-    struct hashStruct* temp = NULL;
+    bool retVal = false;
 
+    struct hashStruct* temp = NULL;
     HASH_FIND_INT(obj->map, &val, temp);
     if (temp != NULL) {
-        return false;
+        return retVal;
     }
     temp = (struct hashStruct*)malloc(sizeof(struct hashStruct));
     if (temp == NULL) {
         perror("malloc");
-        return false;
+        return retVal;
     }
     temp->val = val;
     HASH_ADD_INT(obj->map, val, temp);
+    retVal = true;
 
-    return true;
+    return retVal;
 }
 bool randomizedSetRemove(RandomizedSet* obj, int val) {
-    struct hashStruct* temp = NULL;
+    bool retVal = false;
 
+    struct hashStruct* temp = NULL;
     HASH_FIND_INT(obj->map, &val, temp);
     if (temp == NULL) {
-        return false;
+        return retVal;
     }
     HASH_DEL(obj->map, temp);
     free(temp);
+    retVal = true;
 
-    return true;
+    return retVal;
 }
 int randomizedSetGetRandom(RandomizedSet* obj) {
+    int retVal = 0;
+
     int idx = rand() % (HASH_COUNT(obj->map));
     struct hashStruct* temp = obj->map;
     while ((idx > 0) && (temp != NULL)) {
         temp = temp->hh.next;
         --idx;
     }
+    retVal = temp->val;
 
-    return temp->val;
+    return retVal;
 }
 void randomizedSetFree(RandomizedSet* obj) {
     struct hashStruct* current;
