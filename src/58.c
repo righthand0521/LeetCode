@@ -3,48 +3,47 @@
 #include <string.h>
 
 int lengthOfLastWord(char *s) {
-    int len = strlen(s);
-    if (len == 0) {
-        return 0;
-    }
+    int retVal = 0;
 
-    int i = 0;
-    while (*(s + (len - 1) - i) == ' ') {
-        *(s + (len - 1) - i) = '\0';
-        i++;
-    }
-    len = strlen(s);
-    if (len == 0) {
-        return 0;
-    }
-
-    i = 0;
-    while (*(s + (len - 1) - i) != ' ') {
-        i++;
-        if (i == len) {
-            break;
+    int sSize = strlen(s);
+    int i;
+    for (i = sSize - 1; i >= 0; --i) {
+        if (s[i] != ' ') {
+            ++retVal;
+        } else {
+            if (retVal != 0) {
+                break;
+            }
         }
     }
 
-    return i;
+    return retVal;
 }
 
 int main(int argc, char **argv) {
-    char *testCase[] = {"Hello World", "   fly me   to   the moon  ", "luffy is still joyboy"};
+#define MAX_SIZE (int)(1e4)
+    struct testCaseType {
+        char s[MAX_SIZE];
+    } testCase[] = {{"Hello World"}, {"   fly me   to   the moon  "}, {"luffy is still joyboy"}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: s = "Hello World"
+     *  Output: 5
+     *
+     *  Input: s = "   fly me   to   the moon  "
+     *  Output: 4
+     *
+     *  Input: s = "luffy is still joyboy"
+     *  Output: 6
+     */
 
-#define MAX_STRING (100000)
-    char buf[MAX_STRING];
-
-    int pAnswer;
+    int answer = 0;
     int i;
     for (i = 0; i < numberOfTestCase; ++i) {
-        printf("Input: s = \"%s\"\n", testCase[i]);
+        printf("Input: s = \"%s\"\n", testCase[i].s);
 
-        memset(buf, 0, sizeof(buf));
-        snprintf(buf, sizeof(buf), "%s", testCase[i]);
-        pAnswer = lengthOfLastWord(buf);
-        printf("Output: %d\n", pAnswer);
+        answer = lengthOfLastWord(testCase[i].s);
+        printf("Output: %d\n", answer);
 
         printf("\n");
     }

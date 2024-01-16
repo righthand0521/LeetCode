@@ -1320,6 +1320,8 @@ char * multiply(char * num1, char * num2){
 
 ## [58. Length of Last Word](https://leetcode.com/problems/length-of-last-word/)
 
+- [Official](https://leetcode.cn/problems/length-of-last-word/solutions/1008504/zui-hou-yi-ge-dan-ci-de-chang-du-by-leet-51ih/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -1353,37 +1355,69 @@ There will be at least one word in s.
 <details><summary>C</summary>
 
 ```c
-int lengthOfLastWord(char * s){
-    int len = strlen(s);
-    if (len == 0)
-    {
-        return 0;
-    }
+int lengthOfLastWord(char *s) {
+    int retVal = 0;
 
-    int i = 0;
-    while (*(s+(len-1)-i) == ' ')
-    {
-        *(s+(len-1)-i) = '\0';
-        i++;
-    }
-    len = strlen(s);
-    if (len == 0)
-    {
-        return 0;
-    }
-
-    i = 0;
-    while (*(s+(len-1)-i) != ' ')
-    {
-        i++;
-        if (i == len)
-        {
-            break;
+    int sSize = strlen(s);
+    int i;
+    for (i = sSize - 1; i >= 0; --i) {
+        if (s[i] != ' ') {
+            ++retVal;
+        } else {
+            if (retVal != 0) {
+                break;
+            }
         }
     }
 
-    return i;
+    return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int lengthOfLastWord(string s) {
+        int retVal = 0;
+
+        int sSize = s.size();
+        for (int i = sSize - 1; i >= 0; --i) {
+            if (s[i] != ' ') {
+                ++retVal;
+            } else {
+                if (retVal != 0) {
+                    break;
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def lengthOfLastWord(self, s: str) -> int:
+        retVal = 0
+
+        sSize = len(s)
+        for i in range(sSize-1, -1, -1):
+            if s[i] != ' ':
+                retVal += 1
+            else:
+                if retVal != 0:
+                    break
+
+        return retVal
 ```
 
 </details>
