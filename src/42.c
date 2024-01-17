@@ -91,6 +91,13 @@ int main(int argc, char** argv) {
         int heightSize;
     } testCase[] = {{{0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1}, 12}, {{4, 2, 0, 3, 2, 5}, 6}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: height = [0,1,0,2,1,0,1,3,2,1,2,1]
+     *  Output: 6
+     *
+     *  Input: height = [4,2,0,3,2,5]
+     *  Output: 9
+     */
 
     int answer;
     int i, j;

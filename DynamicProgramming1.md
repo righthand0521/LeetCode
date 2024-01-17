@@ -261,7 +261,6 @@ class Solution:
 
 ## [42. Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/)
 
-- [Official](https://leetcode.com/problems/trapping-rain-water/solutions/127551/trapping-rain-water/)
 - [Official](https://leetcode.cn/problems/trapping-rain-water/solutions/692342/jie-yu-shui-by-leetcode-solution-tuvc/)
 
 <details><summary>Description</summary>
@@ -371,6 +370,71 @@ int trap(int* height, int heightSize) {
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int trap(vector<int>& height) {
+        int retVal = 0;
+
+        int heightSize = height.size();
+        if (heightSize == 0) {
+            return retVal;
+        }
+
+        vector<int> leftMax(heightSize, 0);
+        leftMax[0] = height[0];
+        for (int i = 1; i < heightSize; ++i) {
+            leftMax[i] = max(leftMax[i - 1], height[i]);
+        }
+
+        vector<int> rightMax(heightSize, 0);
+        rightMax[heightSize - 1] = height[heightSize - 1];
+        for (int i = heightSize - 2; i >= 0; --i) {
+            rightMax[i] = max(rightMax[i + 1], height[i]);
+        }
+
+        for (int i = 0; i < heightSize; ++i) {
+            retVal += (min(leftMax[i], rightMax[i]) - height[i]);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def trap(self, height: List[int]) -> int:
+        retVal = 0
+
+        heightSize = len(height)
+        if heightSize == 0:
+            return retVal
+
+        leftMax = [0] * heightSize
+        leftMax[0] = height[0]
+        for i in range(1, heightSize):
+            leftMax[i] = max(leftMax[i - 1], height[i])
+
+        rightMax = [0] * heightSize
+        rightMax[heightSize - 1] = height[heightSize - 1]
+        for i in range(heightSize - 2, -1, -1):
+            rightMax[i] = max(rightMax[i + 1], height[i])
+
+        for i in range(heightSize):
+            retVal += (min(leftMax[i], rightMax[i]) - height[i])
+
+        return retVal
 ```
 
 </details>
