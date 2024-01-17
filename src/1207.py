@@ -22,11 +22,19 @@ def logging_setting():
 
 class Solution:
     def uniqueOccurrences(self, arr: List[int]) -> bool:
-        retVal = False
+        retVal = True
 
-        occurrences = Counter(arr)
-        if len(occurrences.values()) == len(set(occurrences.values())):
-            retVal = True
+        # occurrences = Counter(arr)
+        # if len(occurrences.values()) != len(set(occurrences.values())):
+        #     retVal = False
+        occurrences = Counter(arr).most_common()
+        previous = 0
+        for _, value in occurrences:
+            if previous != value:
+                previous = value
+            else:
+                retVal = False
+                break
 
         return retVal
 

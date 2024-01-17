@@ -10,19 +10,19 @@ bool uniqueOccurrences(int* arr, int arrSize) {
 
 // 1 <= arr.length <= 1000, -1000 <= arr[i] <= 1000
 #define MAX_RANGE (1000)
-#define MAX_SIZE (MAX_RANGE + 1 + MAX_RANGE)
+#define MAX_OCCURRENCES_SIZE (MAX_RANGE + 1 + MAX_RANGE)
 
-    int occurrences[MAX_SIZE];
+    int occurrences[MAX_OCCURRENCES_SIZE];
     memset(occurrences, 0, sizeof(occurrences));
     for (i = 0; i < arrSize; ++i) {
         // f(x) = 1000 + x, -1000 <= x <= 1000, 0 <= f(x) <= 2000.
         occurrences[MAX_RANGE + arr[i]] += 1;
     }
 
-    int times[MAX_SIZE];
+    int times[MAX_OCCURRENCES_SIZE];
     memset(times, 0, sizeof(times));
     int index;
-    for (i = 0; i < MAX_SIZE; ++i) {
+    for (i = 0; i < MAX_OCCURRENCES_SIZE; ++i) {
         index = occurrences[i];
         if (index == 0) {
             continue;
@@ -39,8 +39,9 @@ bool uniqueOccurrences(int* arr, int arrSize) {
 }
 
 int main(int argc, char** argv) {
+#define MAX_SIZE (1000)
     struct testCaseType {
-        int arr[1000];
+        int arr[MAX_SIZE];
         int arrSize;
     } testCase[] = {{{1, 2, 2, 1, 1, 3}, 6}, {{1, 2}, 2}, {{-3, 0, 1, -3, 1, 1, 1, -3, 10, 0}, 10}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
@@ -55,7 +56,7 @@ int main(int argc, char** argv) {
      *  Output: true
      */
 
-    int answer = 0;
+    bool answer;
     int i, j;
     for (i = 0; i < numberOfTestCase; ++i) {
         printf("Input: nums = [");

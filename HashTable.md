@@ -4438,7 +4438,6 @@ class Solution:
 
 ## [1207. Unique Number of Occurrences](https://leetcode.com/problems/unique-number-of-occurrences/)  1195
 
-- [Official](https://leetcode.com/problems/unique-number-of-occurrences/editorial/)
 - [Official](https://leetcode.cn/problems/unique-number-of-occurrences/solutions/463180/du-yi-wu-er-de-chu-xian-ci-shu-by-leetcode-solutio/)
 
 <details><summary>Description</summary>
@@ -4551,11 +4550,19 @@ class Solution {
 ```python
 class Solution:
     def uniqueOccurrences(self, arr: List[int]) -> bool:
-        retVal = False
+        retVal = True
 
-        occurrences = Counter(arr)
-        if len(occurrences.values()) == len(set(occurrences.values())):
-            retVal = True
+        # occurrences = Counter(arr)
+        # if len(occurrences.values()) != len(set(occurrences.values())):
+        #     retVal = False
+        occurrences = Counter(arr).most_common()
+        previous = 0
+        for _, value in occurrences:
+            if previous != value:
+                previous = value
+            else:
+                retVal = False
+                break
 
         return retVal
 ```
