@@ -284,6 +284,8 @@ class Solution:
 
 ## [48. Rotate Image](https://leetcode.com/problems/rotate-image/)
 
+- [Official](https://leetcode.cn/problems/rotate-image/solutions/526980/xuan-zhuan-tu-xiang-by-leetcode-solution-vu3m/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -317,20 +319,75 @@ void swap(int* pNum1, int* pNum2) {
     *pNum2 = temp;
 }
 void rotate(int** matrix, int matrixSize, int* matrixColSize) {
+    int matrixRow = matrixSize;
+    int matrixCol = matrixColSize[0];
     int i, j;
 
-    for (i = 0; i < matrixSize; ++i) {
-        for (j = 0; j < (*matrixColSize / 2); ++j) {
-            swap(&matrix[i][j], &matrix[i][*matrixColSize - j - 1]);
+    for (i = 0; i < matrixRow; ++i) {
+        for (j = 0; j < (matrixCol / 2); ++j) {
+            swap(&matrix[i][j], &matrix[i][matrixCol - j - 1]);
         }
     }
 
-    for (i = 0; i < matrixSize; ++i) {
-        for (j = 0; j < *matrixColSize - i; ++j) {
-            swap(&matrix[i][j], &matrix[*matrixColSize - 1 - j][matrixSize - 1 - i]);
+    for (i = 0; i < matrixRow; ++i) {
+        for (j = 0; j < matrixCol - i; ++j) {
+            swap(&matrix[i][j], &matrix[matrixCol - 1 - j][matrixCol - 1 - i]);
         }
     }
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    void rotate(vector<vector<int>>& matrix) {
+        int matrixSize = matrix.size();
+
+        for (int i = 0; i < matrixSize; ++i) {
+            int matrixColSize = matrix[i].size();
+            for (int j = 0; j < (matrixColSize / 2); ++j) {
+                swap(matrix[i][j], matrix[i][matrixColSize - j - 1]);
+            }
+        }
+
+        for (int i = 0; i < matrixSize; ++i) {
+            int matrixColSize = matrix[i].size();
+            for (int j = 0; j < matrixColSize - i; ++j) {
+                swap(matrix[i][j], matrix[matrixColSize - 1 - j][matrixSize - 1 - i]);
+            }
+        }
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def rotate(self, matrix: List[List[int]]) -> None:
+        """
+        Do not return anything, modify matrix in-place instead.
+        """
+
+        matrixSize = len(matrix)
+
+        for i in range(matrixSize):
+            matrixColSize = len(matrix[i])
+            for j in range(matrixColSize//2):
+                matrix[i][j], matrix[i][matrixColSize-j-1] = \
+                    matrix[i][matrixColSize-j-1], matrix[i][j]
+
+        for i in range(matrixSize):
+            matrixColSize = len(matrix[i])
+            for j in range(matrixColSize-i):
+                matrix[i][j], matrix[matrixColSize-1-j][matrixSize-1-i] = \
+                    matrix[matrixColSize-1-j][matrixSize-1-i], matrix[i][j]
 ```
 
 </details>
