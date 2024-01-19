@@ -101,31 +101,29 @@ int main(int argc, char** argv) {
             perror("malloc");
             return EXIT_FAILURE;
         }
-        for (k = 0; k < testCase[i].matrixSize; ++k) {
-            pMatrix[k] = (int*)malloc(testCase[i].matrixColSize[k] * sizeof(int));
-            if (pMatrix[k] == NULL) {
+        for (j = 0; j < testCase[i].matrixSize; ++j) {
+            pMatrix[j] = (int*)malloc(testCase[i].matrixColSize[j] * sizeof(int));
+            if (pMatrix[j] == NULL) {
                 perror("malloc");
-                for (k = 0; k < testCase[i].matrixSize; ++k) {
-                    if (pMatrix[k]) {
-                        free(pMatrix[k]);
-                    }
+                for (k = 0; k < j; ++k) {
+                    free(pMatrix[k]);
+                    pMatrix[k] = NULL;
                 }
                 free(pMatrix);
                 pMatrix = NULL;
                 return EXIT_FAILURE;
             }
-            memset(pMatrix[k], 0, testCase[i].matrixColSize[k] * sizeof(int));
-            memcpy(pMatrix[k], testCase[i].matrix[k], testCase[i].matrixColSize[k] * sizeof(int));
+            memset(pMatrix[j], 0, (testCase[i].matrixColSize[j] * sizeof(int)));
+            memcpy(pMatrix[j], testCase[i].matrix[j], (testCase[i].matrixColSize[j] * sizeof(int)));
         }
         answer = searchMatrix(pMatrix, testCase[i].matrixSize, testCase[i].matrixColSize, testCase[i].target);
         printf("Output: %s\n", (answer == true) ? "true" : "false");
 
         printf("\n");
 
-        for (k = 0; k < testCase[i].matrixSize; ++k) {
-            if (pMatrix[k]) {
-                free(pMatrix[k]);
-            }
+        for (j = 0; j < testCase[i].matrixSize; ++j) {
+            free(pMatrix[j]);
+            pMatrix[j] = NULL;
         }
         free(pMatrix);
         pMatrix = NULL;
