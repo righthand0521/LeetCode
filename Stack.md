@@ -2869,7 +2869,6 @@ class StockSpanner:
 
 ## [907. Sum of Subarray Minimums](https://leetcode.com/problems/sum-of-subarray-minimums/)  1975
 
-- [Official](https://leetcode.com/problems/sum-of-subarray-minimums/solutions/2700011/sum-of-subarray-minimums/)
 - [Official](https://leetcode.cn/problems/sum-of-subarray-minimums/solutions/1929461/zi-shu-zu-de-zui-xiao-zhi-zhi-he-by-leet-bp3k/)
 
 <details><summary>Description</summary>
@@ -2900,33 +2899,120 @@ Constraints:
 <details><summary>C</summary>
 
 ```c
-#define MODULO      (int)(1e9 + 7)
-
+#define MODULO (int)(1e9 + 7)
 int sumSubarrayMins(int* arr, int arrSize) {
     int retVal = 0;
 
     int dp[arrSize];
     memset(dp, 0, sizeof(dp));
 
-    int top = 0;
+    int monoStackTop = 0;
     int monoStack[arrSize];
     memset(monoStack, 0, sizeof(monoStack));
 
-    int i, j;
-    for (i=0; i<arrSize; ++i) {
-        while ((top > 0) && (arr[monoStack[top-1]] > arr[i])) {
-            top--;
+    int i, key, value;
+    for (i = 0; i < arrSize; ++i) {
+        value = arr[i];
+
+        while ((monoStackTop > 0) && (arr[monoStack[monoStackTop - 1]] > value)) {
+            monoStackTop--;
         }
 
-        j = ((top==0)?(i+1):(i-monoStack[top-1]));
-        dp[i] = j * arr[i] + ((top==0)?(0):(dp[i-j]));
-        monoStack[top++] = i;
+        key = i + 1;
+        if (monoStackTop != 0) {
+            key = i - monoStack[monoStackTop - 1];
+        }
+
+        dp[i] = key * value;
+        if (monoStackTop != 0) {
+            dp[i] += dp[i - key];
+        }
+
+        monoStack[monoStackTop++] = i;
 
         retVal = (retVal + dp[i]) % MODULO;
     }
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int MODULO = (int)(1e9 + 7);
+
+   public:
+    int sumSubarrayMins(vector<int>& arr) {
+        int retVal = 0;
+
+        int arrSize = arr.size();
+
+        stack<int> monoStack;
+        vector<int> dp(arrSize, 0);
+        for (int i = 0; i < arrSize; ++i) {
+            int value = arr[i];
+            while ((monoStack.empty() == false) && (arr[monoStack.top()] > value)) {
+                monoStack.pop();
+            }
+
+            int key = i + 1;
+            if (monoStack.empty() == false) {
+                key = i - monoStack.top();
+            }
+
+            dp[i] = key * value;
+            if (monoStack.empty() == false) {
+                dp[i] += dp[i - key];
+            }
+
+            monoStack.push(i);
+
+            retVal = (retVal + dp[i]) % MODULO;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self):
+        self.MODULO = 10 ** 9 + 7
+
+    def sumSubarrayMins(self, arr: List[int]) -> int:
+        retVal = 0
+
+        arrSize = len(arr)
+
+        monoStack = []
+        dp = [0] * arrSize
+        for idx, value in enumerate(arr):
+            while monoStack and arr[monoStack[-1]] > value:
+                monoStack.pop()
+
+            key = idx + 1
+            if monoStack:
+                key = idx - monoStack[-1]
+
+            dp[idx] = key * value
+            if monoStack:
+                dp[idx] += dp[idx - key]
+
+            monoStack.append(idx)
+
+            retVal = (retVal + dp[idx]) % self.MODULO
+
+        return retVal
 ```
 
 </details>

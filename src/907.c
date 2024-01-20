@@ -9,19 +9,29 @@ int sumSubarrayMins(int* arr, int arrSize) {
     int dp[arrSize];
     memset(dp, 0, sizeof(dp));
 
-    int top = 0;
+    int monoStackTop = 0;
     int monoStack[arrSize];
     memset(monoStack, 0, sizeof(monoStack));
 
-    int i, j;
+    int i, key, value;
     for (i = 0; i < arrSize; ++i) {
-        while ((top > 0) && (arr[monoStack[top - 1]] > arr[i])) {
-            top--;
+        value = arr[i];
+
+        while ((monoStackTop > 0) && (arr[monoStack[monoStackTop - 1]] > value)) {
+            monoStackTop--;
         }
 
-        j = ((top == 0) ? (i + 1) : (i - monoStack[top - 1]));
-        dp[i] = j * arr[i] + ((top == 0) ? (0) : (dp[i - j]));
-        monoStack[top++] = i;
+        key = i + 1;
+        if (monoStackTop != 0) {
+            key = i - monoStack[monoStackTop - 1];
+        }
+
+        dp[i] = key * value;
+        if (monoStackTop != 0) {
+            dp[i] += dp[i - key];
+        }
+
+        monoStack[monoStackTop++] = i;
 
         retVal = (retVal + dp[i]) % MODULO;
     }
@@ -36,6 +46,13 @@ int main(int argc, char** argv) {
         int arrSize;
     } testCase[] = {{{3, 1, 2, 4}, 4}, {{11, 81, 94, 43, 3}, 5}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: arr = [3,1,2,4]
+     *  Output: 17
+     *
+     *  Input: arr = [11,81,94,43,3]
+     *  Output: 444
+     */
 
     int answer = 0;
     int i, j;
