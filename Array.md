@@ -2030,6 +2030,231 @@ class Solution:
 
 </details>
 
+## [289. Game of Life](https://leetcode.com/problems/game-of-life/)
+
+- [Official](https://leetcode.cn/problems/game-of-life/solutions/179750/sheng-ming-you-xi-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+According to Wikipedia's article:
+"The Game of Life, also known simply as Life,
+is a cellular automaton devised by the British mathematician John Horton Conway in 1970."
+
+The board is made up of an m x n grid of cells, where each cell has an initial state:
+live (represented by a 1) or dead (represented by a 0).
+Each cell interacts with its eight neighbors (horizontal, vertical, diagonal)
+using the following four rules (taken from the above Wikipedia article):
+ 1. Any live cell with fewer than two live neighbors dies as if caused by under-population.
+ 2. Any live cell with two or three live neighbors lives on to the next generation.
+ 3. Any live cell with more than three live neighbors dies, as if by over-population.
+ 4. Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction.
+
+The next state is created by applying the above rules simultaneously to every cell in the current state,
+where births and deaths occur simultaneously.
+Given the current state of the m x n grid board, return the next state.
+
+Example 1:
++---+---+---+      +---+---+---+
+| 0 | 1 | 0 |      | 0 | 0 | 0 |
++---+---+---+      +---+---+---+
+| 0 | 0 | 1 |      | 1 | 0 | 1 |
++---+---+---+  =>  +---+---+---+
+| 1 | 1 | 1 |      | 0 | 1 | 1 |
++---+---+---+      +---+---+---+
+| 0 | 0 | 0 |      | 0 | 1 | 0 |
++---+---+---+      +---+---+---+
+Input: board = [[0,1,0],[0,0,1],[1,1,1],[0,0,0]]
+Output: [[0,0,0],[1,0,1],[0,1,1],[0,1,0]]
+
+Example 2:
++---+---+      +---+---+
+| 1 | 1 |      | 1 | 1 |
++---+---+  =>  +---+---+
+| 1 | 0 |      | 1 | 1 |
++---+---+      +---+---+
+Input: board = [[1,1],[1,0]]
+Output: [[1,1],[1,1]]
+
+Constraints:
+m == board.length
+n == board[i].length
+1 <= m, n <= 25
+board[i][j] is 0 or 1.
+
+Follow up:
+- Could you solve it in-place? Remember that the board needs to be updated simultaneously:
+  You cannot update some cells first and then use their updated values to update other cells.
+- In this question, we represent the board using a 2D array.
+  In principle, the board is infinite, which would cause problems
+  when the active area encroaches upon the border of the array (i.e., live cells reach the border).
+  How would you address these problems?
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+void gameOfLife(int** board, int boardSize, int* boardColSize) {
+    // m == board.length, n == board[i].length, 1 <= m, n <= 25
+    int rowSize = boardSize;
+    int colSize = boardColSize[0];
+    int x, y;
+    int i, j;
+
+    int backup[rowSize][colSize];
+    memset(backup, 0, sizeof(backup));
+    for (x = 0; x < rowSize; ++x) {
+        for (y = 0; y < colSize; ++y) {
+            backup[x][y] = board[x][y];
+        }
+    }
+
+    int live, neighborX, neighborY;
+    for (x = 0; x < rowSize; ++x) {
+        for (y = 0; y < colSize; ++y) {
+            live = 0;
+            for (i = -1; i <= 1; ++i) {
+                neighborX = x + i;
+                if ((neighborX < 0) || (neighborX >= rowSize)) {
+                    continue;
+                }
+
+                for (j = -1; j <= 1; ++j) {
+                    if ((i == 0) && (j == 0)) {
+                        continue;
+                    }
+
+                    neighborY = y + j;
+                    if ((neighborY < 0) || (neighborY >= colSize)) {
+                        continue;
+                    }
+
+                    if (backup[neighborX][neighborY] == 1) {
+                        ++live;
+                    }
+                }
+            }
+
+            if (backup[x][y] == 1) {
+                if ((live < 2) || (live > 3)) {
+                    board[x][y] = 0;
+                }
+            } else if (backup[x][y] == 0) {
+                if (live == 3) {
+                    board[x][y] = 1;
+                }
+            }
+        }
+    }
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    void gameOfLife(vector<vector<int>>& board) {
+        // m == board.length, n == board[i].length, 1 <= m, n <= 25
+        int rowSize = board.size();
+        int colSize = board[0].size();
+
+        vector<vector<int>> backup(rowSize, vector<int>(colSize, 0));
+        for (int x = 0; x < rowSize; ++x) {
+            for (int y = 0; y < colSize; ++y) {
+                backup[x][y] = board[x][y];
+            }
+        }
+
+        for (int x = 0; x < rowSize; ++x) {
+            for (int y = 0; y < colSize; ++y) {
+                int live = 0;
+                for (int i = -1; i <= 1; ++i) {
+                    int neighborX = x + i;
+                    if ((neighborX < 0) || (neighborX >= rowSize)) {
+                        continue;
+                    }
+
+                    for (int j = -1; j <= 1; ++j) {
+                        if ((i == 0) && (j == 0)) {
+                            continue;
+                        }
+
+                        int neighborY = y + j;
+                        if ((neighborY < 0) || (neighborY >= colSize)) {
+                            continue;
+                        }
+
+                        if (backup[neighborX][neighborY] == 1) {
+                            ++live;
+                        }
+                    }
+                }
+
+                if (backup[x][y] == 1) {
+                    if ((live < 2) || (live > 3)) {
+                        board[x][y] = 0;
+                    }
+                } else if (backup[x][y] == 0) {
+                    if (live == 3) {
+                        board[x][y] = 1;
+                    }
+                }
+            }
+        }
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def gameOfLife(self, board: List[List[int]]) -> None:
+        """
+        Do not return anything, modify board in-place instead.
+        """
+        # m == board.length, n == board[i].length, 1 <= m, n <= 25
+        rowSize = len(board)
+        colSize = len(board[0])
+
+        backup = [[board[x][y] for y in range(colSize)] for x in range(rowSize)]
+
+        for x in range(rowSize):
+            for y in range(colSize):
+                live = 0
+                for i in range(-1, 2):
+                    neighborX = x + i
+                    if (neighborX < 0) or (neighborX >= rowSize):
+                        continue
+
+                    for j in range(-1, 2):
+                        if (i == 0) and (j == 0):
+                            continue
+
+                        neighborY = y + j
+                        if (neighborY < 0) or (neighborY >= colSize):
+                            continue
+
+                        if backup[neighborX][neighborY] == 1:
+                            live += 1
+
+                if backup[x][y] == 1:
+                    if (live < 2) or (live > 3):
+                        board[x][y] = 0
+                elif backup[x][y] == 0:
+                    if live == 3:
+                        board[x][y] = 1
+```
+
+</details>
+
 ## [485. Max Consecutive Ones](https://leetcode.com/problems/max-consecutive-ones/)
 
 - [Official](https://leetcode.cn/problems/max-consecutive-ones/solutions/603700/zui-da-lian-xu-1de-ge-shu-by-leetcode-so-252a/)
