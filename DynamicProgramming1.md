@@ -2844,6 +2844,8 @@ class Solution:
 
 ## [198. House Robber](https://leetcode.com/problems/house-robber/)
 
+- [Official](https://leetcode.cn/problems/house-robber/solutions/263856/da-jia-jie-she-by-leetcode-solution/)
+
 <details><summary>Description</summary>
 
 ```text
