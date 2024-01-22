@@ -3718,6 +3718,8 @@ class Solution:
 
 ## [645. Set Mismatch](https://leetcode.com/problems/set-mismatch/)
 
+- [Official](https://leetcode.cn/problems/set-mismatch/solutions/857255/cuo-wu-de-ji-he-by-leetcode-solution-1ea4/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -3750,47 +3752,86 @@ Constraints:
 /**
  * Note: The returned array must be malloced, assume caller calls free().
  */
-int* findErrorNums(int* nums, int numsSize, int* returnSize){
-    *returnSize = 2;
-    int* pRetVal = (int*)malloc((*returnSize)*sizeof(int));
-    if (pRetVal == NULL)
-    {
-        perror("malloc");
-        return pRetVal;
-    }
-    memset(pRetVal, 0, (*returnSize)*sizeof(int));
+int* findErrorNums(int* nums, int numsSize, int* returnSize) {
+    int* pRetVal = NULL;
 
-    bool* pRecord = (bool*)malloc(numsSize*sizeof(bool));
-    if (pRecord == NULL)
-    {
-        perror("malloc");
-        return pRetVal;
-    }
-    memset(pRecord, 0, numsSize*sizeof(bool));
-
+    int hashTable[numsSize + 1];
+    memset(hashTable, 0, sizeof(hashTable));
     int i;
-    for (i=0; i<numsSize; ++i)
-    {
-        if (pRecord[nums[i]-1] == true)
-        {
-            pRetVal[0] = nums[i];
-        }
-        pRecord[nums[i]-1] = true;
+    for (i = 0; i < numsSize; ++i) {
+        hashTable[nums[i]]++;
     }
 
-    for (i=0; i<numsSize; ++i)
-    {
-        if (pRecord[i] == false)
-        {
-            pRetVal[1] = i + 1;
-            break;
+    (*returnSize) = 2;
+    pRetVal = (int*)malloc((*returnSize) * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        (*returnSize) = 0;
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (*returnSize) * sizeof(int));
+    for (i = 1; i <= numsSize; ++i) {
+        if (hashTable[i] == 2) {
+            pRetVal[0] = i;
+        } else if (hashTable[i] == 0) {
+            pRetVal[1] = i;
         }
     }
-
-    free(pRecord);
 
     return pRetVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> findErrorNums(vector<int>& nums) {
+        vector<int> retVal(2, 0);
+
+        int numsSize = nums.size() + 1;
+        vector<int> hashTable(numsSize, 0);
+        for (int num : nums) {
+            hashTable[num]++;
+        }
+
+        for (int i = 1; i < numsSize; ++i) {
+            if (hashTable[i] == 2) {
+                retVal[0] = i;
+            } else if (hashTable[i] == 0) {
+                retVal[1] = i;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def findErrorNums(self, nums: List[int]) -> List[int]:
+        retVal = [0] * 2
+
+        hashTable = defaultdict(int)
+        for num in nums:
+            hashTable[num] += 1
+
+        numSize = len(nums)
+        for i in range(1, numSize+1):
+            if hashTable[i] == 2:
+                retVal[0] = i
+            elif hashTable[i] == 0:
+                retVal[1] = i
+
+        return retVal
 ```
 
 </details>
