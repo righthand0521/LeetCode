@@ -2024,6 +2024,8 @@ int uniquePathsIII(int** grid, int gridSize, int* gridColSize) {
 
 ## [1239. Maximum Length of a Concatenated String with Unique Characters](https://leetcode.com/problems/maximum-length-of-a-concatenated-string-with-unique-characters/)  1719
 
+- [Official](https://leetcode.cn/problems/maximum-length-of-a-concatenated-string-with-unique-characters/solutions/834267/chuan-lian-zi-fu-chuan-de-zui-da-chang-d-g6gk/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -2063,51 +2065,141 @@ Constraints:
 arr[i] contains only lowercase English letters.
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. You can try all combinations and keep mask of characters you have.
+2. You can use DP.
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
 
 ```c
-void backtracking(unsigned int* pRecord, int start, int end, unsigned int mask, int* pMaxLength) {
+void backtracking(unsigned int* pMasks, int start, int end, unsigned int mask, int* pMaxLength) {
     int i;
-    for (i=start; i<end; ++i) {
-        if ((mask&pRecord[i]) == 0) {
-            backtracking(pRecord, i+1, end, (mask|pRecord[i]), pMaxLength);
+    for (i = start; i < end; ++i) {
+        if ((mask & pMasks[i]) == 0) {
+            backtracking(pMasks, i + 1, end, (mask | pMasks[i]), pMaxLength);
         }
     }
 
-    unsigned int count = 0;
+    int count = 0;
     while (mask) {
-        count += mask & 1;
+        count += (mask & 1);
         mask >>= 1;
     }
-    (*pMaxLength) = ((*pMaxLength)>count)?(*pMaxLength):count;
+    (*pMaxLength) = ((*pMaxLength) > count) ? (*pMaxLength) : count;
 }
-
 int maxLength(char** arr, int arrSize) {
     int retVal = 0;
 
-    unsigned int Record[arrSize];
+    unsigned int masks[arrSize];
+    memset(masks, 0, sizeof(masks));
     unsigned int mask;
     int i;
-    for (i=0; i<arrSize; ++i) {
-        Record[i] = 0;
+    for (i = 0; i < arrSize; ++i) {
         while (*arr[i]) {
-            mask = (1 << (*arr[i]-'a'));
-            if ((Record[i]&mask) != 0) {
-                Record[i] = 0;
+            mask = (1 << (*arr[i] - 'a'));
+            if ((masks[i] & mask) != 0) {
+                masks[i] = 0;
                 break;
             }
-            Record[i] |= mask;
+            masks[i] |= mask;
 
             arr[i]++;
         }
     }
-
-    backtracking(Record, 0, arrSize, 0, &retVal);
+    backtracking(masks, 0, arrSize, 0, &retVal);
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    void backtracking(vector<unsigned int>& masks, int start, int end, unsigned int mask, int* returnLength) {
+        for (int i = start; i < end; ++i) {
+            if ((mask & masks[i]) == 0) {
+                backtracking(masks, i + 1, end, (mask | masks[i]), returnLength);
+            }
+        }
+
+        int count = 0;
+        while (mask) {
+            count += (mask & 1);
+            mask >>= 1;
+        }
+        (*returnLength) = max((*returnLength), count);
+    }
+    int maxLength(vector<string>& arr) {
+        int retVal = 0;
+
+        int arrSize = arr.size();
+        vector<unsigned int> masks(arrSize, 0);
+        for (int i = 0; i < arrSize; ++i) {
+            for (char c : arr[i]) {
+                unsigned int mask = 1 << (c - 'a');
+                if ((mask & masks[i]) != 0) {
+                    masks[i] = 0;
+                    break;
+                }
+                masks[i] |= mask;
+            }
+        }
+        backtracking(masks, 0, arrSize, 0, &retVal);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.returnLength = 0
+
+    def backtracking(self, masks: List[int], start: int, end: int, mask: int) -> None:
+        for i in range(start, end):
+            if (mask & masks[i]) == 0:
+                self.backtracking(masks, i+1, end,  (mask | masks[i]))
+
+        count = 0
+        while mask:
+            count += (mask & 1)
+            mask >>= 1
+        self.returnLength = max(self.returnLength, count)
+
+    def maxLength(self, arr: List[str]) -> int:
+        retVal = 0
+
+        arrSize = len(arr)
+        masks = [0] * arrSize
+        for idx, value in enumerate(arr):
+            for c in value:
+                mask = 1 << (ord(c) - ord('a'))
+                if (mask & masks[idx]) != 0:
+                    masks[idx] = 0
+                    break
+                masks[idx] |= mask
+        self.returnLength = 0
+        self.backtracking(masks, 0, arrSize, 0)
+
+        retVal = self.returnLength
+
+        return retVal
 ```
 
 </details>
