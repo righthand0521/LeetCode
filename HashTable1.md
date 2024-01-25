@@ -2933,6 +2933,8 @@ class RandomizedSet:
 
 ## [383. Ransom Note](https://leetcode.com/problems/ransom-note/)
 
+- [Official](https://leetcode.cn/problems/ransom-note/solutions/1135839/shu-jin-xin-by-leetcode-solution-ji8a/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -2963,32 +2965,31 @@ ransomNote and magazine consist of lowercase English letters.
 <details><summary>C</summary>
 
 ```c
-bool canConstruct(char * ransomNote, char * magazine){
+bool canConstruct(char* ransomNote, char* magazine) {
     bool retVal = false;
 
-    int lenRansomNote = strlen(ransomNote);
-    int lenMagazine = strlen(magazine);
-    if (lenRansomNote > lenMagazine)
-    {
+    int ransomNoteSize = strlen(ransomNote);
+    int magazineSize = strlen(magazine);
+    if (ransomNoteSize > magazineSize) {
         return retVal;
     }
-    int RECORD[26] = {0};
+
+    // ransomNote and magazine consist of lowercase English letters.
+#define LETTER_SIZE (26)
+    int hashTable[LETTER_SIZE];
+    memset(hashTable, 0, sizeof(hashTable));
 
     int i;
-    for (i=0; i<lenRansomNote; ++i)
-    {
-        --RECORD[ransomNote[i]-'a'];
-        ++RECORD[magazine[i]-'a'];
+    for (i = 0; i < ransomNoteSize; ++i) {
+        --hashTable[ransomNote[i] - 'a'];
+        ++hashTable[magazine[i] - 'a'];
     }
-    for (i=lenRansomNote; i<lenMagazine; ++i)
-    {
-        ++RECORD[magazine[i]-'a'];
+    for (i = ransomNoteSize; i < magazineSize; ++i) {
+        ++hashTable[magazine[i] - 'a'];
     }
 
-    for (i=0; i<26; ++i)
-    {
-        if (RECORD[i] < 0)
-        {
+    for (i = 0; i < LETTER_SIZE; ++i) {
+        if (hashTable[i] < 0) {
             return retVal;
         }
     }
@@ -2996,6 +2997,80 @@ bool canConstruct(char * ransomNote, char * magazine){
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    // ransomNote and magazine consist of lowercase English letters.
+    int letterSize = 26;
+
+   public:
+    bool canConstruct(string ransomNote, string magazine) {
+        bool retVal = false;
+
+        int ransomNoteSize = ransomNote.size();
+        int magazineSize = magazine.size();
+        if (ransomNoteSize > magazineSize) {
+            return retVal;
+        }
+
+        vector<int> hashTable(letterSize, 0);
+        for (int i = 0; i < ransomNoteSize; ++i) {
+            --hashTable[ransomNote[i] - 'a'];
+            ++hashTable[magazine[i] - 'a'];
+        }
+        for (int i = ransomNoteSize; i < magazineSize; ++i) {
+            ++hashTable[magazine[i] - 'a'];
+        }
+
+        for (int i = 0; i < letterSize; ++i) {
+            if (hashTable[i] < 0) {
+                return retVal;
+            }
+        }
+        retVal = true;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        # ransomNote and magazine consist of lowercase English letters.
+        self.letterSize = 26
+
+    def canConstruct(self, ransomNote: str, magazine: str) -> bool:
+        retVal = False
+
+        ransomNoteSize = len(ransomNote)
+        magazineSize = len(magazine)
+        if magazineSize < ransomNoteSize:
+            return retVal
+
+        hashTable = [0] * self.letterSize
+        for i in range(ransomNoteSize):
+            hashTable[ord(ransomNote[i]) - ord('a')] -= 1
+            hashTable[ord(magazine[i]) - ord('a')] += 1
+        for i in range(ransomNoteSize, magazineSize):
+            hashTable[ord(magazine[i]) - ord('a')] += 1
+
+        for i in range(self.letterSize):
+            if hashTable[i] < 0:
+                return retVal
+        retVal = True
+
+        return retVal
 ```
 
 </details>
