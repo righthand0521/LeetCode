@@ -29,7 +29,14 @@ class Solution:
         s1Size = len(text1)
         s2Size = len(text2)
 
-        # // https://pic.leetcode-cn.com/1617411822-KhEKGw-image.png
+        # /* https://pic.leetcode-cn.com/1617411822-KhEKGw-image.png
+        #  *      0 1 2 3 4 5
+        #  *      - a b c d e
+        #  *  0 - 0 0 0 0 0 0
+        #  *  1 a 0 1 1 1 1 1
+        #  *  2 c 0 1 1 2 2 2
+        #  *  3 e 0 1 1 2 2 3
+        #  */
         dp = [[0 for i in range(s2Size+1)] for _ in range(s1Size+1)]
         for idx1 in range(1, s1Size+1):
             for idx2 in range(1, s2Size+1):

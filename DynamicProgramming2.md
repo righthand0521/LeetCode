@@ -1536,8 +1536,8 @@ If there is no common subsequence, return 0.
 
 A subsequence of a string is a new string generated from the original string with some characters (can be none)
 deleted without changing the relative order of the remaining characters.
+- For example, "ace" is a subsequence of "abcde".
 
-For example, "ace" is a subsequence of "abcde".
 A common subsequence of two strings is a subsequence that is common to both strings.
 
 Example 1:
@@ -1560,6 +1560,15 @@ Constraints:
 text1 and text2 consist of only lowercase English characters.
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. Try dynamic programming. DP[i][j] represents the longest common subsequence of text1[0 ... i] & text2[0 ... j].
+2. DP[i][j] = DP[i - 1][j - 1] + 1 , if text1[i] == text2[j] DP[i][j] = max(DP[i - 1][j], DP[i][j - 1]) , otherwise
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
@@ -1575,7 +1584,14 @@ int longestCommonSubsequence(char* text1, char* text2) {
     int dp[s1Size + 1][s2Size + 1];
     memset(dp, 0, sizeof(dp));
 
-    // https://pic.leetcode-cn.com/1617411822-KhEKGw-image.png
+    /* https://pic.leetcode-cn.com/1617411822-KhEKGw-image.png
+     *      0 1 2 3 4 5
+     *      - a b c d e
+     *  0 - 0 0 0 0 0 0
+     *  1 a 0 1 1 1 1 1
+     *  2 c 0 1 1 2 2 2
+     *  3 e 0 1 1 2 2 3
+     */
     int idx1, idx2;
     for (idx1 = 1; idx1 <= s1Size; ++idx1) {
         for (idx2 = 1; idx2 <= s2Size; ++idx2) {
@@ -1607,7 +1623,14 @@ class Solution {
         int s1Size = text1.length();
         int s2Size = text2.length();
 
-        // https://pic.leetcode-cn.com/1617411822-KhEKGw-image.png
+        /* https://pic.leetcode-cn.com/1617411822-KhEKGw-image.png
+         *      0 1 2 3 4 5
+         *      - a b c d e
+         *  0 - 0 0 0 0 0 0
+         *  1 a 0 1 1 1 1 1
+         *  2 c 0 1 1 2 2 2
+         *  3 e 0 1 1 2 2 3
+         */
         vector<vector<int>> dp(s1Size + 1, vector<int>(s2Size + 1));
         int idx1, idx2;
         for (idx1 = 1; idx1 <= s1Size; ++idx1) {
@@ -1640,14 +1663,22 @@ class Solution:
         s1Size = len(text1)
         s2Size = len(text2)
 
-        # // https://pic.leetcode-cn.com/1617411822-KhEKGw-image.png
+        # /* https://pic.leetcode-cn.com/1617411822-KhEKGw-image.png
+        #  *      0 1 2 3 4 5
+        #  *      - a b c d e
+        #  *  0 - 0 0 0 0 0 0
+        #  *  1 a 0 1 1 1 1 1
+        #  *  2 c 0 1 1 2 2 2
+        #  *  3 e 0 1 1 2 2 3
+        #  */
         dp = [[0 for i in range(s2Size+1)] for _ in range(s1Size+1)]
         for idx1 in range(1, s1Size+1):
             for idx2 in range(1, s2Size+1):
                 if text1[idx1 - 1] == text2[idx2 - 1]:
                     dp[idx1][idx2] = dp[idx1 - 1][idx2 - 1] + 1
                 else:
-                    dp[idx1][idx2] = max(dp[idx1 - 1][idx2], dp[idx1][idx2 - 1])
+                    dp[idx1][idx2] = max(
+                        dp[idx1 - 1][idx2], dp[idx1][idx2 - 1])
         retVal = dp[s1Size][s2Size]
 
         return retVal

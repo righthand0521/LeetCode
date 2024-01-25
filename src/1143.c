@@ -13,7 +13,14 @@ int longestCommonSubsequence(char* text1, char* text2) {
     int dp[s1Size + 1][s2Size + 1];
     memset(dp, 0, sizeof(dp));
 
-    // https://pic.leetcode-cn.com/1617411822-KhEKGw-image.png
+    /* https://pic.leetcode-cn.com/1617411822-KhEKGw-image.png
+     *      0 1 2 3 4 5
+     *      - a b c d e
+     *  0 - 0 0 0 0 0 0
+     *  1 a 0 1 1 1 1 1
+     *  2 c 0 1 1 2 2 2
+     *  3 e 0 1 1 2 2 3
+     */
     int idx1, idx2;
     for (idx1 = 1; idx1 <= s1Size; ++idx1) {
         for (idx2 = 1; idx2 <= s2Size; ++idx2) {

@@ -14,7 +14,14 @@ class Solution {
         int s1Size = text1.length();
         int s2Size = text2.length();
 
-        // https://pic.leetcode-cn.com/1617411822-KhEKGw-image.png
+        /* https://pic.leetcode-cn.com/1617411822-KhEKGw-image.png
+         *      0 1 2 3 4 5
+         *      - a b c d e
+         *  0 - 0 0 0 0 0 0
+         *  1 a 0 1 1 1 1 1
+         *  2 c 0 1 1 2 2 2
+         *  3 e 0 1 1 2 2 3
+         */
         vector<vector<int>> dp(s1Size + 1, vector<int>(s2Size + 1));
         int idx1, idx2;
         for (idx1 = 1; idx1 <= s1Size; ++idx1) {
