@@ -5889,6 +5889,173 @@ class Solution:
 
 </details>
 
+## [576. Out of Boundary Paths](https://leetcode.com/problems/out-of-boundary-paths/)
+
+- [Official](https://leetcode.com/problems/out-of-boundary-paths/editorial/)
+- [Official](https://leetcode.cn/problems/out-of-boundary-paths/solutions/936069/chu-jie-de-lu-jing-shu-by-leetcode-solut-l9dw/)
+
+<details><summary>Description</summary>
+
+```text
+There is an m x n grid with a ball. The ball is initially at the position [startRow, startColumn].
+You are allowed to move the ball to one of the four adjacent cells in the grid
+(possibly out of the grid crossing the grid boundary).
+You can apply at most maxMove moves to the ball.
+
+Given the five integers m, n, maxMove, startRow, startColumn,
+return the number of paths to move the ball out of the grid boundary.
+Since the answer can be very large, return it modulo 10^9 + 7.
+
+Example 1:
+Input: m = 2, n = 2, maxMove = 2, startRow = 0, startColumn = 0
+Output: 6
+
+Example 2:
+Input: m = 1, n = 3, maxMove = 3, startRow = 0, startColumn = 1
+Output: 12
+
+Constraints:
+1 <= m, n <= 50
+0 <= maxMove <= 50
+0 <= startRow < m
+0 <= startColumn < n
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Is traversing every path feasible? There are many possible paths for a small matrix. Try to optimize it.
+2. Can we use some space to store the number of paths and update them after every move?
+3. One obvious thing: the ball will go out of the boundary only by crossing it.
+   Also, there is only one possible way the ball can go out of the boundary from the boundary cell
+   except for corner cells.
+   From the corner cell, the ball can go out in two different ways. Can you use this thing to solve the problem?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MODULO (int)(1e9 + 7)
+int findPaths(int m, int n, int maxMove, int startRow, int startColumn) {
+    int retVal = 0;
+
+    int dp[m][n];
+    memset(dp, 0, sizeof(dp));
+    dp[startRow][startColumn] = 1;
+
+    int directions[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+    int dpCurrent[m][n];
+    int move, row, col, nextRow, nextCol, i;
+    for (move = 0; move < maxMove; ++move) {
+        memset(dpCurrent, 0, sizeof(dpCurrent));
+        for (row = 0; row < m; ++row) {
+            for (col = 0; col < n; ++col) {
+                if (dp[row][col] <= 0) {
+                    continue;
+                }
+
+                for (i = 0; i < 4; ++i) {
+                    nextRow = row + directions[i][0];
+                    nextCol = col + directions[i][1];
+                    if (((nextRow >= 0) && (nextRow < m)) && ((nextCol >= 0) && (nextCol < n))) {
+                        dpCurrent[nextRow][nextCol] = (dpCurrent[nextRow][nextCol] + dp[row][col]) % MODULO;
+                    } else {
+                        retVal = (retVal + dp[row][col]) % MODULO;
+                    }
+                }
+            }
+        }
+        memcpy(dp, dpCurrent, sizeof(dp));
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int MODULO = (1e9 + 7);
+
+   public:
+    int findPaths(int m, int n, int maxMove, int startRow, int startColumn) {
+        int retVal = 0;
+
+        vector<vector<int>> dp(m, vector<int>(n, 0));
+        dp[startRow][startColumn] = 1;
+
+        vector<vector<int>> directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+        for (int move = 0; move < maxMove; ++move) {
+            vector<vector<int>> dpCurrent(m, vector<int>(n, 0));
+            for (int row = 0; row < m; ++row) {
+                for (int col = 0; col < n; ++col) {
+                    if (dp[row][col] <= 0) {
+                        continue;
+                    }
+
+                    for (auto& direction : directions) {
+                        int nextRow = row + direction[0];
+                        int nextCol = col + direction[1];
+                        if (((nextRow >= 0) && (nextRow < m)) && ((nextCol >= 0) && (nextCol < n))) {
+                            dpCurrent[nextRow][nextCol] = (dpCurrent[nextRow][nextCol] + dp[row][col]) % MODULO;
+                        } else {
+                            retVal = (retVal + dp[row][col]) % MODULO;
+                        }
+                    }
+                }
+            }
+            dp = dpCurrent;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self):
+        self.MODULO = 10 ** 9 + 7
+
+    def findPaths(self, m: int, n: int, maxMove: int, startRow: int, startColumn: int) -> int:
+        retVal = 0
+
+        dp = [[0] * n for _ in range(m)]
+        dp[startRow][startColumn] = 1
+
+        for _ in range(maxMove):
+            dpCurrent = [[0] * n for _ in range(m)]
+            for row in range(m):
+                for col in range(n):
+                    if dp[row][col] <= 0:
+                        continue
+
+                    for nextRow, nextCol in [(row - 1, col), (row + 1, col), (row, col - 1), (row, col + 1)]:
+                        if (0 <= nextRow < m) and (0 <= nextCol < n):
+                            dpCurrent[nextRow][nextCol] = (
+                                dpCurrent[nextRow][nextCol] + dp[row][col]) % self.MODULO
+                        else:
+                            retVal = (retVal + dp[row][col]) % self.MODULO
+
+            dp = dpCurrent
+
+        return retVal
+```
+
+</details>
+
 ## [583. Delete Operation for Two Strings](https://leetcode.com/problems/delete-operation-for-two-strings/)
 
 - [Official](https://leetcode.cn/problems/delete-operation-for-two-strings/solutions/1015796/liang-ge-zi-fu-chuan-de-shan-chu-cao-zuo-14uw/)
