@@ -1363,6 +1363,8 @@ public:
 
 ## [205. Isomorphic Strings](https://leetcode.com/problems/isomorphic-strings/)
 
+- [Official](https://leetcode.cn/problems/isomorphic-strings/solutions/536521/tong-gou-zi-fu-chuan-by-leetcode-solutio-s6fd/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -1399,33 +1401,104 @@ s and t consist of any valid ascii character.
 bool isIsomorphic(char* s, char* t) {
     bool retVal = false;
 
-    // t.length == s.length
-#if 0
-    if (strlen(s) != strlen(t))
-    {
+    int sSize = strlen(s);
+    int tSize = strlen(t);
+    if (sSize != tSize) {
         return retVal;
     }
-#endif
 
-    // s and t consist of any valid ascii character.
-#define MAX_HASHTABLE_SIZE      (128)
-    int HASH_TABLE[2][MAX_HASHTABLE_SIZE] = {0};
-    int idx = 1;
-    while (*s) {
-        HASH_TABLE[0][(unsigned char)*s] = (HASH_TABLE[0][(unsigned char)*s]==0)?idx:HASH_TABLE[0][(unsigned char)*s];
-        HASH_TABLE[1][(unsigned char)*t] = (HASH_TABLE[1][(unsigned char)*t]==0)?idx:HASH_TABLE[1][(unsigned char)*t];
-        if (HASH_TABLE[0][(unsigned char)*s] != HASH_TABLE[1][(unsigned char)*t]) {
+#define MAX_HASHTABLE_SIZE (128)  // s and t consist of any valid ascii character.
+#define HASHTABLE_INIT_VALUE (-1)
+    int hashTableS[MAX_HASHTABLE_SIZE];
+    int hashTableT[MAX_HASHTABLE_SIZE];
+
+    int i;
+    for (i = 0; i < MAX_HASHTABLE_SIZE; ++i) {
+        hashTableS[i] = HASHTABLE_INIT_VALUE;
+        hashTableT[i] = HASHTABLE_INIT_VALUE;
+    }
+
+    int si, ti;
+    for (i = 0; i < sSize; ++i) {
+        si = s[i];
+        ti = t[i];
+        if ((hashTableS[si] != HASHTABLE_INIT_VALUE) && (hashTableS[si] != ti)) {
             return retVal;
+        } else if ((hashTableT[ti] != HASHTABLE_INIT_VALUE) && (hashTableT[ti] != si)) {
+            return retVal;
+        } else {
+            hashTableS[si] = ti;
+            hashTableT[ti] = si;
         }
-
-        ++s;
-        ++t;
-        ++idx;
     }
     retVal = true;
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool isIsomorphic(string s, string t) {
+        bool retVal = false;
+
+        int sSize = s.size();
+        int tSize = t.size();
+        if (sSize != tSize) {
+            return retVal;
+        }
+
+        unordered_map<char, char> hashTableS;
+        unordered_map<char, char> hashTableT;
+        for (int i = 0; i < sSize; ++i) {
+            if ((hashTableS.count(s[i]) != 0) && (hashTableS[s[i]] != t[i])) {
+                return retVal;
+            } else if ((hashTableT.count(t[i]) != 0) && (hashTableT[t[i]] != s[i])) {
+                return retVal;
+            } else {
+                hashTableS[s[i]] = t[i];
+                hashTableT[t[i]] = s[i];
+            }
+        }
+        retVal = true;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def isIsomorphic(self, s: str, t: str) -> bool:
+        retVal = False
+
+        sSize = len(s)
+        tSize = len(t)
+        if sSize != tSize:
+            return retVal
+
+        hashTableS = defaultdict()
+        hashTableT = defaultdict()
+        for i in range(sSize):
+            if (s[i] in hashTableS) and (hashTableS[s[i]] != t[i]):
+                return retVal
+            elif (t[i] in hashTableT) and (hashTableT[t[i]] != s[i]):
+                return retVal
+            else:
+                hashTableS[s[i]] = t[i]
+                hashTableT[t[i]] = s[i]
+        retVal = True
+
+        return retVal
 ```
 
 </details>

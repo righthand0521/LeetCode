@@ -6,30 +6,35 @@
 bool isIsomorphic(char* s, char* t) {
     bool retVal = false;
 
-    // t.length == s.length
-#if 0
-    if (strlen(s) != strlen(t))
-    {
+    int sSize = strlen(s);
+    int tSize = strlen(t);
+    if (sSize != tSize) {
         return retVal;
     }
-#endif
 
-    // s and t consist of any valid ascii character.
-#define MAX_HASHTABLE_SIZE (128)
-    int HASH_TABLE[2][MAX_HASHTABLE_SIZE] = {0};
-    int idx = 1;
-    while (*s) {
-        HASH_TABLE[0][(unsigned char)*s] =
-            (HASH_TABLE[0][(unsigned char)*s] == 0) ? idx : HASH_TABLE[0][(unsigned char)*s];
-        HASH_TABLE[1][(unsigned char)*t] =
-            (HASH_TABLE[1][(unsigned char)*t] == 0) ? idx : HASH_TABLE[1][(unsigned char)*t];
-        if (HASH_TABLE[0][(unsigned char)*s] != HASH_TABLE[1][(unsigned char)*t]) {
+#define MAX_HASHTABLE_SIZE (128)  // s and t consist of any valid ascii character.
+#define HASHTABLE_INIT_VALUE (-1)
+    int hashTableS[MAX_HASHTABLE_SIZE];
+    int hashTableT[MAX_HASHTABLE_SIZE];
+
+    int i;
+    for (i = 0; i < MAX_HASHTABLE_SIZE; ++i) {
+        hashTableS[i] = HASHTABLE_INIT_VALUE;
+        hashTableT[i] = HASHTABLE_INIT_VALUE;
+    }
+
+    int si, ti;
+    for (i = 0; i < sSize; ++i) {
+        si = s[i];
+        ti = t[i];
+        if ((hashTableS[si] != HASHTABLE_INIT_VALUE) && (hashTableS[si] != ti)) {
             return retVal;
+        } else if ((hashTableT[ti] != HASHTABLE_INIT_VALUE) && (hashTableT[ti] != si)) {
+            return retVal;
+        } else {
+            hashTableS[si] = ti;
+            hashTableT[ti] = si;
         }
-
-        ++s;
-        ++t;
-        ++idx;
     }
     retVal = true;
 
@@ -47,6 +52,22 @@ int main(int argc, char** argv) {
                     {"badc", "baba"},
                     {"abcdefghijklmnopqrstuvwxyzva", "abcdefghijklmnopqrstuvwxyzck"}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: s = "egg", t = "add"
+     *  Output: true
+     *
+     *  Input: s = "foo", t = "bar"
+     *  Output: false
+     *
+     *  Input: s = "paper", t = "title"
+     *  Output: true
+     *
+     *  Input: s = "badc", t = "baba"
+     *  Output: false
+     *
+     *  Input: s = "abcdefghijklmnopqrstuvwxyzva", t = "abcdefghijklmnopqrstuvwxyzck"
+     *  Output: false
+     */
 
     bool answer = false;
     int i;
