@@ -6171,6 +6171,144 @@ class Solution {
 
 </details>
 
+## [629. K Inverse Pairs Array](https://leetcode.com/problems/k-inverse-pairs-array/)
+
+- [Official](https://leetcode.cn/problems/k-inverse-pairs-array/solutions/1093837/kge-ni-xu-dui-shu-zu-by-leetcode-solutio-0hkr/)
+
+<details><summary>Description</summary>
+
+```text
+For an integer array nums,
+an inverse pair is a pair of integers [i, j] where 0 <= i < j < nums.length and nums[i] > nums[j].
+
+Given two integers n and k,
+return the number of different arrays consist of numbers from 1 to n such that there are exactly k inverse pairs.
+Since the answer can be huge, return it modulo 109 + 7.
+
+Example 1:
+Input: n = 3, k = 0
+Output: 1
+Explanation: Only the array [1,2,3] which consists of numbers from 1 to 3 has exactly 0 inverse pairs.
+
+Example 2:
+Input: n = 3, k = 1
+Output: 2
+Explanation: The array [1,3,2] and [2,1,3] have exactly 1 inverse pair.
+
+Constraints:
+1 <= n <= 1000
+0 <= k <= 1000
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MODULO (int)(1e9 + 7)
+int kInversePairs(int n, int k) {
+    int retVal = 0;
+
+    int dp[k + 1];
+    memset(dp, 0, sizeof(dp));
+    dp[0] = 1;
+
+    int dpCurrent[k + 1];
+    int i, j;
+    for (i = 1; i < (n + 1); ++i) {
+        memset(dpCurrent, 0, sizeof(dpCurrent));
+        for (j = 0; j < (k + 1); ++j) {
+            dpCurrent[j] = 0;
+            if (j - 1 >= 0) {
+                dpCurrent[j] = dpCurrent[j - 1];
+            }
+            if (j - i >= 0) {
+                dpCurrent[j] -= dp[j - i];
+                if (dpCurrent[j] < 0) {
+                    dpCurrent[j] += MODULO;
+                }
+            }
+            dpCurrent[j] = (dpCurrent[j] + dp[j]) % MODULO;
+        }
+        memcpy(dp, dpCurrent, sizeof(dp));
+    }
+    retVal = dp[k];
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int MODULO = (1e9 + 7);
+
+   public:
+    int kInversePairs(int n, int k) {
+        int retVal = 0;
+
+        vector<int> dp(k + 1, 0);
+        dp[0] = 1;
+        for (int i = 1; i < (n + 1); ++i) {
+            vector<int> dpCurrent(k + 1, 0);
+            for (int j = 0; j < (k + 1); ++j) {
+                dpCurrent[j] = 0;
+                if (j - 1 >= 0) {
+                    dpCurrent[j] = dpCurrent[j - 1];
+                }
+                if (j - i >= 0) {
+                    dpCurrent[j] -= dp[j - i];
+                    if (dpCurrent[j] < 0) {
+                        dpCurrent[j] += MODULO;
+                    }
+                }
+                dpCurrent[j] = (dpCurrent[j] + dp[j]) % MODULO;
+            }
+            dp = dpCurrent;
+        }
+        retVal = dp[k];
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self):
+        self.MODULO = 10 ** 9 + 7
+
+    def kInversePairs(self, n: int, k: int) -> int:
+        retVal = 0
+
+        dp = [1] + [0] * k
+        for i in range(1, n + 1):
+            dpCurrent = [0] * (k + 1)
+            for j in range(k + 1):
+                dpCurrent[j] = 0
+                if j - 1 >= 0:
+                    dpCurrent[j] = dpCurrent[j - 1]
+                if j - i >= 0:
+                    dpCurrent[j] -= dp[j - i]
+                dpCurrent[j] += dp[j]
+                dpCurrent[j] %= self.MODULO
+            dp = dpCurrent
+
+        retVal = dp[k]
+
+        return retVal
+```
+
+</details>
+
 ## [664. Strange Printer](https://leetcode.com/problems/strange-printer/)
 
 - [Official](https://leetcode.com/problems/strange-printer/editorial/)
