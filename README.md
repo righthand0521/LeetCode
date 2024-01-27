@@ -302,6 +302,13 @@
 
 </details>
 
+<details><summary>Isomorphic Strings</summary>
+
+- [205. Isomorphic Strings](https://leetcode.com/problems/isomorphic-strings/)
+- [290. Word Pattern](https://leetcode.com/problems/word-pattern/)
+
+</details>
+
 ## Linked List
 
 <details><summary>Reverse Linked List</summary>

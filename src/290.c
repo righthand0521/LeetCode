@@ -3,49 +3,88 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "uthash/uthash.h"  // https://troydhanson.github.io/uthash/
+
+struct hashTable {
+    int key;
+    char* val;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable* pFree) {
+    struct hashTable* pCurrent;
+    struct hashTable* pTmp;
+    HASH_ITER(hh, pFree, pCurrent, pTmp) {
+        // printf("%d: %s\n", pFree->key, pFree->val);
+        HASH_DEL(pFree, pCurrent);
+        free(pCurrent);
+    }
+}
 bool wordPattern(char* pattern, char* s) {
     bool retVal = false;
 
-    int i, j;
+    //
+    struct hashTable* pHashTableKey = NULL;
+    struct hashTable* pHashTableVal = NULL;
+    struct hashTable* pTemp;
+    int key;
+    char* val;
 
-    // pattern contains only lower-case English letters.
-#define HASHTABLE_SIZE (26)
-    char* HASH_TABLE[HASHTABLE_SIZE];
-    for (i = 0; i < HASHTABLE_SIZE; ++i) {
-        HASH_TABLE[i] = NULL;
-    }
-
-    // All the words in s are separated by a single space.
-#define SEPARATED " "
+#define SEPARATED " "  // All the words in s are separated by a single space.
     char* pStr = strtok(s, SEPARATED);
-    while ((pStr != NULL) && (*pattern)) {
-        if (HASH_TABLE[(unsigned char)(*pattern) - 'a'] == NULL) {
-            HASH_TABLE[(unsigned char)(*pattern) - 'a'] = pStr;
-        } else if (strcmp(HASH_TABLE[(unsigned char)(*pattern) - 'a'], pStr) != 0) {
-            return retVal;
+    while ((*pattern) && (pStr != NULL)) {
+        key = (*pattern);
+        val = pStr;
+
+        //
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTableKey, &key, pTemp);
+        if (pTemp == NULL) {
+            pTemp = (struct hashTable*)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                goto exit;
+            }
+            pTemp->key = key;
+            pTemp->val = val;
+            HASH_ADD_INT(pHashTableKey, key, pTemp);
+        } else {
+            if (strcmp(val, pTemp->val) != 0) {
+                goto exit;
+            }
+        }
+
+        //
+        pTemp = NULL;
+        HASH_FIND_STR(pHashTableVal, val, pTemp);
+        if (pTemp == NULL) {
+            pTemp = (struct hashTable*)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                goto exit;
+            }
+            pTemp->key = key;
+            pTemp->val = val;
+            HASH_ADD_STR(pHashTableVal, val, pTemp);
+        } else {
+            if (key != pTemp->key) {
+                goto exit;
+            }
         }
 
         ++pattern;
         pStr = strtok(NULL, SEPARATED);
     }
-    if ((pStr != NULL) || (*pattern)) {
-        return retVal;
-    }
-
-    for (i = 0; i < HASHTABLE_SIZE; ++i) {
-        if (HASH_TABLE[i] == NULL) {
-            continue;
-        }
-        for (j = i + 1; j < HASHTABLE_SIZE; ++j) {
-            if (HASH_TABLE[j] == NULL) {
-                continue;
-            }
-            if (strcmp(HASH_TABLE[i], HASH_TABLE[j]) == 0) {
-                return retVal;
-            }
-        }
+    if ((*pattern) || (pStr != NULL)) {
+        goto exit;
     }
     retVal = true;
+
+exit:
+    //
+    freeAll(pHashTableKey);
+    pHashTableKey = NULL;
+    freeAll(pHashTableVal);
+    pHashTableVal = NULL;
 
     return retVal;
 }
@@ -61,6 +100,19 @@ int main(int argc, char** argv) {
                     {"aaaa", "dog cat cat dog"},
                     {"abba", "dog dog dog dog"}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: pattern = "abba", s = "dog cat cat dog"
+     *  Output: true
+     *
+     *  Input: pattern = "abba", s = "dog cat cat fish"
+     *  Output: false
+     *
+     *  Input: pattern = "aaaa", s = "dog cat cat dog"
+     *  Output: false
+     *
+     *  Input: pattern = "abba", s = "dog dog dog dog"
+     *  Output: false
+     */
 
     bool answer = false;
     int i;
