@@ -309,6 +309,13 @@
 
 </details>
 
+<details><summary>Subarray Sum Equals K</summary>
+
+- [560. Subarray Sum Equals K](https://leetcode.com/problems/subarray-sum-equals-k/)
+- [1074. Number of Submatrices That Sum to Target](https://leetcode.com/problems/number-of-submatrices-that-sum-to-target/description/)
+
+</details>
+
 ## Linked List
 
 <details><summary>Reverse Linked List</summary>

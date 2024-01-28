@@ -118,6 +118,226 @@ class Solution:
 
 </details>
 
+## [1074. Number of Submatrices That Sum to Target](https://leetcode.com/problems/number-of-submatrices-that-sum-to-target/description/)  2189
+
+- [Official](https://leetcode.cn/problems/number-of-submatrices-that-sum-to-target/solutions/798061/yuan-su-he-wei-mu-biao-zhi-de-zi-ju-zhen-8ym2/)
+
+<details><summary>Description</summary>
+
+```text
+Given a matrix and a target, return the number of non-empty submatrices that sum to target.
+
+A submatrix x1, y1, x2, y2 is the set of all cells matrix[x][y] with x1 <= x <= x2 and y1 <= y <= y2.
+
+Two submatrices (x1, y1, x2, y2) and (x1', y1', x2', y2') are different if they have some coordinate that is different:
+for example, if x1 != x1'.
+
+Example 1:
+Input: matrix = [[0,1,0],[1,1,1],[0,1,0]], target = 0
+Output: 4
+Explanation: The four 1x1 submatrices that only contain 0.
+
+Example 2:
+Input: matrix = [[1,-1],[-1,1]], target = 0
+Output: 5
+Explanation: The two 1x2 submatrices, plus the two 2x1 submatrices, plus the 2x2 submatrix.
+
+Example 3:
+Input: matrix = [[904]], target = 0
+Output: 0
+
+Constraints:
+1 <= matrix.length <= 100
+1 <= matrix[0].length <= 100
+-1000 <= matrix[i] <= 1000
+-10^8 <= target <= 10^8
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Using a 2D prefix sum, we can query the sum of any submatrix in O(1) time.
+   Now for each (r1, r2), we can find the largest sum of a submatrix
+   that uses every row in [r1, r2] in linear time using a sliding window.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *current;
+    struct hashTable *tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int subarraySum(int *prefixSumList, int prefixSumListSize, int target) {
+    int retVal = 0;
+
+    struct hashTable *pPrefixSumMap = NULL;
+    struct hashTable *pTmp = NULL;
+    pTmp = (struct hashTable *)malloc(sizeof(struct hashTable));
+    if (pTmp == NULL) {
+        perror("malloc");
+        goto exit;
+    }
+    pTmp->key = 0;
+    pTmp->value = 1;
+    HASH_ADD_INT(pPrefixSumMap, key, pTmp);
+
+    int prefixSum = 0;
+    int sum;
+    int i;
+    for (i = 0; i < prefixSumListSize; ++i) {
+        prefixSum += prefixSumList[i];
+
+        sum = prefixSum - target;
+        pTmp = NULL;
+        HASH_FIND_INT(pPrefixSumMap, &sum, pTmp);
+        if (pTmp != NULL) {
+            retVal += pTmp->value;
+        }
+
+        sum = prefixSum;
+        pTmp = NULL;
+        HASH_FIND_INT(pPrefixSumMap, &sum, pTmp);
+        if (pTmp == NULL) {
+            pTmp = (struct hashTable *)malloc(sizeof(struct hashTable));
+            if (pTmp == NULL) {
+                perror("malloc");
+                goto exit;
+            }
+            pTmp->key = sum;
+            pTmp->value = 1;
+            HASH_ADD_INT(pPrefixSumMap, key, pTmp);
+        } else {
+            pTmp->value += 1;
+        }
+    }
+
+exit:
+    //
+    freeAll(pPrefixSumMap);
+    pPrefixSumMap = NULL;
+
+    return retVal;
+}
+int numSubmatrixSumTarget(int **matrix, int matrixSize, int *matrixColSize, int target) {
+    int retVal = 0;
+
+    int rowSize = matrixSize;
+    int colSize = matrixColSize[0];
+
+    int prefixSumSize = colSize;
+    int prefixSum[colSize];
+    int row, x, y;
+    for (row = 0; row < rowSize; ++row) {
+        memset(prefixSum, 0, sizeof(prefixSum));
+        for (x = row; x < rowSize; ++x) {
+            for (y = 0; y < colSize; ++y) {
+                prefixSum[y] += matrix[x][y];
+            }
+            retVal += subarraySum(prefixSum, prefixSumSize, target);
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int subarraySum(vector<int>& prefixSumList, int target) {
+        int retVal = 0;
+
+        unordered_map<int, int> hashTable;
+        hashTable[0] = 1;
+
+        int prefixSum = 0;
+        for (int value : prefixSumList) {
+            prefixSum += value;
+            if (hashTable.find(prefixSum - target) != hashTable.end()) {
+                retVal += hashTable[prefixSum - target];
+            }
+            hashTable[prefixSum]++;
+        }
+
+        return retVal;
+    }
+    int numSubmatrixSumTarget(vector<vector<int>>& matrix, int target) {
+        int retVal = 0;
+
+        int rowSize = matrix.size();
+        int colSize = matrix[0].size();
+        for (int row = 0; row < rowSize; ++row) {
+            vector<int> prefixSum(colSize, 0);
+            for (int x = row; x < rowSize; ++x) {
+                for (int y = 0; y < colSize; ++y) {
+                    prefixSum[y] += matrix[x][y];
+                }
+                retVal += subarraySum(prefixSum, target);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def subarraySum(self, prefixSumList: List[int], target: int) -> int:
+        retVal = 0
+
+        hashTable = defaultdict(int)
+        hashTable[0] = 1
+
+        prefixSum = 0
+        for value in prefixSumList:
+            prefixSum += value
+            if (prefixSum - target) in hashTable:
+                retVal += hashTable[prefixSum - target]
+            hashTable[prefixSum] += 1
+
+        return retVal
+
+    def numSubmatrixSumTarget(self, matrix: List[List[int]], target: int) -> int:
+        retVal = 0
+
+        rowSize = len(matrix)
+        colSize = len(matrix[0])
+        for row in range(rowSize):
+            prefixSum = [0] * colSize
+            for x in range(row, rowSize):
+                for y in range(colSize):
+                    prefixSum[y] += matrix[x][y]
+                retVal += self.subarraySum(prefixSum, target)
+
+        return retVal
+```
+
+</details>
+
 ## [1207. Unique Number of Occurrences](https://leetcode.com/problems/unique-number-of-occurrences/)  1195
 
 - [Official](https://leetcode.cn/problems/unique-number-of-occurrences/solutions/463180/du-yi-wu-er-de-chu-xian-ci-shu-by-leetcode-solutio/)
