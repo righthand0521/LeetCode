@@ -1152,6 +1152,8 @@ class Solution:
 
 ## [202. Happy Number](https://leetcode.com/problems/happy-number/)
 
+- [Official](https://leetcode.cn/problems/happy-number/solutions/224894/kuai-le-shu-by-leetcode-solution/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -1160,7 +1162,7 @@ Write an algorithm to determine if a number n is happy.
 A happy number is a number defined by the following process:
 - Starting with any positive integer, replace the number by the sum of the squares of its digits.
 - Repeat the process until the number equals 1 (where it will stay),
-or it loops endlessly in a cycle which does not include 1.
+  or it loops endlessly in a cycle which does not include 1.
 - Those numbers for which this process ends in 1 are happy.
 
 Return true if n is a happy number, and false if not.
@@ -1169,10 +1171,10 @@ Example 1:
 Input: n = 19
 Output: true
 Explanation:
-12 + 92 = 82
-82 + 22 = 68
-62 + 82 = 100
-12 + 02 + 02 = 1
+1^2 + 9^2 = 82
+8^2 + 2^2 = 68
+6^2 + 8^2 = 100
+1^2 + 0^2 + 0^2 = 1
 
 Example 2:
 Input: n = 2
@@ -1187,140 +1189,56 @@ Constraints:
 <details><summary>C</summary>
 
 ```c
-#define LINK_LIST (1)
-#define UTHASH (1)
-#if (LINK_LIST)
-struct ListNode {
-    int val;
-    struct ListNode* next;
-};
-
-struct ListNode* createNode(int value) {
-    struct ListNode* pNew = (struct ListNode*)malloc(sizeof(struct ListNode));
-    if (pNew == NULL) {
-        perror("malloc");
-        return pNew;
-    }
-    pNew->val = value;
-    pNew->next = NULL;
-
-    return pNew;
-}
-void freeNode(struct ListNode* pHead) {
-    struct ListNode* pFree = NULL;
-    while (pHead != NULL) {
-        pFree = pHead;
-        pHead = pHead->next;
-        free(pFree);
-    }
-}
-struct ListNode* addValueToEnd(struct ListNode* pHead, int value) {
-    struct ListNode* pNew = createNode(value);
-    if (pNew == NULL) {
-        return pHead;
-    }
-
-    if (pHead == NULL) {
-        pHead = pNew;
-        return pHead;
-    }
-
-    struct ListNode* pCurrent = pHead;
-    while (pCurrent->next != NULL) {
-        pCurrent = pCurrent->next;
-    }
-    pCurrent->next = pNew;
-
-    return pHead;
-}
-bool searchNode(struct ListNode* pHead, int searchValue) {
-    bool retVal = true;
-
-    struct ListNode* pCurrent = pHead;
-    while (pCurrent != NULL) {
-        if (pCurrent->val == searchValue) {
-            return retVal;
-        }
-        pCurrent = pCurrent->next;
-    }
-    retVal = false;
-
-    return retVal;
-}
-#elif (UTHASH)
-#include "uthash/uthash.h"  // https://troydhanson.github.io/uthash/
-
-struct hashStruct {
-    int value;
+struct hashTable {
+    int key;
     UT_hash_handle hh;
 };
-
-void freeAll(struct hashStruct* pFree) {
-    struct hashStruct* current;
-    struct hashStruct* tmp;
+void freeAll(struct hashTable* pFree) {
+    struct hashTable* current;
+    struct hashTable* tmp;
     HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d\n", pFree->key);
         HASH_DEL(pFree, current);
         free(current);
     }
 }
-#endif
 bool isHappy(int n) {
-    bool retVal = true;
+    bool retVal = false;
 
-#if (LINK_LIST)
-    printf("LINK_LIST\n");
-
-    struct ListNode* pHead = NULL;
-#elif (UTHASH)
-    printf("UTHASH\n");
-
-    struct hashStruct* map = NULL;
-    struct hashStruct* temp;
-#endif
-
-    int sum;
-    int num = n;
-    while (num != 1) {
-#if (LINK_LIST)
-        retVal = searchNode(pHead, num);
-        if (retVal == true) {
+    struct hashTable* pMap = NULL;
+    struct hashTable* pTmp;
+    int square, digit;
+    while (n != 1) {
+        pTmp = NULL;
+        HASH_FIND_INT(pMap, &n, pTmp);
+        if (pTmp != NULL) {
             break;
         }
-        pHead = addValueToEnd(pHead, num);
-#elif (UTHASH)
-        temp = NULL;
-        HASH_FIND_INT(map, &num, temp);
-        if (temp != NULL) {
-            break;
-        }
-        temp = (struct hashStruct*)malloc(sizeof(struct hashStruct));
-        if (temp == NULL) {
+        pTmp = (struct hashTable*)malloc(sizeof(struct hashTable));
+        if (pTmp == NULL) {
             perror("malloc");
-            freeAll(map);
-            retVal = false;
-            return retVal;
+            goto exit;
         }
-        temp->value = num;
-        HASH_ADD_INT(map, value, temp);
-#endif
+        pTmp->key = n;
+        HASH_ADD_INT(pMap, key, pTmp);
 
-        sum = 0;
-        while (num > 0) {
-            sum += ((num % 10) * (num % 10));
-            num = (num - num % 10) / 10;
+        square = 0;
+        while (n > 0) {
+            digit = n % 10;
+            square += (digit * digit);
+            n /= 10;
         }
-        num = sum;
+        n = square;
     }
-    retVal = (num == 1) ? true : false;
 
-#if (LINK_LIST)
-    if (pHead != NULL) {
-        freeNode(pHead);
-        pHead = NULL;
+    if (n == 1) {
+        retVal = true;
     }
-#elif (UTHASH)
-    freeAll(map);
-#endif
+
+exit:
+    //
+    freeAll(pMap);
+    pMap = NULL;
 
     return retVal;
 }
@@ -1332,31 +1250,61 @@ bool isHappy(int n) {
 
 ```c++
 class Solution {
-public:
+   public:
     bool isHappy(int n) {
-        bool retVal = true;
+        bool retVal = false;
 
-        unordered_set<int> recordSet;
-        int sum;
-        int num = n;
-        while (num != 1) {
-            if (recordSet.find(num) != recordSet.end()) {
+        unordered_set<int> hashTable;
+        while (n != 1) {
+            if (hashTable.find(n) != hashTable.end()) {
                 break;
             }
-            recordSet.insert(num);
+            hashTable.insert(n);
 
-            sum = 0;
-            while (num > 0) {
-                sum += ((num%10) * (num%10));
-                num = (num - num%10) / 10;
+            int square = 0;
+            while (n > 0) {
+                int digit = n % 10;
+                square += (digit * digit);
+                n /= 10;
             }
-            num = sum;
+            n = square;
         }
-        retVal = (num == 1)?true:false;
+
+        if (n == 1) {
+            retVal = true;
+        }
 
         return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def isHappy(self, n: int) -> bool:
+        retVal = False
+
+        hashTable = set()
+        while n != 1:
+            if n in hashTable:
+                break
+            hashTable.add(n)
+
+            square = 0
+            while n > 0:
+                digit = n % 10
+                square += (digit * digit)
+                n //= 10
+            n = square
+
+        if n == 1:
+            retVal = True
+
+        return retVal
 ```
 
 </details>
