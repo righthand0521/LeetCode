@@ -130,15 +130,11 @@ void myQueueFree(MyQueue* obj) {
  * Your MyQueue struct will be instantiated and called as such:
  * MyQueue* obj = myQueueCreate();
  * myQueuePush(obj, x);
-
  * int param_2 = myQueuePop(obj);
-
  * int param_3 = myQueuePeek(obj);
-
  * bool param_4 = myQueueEmpty(obj);
-
  * myQueueFree(obj);
-*/
+ */
 
 int main(int argc, char** argv) {
 #define MAX_NUMSSIZE (100)
@@ -149,6 +145,13 @@ int main(int argc, char** argv) {
     } testCase[] = {
         {{"MyQueue", "push", "push", "peek", "pop", "empty"}, {INT_MIN, 1, 2, INT_MIN, INT_MIN, INT_MIN}, 6}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input
+     *  ["MyQueue", "push", "push", "peek", "pop", "empty"]
+     *  [[], [1], [2], [], [], []]
+     *  Output
+     *  [null, null, null, 1, 1, false]
+     */
 
 #define STR_EMPTY ""
 #define STR_COMMA ", "

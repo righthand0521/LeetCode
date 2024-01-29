@@ -254,6 +254,9 @@ class Solution:
 
 ## [232. Implement Queue using Stacks](https://leetcode.com/problems/implement-queue-using-stacks/)
 
+- [Official](https://leetcode.com/problems/implement-queue-using-stacks/editorial/)
+- [Official](https://leetcode.cn/problems/implement-queue-using-stacks/solutions/632369/yong-zhan-shi-xian-dui-lie-by-leetcode-s-xnb6/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -261,17 +264,21 @@ Implement a first in first out (FIFO) queue using only two stacks.
 The implemented queue should support all the functions of a normal queue (push, peek, pop, and empty).
 
 Implement the MyQueue class:
-void push(int x) Pushes element x to the back of the queue.
-int pop() Removes the element from the front of the queue and returns it.
-int peek() Returns the element at the front of the queue.
-boolean empty() Returns true if the queue is empty, false otherwise.
+- void push(int x)
+  Pushes element x to the back of the queue.
+- int pop()
+  Removes the element from the front of the queue and returns it.
+- int peek()
+  Returns the element at the front of the queue.
+- boolean empty()
+  Returns true if the queue is empty, false otherwise.
 
 Notes:
-You must use only standard operations of a stack,
-which means only push to top, peek/pop from top, size, and is empty operations are valid.
-Depending on your language, the stack may not be supported natively.
-You may simulate a stack using a list or deque (double-ended queue) as long as you use only a stack's standard operations.
-
+- You must use only standard operations of a stack,
+  which means only push to top, peek/pop from top, size, and is empty operations are valid.
+- Depending on your language, the stack may not be supported natively.
+  You may simulate a stack using a list or deque (double-ended queue)
+  as long as you use only a stack's standard operations.
 
 Example 1:
 Input
@@ -296,80 +303,6 @@ All the calls to pop and peek are valid.
 Follow-up:
 Can you implement the queue such that each operation is amortized O(1) time complexity?
 In other words, performing n operations will take overall O(n) time even if one of those operations may take longer.
-```
-
-</details>
-
-<details><summary>Mermaid</summary>
-
-```mermaid
-graph LR
-    subgraph init
-        inStack>inStack] -.-> inNULL(NULL);
-
-        outStack>outStack] -.-> outNULL(NULL);
-    end
-```
-
-```mermaid
-graph LR
-    subgraph push 1
-        New1[New1] -->|next| inNULL(NULL);
-        inStack>inStack] -.-> New1[New1];
-
-        outStack>outStack] -.-> outNULL(NULL);
-    end
-```
-
-```mermaid
-graph LR
-    subgraph push 2
-        New2[New2] -->|next| New1[New1];
-        inStack>inStack] -.-> New2[New2];
-        New1[New1] -->|next| inNULL(NULL);
-
-        outStack>outStack] -.-> outNULL(NULL);
-    end
-```
-
-```mermaid
-graph LR
-    subgraph pop 1-1
-        inStack>inStack] -.-> New1[New1];
-        New1[New1] -->|next| inNULL(NULL);
-
-        New1[New1] -.-|inStack.pop| New2[New2];
-        New2[New2] -.-|outStack.push| New2.outStack[New2.outStack];
-        New2.outStack[New2.outStack] -->|next| outNULL(NULL);
-        outStack>outStack] -.-> New2.outStack[New2.outStack];
-        free{{free New2}}-.-New2[New2]
-    end
-```
-
-```mermaid
-graph LR
-    subgraph pop 1-2
-        inStack>inStack] -.-> inNULL(NULL);
-
-        inNULL(NULL) -.-|inStack.pop| New1[New1];
-        New1[New1] -.-|outStack.push| New1.outStack[New1.outStack];
-        New1.outStack[New1.outStack] -->|next| New2.outStack[New2.outStack]
-        outStack>outStack] -.-> New1.outStack[New1.outStack];
-        free{{free New1}}-.-New1[New1]
-        New2.outStack[New2.outStack] -->|next| outNULL(NULL);
-    end
-```
-
-```mermaid
-graph LR
-    subgraph pop 1-3
-        inStack>inStack] -.-> inNULL(NULL);
-
-        free{{free New1.outStack}} -.- New1.outStack[/return New1.outStack/];
-        New1.outStack[/return New1.outStack/] -.-|pop| New2.outStack[New2.outStack];
-        New2.outStack[New2.outStack] -->|next| outNULL(NULL);
-        outStack>outStack] -.-> New2.outStack[New2.outStack];
-    end
 ```
 
 </details>
@@ -502,15 +435,115 @@ void myQueueFree(MyQueue* obj) {
  * Your MyQueue struct will be instantiated and called as such:
  * MyQueue* obj = myQueueCreate();
  * myQueuePush(obj, x);
-
  * int param_2 = myQueuePop(obj);
-
  * int param_3 = myQueuePeek(obj);
-
  * bool param_4 = myQueueEmpty(obj);
-
  * myQueueFree(obj);
-*/
+ */
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class MyQueue {
+   private:
+    stack<int> stackQueue;
+    stack<int> stackTmp;
+
+   public:
+    MyQueue() {}
+    void push(int x) {
+        while (empty() == false) {
+            stackTmp.push(pop());
+        }
+
+        stackQueue.push(x);
+
+        while (stackTmp.empty() == false) {
+            stackQueue.push(stackTmp.top());
+            stackTmp.pop();
+        }
+    }
+    int pop() {
+        int retVal = 0;
+
+        if (empty() == false) {
+            retVal = stackQueue.top();
+            stackQueue.pop();
+        }
+
+        return retVal;
+    }
+    int peek() {
+        int retVal = stackQueue.top();
+
+        return retVal;
+    }
+    bool empty() {
+        bool retVal = stackQueue.empty();
+
+        return retVal;
+    }
+};
+/**
+ * Your MyQueue object will be instantiated and called as such:
+ * MyQueue* obj = new MyQueue();
+ * obj->push(x);
+ * int param_2 = obj->pop();
+ * int param_3 = obj->peek();
+ * bool param_4 = obj->empty();
+ */
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class MyQueue:
+    def __init__(self):
+        self.stack = []
+        self.stackTmp = []
+
+    def push(self, x: int) -> None:
+        while self.empty() == False:
+            self.stackTmp.append(self.stack.pop())
+
+        self.stack.append(x)
+
+        while len(self.stackTmp) != 0:
+            self.stack.append(self.stackTmp.pop())
+
+    def pop(self) -> int:
+        retVal = 0
+
+        if self.empty() == False:
+            retVal = self.stack.pop()
+
+        return retVal
+
+    def peek(self) -> int:
+        retVal = self.stack[-1]
+
+        return retVal
+
+    def empty(self) -> bool:
+        retVal = False
+
+        if len(self.stack) == 0:
+            retVal = True
+
+        return retVal
+
+
+# Your MyQueue object will be instantiated and called as such:
+# obj = MyQueue()
+# obj.push(x)
+# param_2 = obj.pop()
+# param_3 = obj.peek()
+# param_4 = obj.empty()
 ```
 
 </details>
