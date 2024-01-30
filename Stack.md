@@ -335,6 +335,8 @@ class Solution:
 
 ## [150. Evaluate Reverse Polish Notation](https://leetcode.com/problems/evaluate-reverse-polish-notation/)
 
+- [Official](https://leetcode.cn/problems/evaluate-reverse-polish-notation/solutions/667892/ni-bo-lan-biao-da-shi-qiu-zhi-by-leetcod-wue9/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -379,7 +381,7 @@ tokens[i] is either an operator: "+", "-", "*", or "/", or an integer in the ran
 
 ```c
 #ifndef STACK
-#define STACK 1
+#define STACK (1)
 
 typedef struct Node {
     long long data;
@@ -414,6 +416,7 @@ int stack_pop(struct Node** pTop) {
     retVal = pHead->data;
     (*pTop) = pHead->next;
     free(pHead);
+    pHead = NULL;
 
     return retVal;
 }
@@ -424,49 +427,120 @@ void stack_free(struct Node** pTop) {
         free(pFree);
         pFree = (*pTop);
     }
+    pFree = NULL;
 }
 #endif
 int evalRPN(char** tokens, int tokensSize) {
     int retVal = 0;
 
     Node* pTop = NULL;
-    long long push;
-    long long pop1, pop2;
+    long long push, pop1, pop2;
     int i;
     for (i = 0; i < tokensSize; ++i) {
-        if (strcmp(tokens[i], "+") == 0) {
+        push = 0;
+
+        // tokens[i] is either an operator: "+", "-", "*", or "/"
+        if ((strcmp(tokens[i], "+") == 0) || (strcmp(tokens[i], "-") == 0) || (strcmp(tokens[i], "*") == 0) ||
+            (strcmp(tokens[i], "/") == 0)) {
             pop1 = stack_pop(&pTop);
             pop2 = stack_pop(&pTop);
-            push = pop2 + pop1;
-            stack_push(&pTop, push);
-            continue;
-        } else if (strcmp(tokens[i], "-") == 0) {
-            pop1 = stack_pop(&pTop);
-            pop2 = stack_pop(&pTop);
-            push = pop2 - pop1;
-            stack_push(&pTop, push);
-            continue;
-        } else if (strcmp(tokens[i], "*") == 0) {
-            pop1 = stack_pop(&pTop);
-            pop2 = stack_pop(&pTop);
-            push = pop2 * pop1;
-            stack_push(&pTop, push);
-            continue;
-        } else if (strcmp(tokens[i], "/") == 0) {
-            pop1 = stack_pop(&pTop);
-            pop2 = stack_pop(&pTop);
-            push = pop2 / pop1;
-            stack_push(&pTop, push);
-            continue;
+            if (strcmp(tokens[i], "+") == 0) {
+                push = pop2 + pop1;
+            } else if (strcmp(tokens[i], "-") == 0) {
+                push = pop2 - pop1;
+            } else if (strcmp(tokens[i], "*") == 0) {
+                push = pop2 * pop1;
+            } else if (strcmp(tokens[i], "/") == 0) {
+                push = pop2 / pop1;
+            }
+        } else {
+            push = atoi(tokens[i]);
         }
 
-        stack_push(&pTop, atoi(tokens[i]));
+        stack_push(&pTop, push);
     }
     retVal = stack_pop(&pTop);
+
+    //
     stack_free(&pTop);
+    pTop = NULL;
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int evalRPN(vector<string>& tokens) {
+        int retVal = 0;
+
+        stack<int> stack;
+        for (string token : tokens) {
+            int value = 0;
+
+            // tokens[i] is either an operator: "+", "-", "*", or "/"
+            if ((token == "+") || (token == "-") || (token == "*") || (token == "/")) {
+                value = stack.top();
+                stack.pop();
+                if (token == "+") {
+                    value = stack.top() + value;
+                } else if (token == "-") {
+                    value = stack.top() - value;
+                } else if (token == "*") {
+                    value = stack.top() * value;
+                } else if (token == "/") {
+                    value = stack.top() / value;
+                }
+                stack.pop();
+            } else {
+                value = stoi(token);
+            }
+
+            stack.push(value);
+        }
+        retVal = stack.top();
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def evalRPN(self, tokens: List[str]) -> int:
+        retVal = 0
+
+        stack = []
+        for token in tokens:
+            # tokens[i] is either an operator: "+", "-", "*", or "/"
+            if (token == "+") or (token == "-") or (token == "*") or (token == "/"):
+                if token == "+":
+                    value = stack[-2] + stack[-1]
+                elif token == "-":
+                    value = stack[-2] - stack[-1]
+                elif token == "*":
+                    value = stack[-2] * stack[-1]
+                elif token == "/":
+                    value = stack[-2] / stack[-1]
+
+                stack.pop()
+                stack.pop()
+                stack.append(int(value))
+            else:
+                stack.append(int(token))
+
+        retVal = stack[0]
+
+        return retVal
 ```
 
 </details>

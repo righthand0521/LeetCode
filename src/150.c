@@ -4,7 +4,7 @@
 #include <string.h>
 
 #ifndef STACK
-#define STACK 1
+#define STACK (1)
 
 typedef struct Node {
     long long data;
@@ -39,6 +39,7 @@ int stack_pop(struct Node** pTop) {
     retVal = pHead->data;
     (*pTop) = pHead->next;
     free(pHead);
+    pHead = NULL;
 
     return retVal;
 }
@@ -49,59 +50,66 @@ void stack_free(struct Node** pTop) {
         free(pFree);
         pFree = (*pTop);
     }
+    pFree = NULL;
 }
 #endif
 int evalRPN(char** tokens, int tokensSize) {
     int retVal = 0;
 
     Node* pTop = NULL;
-    long long push;
-    long long pop1, pop2;
+    long long push, pop1, pop2;
     int i;
     for (i = 0; i < tokensSize; ++i) {
-        if (strcmp(tokens[i], "+") == 0) {
+        push = 0;
+
+        // tokens[i] is either an operator: "+", "-", "*", or "/"
+        if ((strcmp(tokens[i], "+") == 0) || (strcmp(tokens[i], "-") == 0) || (strcmp(tokens[i], "*") == 0) ||
+            (strcmp(tokens[i], "/") == 0)) {
             pop1 = stack_pop(&pTop);
             pop2 = stack_pop(&pTop);
-            push = pop2 + pop1;
-            stack_push(&pTop, push);
-            continue;
-        } else if (strcmp(tokens[i], "-") == 0) {
-            pop1 = stack_pop(&pTop);
-            pop2 = stack_pop(&pTop);
-            push = pop2 - pop1;
-            stack_push(&pTop, push);
-            continue;
-        } else if (strcmp(tokens[i], "*") == 0) {
-            pop1 = stack_pop(&pTop);
-            pop2 = stack_pop(&pTop);
-            push = pop2 * pop1;
-            stack_push(&pTop, push);
-            continue;
-        } else if (strcmp(tokens[i], "/") == 0) {
-            pop1 = stack_pop(&pTop);
-            pop2 = stack_pop(&pTop);
-            push = pop2 / pop1;
-            stack_push(&pTop, push);
-            continue;
+            if (strcmp(tokens[i], "+") == 0) {
+                push = pop2 + pop1;
+            } else if (strcmp(tokens[i], "-") == 0) {
+                push = pop2 - pop1;
+            } else if (strcmp(tokens[i], "*") == 0) {
+                push = pop2 * pop1;
+            } else if (strcmp(tokens[i], "/") == 0) {
+                push = pop2 / pop1;
+            }
+        } else {
+            push = atoi(tokens[i]);
         }
 
-        stack_push(&pTop, atoi(tokens[i]));
+        stack_push(&pTop, push);
     }
     retVal = stack_pop(&pTop);
+
+    //
     stack_free(&pTop);
+    pTop = NULL;
 
     return retVal;
 }
 
 int main(int argc, char** argv) {
-#define MAX_NUMSSIZE (10000)
+#define MAX_SIZE (int)(1e4)
     struct testCaseType {
-        char* tokens[MAX_NUMSSIZE];
+        char* tokens[MAX_SIZE];
         int tokensSize;
     } testCase[] = {{{"2", "1", "+", "3", "*"}, 5},
                     {{"4", "13", "5", "/", "+"}, 5},
                     {{"10", "6", "9", "3", "+", "-11", "*", "/", "*", "17", "+", "5", "+"}, 13}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: tokens = ["2","1","+","3","*"]
+     *  Output: 9
+     *
+     *  Input: tokens = ["4","13","5","/","+"]
+     *  Output: 6
+     *
+     *  Input: tokens = ["10","6","9","3","+","-11","*","/","*","17","+","5","+"]
+     *  Output: 22
+     */
 
     int answer;
     int i, j;
