@@ -440,6 +440,8 @@ int firstMissingPositive(int* nums, int numsSize){
 
 ## [49. Group Anagrams](https://leetcode.com/problems/group-anagrams/)
 
+- [Official](https://leetcode.cn/problems/group-anagrams/solutions/520469/zi-mu-yi-wei-ci-fen-zu-by-leetcode-solut-gyoc/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -665,6 +667,50 @@ char*** groupAnagrams(char** strs, int strsSize, int* returnSize, int** returnCo
 
     return pRetVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<vector<string>> groupAnagrams(vector<string>& strs) {
+        vector<vector<string>> retVal;
+
+        unordered_map<string, vector<string>> hashTable;
+        for (string str : strs) {
+            string key = str;
+            sort(key.begin(), key.end());
+            hashTable[key].emplace_back(str);
+        }
+
+        for (auto iterator = hashTable.begin(); iterator != hashTable.end(); ++iterator) {
+            retVal.emplace_back(iterator->second);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def groupAnagrams(self, strs: List[str]) -> List[List[str]]:
+        retVal = []
+
+        hashTable = defaultdict(list)
+        for str in strs:
+            key = "".join(sorted(str))
+            hashTable[key].append(str)
+        retVal = list(hashTable.values())
+
+        return retVal
 ```
 
 </details>

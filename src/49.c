@@ -194,7 +194,7 @@ char*** groupAnagrams(char** strs, int strsSize, int* returnSize, int** returnCo
 }
 
 int main(int argc, char** argv) {
-#define MAX_SIZE (10000)
+#define MAX_SIZE (int)(1e4)
     struct testCaseType {
         char* strs[MAX_SIZE];
         int strsSize;
@@ -202,6 +202,16 @@ int main(int argc, char** argv) {
         int* returnColumnSizes;
     } testCase[] = {{{"eat", "tea", "tan", "ate", "nat", "bat"}, 6, 0, NULL}, {{""}, 1, 0, NULL}, {{"a"}, 1, 0, NULL}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: strs = ["eat","tea","tan","ate","nat","bat"]
+     *  Output: [["bat"],["nat","tan"],["ate","eat","tea"]]
+     *
+     *  Input: strs = [""]
+     *  Output: [[""]]
+     *
+     *  Input: strs = ["a"]
+     *  Output: [["a"]]
+     */
 
     char** pStrs = NULL;
     char*** pAnswer = NULL;
