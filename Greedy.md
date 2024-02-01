@@ -4090,3 +4090,182 @@ class Solution:
 ```
 
 </details>
+
+## [2966. Divide Array Into Arrays With Max Difference](https://leetcode.com/problems/divide-array-into-arrays-with-max-difference/)  1395
+
+- [Official](https://leetcode.com/problems/divide-array-into-arrays-with-max-difference/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array nums of size n and a positive integer k.
+
+Divide the array into one or more arrays of size 3 satisfying the following conditions:
+- Each element of nums should be in exactly one array.
+- The difference between any two elements in one array is less than or equal to k.
+
+Return a 2D array containing all the arrays.
+If it is impossible to satisfy the conditions, return an empty array.
+And if there are multiple answers, return any of them.
+
+Example 1:
+Input: nums = [1,3,4,8,7,9,3,5,1], k = 2
+Output: [[1,1,3],[3,4,5],[7,8,9]]
+Explanation: We can divide the array into the following arrays: [1,1,3], [3,4,5] and [7,8,9].
+The difference between any two elements in each array is less than or equal to 2.
+Note that the order of elements is not important.
+
+Example 2:
+Input: nums = [1,3,3,2,7,3], k = 3
+Output: []
+Explanation: It is not possible to divide the array satisfying all the conditions.
+
+Constraints:
+n == nums.length
+1 <= n <= 10^5
+n is a multiple of 3.
+1 <= nums[i] <= 10^5
+1 <= k <= 10^5
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Try to use a greedy approach.
+2. Sort the array and try to group each 3 consecutive elements.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareInteger(const void* n1, const void* n2) {
+    // ascending order
+    return (*(int*)n1 > *(int*)n2);
+}
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int** divideArray(int* nums, int numsSize, int k, int* returnSize, int** returnColumnSizes) {
+    int** pRetVal = NULL;
+
+    (*returnSize) = 0;
+    (*returnColumnSizes) = NULL;
+
+    if (numsSize % 3 != 0) {
+        return pRetVal;
+    }
+    (*returnSize) = numsSize / 3;
+
+    pRetVal = (int**)malloc((*returnSize) * sizeof(int*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        goto exit1;
+    }
+    (*returnColumnSizes) = (int*)malloc((*returnSize) * sizeof(int));
+    if ((*returnColumnSizes) == NULL) {
+        perror("malloc");
+        goto exit2;
+    }
+    memset((*returnColumnSizes), 0, ((*returnSize) * sizeof(int)));
+
+    qsort(nums, numsSize, sizeof(int), compareInteger);
+
+    int i, j;
+    for (i = 0; i < (*returnSize); ++i) {
+        if (nums[3 * i + 2] - nums[3 * i] > k) {
+            goto exit3;
+        }
+
+        pRetVal[i] = (int*)malloc(3 * sizeof(int));
+        if (pRetVal[i] == NULL) {
+            perror("malloc");
+            goto exit3;
+        }
+        memset(pRetVal[i], 0, (3 * sizeof(int)));
+        (*returnColumnSizes)[i] = 3;
+        pRetVal[i][0] = nums[3 * i];
+        pRetVal[i][1] = nums[3 * i + 1];
+        pRetVal[i][2] = nums[3 * i + 2];
+    }
+
+    return pRetVal;
+
+exit3:
+    for (j = 0; j < i; ++j) {
+        free(pRetVal[j]);
+        pRetVal[j] = NULL;
+    }
+    free((*returnColumnSizes));
+    (*returnColumnSizes) = NULL;
+
+exit2:
+    free(pRetVal);
+    pRetVal = NULL;
+
+exit1:
+    (*returnSize) = 0;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<vector<int>> divideArray(vector<int>& nums, int k) {
+        vector<vector<int>> retVal;
+
+        int numsSize = nums.size();
+        if (numsSize % 3 != 0) {
+            return retVal;
+        }
+
+        sort(nums.begin(), nums.end());
+        for (int i = 0; i < numsSize; i += 3) {
+            if (nums[i + 2] - nums[i] > k) {
+                retVal = {};
+                break;
+            }
+
+            retVal.push_back({nums[i], nums[i + 1], nums[i + 2]});
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def divideArray(self, nums: List[int], k: int) -> List[List[int]]:
+        retVal = []
+
+        numsSize = len(nums)
+        if (numsSize % 3) != 0:
+            return retVal
+
+        nums.sort()
+        for i in range(0, numsSize, 3):
+            if (nums[i+2] - nums[i]) > k:
+                retVal = []
+                break
+            retVal.append([nums[i], nums[i+1], nums[i+2]])
+
+        return retVal
+```
+
+</details>
