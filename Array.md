@@ -4333,6 +4333,132 @@ class Solution:
 
 </details>
 
+## [1291. Sequential Digits](https://leetcode.com/problems/sequential-digits/)  1373
+
+- [Official](https://leetcode.cn/problems/sequential-digits/solutions/101734/shun-ci-shu-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+An integer has sequential digits if and only if each digit in the number is one more than the previous digit.
+
+Return a sorted list of all the integers in the range [low, high] inclusive that have sequential digits.
+
+Example 1:
+Input: low = 100, high = 300
+Output: [123,234]
+
+Example 2:
+Input: low = 1000, high = 13000
+Output: [1234,2345,3456,4567,5678,6789,12345]
+
+Constraints:
+10 <= low <= high <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Generate all numbers with sequential digits and check if they are in the given range.
+2. Fix the starting digit then do a recursion that tries to append all valid digits.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareInteger(const void* n1, const void* n2) {
+    // ascending order
+    return (*(int*)n1 > *(int*)n2);
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* sequentialDigits(int low, int high, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    /* 10 <= low <= high <= 10^9
+     *  9 * 8 / 2 = 36
+     */
+    int maxReturnSize = 64;
+    pRetVal = (int*)malloc(maxReturnSize * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (maxReturnSize * sizeof(int)));
+
+    // 10 <= low <= high <= 10^9
+    int i, j, num;
+    for (i = 1; i < 10; ++i) {
+        num = i;
+        for (j = i + 1; j < 10; ++j) {
+            num = 10 * num + j;
+            if ((num >= low) && (num <= high)) {
+                pRetVal[(*returnSize)++] = num;
+            }
+        }
+    }
+    qsort(pRetVal, (*returnSize), sizeof(int), compareInteger);
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> sequentialDigits(int low, int high) {
+        vector<int> retVal;
+
+        // 10 <= low <= high <= 10^9
+        for (int i = 1; i < 10; ++i) {
+            int num = i;
+            for (int j = i + 1; j < 10; ++j) {
+                num = 10 * num + j;
+                if ((num >= low) && (num <= high)) {
+                    retVal.emplace_back(num);
+                }
+            }
+        }
+        sort(retVal.begin(), retVal.end());
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def sequentialDigits(self, low: int, high: int) -> List[int]:
+        retVal = []
+
+        for i in range(1, 10):  # 10 <= low <= high <= 10^9
+            num = i
+            for j in range(i+1, 10):
+                num = 10 * num + j
+                if (num >= low) and (num <= high):
+                    retVal.append(num)
+        retVal.sort()
+
+        return retVal
+```
+
+</details>
+
 ## [1295. Find Numbers with Even Number of Digits](https://leetcode.com/problems/find-numbers-with-even-number-of-digits/)  1139
 
 - [Official](https://leetcode.cn/problems/find-numbers-with-even-number-of-digits/solutions/101807/tong-ji-wei-shu-wei-ou-shu-de-shu-zi-by-leetcode-s/)
