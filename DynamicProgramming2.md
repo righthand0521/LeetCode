@@ -575,6 +575,133 @@ class Solution:
 
 </details>
 
+## [1043. Partition Array for Maximum Sum](https://leetcode.com/problems/partition-array-for-maximum-sum/)  1916
+
+- [Official](https://leetcode.com/problems/partition-array-for-maximum-sum/editorial/)
+- [Official](https://leetcode.cn/problems/partition-array-for-maximum-sum/solutions/2233208/fen-ge-shu-zu-yi-de-dao-zui-da-he-by-lee-mydv/)
+
+<details><summary>Description</summary>
+
+```text
+Given an integer array arr, partition the array into (contiguous) subarrays of length at most k.
+After partitioning, each subarray has their values changed to become the maximum value of that subarray.
+
+Return the largest sum of the given array after partitioning.
+Test cases are generated so that the answer fits in a 32-bit integer.
+
+Example 1:
+Input: arr = [1,15,7,9,2,5,10], k = 3
+Output: 84
+Explanation: arr becomes [15,15,15,9,10,10,10]
+
+Example 2:
+Input: arr = [1,4,1,5,7,3,6,1,9,9,3], k = 4
+Output: 83
+
+Example 3:
+Input: arr = [1], k = 1
+Output: 1
+
+Constraints:
+1 <= arr.length <= 500
+0 <= arr[i] <= 10^9
+1 <= k <= arr.length
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Think dynamic programming: dp[i] will be the answer for array A[0], ..., A[i-1].
+2. For j = 1 .. k that keeps everything in bounds, dp[i] is the maximum of dp[i-j] + max(A[i-1], ..., A[i-j]) * j .
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int maxSumAfterPartitioning(int* arr, int arrSize, int k) {
+    int retVal = 0;
+
+    int dp[arrSize + 1];
+    memset(dp, 0, sizeof(dp));
+
+    int maxValue;
+    int i, j;
+    for (i = 1; i <= arrSize; ++i) {
+        maxValue = arr[i - 1];
+        for (j = i - 1; ((j >= 0) && (j >= i - k)); --j) {
+            dp[i] = fmax(dp[i], dp[j] + maxValue * (i - j));
+            if (j > 0) {
+                maxValue = fmax(maxValue, arr[j - 1]);
+            }
+        }
+    }
+
+    retVal = dp[arrSize];
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maxSumAfterPartitioning(vector<int>& arr, int k) {
+        int retVal = 0;
+
+        int arrSize = arr.size();
+
+        vector<int> dp(arrSize + 1, 0);
+        for (int i = 1; i <= arrSize; ++i) {
+            int maxValue = arr[i - 1];
+            for (int j = i - 1; ((j >= 0) && (j >= i - k)); --j) {
+                dp[i] = max(dp[i], dp[j] + maxValue * (i - j));
+                if (j > 0) {
+                    maxValue = max(maxValue, arr[j - 1]);
+                }
+            }
+        }
+
+        retVal = dp[arrSize];
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxSumAfterPartitioning(self, arr: List[int], k: int) -> int:
+        retVal = 0
+
+        arrSize = len(arr)
+
+        dp = [0] * (arrSize + 1)
+        for i in range(1, arrSize + 1):
+            maxValue = arr[i - 1]
+            for j in range(i - 1, max(-1, i - k - 1), -1):
+                dp[i] = max(dp[i], dp[j] + maxValue * (i - j))
+                if j > 0:
+                    maxValue = max(maxValue, arr[j - 1])
+
+        retVal = dp[arrSize]
+
+        return retVal
+```
+
+</details>
+
 ## [1048. Longest String Chain](https://leetcode.com/problems/longest-string-chain/)  1599
 
 - [Official](https://leetcode.cn/problems/longest-string-chain/solutions/2246535/zui-chang-zi-fu-chuan-lian-by-leetcode-s-4uoe/)
