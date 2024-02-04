@@ -157,6 +157,18 @@ s and t consist of uppercase and lowercase English letters.
 Follow up: Could you find an algorithm that runs in O(m + n) time?
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. Use two pointers to create a window of letters in s, which would have all the characters from t.
+2. Expand the right pointer until all the characters of t are covered.
+3. Once all the characters are covered,
+   move the left pointer and ensure that all the characters are still covered to minimize the subarray size.
+4. Continue expanding the right and left pointers until you reach the end of s.
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
@@ -165,26 +177,96 @@ Follow up: Could you find an algorithm that runs in O(m + n) time?
 char* minWindow(char* s, char* t) {
     char* pRetVal = "";
 
-    int sLen = strlen(s);
-    int tLen = strlen(t);
+    int sSize = strlen(s);
+    int tSize = strlen(t);
 
-    // s and t consist of uppercase and lowercase English letters.
-#define ASCII_SIZE (128)
-    int asciiSet[ASCII_SIZE] = {0};
+    int i;
 
-    // use hash set to record character in t
-    while (*t) {
-        ++asciiSet[(unsigned char)*t];
-        ++t;
+#define ASCII_SIZE (128)      // s and t consist of uppercase and lowercase English letters.
+    int hashSet[ASCII_SIZE];  // use hash set to record character in t
+    memset(hashSet, 0, sizeof(hashSet));
+    for (i = 0; i < tSize; ++i) {
+        ++hashSet[(unsigned char)t[i]];
     }
 
+    /* Process
+     *  |   0  |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8  |   9  |  10  |  11  |  12  | ABC           |
+     *  |------------------------------------------------------------------------------------------|---------------|
+     *  |   A  |   D  |   O  |   B  |   E  |   C  |   O  |   D  |   E  |   B  |   A  |   N  |   C  |               |
+     *  | head |      |      |      |      | tail |      |      |      |      |      |      |      | => ADOBEC     |
+     *  |      | head |      |      |      | tail |      |      |      |      |      |      |      | -X-> DOBEC    |
+     *  |      | head |      |      |      |      |      |      |      |      | tail |      |      | => DOBECODEBA |
+     *  |      |      | head |      |      |      |      |      |      |      | tail |      |      | => OBECODEBA  |
+     *  |      |      |      | head |      |      |      |      |      |      | tail |      |      | => BECODEBA   |
+     *  |      |      |      |      | head |      |      |      |      |      | tail |      |      | => ECODEBA    |
+     *  |      |      |      |      |      | head |      |      |      |      | tail |      |      | => CODEBA     |
+     *  |      |      |      |      |      |      | head |      |      |      | tail |      |      | -X-> ODEBA    |
+     *  |      |      |      |      |      |      | head |      |      |      |      |      | tail | => ODEBANC    |
+     *  |      |      |      |      |      |      |      | head |      |      |      |      | tail | => DEBANC     |
+     *  |      |      |      |      |      |      |      |      | head |      |      |      | tail | => EBANC      |
+     *  |      |      |      |      |      |      |      |      |      | head |      |      | tail | => BANC       |
+     */
     int count = 0;
     int head = 0;
     int retHead = 0;
     int retTail = 0;
     int minLen = INT_MAX;
-    int i;
-    for (i = 0; i < sLen; ++i) {
+    for (i = 0; i < sSize; ++i) {
+        // update hash set by character in s
+        --hashSet[(unsigned char)s[i]];
+
+        // if character both in t and s
+        if (hashSet[(unsigned char)s[i]] >= 0) {
+            ++count;
+        }
+
+        while (count == tSize) {
+            // update head and tail according to Minimum record
+            if ((i - head + 1) < minLen) {
+                minLen = i - head + 1;
+                retHead = head;
+                retTail = i;
+            }
+
+            // update hash set by character in s
+            ++hashSet[(unsigned char)s[head]];
+
+            // if character in s
+            if (hashSet[(unsigned char)s[head]] > 0) {
+                --count;
+            }
+
+            // move head
+            head++;
+        }
+    }
+    if (minLen != INT_MAX) {
+        s[retTail + 1] = 0;
+        pRetVal = &(s[retHead]);
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    string minWindow(string s, string t) {
+        string retVal;
+
+        int sSize = s.size();
+        int tSize = t.size();
+
+        unordered_map<char, int> hashSet;
+        for (char c : t) {
+            ++hashSet[c];
+        }
+
         /* Process
          *  |   0  |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8  |   9  |  10  |  11  |  12  | ABC           |
          *  |------------------------------------------------------------------------------------------|---------------|
@@ -202,54 +284,46 @@ char* minWindow(char* s, char* t) {
          *  |      |      |      |      |      |      |      |      | head |      |      |      | tail | => EBANC      |
          *  |      |      |      |      |      |      |      |      |      | head |      |      | tail | => BANC       |
          */
-
-        // update hash set by character in s
-        --asciiSet[(unsigned char)s[i]];
-
-        // if character both in t and s
-        if (asciiSet[(unsigned char)s[i]] >= 0) {
-            ++count;
-        }
-
-        while (count == tLen) {
-            // update head and tail according to Minimum record
-            if ((i - head + 1) < minLen) {
-                minLen = i - head + 1;
-                retHead = head;
-                retTail = i;
-            }
-
+        int count = 0;
+        int head = 0;
+        int retHead = 0;
+        int retTail = 0;
+        int minLen = numeric_limits<int>::max();
+        for (int i = 0; i < sSize; ++i) {
             // update hash set by character in s
-            ++asciiSet[(unsigned char)s[head]];
+            --hashSet[s[i]];
 
-            // if character in s
-            if (asciiSet[(unsigned char)s[head]] > 0) {
-                --count;
+            // if character both in t and s
+            if (hashSet[s[i]] >= 0) {
+                ++count;
             }
 
-            // move head
-            head++;
+            while (count == tSize) {
+                // update head and tail according to Minimum record
+                if ((i - head + 1) < minLen) {
+                    minLen = i - head + 1;
+                    retHead = head;
+                    retTail = i;
+                }
+
+                // update hash set by character in s
+                ++hashSet[s[head]];
+
+                // if character in s
+                if (hashSet[s[head]] > 0) {
+                    --count;
+                }
+
+                // move head
+                head++;
+            }
         }
-    }
+        if (minLen != numeric_limits<int>::max()) {
+            s[retTail + 1] = 0;
+            retVal = &(s[retHead]);
+        }
 
-    if (minLen != INT_MAX) {
-        s[retTail + 1] = 0;
-        pRetVal = &(s[retHead]);
-    }
-
-    return pRetVal;
-}
-```
-
-</details>
-
-<details><summary>C++</summary>
-
-```c++
-class Solution {
-public:
-    string minWindow(string s, string t) {
-
+        return retVal;
     }
 };
 ```
@@ -260,7 +334,70 @@ public:
 
 ```python
 class Solution:
+    def __init__(self) -> None:
+        # s and t consist of uppercase and lowercase English letters.
+        self.ASCII_SIZE = 128
+
     def minWindow(self, s: str, t: str) -> str:
+        retVal = ""
+
+        sSize = len(s)
+        tSize = len(t)
+
+        hashSet = [0] * self.ASCII_SIZE
+        for c in t:
+            hashSet[ord(c)] += 1
+
+        # /* Process
+        #  *  |   0  |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8  |   9  |  10  |  11  |  12  | ABC           |
+        #  *  |------------------------------------------------------------------------------------------|---------------|
+        #  *  |   A  |   D  |   O  |   B  |   E  |   C  |   O  |   D  |   E  |   B  |   A  |   N  |   C  |               |
+        #  *  | head |      |      |      |      | tail |      |      |      |      |      |      |      | => ADOBEC     |
+        #  *  |      | head |      |      |      | tail |      |      |      |      |      |      |      | -X-> DOBEC    |
+        #  *  |      | head |      |      |      |      |      |      |      |      | tail |      |      | => DOBECODEBA |
+        #  *  |      |      | head |      |      |      |      |      |      |      | tail |      |      | => OBECODEBA  |
+        #  *  |      |      |      | head |      |      |      |      |      |      | tail |      |      | => BECODEBA   |
+        #  *  |      |      |      |      | head |      |      |      |      |      | tail |      |      | => ECODEBA    |
+        #  *  |      |      |      |      |      | head |      |      |      |      | tail |      |      | => CODEBA     |
+        #  *  |      |      |      |      |      |      | head |      |      |      | tail |      |      | -X-> ODEBA    |
+        #  *  |      |      |      |      |      |      | head |      |      |      |      |      | tail | => ODEBANC    |
+        #  *  |      |      |      |      |      |      |      | head |      |      |      |      | tail | => DEBANC     |
+        #  *  |      |      |      |      |      |      |      |      | head |      |      |      | tail | => EBANC      |
+        #  *  |      |      |      |      |      |      |      |      |      | head |      |      | tail | => BANC       |
+        #  */
+        count = 0
+        head = 0
+        retHead = 0
+        retTail = 0
+        minLen = float('inf')
+        for i in range(sSize):
+            # update hash set by character in s
+            hashSet[ord(s[i])] -= 1
+
+            # if character both in t and s
+            if hashSet[ord(s[i])] >= 0:
+                count += 1
+
+            while (count == tSize):
+                # update head and tail according to Minimum record
+                if (i - head + 1) < minLen:
+                    minLen = i - head + 1
+                    retHead = head
+                    retTail = i
+
+                # update hash set by character in s
+                hashSet[ord(s[head])] += 1
+
+                # if character in s
+                if hashSet[ord(s[head])] > 0:
+                    count -= 1
+
+                #  move head
+                head += 1
+        if minLen != float('inf'):
+            retVal = s[retHead:retTail+1]
+
+        return retVal
 ```
 
 </details>

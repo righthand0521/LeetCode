@@ -6,53 +6,50 @@
 char* minWindow(char* s, char* t) {
     char* pRetVal = "";
 
-    int sLen = strlen(s);
-    int tLen = strlen(t);
+    int sSize = strlen(s);
+    int tSize = strlen(t);
 
-    // s and t consist of uppercase and lowercase English letters.
-#define ASCII_SIZE (128)
-    int asciiSet[ASCII_SIZE] = {0};
+    int i;
 
-    // use hash set to record character in t
-    while (*t) {
-        ++asciiSet[(unsigned char)*t];
-        ++t;
+#define ASCII_SIZE (128)      // s and t consist of uppercase and lowercase English letters.
+    int hashSet[ASCII_SIZE];  // use hash set to record character in t
+    memset(hashSet, 0, sizeof(hashSet));
+    for (i = 0; i < tSize; ++i) {
+        ++hashSet[(unsigned char)t[i]];
     }
 
+    /* Process
+     *  |   0  |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8  |   9  |  10  |  11  |  12  | ABC           |
+     *  |------------------------------------------------------------------------------------------|---------------|
+     *  |   A  |   D  |   O  |   B  |   E  |   C  |   O  |   D  |   E  |   B  |   A  |   N  |   C  |               |
+     *  | head |      |      |      |      | tail |      |      |      |      |      |      |      | => ADOBEC     |
+     *  |      | head |      |      |      | tail |      |      |      |      |      |      |      | -X-> DOBEC    |
+     *  |      | head |      |      |      |      |      |      |      |      | tail |      |      | => DOBECODEBA |
+     *  |      |      | head |      |      |      |      |      |      |      | tail |      |      | => OBECODEBA  |
+     *  |      |      |      | head |      |      |      |      |      |      | tail |      |      | => BECODEBA   |
+     *  |      |      |      |      | head |      |      |      |      |      | tail |      |      | => ECODEBA    |
+     *  |      |      |      |      |      | head |      |      |      |      | tail |      |      | => CODEBA     |
+     *  |      |      |      |      |      |      | head |      |      |      | tail |      |      | -X-> ODEBA    |
+     *  |      |      |      |      |      |      | head |      |      |      |      |      | tail | => ODEBANC    |
+     *  |      |      |      |      |      |      |      | head |      |      |      |      | tail | => DEBANC     |
+     *  |      |      |      |      |      |      |      |      | head |      |      |      | tail | => EBANC      |
+     *  |      |      |      |      |      |      |      |      |      | head |      |      | tail | => BANC       |
+     */
     int count = 0;
     int head = 0;
     int retHead = 0;
     int retTail = 0;
     int minLen = INT_MAX;
-    int i;
-    for (i = 0; i < sLen; ++i) {
-        /* Process
-         *  |   0  |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8  |   9  |  10  |  11  |  12  | ABC           |
-         *  |------------------------------------------------------------------------------------------|---------------|
-         *  |   A  |   D  |   O  |   B  |   E  |   C  |   O  |   D  |   E  |   B  |   A  |   N  |   C  |               |
-         *  | head |      |      |      |      | tail |      |      |      |      |      |      |      | => ADOBEC     |
-         *  |      | head |      |      |      | tail |      |      |      |      |      |      |      | -X-> DOBEC    |
-         *  |      | head |      |      |      |      |      |      |      |      | tail |      |      | => DOBECODEBA |
-         *  |      |      | head |      |      |      |      |      |      |      | tail |      |      | => OBECODEBA  |
-         *  |      |      |      | head |      |      |      |      |      |      | tail |      |      | => BECODEBA   |
-         *  |      |      |      |      | head |      |      |      |      |      | tail |      |      | => ECODEBA    |
-         *  |      |      |      |      |      | head |      |      |      |      | tail |      |      | => CODEBA     |
-         *  |      |      |      |      |      |      | head |      |      |      | tail |      |      | -X-> ODEBA    |
-         *  |      |      |      |      |      |      | head |      |      |      |      |      | tail | => ODEBANC    |
-         *  |      |      |      |      |      |      |      | head |      |      |      |      | tail | => DEBANC     |
-         *  |      |      |      |      |      |      |      |      | head |      |      |      | tail | => EBANC      |
-         *  |      |      |      |      |      |      |      |      |      | head |      |      | tail | => BANC       |
-         */
-
+    for (i = 0; i < sSize; ++i) {
         // update hash set by character in s
-        --asciiSet[(unsigned char)s[i]];
+        --hashSet[(unsigned char)s[i]];
 
         // if character both in t and s
-        if (asciiSet[(unsigned char)s[i]] >= 0) {
+        if (hashSet[(unsigned char)s[i]] >= 0) {
             ++count;
         }
 
-        while (count == tLen) {
+        while (count == tSize) {
             // update head and tail according to Minimum record
             if ((i - head + 1) < minLen) {
                 minLen = i - head + 1;
@@ -61,10 +58,10 @@ char* minWindow(char* s, char* t) {
             }
 
             // update hash set by character in s
-            ++asciiSet[(unsigned char)s[head]];
+            ++hashSet[(unsigned char)s[head]];
 
             // if character in s
-            if (asciiSet[(unsigned char)s[head]] > 0) {
+            if (hashSet[(unsigned char)s[head]] > 0) {
                 --count;
             }
 
@@ -72,7 +69,6 @@ char* minWindow(char* s, char* t) {
             head++;
         }
     }
-
     if (minLen != INT_MAX) {
         s[retTail + 1] = 0;
         pRetVal = &(s[retHead]);
@@ -82,46 +78,32 @@ char* minWindow(char* s, char* t) {
 }
 
 int main(int argc, char** argv) {
+#define MAX_SIZE (int)(1e5)
     struct testCaseType {
-        char* s;
-        char* t;
+        char s[MAX_SIZE];
+        char t[MAX_SIZE];
     } testCase[] = {{"ADOBECODEBANC", "ABC"}, {"a", "a"}, {"a", "aa"}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: s = "ADOBECODEBANC", t = "ABC"
+     *  Output: "BANC"
+     *
+     *  Input: s = "a", t = "a"
+     *  Output: "a"
+     *
+     *  Input: s = "a", t = "aa"
+     *  Output: ""
+     */
 
-    char* pInputS = NULL;
-    char* pInputT = NULL;
-    int mallocSize;
     char* pAnswer;
     int i;
     for (i = 0; i < numberOfTestCase; ++i) {
         printf("Input: s = \"%s\", t = \"%s\"\n", testCase[i].s, testCase[i].t);
 
-        mallocSize = (strlen(testCase[i].s) + 1) * sizeof(char);
-        pInputS = (char*)malloc(mallocSize);
-        if (pInputS == NULL) {
-            perror("malloc");
-            return EXIT_SUCCESS;
-        }
-        memset(pInputS, 0, mallocSize);
-        memcpy(pInputS, testCase[i].s, mallocSize);
-        mallocSize = (strlen(testCase[i].t) + 1) * sizeof(char);
-        pInputT = (char*)malloc(mallocSize);
-        if (pInputT == NULL) {
-            perror("malloc");
-            free(pInputS);
-            pInputS = NULL;
-            return EXIT_SUCCESS;
-        }
-        memset(pInputT, 0, mallocSize);
-        memcpy(pInputT, testCase[i].t, mallocSize);
-        pAnswer = minWindow(pInputS, pInputT);
+        pAnswer = minWindow(testCase[i].s, testCase[i].t);
         printf("Output: \"%s\"\n", pAnswer);
 
         printf("\n");
-        free(pInputS);
-        pInputS = NULL;
-        free(pInputT);
-        pInputT = NULL;
     }
 
     return EXIT_SUCCESS;
