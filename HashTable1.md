@@ -859,6 +859,209 @@ class Solution:
 
 </details>
 
+## [128. Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence)
+
+- [Official](https://leetcode.cn/problems/longest-consecutive-sequence/solutions/276931/zui-chang-lian-xu-xu-lie-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+Given an unsorted array of integers nums, return the length of the longest consecutive elements sequence.
+
+You must write an algorithm that runs in O(n) time.
+
+Example 1:
+Input: nums = [100,4,200,1,3,2]
+Output: 4
+Explanation: The longest consecutive elements sequence is [1, 2, 3, 4]. Therefore its length is 4.
+
+Example 2:
+Input: nums = [0,3,7,2,5,8,4,6,0,1]
+Output: 9
+
+Constraints:
+0 <= nums.length <= 10^5
+-10^9 <= nums[i] <= 10^9
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+int updateHashTable(struct hashTable **pHashTable, int key, int value) {
+    int retVal = EXIT_SUCCESS;
+
+    struct hashTable *pTemp = NULL;
+    HASH_FIND_INT((*pHashTable), &key, pTemp);
+    if (pTemp != NULL) {
+        pTemp->value = value;
+    } else {
+        pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+        if (pTemp == NULL) {
+            perror("malloc");
+            retVal = EXIT_FAILURE;
+            return retVal;
+        }
+        pTemp->key = key;
+        pTemp->value = value;
+        HASH_ADD_INT((*pHashTable), key, pTemp);
+    }
+
+    return retVal;
+}
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *current;
+    struct hashTable *tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int longestConsecutive(int *nums, int numsSize) {
+    int retVal = 0;
+
+    //
+    struct hashTable *pHashTable = NULL;
+    struct hashTable *pTemp;
+    int key;
+    int left, right, length;
+    int i;
+    for (i = 0; i < numsSize; ++i) {
+        key = nums[i];
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTable, &key, pTemp);
+        if (pTemp != NULL) {
+            continue;
+        }
+
+        //
+        left = 0;
+        key = nums[i] - 1;
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTable, &key, pTemp);
+        if (pTemp != NULL) {
+            left = pTemp->value;
+        }
+
+        right = 0;
+        key = nums[i] + 1;
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTable, &key, pTemp);
+        if (pTemp != NULL) {
+            right = pTemp->value;
+        }
+
+        //
+        length = left + right + 1;
+
+        key = nums[i];
+        if (updateHashTable(&pHashTable, key, 1) == EXIT_FAILURE) {
+            goto exit;
+        }
+
+        key = nums[i] - left;
+        if (updateHashTable(&pHashTable, key, length) == EXIT_FAILURE) {
+            goto exit;
+        }
+
+        key = nums[i] + right;
+        if (updateHashTable(&pHashTable, key, length) == EXIT_FAILURE) {
+            goto exit;
+        }
+
+        //
+        retVal = fmax(retVal, length);
+    }
+
+exit:
+    //
+    freeAll(pHashTable);
+    pHashTable = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int longestConsecutive(vector<int>& nums) {
+        int retVal = 0;
+
+        unordered_map<int, int> hashTable;
+        for (int num : nums) {
+            if (hashTable.find(num) != hashTable.end()) {
+                continue;
+            }
+
+            int left = 0;
+            if (hashTable.find(num - 1) != hashTable.end()) {
+                left = hashTable[num - 1];
+            }
+
+            int right = 0;
+            if (hashTable.find(num + 1) != hashTable.end()) {
+                right = hashTable[num + 1];
+            }
+
+            int length = left + right + 1;
+            hashTable[num] = 1;
+            hashTable[num - left] = length;
+            hashTable[num + right] = length;
+
+            retVal = max(retVal, length);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def longestConsecutive(self, nums: List[int]) -> int:
+        retVal = 0
+
+        hashTable = defaultdict(int)
+        for num in nums:
+            if num in hashTable:
+                continue
+
+            left = 0
+            if (num - 1) in hashTable:
+                left = hashTable[num - 1]
+
+            right = 0
+            if (num + 1) in hashTable:
+                right = hashTable[num + 1]
+
+            length = left + right + 1
+            hashTable[num] = 1
+            hashTable[num - left] = length
+            hashTable[num + right] = length
+
+            retVal = max(retVal, length)
+
+        return retVal
+```
+
+</details>
+
 ## [149. Max Points on a Line](https://leetcode.com/problems/max-points-on-a-line/)
 
 - [Official](https://leetcode.cn/problems/max-points-on-a-line/solutions/842114/zhi-xian-shang-zui-duo-de-dian-shu-by-le-tq8f/)
