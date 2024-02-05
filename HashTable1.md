@@ -3462,6 +3462,9 @@ class Solution:
 
 ## [387. First Unique Character in a String](https://leetcode.com/problems/first-unique-character-in-a-string/)
 
+- [Official](https://leetcode.com/problems/first-unique-character-in-a-string/editorial/)
+- [Official](https://leetcode.cn/problems/first-unique-character-in-a-string/solutions/531740/zi-fu-chuan-zhong-de-di-yi-ge-wei-yi-zi-x9rok/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -3489,78 +3492,81 @@ s consists of only lowercase English letters.
 <details><summary>C</summary>
 
 ```c
-int firstUniqChar(char * s){
-#if 1
+int firstUniqChar(char* s) {
     int retVal = -1;
 
-// only lowercase English letters
-#define MAX_SIZE    26
-    int lettersCount[MAX_SIZE] = {0};
-    int idx;
+#define MAX_HASHTABLE_SIZE (26)  // s consists of only lowercase English letters.
+    int hashTable[MAX_HASHTABLE_SIZE];
+    memset(hashTable, 0, sizeof(hashTable));
 
-    int len = strlen(s);
+    int sSize = strlen(s);
+    int idx;
     int i;
-    for (i=0; i<len; ++i)
-    {
-        idx = *(s+i) - 'a';
-        // count the number each appear letters of string s
-        ++lettersCount[idx];
+    for (i = 0; i < sSize; ++i) {
+        idx = s[i] - 'a';
+        ++hashTable[idx];
     }
 
-    for (i=0; i<len; ++i)
-    {
-        idx = *(s+i) - 'a';
-        // traverse string s to check which letter first appear only once
-        if (lettersCount[idx] == 1)
-        {
+    for (i = 0; i < sSize; ++i) {
+        idx = s[i] - 'a';
+        if (hashTable[idx] == 1) {
             retVal = i;
             break;
         }
     }
-#else
-    int retVal = INT_MAX;
-
-// only lowercase English letters
-#define MAX_SIZE    26
-    int HASHTABLE[MAX_SIZE] = {0};
-    int idx;
-
-    int len = strlen(s);
-    int i;
-    for (i=0; i<len; ++i)
-    {
-        idx = *(s+i) - 'a';
-        if (HASHTABLE[idx] == -1)
-        {
-            // has been repeated
-            continue;
-        }
-        else if (HASHTABLE[idx] != 0)
-        {
-            // repeating character
-            HASHTABLE[idx] = -1;
-        }
-        else if (HASHTABLE[idx] == 0)
-        {
-            // first appear
-            HASHTABLE[idx] = i + 1;
-        }
-    }
-
-    for (i=0; i<MAX_SIZE; ++i)
-    {
-        if ((HASHTABLE[i] == -1) || (HASHTABLE[i] == 0))
-        {
-            continue;
-        }
-        // update which letters appear first
-        retVal = (retVal<HASHTABLE[i])?retVal:HASHTABLE[i];
-    }
-    retVal = (retVal==INT_MAX)?(-1):(retVal-1);
-#endif
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int firstUniqChar(string s) {
+        int retVal = -1;
+
+        int sSize = s.size();
+
+        unordered_map<char, int> hashTable;
+        for (int i = 0; i < sSize; ++i) {
+            hashTable[s[i]] += 1;
+        }
+
+        for (int i = 0; i < sSize; ++i) {
+            if (hashTable[s[i]] == 1) {
+                retVal = i;
+                break;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def firstUniqChar(self, s: str) -> int:
+        retVal = -1
+
+        hashTable = defaultdict(int)
+        for c in s:
+            hashTable[c] += 1
+
+        for idx, c in enumerate(s):
+            if hashTable[c] == 1:
+                retVal = idx
+                break
+
+        return retVal
 ```
 
 </details>
