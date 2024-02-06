@@ -473,18 +473,18 @@ strs[i] consists of lowercase English letters.
 <details><summary>C</summary>
 
 ```c
-#define MAX_LENGTH      (100)
-
-struct hash_struct {
+#define MAX_LENGTH (100 + 4)  // 0 <= strs[i].length <= 100
+struct hashTable {
     char key[MAX_LENGTH];
     int count;
     int idx;
     UT_hash_handle hh;
 };
-void freeAll(struct hash_struct* pFree) {
-    struct hash_struct* current;
-    struct hash_struct* tmp;
+void freeAll(struct hashTable* pFree) {
+    struct hashTable* current;
+    struct hashTable* tmp;
     HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%s: %d\n", pFree->key, pFree->count);
         HASH_DEL(pFree, current);
         free(current);
     }
@@ -493,7 +493,6 @@ int compareChar(const void* c1, const void* c2) {
     // ascending order
     return (*(char*)c1 - *(char*)c2);
 }
-
 /**
  * Return an array of arrays of size *returnSize.
  * The sizes of the arrays are returned as *returnColumnSizes array.
@@ -501,169 +500,142 @@ int compareChar(const void* c1, const void* c2) {
  */
 char*** groupAnagrams(char** strs, int strsSize, int* returnSize, int** returnColumnSizes) {
     char*** pRetVal = NULL;
+
+    //
     (*returnSize) = 0;
+    (*returnColumnSizes) = NULL;
 
     int i, j, k;
+
+    //
     char pSortStr[MAX_LENGTH];
-    struct hash_struct* map = NULL;
-    struct hash_struct* temp;
-
-
-    /* 1. use hash map to count strs[i] appear times to prepare malloc return arrays */
-    for (i=0; i<strsSize; ++i) {
-        // sort strs[i] as hash key
+    struct hashTable* pMap = NULL;
+    struct hashTable* pTmp;
+    for (i = 0; i < strsSize; ++i) {
         memset(pSortStr, 0, sizeof(pSortStr));
         snprintf(pSortStr, sizeof(pSortStr), "%s", strs[i]);
         qsort(pSortStr, strlen(pSortStr), sizeof(char), compareChar);
 
-        temp = NULL;
-        HASH_FIND_STR(map, pSortStr, temp);
-
-        // strs[i] exist in hash map
-        if (temp != NULL) {
-            temp->count++;
+        pTmp = NULL;
+        HASH_FIND_STR(pMap, pSortStr, pTmp);
+        if (pTmp != NULL) {
+            pTmp->count++;
             continue;
         }
-
-        // strs[i] does not exist in hash map
-        temp = (struct hash_struct*)malloc(sizeof(struct hash_struct));
-        if (temp == NULL) {
+        pTmp = (struct hashTable*)malloc(sizeof(struct hashTable));
+        if (pTmp == NULL) {
             perror("malloc");
-            freeAll(map);
-            map = NULL;
             (*returnSize) = 0;
-            return pRetVal;
+            goto exit;
         }
-        snprintf(temp->key, MAX_LENGTH, "%s", pSortStr);
-        temp->count = 1;
-        HASH_ADD_STR(map, key, temp);
+        snprintf(pTmp->key, MAX_LENGTH, "%s", pSortStr);
+        pTmp->count = 1;
+        HASH_ADD_STR(pMap, key, pTmp);
 
-        // update returnSize
         (*returnSize)++;
     }
 
-
-    /* 2. malloc return arrays */
-    // update returnColumnSizes
-    (*returnColumnSizes) = (int*)malloc((*returnSize)*sizeof(int));
+    //
+    (*returnColumnSizes) = (int*)malloc((*returnSize) * sizeof(int));
     if ((*returnColumnSizes) == NULL) {
         perror("malloc");
-        freeAll(map);
-        map = NULL;
         (*returnSize) = 0;
-        return pRetVal;
+        goto exit;
     }
     i = 0;
-    for (temp=map; temp!=NULL; temp=temp->hh.next) {
-        (*returnColumnSizes)[i++] = temp->count;
+    for (pTmp = pMap; pTmp != NULL; pTmp = pTmp->hh.next) {
+        (*returnColumnSizes)[i++] = pTmp->count;
     }
+    freeAll(pMap);
+    pMap = NULL;
 
-    // temporary free hash map
-    freeAll(map);
-    map = NULL;
-
-    // update return char ***
-    pRetVal = (char***)malloc((*returnSize)*sizeof(char**));
+    //
+    pRetVal = (char***)malloc((*returnSize) * sizeof(char**));
     if (pRetVal == NULL) {
         perror("malloc");
-        free((*returnColumnSizes));
-        (*returnColumnSizes) = NULL;
-        (*returnSize) = 0;
-        return pRetVal;
+        goto exit_returnColumnSizes;
     }
-    for (i=0; i<(*returnSize); ++i) {
-        pRetVal[i] = (char**)malloc(((*returnColumnSizes)[i])*sizeof(char*));
+    for (i = 0; i < (*returnSize); ++i) {
+        pRetVal[i] = (char**)malloc(((*returnColumnSizes)[i]) * sizeof(char*));
         if (pRetVal[i] == NULL) {
             perror("malloc");
-            for (j=0; j<i; ++j)
-            {
+            for (j = 0; j < i; ++j) {
                 free(pRetVal[j]);
                 pRetVal[j] = NULL;
             }
-            free((*returnColumnSizes));
-            (*returnColumnSizes) = NULL;
-            free(pRetVal);
-            pRetVal = NULL;
-            (*returnSize) = 0;
-            return pRetVal;
+            goto exit_returnValue;
         }
-        for (j=0; j<(*returnColumnSizes)[i]; ++j) {
-            pRetVal[i][j] = (char*)malloc(MAX_LENGTH*sizeof(char));
+        for (j = 0; j < (*returnColumnSizes)[i]; ++j) {
+            pRetVal[i][j] = (char*)malloc(MAX_LENGTH * sizeof(char));
             if (pRetVal[i][j] == NULL) {
                 perror("malloc");
-                for (k=0; k<j; ++k) {
+                for (k = 0; k < j; ++k) {
                     free(pRetVal[i][k]);
                     pRetVal[i][k] = NULL;
                 }
-                for (k=0; k<i; ++k) {
+                for (k = 0; k < i; ++k) {
                     free(pRetVal[k]);
                     pRetVal[k] = NULL;
                 }
-                free((*returnColumnSizes));
-                (*returnColumnSizes) = NULL;
-                free(pRetVal);
-                pRetVal = NULL;
-                (*returnSize) = 0;
-                return pRetVal;
+                goto exit_returnValue;
             }
             memset(pRetVal[i][j], 0, MAX_LENGTH);
         }
     }
 
-
-    /* 3. re-use hash map to copy strs[i] to return arrays */
+    //
     int idx = 0;
-    for (i=0; i<strsSize; ++i) {
-        // sort strs[i] as hash key
+    for (i = 0; i < strsSize; ++i) {
         memset(pSortStr, 0, sizeof(pSortStr));
         snprintf(pSortStr, sizeof(pSortStr), "%s", strs[i]);
         qsort(pSortStr, strlen(pSortStr), sizeof(char), compareChar);
 
-        temp = NULL;
-        HASH_FIND_STR(map, pSortStr, temp);
-
-        // strs[i] exist in hash map
-        if (temp != NULL) {
-            // copy strs[i] to return arrays
-            snprintf(pRetVal[temp->idx][temp->count], MAX_LENGTH, "%s", strs[i]);
-
-            temp->count++;
+        pTmp = NULL;
+        HASH_FIND_STR(pMap, pSortStr, pTmp);
+        if (pTmp != NULL) {
+            snprintf(pRetVal[pTmp->idx][pTmp->count], MAX_LENGTH, "%s", strs[i]);
+            pTmp->count++;
             continue;
         }
-
-        // strs[i] does not exist in hash map
-        temp = (struct hash_struct*)malloc(sizeof(struct hash_struct));
-        if (temp == NULL) {
+        pTmp = (struct hashTable*)malloc(sizeof(struct hashTable));
+        if (pTmp == NULL) {
             perror("malloc");
-            freeAll(map);
-            map = NULL;
-            for (j=0; j<(*returnSize); ++j) {
-                for (k=0; k<(*returnColumnSizes)[j]; ++k) {
+            freeAll(pMap);
+            pMap = NULL;
+            for (j = 0; j < (*returnSize); ++j) {
+                for (k = 0; k < (*returnColumnSizes)[j]; ++k) {
                     free(pRetVal[j][k]);
                     pRetVal[j][k] = NULL;
                 }
                 free(pRetVal[j]);
                 pRetVal[j] = NULL;
             }
-            free((*returnColumnSizes));
-            (*returnColumnSizes) = NULL;
-            free(pRetVal);
-            pRetVal = NULL;
-            (*returnSize) = 0;
-            return pRetVal;
+            goto exit_returnValue;
         }
-        snprintf(temp->key, MAX_LENGTH, "%s", pSortStr);
-        temp->count = 1;
-        temp->idx = idx;
-        HASH_ADD_STR(map, key, temp);
+        snprintf(pTmp->key, MAX_LENGTH, "%s", pSortStr);
+        pTmp->count = 1;
+        pTmp->idx = idx;
+        HASH_ADD_STR(pMap, key, pTmp);
 
-        // copy strs[i] to return arrays
         snprintf(pRetVal[idx++][0], MAX_LENGTH, "%s", strs[i]);
     }
 
-    // free hash map
-    freeAll(map);
-    map = NULL;
+exit:
+    //
+    freeAll(pMap);
+    pMap = NULL;
+
+    return pRetVal;
+
+exit_returnValue:
+    free(pRetVal);
+    pRetVal = NULL;
+
+exit_returnColumnSizes:
+    free((*returnColumnSizes));
+    (*returnColumnSizes) = NULL;
+
+    (*returnSize) = 0;
 
     return pRetVal;
 }
