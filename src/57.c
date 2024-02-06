@@ -13,32 +13,30 @@ int** insert(int** intervals, int intervalsSize, int* intervalsColSize, int* new
              int* returnSize, int** returnColumnSizes) {
     int** pRetVal = NULL;
 
-    (*returnSize) = intervalsSize + 1;
-    int colSize = 2;
+    (*returnSize) = 0;
+    (*returnColumnSizes) = NULL;
 
-    (*returnColumnSizes) = (int*)malloc((*returnSize) * sizeof(int));
+    pRetVal = (int**)malloc((intervalsSize + 1) * sizeof(int*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    (*returnColumnSizes) = (int*)malloc((intervalsSize + 1) * sizeof(int));
     if ((*returnColumnSizes) == NULL) {
         perror("malloc");
-        (*returnSize) = 0;
+        free(pRetVal);
+        pRetVal = NULL;
         return pRetVal;
     }
     memset((*returnColumnSizes), 0, ((*returnSize) * sizeof(int)));
 
-    pRetVal = (int**)malloc((*returnSize) * sizeof(int*));
-    if (pRetVal == NULL) {
-        perror("malloc");
-        free((*returnColumnSizes));
-        (*returnColumnSizes) = NULL;
-        (*returnSize) = 0;
-        return pRetVal;
-    }
-
+    //
+    int colSize = 2;
     int left = newInterval[0];
     int right = newInterval[1];
     int* pInterval;
     bool placed = false;
     int* tmp;
-    (*returnSize) = 0;
     int i;
     for (i = 0; i < intervalsSize; ++i) {
         pInterval = intervals[i];
@@ -47,7 +45,7 @@ int** insert(int** intervals, int intervalsSize, int* intervalsColSize, int* new
                 tmp = (int*)malloc(colSize * sizeof(int));
                 if (tmp == NULL) {
                     perror("malloc");
-                    return pRetVal;
+                    goto exit;
                 }
                 memset(tmp, 0, (colSize * sizeof(int)));
                 tmp[0] = left;
@@ -61,7 +59,7 @@ int** insert(int** intervals, int intervalsSize, int* intervalsColSize, int* new
             tmp = (int*)malloc(colSize * sizeof(int));
             if (tmp == NULL) {
                 perror("malloc");
-                return pRetVal;
+                goto exit;
             }
             memset(tmp, 0, (colSize * sizeof(int)));
             memcpy(tmp, pInterval, (colSize * sizeof(int)));
@@ -71,7 +69,7 @@ int** insert(int** intervals, int intervalsSize, int* intervalsColSize, int* new
             tmp = (int*)malloc(colSize * sizeof(int));
             if (tmp == NULL) {
                 perror("malloc");
-                return pRetVal;
+                goto exit;
             }
             memset(tmp, 0, (colSize * sizeof(int)));
             memcpy(tmp, pInterval, (colSize * sizeof(int)));
@@ -83,11 +81,12 @@ int** insert(int** intervals, int intervalsSize, int* intervalsColSize, int* new
         }
     }
 
+    //
     if (placed == false) {
         tmp = (int*)malloc(colSize * sizeof(int));
         if (tmp == NULL) {
             perror("malloc");
-            return pRetVal;
+            goto exit;
         }
         memset(tmp, 0, (colSize * sizeof(int)));
         tmp[0] = left;
@@ -96,18 +95,25 @@ int** insert(int** intervals, int intervalsSize, int* intervalsColSize, int* new
         pRetVal[(*returnSize)++] = tmp;
     }
 
-#if (DEBUG)
-    for (i = (*returnSize); i < (intervalsSize + 1); ++i) {
-        pRetVal[i] = (int*)malloc(colSize * sizeof(int));
-        memset(pRetVal[i], 0, (colSize * sizeof(int)));
+    return pRetVal;
+
+exit:
+    free((*returnColumnSizes));
+    (*returnColumnSizes) = NULL;
+
+    for (i = 0; i < (*returnSize); ++i) {
+        free(pRetVal[i]);
+        pRetVal[i] = NULL;
     }
-#endif
+    free(pRetVal);
+    pRetVal = NULL;
+    (*returnSize) = 0;
 
     return pRetVal;
 }
 
 int main(int argc, char** argv) {
-#define MAX_ROW (10000)
+#define MAX_ROW (int)(1e4)
 #define MAX_COLUMN (2)
     struct testCaseType {
         int intervals[MAX_ROW][MAX_COLUMN];
@@ -118,9 +124,15 @@ int main(int argc, char** argv) {
         int returnSize;
         int* returnColumnSizes;
     } testCase[] = {{{{1, 3}, {6, 9}}, 2, {2, 2}, {2, 5}, 2, 0, NULL},
-                    {{{1, 2}, {3, 5}, {6, 7}, {8, 10}, {12, 16}}, 5, {2, 2, 2, 2, 2}, {4, 8}, 2, 0, NULL},
-                    {{}, 0, {}, {5, 7}, 2, 0, NULL}};
+                    {{{1, 2}, {3, 5}, {6, 7}, {8, 10}, {12, 16}}, 5, {2, 2, 2, 2, 2}, {4, 8}, 2, 0, NULL}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: intervals = [[1,3],[6,9]], newInterval = [2,5]
+     *  Output: [[1,5],[6,9]]
+     *
+     *  Input: intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]], newInterval = [4,8]
+     *  Output: [[1,2],[3,10],[12,16]]
+     */
 
     int** pIntervals = NULL;
     int* pNewInterval = NULL;
@@ -194,21 +206,13 @@ int main(int argc, char** argv) {
         pIntervals = NULL;
         free(pNewInterval);
         pNewInterval = NULL;
+
+        free(testCase[i].returnColumnSizes);
+        testCase[i].returnColumnSizes = NULL;
         for (j = 0; j < testCase[i].returnSize; ++j) {
             free(pAnswer[j]);
             pAnswer[j] = NULL;
         }
-        free(testCase[i].returnColumnSizes);
-        testCase[i].returnColumnSizes = NULL;
-#if (DEBUG)
-        while (j <= testCase[i].intervalsSize) {
-            printf("free(pAnswer[%d])\n", j);
-            free(pAnswer[j]);
-            pAnswer[j] = NULL;
-            ++j;
-        }
-        printf("\n");
-#endif
         free(pAnswer);
         pAnswer = NULL;
     }

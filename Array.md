@@ -657,7 +657,6 @@ class Solution:
 
 ## [57. Insert Interval](https://leetcode.com/problems/insert-interval/)
 
-- [Official](https://leetcode.com/problems/insert-interval/solutions/2914120/insert-intervals/)
 - [Official](https://leetcode.cn/problems/insert-interval/solutions/472151/cha-ru-qu-jian-by-leetcode-solution/)
 
 <details><summary>Description</summary>
@@ -704,32 +703,30 @@ int** insert(int** intervals, int intervalsSize, int* intervalsColSize, int* new
              int* returnSize, int** returnColumnSizes) {
     int** pRetVal = NULL;
 
-    (*returnSize) = intervalsSize + 1;
-    int colSize = 2;
+    (*returnSize) = 0;
+    (*returnColumnSizes) = NULL;
 
-    (*returnColumnSizes) = (int*)malloc((*returnSize) * sizeof(int));
+    pRetVal = (int**)malloc((intervalsSize + 1) * sizeof(int*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    (*returnColumnSizes) = (int*)malloc((intervalsSize + 1) * sizeof(int));
     if ((*returnColumnSizes) == NULL) {
         perror("malloc");
-        (*returnSize) = 0;
+        free(pRetVal);
+        pRetVal = NULL;
         return pRetVal;
     }
     memset((*returnColumnSizes), 0, ((*returnSize) * sizeof(int)));
 
-    pRetVal = (int**)malloc((*returnSize) * sizeof(int*));
-    if (pRetVal == NULL) {
-        perror("malloc");
-        free((*returnColumnSizes));
-        (*returnColumnSizes) = NULL;
-        (*returnSize) = 0;
-        return pRetVal;
-    }
-
+    //
+    int colSize = 2;
     int left = newInterval[0];
     int right = newInterval[1];
     int* pInterval;
     bool placed = false;
     int* tmp;
-    (*returnSize) = 0;
     int i;
     for (i = 0; i < intervalsSize; ++i) {
         pInterval = intervals[i];
@@ -738,7 +735,7 @@ int** insert(int** intervals, int intervalsSize, int* intervalsColSize, int* new
                 tmp = (int*)malloc(colSize * sizeof(int));
                 if (tmp == NULL) {
                     perror("malloc");
-                    return pRetVal;
+                    goto exit;
                 }
                 memset(tmp, 0, (colSize * sizeof(int)));
                 tmp[0] = left;
@@ -752,7 +749,7 @@ int** insert(int** intervals, int intervalsSize, int* intervalsColSize, int* new
             tmp = (int*)malloc(colSize * sizeof(int));
             if (tmp == NULL) {
                 perror("malloc");
-                return pRetVal;
+                goto exit;
             }
             memset(tmp, 0, (colSize * sizeof(int)));
             memcpy(tmp, pInterval, (colSize * sizeof(int)));
@@ -762,7 +759,7 @@ int** insert(int** intervals, int intervalsSize, int* intervalsColSize, int* new
             tmp = (int*)malloc(colSize * sizeof(int));
             if (tmp == NULL) {
                 perror("malloc");
-                return pRetVal;
+                goto exit;
             }
             memset(tmp, 0, (colSize * sizeof(int)));
             memcpy(tmp, pInterval, (colSize * sizeof(int)));
@@ -774,11 +771,12 @@ int** insert(int** intervals, int intervalsSize, int* intervalsColSize, int* new
         }
     }
 
+    //
     if (placed == false) {
         tmp = (int*)malloc(colSize * sizeof(int));
         if (tmp == NULL) {
             perror("malloc");
-            return pRetVal;
+            goto exit;
         }
         memset(tmp, 0, (colSize * sizeof(int)));
         tmp[0] = left;
@@ -787,12 +785,19 @@ int** insert(int** intervals, int intervalsSize, int* intervalsColSize, int* new
         pRetVal[(*returnSize)++] = tmp;
     }
 
-#if (DEBUG)
-    for (i = (*returnSize); i < (intervalsSize + 1); ++i) {
-        pRetVal[i] = (int*)malloc(colSize * sizeof(int));
-        memset(pRetVal[i], 0, (colSize * sizeof(int)));
+    return pRetVal;
+
+exit:
+    free((*returnColumnSizes));
+    (*returnColumnSizes) = NULL;
+
+    for (i = 0; i < (*returnSize); ++i) {
+        free(pRetVal[i]);
+        pRetVal[i] = NULL;
     }
-#endif
+    free(pRetVal);
+    pRetVal = NULL;
+    (*returnSize) = 0;
 
     return pRetVal;
 }
@@ -834,6 +839,37 @@ class Solution {
         return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def insert(self, intervals: List[List[int]], newInterval: List[int]) -> List[List[int]]:
+        retVal = []
+
+        left = newInterval[0]
+        right = newInterval[1]
+        place = False
+
+        for interval in intervals:
+            if interval[0] > right:
+                if place == False:
+                    retVal.append([left, right])
+                    place = True
+                retVal.append(interval)
+            elif interval[1] < left:
+                retVal.append(interval)
+            else:
+                left = min(left, interval[0])
+                right = max(right, interval[1])
+
+        if place == False:
+            retVal.append([left, right])
+
+        return retVal
 ```
 
 </details>

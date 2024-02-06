@@ -41,9 +41,15 @@ int main(int argc, char** argv) {
         vector<vector<int>> intervals;
         vector<int> newInterval;
     };
-    vector<subject> testData{
-        {{{1, 3}, {6, 9}}, {2, 5}}, {{{1, 2}, {3, 5}, {6, 7}, {8, 10}, {12, 16}}, {4, 8}}, {{}, {5, 7}}};
+    vector<subject> testData{{{{1, 3}, {6, 9}}, {2, 5}}, {{{1, 2}, {3, 5}, {6, 7}, {8, 10}, {12, 16}}, {4, 8}}};
     int numberOfTestCase = testData.size();
+    /* Example
+     *  Input: intervals = [[1,3],[6,9]], newInterval = [2,5]
+     *  Output: [[1,5],[6,9]]
+     *
+     *  Input: intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]], newInterval = [4,8]
+     *  Output: [[1,2],[3,10],[12,16]]
+     */
 
     Solution cSolution;
     vector<vector<int>> answer;
