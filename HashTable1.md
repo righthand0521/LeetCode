@@ -3706,6 +3706,8 @@ int* findDisappearedNumbers(int* nums, int numsSize, int* returnSize){
 
 ## [451. Sort Characters By Frequency](https://leetcode.com/problems/sort-characters-by-frequency/)
 
+- [Official](https://leetcode.cn/problems/sort-characters-by-frequency/solutions/855833/gen-ju-zi-fu-chu-xian-pin-lu-pai-xu-by-l-zmvy/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -3753,66 +3755,105 @@ int compareIntArray(const void *pa, const void *pb) {
         return b[1] - a[1];
     }
 }
-
 char *frequencySort(char *s) {
+    char *pRetVal = s;
+
     int i, j;
 
-    // s consists of uppercase and lowercase English letters and digits.
-#define HASHTABLE_SIZE (128)
-    // malloc hash table
+#define HASHTABLE_SIZE (128)  // s consists of uppercase and lowercase English letters and digits.
     int **pHashTable = (int **)malloc(HASHTABLE_SIZE * sizeof(int *));
     if (pHashTable == NULL) {
         perror("malloc");
-        return s;
+        return pRetVal;
     }
     for (i = 0; i < HASHTABLE_SIZE; ++i) {
         pHashTable[i] = (int *)malloc(2 * sizeof(int));
         if (pHashTable[i] == NULL) {
             perror("malloc");
-            for (j = 0; j < i; ++j) {
-                free(pHashTable[j]);
-                pHashTable[j] = NULL;
-            }
-            free(pHashTable);
-            pHashTable = NULL;
-            return s;
+            goto exit;
         }
         pHashTable[i][0] = i;
         pHashTable[i][1] = 0;
     }
 
-    // use hash table to record the frequency of the characters
-    int len = strlen(s);
-    for (i = 0; i < len; ++i) {
-        ++pHashTable[(int)s[i]][1];
+    int idx;
+    int sSize = strlen(s);
+    for (i = 0; i < sSize; ++i) {
+        idx = s[i];
+        ++pHashTable[idx][1];
     }
-
-    // sort the number of character appearance
     qsort(pHashTable, HASHTABLE_SIZE, sizeof(pHashTable[0]), compareIntArray);
-
-    // update return string based on the frequency of the characters
-    int count = 0;
+    idx = 0;
     for (i = 0; i < HASHTABLE_SIZE; ++i) {
-        if (pHashTable[i][1] == 0) {
-            break;
-        }
-
         for (j = 0; j < pHashTable[i][1]; ++j) {
-            s[count] = pHashTable[i][0];
-            ++count;
+            s[idx++] = pHashTable[i][0];
         }
     }
 
-    // free hash table
-    for (i = 0; i < HASHTABLE_SIZE; ++i) {
-        free(pHashTable[i]);
-        pHashTable[i] = NULL;
+exit:
+    for (j = 0; j < i; ++j) {
+        free(pHashTable[j]);
+        pHashTable[j] = NULL;
     }
     free(pHashTable);
     pHashTable = NULL;
 
-    return s;
+    return pRetVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    string frequencySort(string s) {
+        string retVal;
+
+        unordered_map<char, int> hashTable;
+        for (auto &c : s) {
+            hashTable[c]++;
+        }
+
+        vector<pair<char, int>> sortHashTable;
+        for (auto &iterator : hashTable) {
+            sortHashTable.emplace_back(iterator);
+        }
+        sort(sortHashTable.begin(), sortHashTable.end(),
+             [](const pair<char, int> &a, const pair<char, int> &b) { return a.second > b.second; });
+
+        for (auto &iterator : sortHashTable) {
+            for (int i = 0; i < iterator.second; ++i) {
+                retVal.push_back(iterator.first);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def frequencySort(self, s: str) -> str:
+        retVal = ""
+
+        hashTable = defaultdict(int)
+        for c in s:
+            hashTable[c] += 1
+        sortHashTable = sorted(hashTable.items(), key=lambda kv: kv[1], reverse=True)
+
+        for key, value in sortHashTable:
+            for _ in range(value):
+                retVal += key
+
+        return retVal
 ```
 
 </details>
