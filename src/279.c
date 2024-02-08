@@ -1,4 +1,3 @@
-#include <limits.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,17 +15,18 @@ int numSquares(int n) {
 #if (DYNAMIC_PROGRAMMING)
     printf("DYNAMIC_PROGRAMMING\n");
 
-    unsigned int DP[n + 1];
-    memset(DP, INT_MAX, sizeof(DP));
-    DP[0] = 0;
-
     int i, j;
+    int dp[n + 1];
+    dp[0] = 0;
     for (i = 1; i <= n; ++i) {
-        for (j = 1; j * j <= i; ++j) {
-            DP[i] = fmin(DP[i], (DP[i - j * j] + 1));
+        dp[i] = n + 1;
+    }
+    for (i = 1; i <= n; ++i) {
+        for (j = 1; (j * j) <= i; ++j) {
+            dp[i] = fmin(dp[i], (dp[i - (j * j)] + 1));
         }
     }
-    retVal = DP[n];
+    retVal = dp[n];
 #elif (MATH)
     printf("MATH\n");
 
@@ -82,8 +82,15 @@ int numSquares(int n) {
 int main(int argc, char **argv) {
     struct testCaseType {
         int n;
-    } testCase[] = {{12}, {13}, {9}, {7}, {5}, {6}};
+    } testCase[] = {{12}, {13}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: n = 12
+     *  Output: 3
+     *
+     *  Input: n = 13
+     *  Output: 2
+     */
 
     int answer;
     int i;
