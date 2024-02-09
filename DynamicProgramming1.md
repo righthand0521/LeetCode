@@ -3994,6 +3994,169 @@ class Solution:
 
 </details>
 
+## [368. Largest Divisible Subset](https://leetcode.com/problems/largest-divisible-subset/description/)
+
+- [Official](https://leetcode.cn/problems/largest-divisible-subset/solutions/738617/zui-da-zheng-chu-zi-ji-by-leetcode-solut-t4pz/)
+
+<details><summary>Description</summary>
+
+```text
+Given a set of distinct positive integers nums,
+return the largest subset answer such that every pair (answer[i], answer[j]) of elements in this subset satisfies:
+- answer[i] % answer[j] == 0, or
+- answer[j] % answer[i] == 0
+
+If there are multiple solutions, return any of them.
+
+Example 1:
+Input: nums = [1,2,3]
+Output: [1,2]
+Explanation: [1,3] is also accepted.
+
+Example 2:
+Input: nums = [1,2,4,8]
+Output: [1,2,4,8]
+
+Constraints:
+1 <= nums.length <= 1000
+1 <= nums[i] <= 2 * 10^9
+All the integers in nums are unique.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareInteger(const void *n1, const void *n2) {
+    // ascending order
+    return (*(int *)n1 > *(int *)n2);
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *largestDivisibleSubset(int *nums, int numsSize, int *returnSize) {
+    int *pRetVal = NULL;
+
+    //
+    (*returnSize) = 0;
+
+    //
+    qsort(nums, numsSize, sizeof(int), &compareInteger);
+
+    //
+    int i, j;
+    struct dpType {
+        int subset[numsSize];
+        int subsetSize;
+    } dp[numsSize];
+    memset(dp, 0, sizeof(dp));
+    for (i = 0; i < numsSize; ++i) {
+        dp[i].subset[dp[i].subsetSize++] = nums[i];
+    }
+
+    //
+    int idx = 0;
+    int tmp[numsSize];
+    for (i = 0; i < numsSize; ++i) {
+        for (j = 0; j < i; ++j) {
+            if ((nums[i] % nums[j] == 0) && (dp[j].subsetSize >= dp[i].subsetSize)) {
+                memcpy(dp[i].subset, dp[j].subset, sizeof(dp[i].subset));
+                dp[i].subsetSize = dp[j].subsetSize;
+                dp[i].subset[dp[i].subsetSize++] = nums[i];
+            }
+        }
+
+        if ((*returnSize) < dp[i].subsetSize) {
+            memset(tmp, 0, sizeof(tmp));
+            memcpy(tmp, dp[i].subset, sizeof(tmp));
+            (*returnSize) = dp[i].subsetSize;
+            idx = i;
+        }
+    }
+
+    //
+    pRetVal = (int *)malloc((*returnSize) * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        (*returnSize) = 0;
+        return pRetVal;
+    }
+    memset(pRetVal, 0, ((*returnSize) * sizeof(int)));
+    memcpy(pRetVal, dp[idx].subset, ((*returnSize) * sizeof(int)));
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> largestDivisibleSubset(vector<int>& nums) {
+        vector<int> retVal;
+
+        int numsSize = nums.size();
+
+        sort(nums.begin(), nums.end());
+
+        vector<vector<int>> dp;
+        for (int i = 0; i < numsSize; ++i) {
+            vector<int> tmp = {nums[i]};
+            dp.emplace_back(tmp);
+        }
+
+        for (int i = 0; i < numsSize; ++i) {
+            for (int j = 0; j < i; ++j) {
+                if ((nums[i] % nums[j] == 0) && (dp[j].size() >= dp[i].size())) {
+                    dp[i] = dp[j];
+                    dp[i].emplace_back(nums[i]);
+                }
+            }
+
+            if (retVal.size() < dp[i].size()) {
+                retVal = dp[i];
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def largestDivisibleSubset(self, nums: List[int]) -> List[int]:
+        retVal = []
+
+        numsSize = len(nums)
+
+        nums.sort()
+
+        dp = []
+        for i in range(numsSize):
+            dp.append([nums[i]])
+
+        for i in range(numsSize):
+            for j in range(i):
+                if (nums[i] % nums[j] == 0) and (len(dp[j]) >= len(dp[i])):
+                    dp[i] = dp[j] + [nums[i]]
+
+            if len(retVal) < len(dp[i]):
+                retVal = dp[i]
+
+        return retVal
+```
+
+</details>
+
 ## [376. Wiggle Subsequence](https://leetcode.com/problems/wiggle-subsequence/)
 
 - [Official](https://leetcode.cn/problems/wiggle-subsequence/solutions/518296/bai-dong-xu-lie-by-leetcode-solution-yh2m/)
