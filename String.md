@@ -2539,6 +2539,124 @@ bool detectCapitalUse(char* word) {
 
 </details>
 
+## [647. Palindromic Substrings](https://leetcode.com/problems/palindromic-substrings/)
+
+- [Official](https://leetcode.cn/problems/palindromic-substrings/solutions/379987/hui-wen-zi-chuan-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+Given a string s, return the number of palindromic substrings in it.
+
+A string is a palindrome when it reads the same backward as forward.
+
+A substring is a contiguous sequence of characters within the string.
+
+Example 1:
+Input: s = "abc"
+Output: 3
+Explanation: Three palindromic strings: "a", "b", "c".
+
+Example 2:
+Input: s = "aaa"
+Output: 6
+Explanation: Six palindromic strings: "a", "a", "a", "aa", "aa", "aaa".
+
+Constraints:
+1 <= s.length <= 1000
+s consists of lowercase English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. How can we reuse a previously computed palindrome to compute a larger palindrome?
+2. If "aba" is a palindrome, is “xabax” a palindrome? Similarly is “xabay” a palindrome?
+3. Complexity based hint:
+   If we use brute force and check whether for every start and end position a substring is a palindrome
+   we have O(n^2) start - end pairs and O(n) palindromic checks.
+   Can we reduce the time for palindromic checks to O(1) by reusing some previous computation?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int countSubstrings(char* s) {
+    int retVal = 0;
+
+    int sSize = strlen(s);
+
+    int left, right;
+    int i;
+    for (i = 0; i < (2 * sSize - 1); ++i) {
+        left = i / 2;
+        right = i / 2 + i % 2;
+        while ((left >= 0) && (right < sSize) && (s[left] == s[right])) {
+            --left;
+            ++right;
+            ++retVal;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int countSubstrings(string s) {
+        int retVal = 0;
+
+        int sSize = s.size();
+
+        for (int i = 0; i < (2 * sSize - 1); ++i) {
+            int left = i / 2;
+            int right = i / 2 + i % 2;
+            while ((left >= 0) && (right < sSize) && (s[left] == s[right])) {
+                --left;
+                ++right;
+                ++retVal;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def countSubstrings(self, s: str) -> int:
+        retVal = 0
+
+        sSize = len(s)
+
+        for i in range(2 * sSize - 1):
+            left = i // 2
+            right = (i // 2) + (i % 2)
+            while ((left >= 0) and (right < sSize) and (s[left] == s[right])):
+                left -= 1
+                right += 1
+                retVal += 1
+
+        return retVal
+```
+
+</details>
+
 ## [686. Repeated String Match](https://leetcode.com/problems/repeated-string-match/)
 
 - [Official](https://leetcode.cn/problems/repeated-string-match/solutions/1170235/zhong-fu-die-jia-zi-fu-chuan-pi-pei-by-l-vnye/)
