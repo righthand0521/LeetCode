@@ -4695,6 +4695,314 @@ class Solution:
 
 </details>
 
+## [1463. Cherry Pickup II](https://leetcode.com/problems/cherry-pickup-ii/)  1956
+
+- [Official](https://leetcode.cn/problems/cherry-pickup-ii/solutions/521172/zhai-ying-tao-ii-by-leetcode-solution-v2k5/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a rows x cols matrix grid representing a field of cherries
+where grid[i][j] represents the number of cherries that you can collect from the (i, j) cell.
+
+You have two robots that can collect cherries for you:
+- Robot #1 is located at the top-left corner (0, 0), and
+- Robot #2 is located at the top-right corner (0, cols - 1).
+
+Return the maximum number of cherries collection using both robots by following the rules below:
+- From a cell (i, j), robots can move to cell (i + 1, j - 1), (i + 1, j), or (i + 1, j + 1).
+- When any robot passes through a cell, It picks up all cherries, and the cell becomes an empty cell.
+- When both robots stay in the same cell, only one takes the cherries.
+- Both robots cannot move outside of the grid at any moment.
+- Both robots should reach the bottom row in grid.
+
+Example 1:
+Input: grid = [[3,1,1],[2,5,1],[1,5,5],[2,1,1]]
+Output: 24
+Explanation: Path of robot #1 and #2 are described in color green and blue respectively.
+Cherries taken by Robot #1, (3 + 2 + 5 + 2) = 12.
+Cherries taken by Robot #2, (1 + 5 + 5 + 1) = 12.
+Total of cherries: 12 + 12 = 24.
+
+Example 2:
+Input: grid = [[1,0,0,0,0,0,1],[2,0,0,0,0,3,0],[2,0,9,0,0,0,0],[0,3,0,5,4,0,0],[1,0,2,3,0,0,6]]
+Output: 28
+Explanation: Path of robot #1 and #2 are described in color green and blue respectively.
+Cherries taken by Robot #1, (1 + 9 + 5 + 2) = 17.
+Cherries taken by Robot #2, (1 + 3 + 4 + 3) = 11.
+Total of cherries: 17 + 11 = 28.
+
+Constraints:
+rows == grid.length
+cols == grid[i].length
+2 <= rows, cols <= 70
+0 <= grid[i][j] <= 100
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use dynammic programming, define DP[i][j][k]: The maximum cherries
+   that both robots can take starting on the ith row, and column j and k of Robot 1 and 2 respectively.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int cherryPickup(int** grid, int gridSize, int* gridColSize) {
+    int retVal = 0;
+
+    int rowSize = gridSize;
+    int colSize = gridColSize[0];
+    int i, j, k;
+
+    int dp[rowSize][colSize][colSize];
+    for (i = 0; i < rowSize; ++i) {
+        for (j = 0; j < colSize; ++j) {
+            for (k = 0; k < colSize; ++k) {
+                dp[i][j][k] = -1;
+            }
+        }
+    }
+    dp[0][0][colSize - 1] = grid[0][0] + grid[0][colSize - 1];
+
+    int a, b, c, d, e, f, g, h, t, temp;
+    for (i = 1; i < rowSize; ++i) {
+        for (j = 0; j < colSize; ++j) {
+            for (k = 0; k < colSize; ++k) {
+                a = -1;
+                if ((i > 0) && (j > 0) && (k > 0)) {
+                    a = dp[i - 1][j - 1][k - 1];
+                }
+
+                b = -1;
+                if ((i > 0) && (j > 0)) {
+                    b = dp[i - 1][j - 1][k];
+                }
+
+                c = -1;
+                if ((i > 0) && (j > 0) && (k + 1 < colSize)) {
+                    c = dp[i - 1][j - 1][k + 1];
+                }
+
+                d = -1;
+                if ((i > 0) && (k > 0)) {
+                    d = dp[i - 1][j][k - 1];
+                }
+
+                e = -1;
+                if (i > 0) {
+                    e = dp[i - 1][j][k];
+                }
+
+                f = -1;
+                if ((i > 0) && (k + 1 < colSize)) {
+                    f = dp[i - 1][j][k + 1];
+                }
+
+                g = -1;
+                if ((i > 0) && (j + 1 < colSize) && (k > 0)) {
+                    g = dp[i - 1][j + 1][k - 1];
+                }
+
+                h = -1;
+                if ((i > 0) && (j + 1 < colSize)) {
+                    h = dp[i - 1][j + 1][k];
+                }
+
+                t = -1;
+                if ((i > 0) && (j + 1 < colSize) && (k + 1 < colSize)) {
+                    t = dp[i - 1][j + 1][k + 1];
+                }
+
+                temp = fmax(fmax(fmax(fmax(a, b), fmax(c, d)), fmax(fmax(e, f), fmax(g, h))), t);
+                if (temp == -1) {
+                    dp[i][j][k] = -1;
+                } else {
+                    if (j == k) {
+                        dp[i][j][k] = temp + grid[i][j];
+                    } else {
+                        dp[i][j][k] = temp + grid[i][j] + grid[i][k];
+                    }
+                }
+            }
+        }
+    }
+
+    for (i = 0; i < colSize; ++i) {
+        for (j = 0; j < colSize; ++j) {
+            retVal = fmax(retVal, dp[rowSize - 1][i][j]);
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int cherryPickup(vector<vector<int>>& grid) {
+        int retVal = 0;
+
+        int rowSize = grid.size();
+        int colSize = grid[0].size();
+
+        vector<vector<vector<int>>> dp(rowSize, vector<vector<int>>(colSize, vector<int>(colSize, -1)));
+        dp[0][0][colSize - 1] = grid[0][0] + grid[0][colSize - 1];
+        for (int i = 1; i < rowSize; ++i) {
+            for (int j = 0; j < colSize; ++j) {
+                for (int k = 0; k < colSize; ++k) {
+                    int a = -1;
+                    if ((i > 0) && (j > 0) && (k > 0)) {
+                        a = dp[i - 1][j - 1][k - 1];
+                    }
+
+                    int b = -1;
+                    if ((i > 0) && (j > 0)) {
+                        b = dp[i - 1][j - 1][k];
+                    }
+
+                    int c = -1;
+                    if ((i > 0) && (j > 0) && (k + 1 < colSize)) {
+                        c = dp[i - 1][j - 1][k + 1];
+                    }
+
+                    int d = -1;
+                    if ((i > 0) && (k > 0)) {
+                        d = dp[i - 1][j][k - 1];
+                    }
+
+                    int e = -1;
+                    if (i > 0) {
+                        e = dp[i - 1][j][k];
+                    }
+
+                    int f = -1;
+                    if ((i > 0) && (k + 1 < colSize)) {
+                        f = dp[i - 1][j][k + 1];
+                    }
+
+                    int g = -1;
+                    if ((i > 0) && (j + 1 < colSize) && (k > 0)) {
+                        g = dp[i - 1][j + 1][k - 1];
+                    }
+
+                    int h = -1;
+                    if ((i > 0) && (j + 1 < colSize)) {
+                        h = dp[i - 1][j + 1][k];
+                    }
+
+                    int t = -1;
+                    if ((i > 0) && (j + 1 < colSize) && (k + 1 < colSize)) {
+                        t = dp[i - 1][j + 1][k + 1];
+                    }
+
+                    int temp = max(max(max(max(a, b), max(c, d)), max(max(e, f), max(g, h))), t);
+                    if (temp == -1) {
+                        dp[i][j][k] = -1;
+                    } else {
+                        if (j == k) {
+                            dp[i][j][k] = temp + grid[i][j];
+                        } else {
+                            dp[i][j][k] = temp + grid[i][j] + grid[i][k];
+                        }
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < colSize; ++i) {
+            for (int j = 0; j < colSize; ++j) {
+                retVal = max(retVal, dp[rowSize - 1][i][j]);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def cherryPickup(self, grid: List[List[int]]) -> int:
+        retVal = 0
+
+        rowSize = len(grid)
+        colSize = len(grid[0])
+
+        dp = [[[-1] * colSize for _ in range(colSize)] for _ in range(rowSize)]
+        dp[0][0][colSize-1] = grid[0][0] + grid[0][colSize-1]
+        for i in range(1, rowSize):
+            for j in range(colSize):
+                for k in range(colSize):
+                    a = -1
+                    if (i > 0) and (j > 0) and (k > 0):
+                        a = dp[i-1][j-1][k-1]
+
+                    b = -1
+                    if (i > 0) and (j > 0):
+                        b = dp[i-1][j-1][k]
+
+                    c = -1
+                    if (i > 0) and (j > 0) and (k + 1 < colSize):
+                        c = dp[i-1][j-1][k+1]
+
+                    d = -1
+                    if (i > 0) and (k > 0):
+                        d = dp[i-1][j][k-1]
+
+                    e = -1
+                    if i > 0:
+                        e = dp[i-1][j][k]
+
+                    f = -1
+                    if (i > 0) and (k + 1 < colSize):
+                        f = dp[i-1][j][k+1]
+
+
+                    g = -1
+                    if (i > 0) and (j + 1 < colSize) and (k > 0):
+                        g = dp[i-1][j+1][k-1]
+
+                    h = -1
+                    if (i > 0) and (j + 1 < colSize):
+                        h = dp[i-1][j+1][k]
+
+                    t = -1
+                    if (i > 0) and (j + 1 < colSize) and (k + 1 < colSize):
+                        t = dp[i-1][j+1][k+1]
+
+                    temp = max(a, b, c, d, e, f, g, h, t)
+                    if temp == -1:
+                        dp[i][j][k] = -1
+                    else:
+                        if j == k:
+                            dp[i][j][k] = temp + grid[i][j]
+                        else:
+                            dp[i][j][k] = temp + grid[i][j] + grid[i][k]
+
+        for i in range(colSize):
+            for j in range(colSize):
+                retVal = max(retVal, dp[rowSize-1][i][j])
+
+        return retVal
+```
+
+</details>
+
 ## [1547. Minimum Cost to Cut a Stick](https://leetcode.com/problems/minimum-cost-to-cut-a-stick/)  2116
 
 - [Official](https://leetcode.com/problems/minimum-cost-to-cut-a-stick/editorial/)
