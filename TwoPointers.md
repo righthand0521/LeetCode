@@ -3170,6 +3170,154 @@ class Solution {
 
 </details>
 
+## [2108. Find First Palindromic String in the Array](https://leetcode.com/problems/find-first-palindromic-string-in-the-array/)  1215
+
+- [Official](https://leetcode.com/problems/find-first-palindromic-string-in-the-array/editorial/)
+- [Official](https://leetcode.cn/problems/find-first-palindromic-string-in-the-array/solutions/1165775/zhao-chu-shu-zu-zhong-de-di-yi-ge-hui-we-mo3m/)
+
+<details><summary>Description</summary>
+
+```text
+Given an array of strings words, return the first palindromic string in the array.
+If there is no such string, return an empty string "".
+
+A string is palindromic if it reads the same forward and backward.
+
+Example 1:
+Input: words = ["abc","car","ada","racecar","cool"]
+Output: "ada"
+Explanation: The first string that is palindromic is "ada".
+Note that "racecar" is also palindromic, but it is not the first.
+
+Example 2:
+Input: words = ["notapalindrome","racecar"]
+Output: "racecar"
+Explanation: The first and only string that is palindromic is "racecar".
+
+Example 3:
+Input: words = ["def","ghi"]
+Output: ""
+Explanation: There are no palindromic strings, so the empty string is returned.
+
+Constraints:
+1 <= words.length <= 100
+1 <= words[i].length <= 100
+words[i] consists only of lowercase English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Iterate through the elements in order. As soon as the current element is a palindrome, return it.
+2. To check if an element is a palindrome, can you reverse the string?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool isPalindrome(char *word, int wordSize) {
+    bool retVal = true;
+
+    int left = 0;
+    int right = wordSize - 1;
+    while (left < right) {
+        if (word[left++] != word[right--]) {
+            retVal = false;
+            break;
+        }
+    }
+
+    return retVal;
+}
+char *firstPalindrome(char **words, int wordsSize) {
+    char *retVal = "";
+
+    int i;
+    for (i = 0; i < wordsSize; ++i) {
+        if (isPalindrome(words[i], strlen(words[i])) == true) {
+            retVal = words[i];
+            break;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool isPalindrome(string word) {
+        bool retVal = true;
+
+        int left = 0;
+        int right = word.size() - 1;
+        while (left < right) {
+            if (word[left++] != word[right--]) {
+                retVal = false;
+                break;
+            }
+        }
+
+        return retVal;
+    }
+    string firstPalindrome(vector<string>& words) {
+        string retVal = "";
+
+        for (string word : words) {
+            if (isPalindrome(word) == true) {
+                retVal = word;
+                break;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def isPalindrome(self, word: str) -> bool:
+        retVal = True
+
+        wordSize = len(word)
+        left = 0
+        right = wordSize - 1
+        while left < right:
+            if word[left] != word[right]:
+                retVal = False
+                break
+            left += 1
+            right -= 1
+
+        return retVal
+
+    def firstPalindrome(self, words: List[str]) -> str:
+        retVal = ""
+
+        for word in words:
+            if self.isPalindrome(word) == True:
+                retVal = word
+                break
+
+        return retVal
+```
+
+</details>
+
 ## [2332. The Latest Time to Catch a Bus](https://leetcode.com/problems/the-latest-time-to-catch-a-bus/)  1840
 
 <details><summary>Description</summary>
