@@ -23,6 +23,12 @@ void sort_vector_vector() {
         // descending order
         return (x > y);
     });
+
+    vector<pair<int, int>> occurrencesSort(occurrences.begin(), occurrences.end());
+    sort(occurrencesSort.begin(), occurrencesSort.end(), [&](auto x1, auto x2) {
+        // ascending order
+        return x1.second < x2.second;
+    });
 }
 #else
 int qsort_ascending_compareInteger(const void* n1, const void* n2) {
@@ -80,6 +86,18 @@ int qsort_descending_compareIntArray(const void* a1, const void* a2) {
     }
 
     return (p1[0] < p2[0]);
+}
+
+typedef struct {
+    int number;
+    int times;
+} pair;
+int qsort_descending_compareStruct(const void* a, const void* b) {
+    int pa = ((pair*)a)->times;
+    int pb = ((pair*)b)->times;
+
+    // ascending order
+    return (pa > pb);
 }
 #endif
 

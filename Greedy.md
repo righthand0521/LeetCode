@@ -1711,6 +1711,157 @@ class Solution:
 
 </details>
 
+## [1481. Least Number of Unique Integers after K Removals](https://leetcode.com/problems/least-number-of-unique-integers-after-k-removals/)  1284
+
+- [Official](https://leetcode.com/problems/least-number-of-unique-integers-after-k-removals/editorial/)
+- [Official](https://leetcode.cn/problems/least-number-of-unique-integers-after-k-removals/solutions/579291/bu-tong-zheng-shu-de-zui-shao-shu-mu-by-h6h4i/)
+
+<details><summary>Description</summary>
+
+```text
+Given an array of integers arr and an integer k.
+Find the least number of unique integers after removing exactly k elements.
+
+Example 1:
+Input: arr = [5,5,4], k = 1
+Output: 1
+Explanation: Remove the single 4, only 5 is left.
+
+Example 2:
+Input: arr = [4,3,1,1,3,3,2], k = 3
+Output: 2
+Explanation: Remove 4, 2 and either one of the two 1s or three 3s. 1 and 3 will be left.
+
+Constraints:
+1 <= arr.length <= 10^5
+1 <= arr[i] <= 10^9
+0 <= k <= arr.length
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use a map to count the frequencies of the numbers in the array.
+2. An optimal strategy is to remove the numbers with the smallest count first.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+typedef struct {
+    int number;
+    int times;
+} pair;
+int compareStruct(const void* a, const void* b) {
+    int pa = ((pair*)a)->times;
+    int pb = ((pair*)b)->times;
+
+    // ascending order
+    return (pa > pb);
+}
+int compareInteger(const void* n1, const void* n2) {
+    // ascending order
+    return (*(int*)n1 > *(int*)n2);
+}
+int findLeastNumOfUniqueInts(int* arr, int arrSize, int k) {
+    int retVal = 0;
+
+    int i;
+
+    qsort(arr, arrSize, sizeof(int), compareInteger);
+    int previous = arr[0];
+    int occurrencesSize = 1;
+    for (i = 1; i < arrSize; ++i) {
+        if (previous != arr[i]) {
+            previous = arr[i];
+            occurrencesSize++;
+        }
+    }
+
+    pair occurrences[occurrencesSize];
+    memset(occurrences, 0, sizeof(occurrences));
+    occurrencesSize = 0;
+    occurrences[occurrencesSize].number = arr[0];
+    occurrences[occurrencesSize].times += 1;
+    for (i = 1; i < arrSize; ++i) {
+        if (occurrences[occurrencesSize].number != arr[i]) {
+            occurrencesSize++;
+            occurrences[occurrencesSize].number = arr[i];
+        }
+        occurrences[occurrencesSize].times += 1;
+    }
+    occurrencesSize++;
+    qsort(occurrences, occurrencesSize, sizeof(pair), compareStruct);
+
+    for (i = 0; i < occurrencesSize; ++i) {
+        k -= occurrences[i].times;
+        if (k < 0) {
+            retVal++;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int findLeastNumOfUniqueInts(vector<int>& arr, int k) {
+        int retVal = 0;
+
+        unordered_map<int, int> occurrences;
+        for (auto iterator : arr) {
+            occurrences[iterator]++;
+        }
+
+        vector<pair<int, int>> occurrencesSort(occurrences.begin(), occurrences.end());
+        sort(occurrencesSort.begin(), occurrencesSort.end(), [&](auto x1, auto x2) {
+            // ascending order
+            return x1.second < x2.second;
+        });
+
+        for (auto iterator : occurrencesSort) {
+            k -= iterator.second;
+            if (k < 0) {
+                retVal++;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def findLeastNumOfUniqueInts(self, arr: List[int], k: int) -> int:
+        retVal = 0
+
+        arrCount = Counter(arr).most_common()
+        arrCount.reverse()
+        for _, times in arrCount:
+            k -= times
+            if k < 0:
+                retVal += 1
+
+        return retVal
+```
+
+</details>
+
 ## [1561. Maximum Number of Coins You Can Get](https://leetcode.com/problems/maximum-number-of-coins-you-can-get/)  1405
 
 - [Official](https://leetcode.com/problems/maximum-number-of-coins-you-can-get/editorial/)
