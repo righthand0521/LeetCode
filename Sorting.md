@@ -2725,6 +2725,252 @@ class Solution:
 
 </details>
 
+## [2402. Meeting Rooms III](https://leetcode.com/problems/meeting-rooms-iii/)  2092
+
+- [Official](https://leetcode.com/problems/meeting-rooms-iii/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer n. There are n rooms numbered from 0 to n - 1.
+
+You are given a 2D integer array meetings where meetings[i] = [starti, endi]
+means that a meeting will be held during the half-closed time interval [starti, endi).
+All the values of starti are unique.
+
+Meetings are allocated to rooms in the following manner:
+1. Each meeting will take place in the unused room with the lowest number.
+2. If there are no available rooms, the meeting will be delayed until a room becomes free.
+   The delayed meeting should have the same duration as the original meeting.
+3. When a room becomes unused, meetings that have an earlier original start time should be given the room.
+
+Return the number of the room that held the most meetings.
+If there are multiple rooms, return the room with the lowest number.
+
+A half-closed interval [a, b) is the interval between a and b including a and not including b.
+
+Example 1:
+Input: n = 2, meetings = [[0,10],[1,5],[2,7],[3,4]]
+Output: 0
+Explanation:
+- At time 0, both rooms are not being used. The first meeting starts in room 0.
+- At time 1, only room 1 is not being used. The second meeting starts in room 1.
+- At time 2, both rooms are being used. The third meeting is delayed.
+- At time 3, both rooms are being used. The fourth meeting is delayed.
+- At time 5, the meeting in room 1 finishes. The third meeting starts in room 1 for the time period [5,10).
+- At time 10, the meetings in both rooms finish. The fourth meeting starts in room 0 for the time period [10,11).
+Both rooms 0 and 1 held 2 meetings, so we return 0.
+
+Example 2:
+Input: n = 3, meetings = [[1,20],[2,10],[3,5],[4,9],[6,8]]
+Output: 1
+Explanation:
+- At time 1, all three rooms are not being used. The first meeting starts in room 0.
+- At time 2, rooms 1 and 2 are not being used. The second meeting starts in room 1.
+- At time 3, only room 2 is not being used. The third meeting starts in room 2.
+- At time 4, all three rooms are being used. The fourth meeting is delayed.
+- At time 5, the meeting in room 2 finishes. The fourth meeting starts in room 2 for the time period [5,10).
+- At time 6, all three rooms are being used. The fifth meeting is delayed.
+- At time 10, the meetings in rooms 1 and 2 finish. The fifth meeting starts in room 1 for the time period [10,12).
+Room 0 held 1 meeting while rooms 1 and 2 each held 2 meetings, so we return 1.
+
+Constraints:
+1 <= n <= 100
+1 <= meetings.length <= 10^5
+meetings[i].length == 2
+0 <= starti < endi <= 5 * 10^5
+All the values of starti are unique.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Sort meetings based on start times.
+2. Use two min heaps, the first one keeps track of the numbers of all the rooms that are free.
+   The second heap keeps track of the end times of all the meetings that are happening and the room that they are in.
+3. Keep track of the number of times each room is used in an array.
+4. With each meeting, check if there are any free rooms.
+   If there are, then use the room with the smallest number.
+   Otherwise, assign the meeting to the room whose meeting will end the soonest.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareIntArray(const void* a1, const void* a2) {
+    const int* p1 = *(const int**)a1;
+    const int* p2 = *(const int**)a2;
+
+    // ascending order
+    if (p1[0] == p2[0]) {
+        return (p1[1] > p2[1]);
+    }
+
+    return (p1[0] > p2[0]);
+}
+int mostBooked(int n, int** meetings, int meetingsSize, int* meetingsColSize) {
+    int retVal = 0;
+
+    //
+    qsort(meetings, meetingsSize, sizeof(meetings[0]), compareIntArray);
+
+    //
+    long long roomAvailabilityTime[n];
+    memset(roomAvailabilityTime, 0, sizeof(roomAvailabilityTime));
+
+    int meetingCount[n];
+    memset(meetingCount, 0, sizeof(meetingCount));
+
+    long long minRoomAvailabilityTime;
+    int minAvailableTimeRoom;
+    bool foundUnusedRoom;
+    int start, end;
+
+    int i, j;
+    for (i = 0; i < meetingsSize; ++i) {
+        start = meetings[i][0];
+        end = meetings[i][1];
+
+        minRoomAvailabilityTime = LLONG_MAX;
+        minAvailableTimeRoom = 0;
+        foundUnusedRoom = false;
+
+        for (j = 0; j < n; ++j) {
+            if (roomAvailabilityTime[j] <= start) {
+                foundUnusedRoom = true;
+                meetingCount[j]++;
+                roomAvailabilityTime[j] = end;
+                break;
+            }
+
+            if (minRoomAvailabilityTime > roomAvailabilityTime[j]) {
+                minRoomAvailabilityTime = roomAvailabilityTime[j];
+                minAvailableTimeRoom = j;
+            }
+        }
+
+        if (foundUnusedRoom == false) {
+            roomAvailabilityTime[minAvailableTimeRoom] += (end - start);
+            meetingCount[minAvailableTimeRoom]++;
+        }
+    }
+
+    //
+    int maxMeetingCount = 0;
+    int maxMeetingCountRoom = 0;
+    for (i = 0; i < n; i++) {
+        if (meetingCount[i] > maxMeetingCount) {
+            maxMeetingCount = meetingCount[i];
+            maxMeetingCountRoom = i;
+        }
+    }
+    retVal = maxMeetingCountRoom;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int mostBooked(int n, vector<vector<int>>& meetings) {
+        int retVal = 0;
+
+        sort(meetings.begin(), meetings.end());
+
+        vector<long long> roomAvailabilityTime(n, 0);
+        vector<int> meetingCount(n, 0);
+        for (auto& meeting : meetings) {
+            int start = meeting[0];
+            int end = meeting[1];
+
+            long long minRoomAvailabilityTime = numeric_limits<long long>::max();
+            int minAvailableTimeRoom = 0;
+            bool foundUnusedRoom = false;
+
+            for (int i = 0; i < n; i++) {
+                if (roomAvailabilityTime[i] <= start) {
+                    foundUnusedRoom = true;
+                    meetingCount[i]++;
+                    roomAvailabilityTime[i] = end;
+                    break;
+                }
+
+                if (minRoomAvailabilityTime > roomAvailabilityTime[i]) {
+                    minRoomAvailabilityTime = roomAvailabilityTime[i];
+                    minAvailableTimeRoom = i;
+                }
+            }
+
+            if (foundUnusedRoom == false) {
+                roomAvailabilityTime[minAvailableTimeRoom] += end - start;
+                meetingCount[minAvailableTimeRoom]++;
+            }
+        }
+
+        int maxMeetingCount = 0;
+        int maxMeetingCountRoom = 0;
+        for (int i = 0; i < n; i++) {
+            if (meetingCount[i] > maxMeetingCount) {
+                maxMeetingCount = meetingCount[i];
+                maxMeetingCountRoom = i;
+            }
+        }
+        retVal = maxMeetingCountRoom;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def mostBooked(self, n: int, meetings: List[List[int]]) -> int:
+        retVal = 0
+
+        meetings = sorted(meetings)
+
+        room_availability_time = [0] * n
+        meeting_count = [0] * n
+        for start, end in meetings:
+            min_room_availability_time = float('inf')
+            min_available_time_room = 0
+            found_unused_room = False
+
+            for i in range(n):
+                if room_availability_time[i] <= start:
+                    found_unused_room = True
+                    meeting_count[i] += 1
+                    room_availability_time[i] = end
+                    break
+
+                if min_room_availability_time > room_availability_time[i]:
+                    min_room_availability_time = room_availability_time[i]
+                    min_available_time_room = i
+
+            if found_unused_room is False:
+                room_availability_time[min_available_time_room] += end - start
+                meeting_count[min_available_time_room] += 1
+
+        retVal = meeting_count.index(max(meeting_count))
+
+        return retVal
+```
+
+</details>
+
 ## [2418. Sort the People](https://leetcode.com/problems/sort-the-people/)  1193
 
 - [Official](https://leetcode.cn/problems/sort-the-people/solutions/2242694/an-shen-gao-pai-xu-by-leetcode-solution-p6bk/)
