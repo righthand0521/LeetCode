@@ -547,17 +547,25 @@ class Solution:
 
 ## [155. Min Stack](https://leetcode.com/problems/min-stack/)
 
+- [Official](https://leetcode.cn/problems/min-stack/solutions/242190/zui-xiao-zhan-by-leetcode-solution/)
+
 <details><summary>Description</summary>
 
 ```text
 Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.
 
 Implement the MinStack class:
-MinStack() initializes the stack object.
-void push(int val) pushes the element val onto the stack.
-void pop() removes the element on the top of the stack.
-int top() gets the top element of the stack.
-int getMin() retrieves the minimum element in the stack.
+- MinStack()
+  initializes the stack object.
+- void push(int val)
+  pushes the element val onto the stack.
+- void pop()
+  removes the element on the top of the stack.
+- int top()
+  gets the top element of the stack.
+- int getMin()
+  retrieves the minimum element in the stack.
+
 You must implement a solution with O(1) time complexity for each function.
 
 Example 1:
@@ -593,99 +601,175 @@ typedef struct MinStack {
     struct MinStack *next;
 } MinStack;
 MinStack *top = NULL;
-
-void show()
-{
+void show() {
     MinStack *pHead = top;
-    while (pHead != NULL)
-    {
+    while (pHead != NULL) {
         printf("[%d|%d] -> ", pHead->data, pHead->min);
         pHead = pHead->next;
     }
     printf("NULL\n");
 }
-
-MinStack* minStackCreate() {
+MinStack *minStackCreate() {
     MinStack *pRetVal = (MinStack *)malloc(sizeof(struct MinStack));
-    if (pRetVal == NULL)
-    {
+    if (pRetVal == NULL) {
         perror("malloc");
     }
 
     return pRetVal;
 }
-
-void minStackPush(MinStack* obj, int val) {
+void minStackPush(MinStack *obj, int val) {
     MinStack *pNew = (MinStack *)malloc(sizeof(struct MinStack));
-    if (pNew == NULL)
-    {
+    if (pNew == NULL) {
         perror("malloc");
         return;
     }
     pNew->data = val;
     pNew->min = val;
-    if ((top != NULL) && (val > top->min))
-    {
+    if ((top != NULL) && (val > top->min)) {
         pNew->min = top->min;
     }
     pNew->next = top;
     top = pNew;
 }
-
-void minStackPop(MinStack* obj) {
+void minStackPop(MinStack *obj) {
     MinStack *pHead = top;
-    if (pHead == NULL)
-    {
+    if (pHead == NULL) {
         return;
     }
     top = pHead->next;
     free(pHead);
 }
-
-int minStackTop(MinStack* obj) {
+int minStackTop(MinStack *obj) {
     int retVal = INT_MIN;
 
     MinStack *pHead = top;
-    if (pHead == NULL)
-    {
+    if (pHead == NULL) {
         return retVal;
     }
     retVal = pHead->data;
 
     return retVal;
 }
-
-int minStackGetMin(MinStack* obj) {
+int minStackGetMin(MinStack *obj) {
     int retVal = INT_MIN;
 
     MinStack *pHead = top;
-    if (pHead == NULL)
-    {
+    if (pHead == NULL) {
         return retVal;
     }
     retVal = pHead->min;
 
     return retVal;
 }
-
-void minStackFree(MinStack* obj) {
+void minStackFree(MinStack *obj) {
+    MinStack *pFree = NULL;
+    MinStack *pNext = top;
+    while (pNext != NULL) {
+        pFree = pNext;
+        pNext = pNext->next;
+        free(pFree);
+        pFree = NULL;
+    }
     free(obj);
+    obj = NULL;
     top = NULL;
 }
-
 /**
  * Your MinStack struct will be instantiated and called as such:
  * MinStack* obj = minStackCreate();
  * minStackPush(obj, val);
-
  * minStackPop(obj);
-
  * int param_3 = minStackTop(obj);
-
  * int param_4 = minStackGetMin(obj);
-
  * minStackFree(obj);
-*/
+ */
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class MinStack {
+   private:
+    stack<int> generalStack;
+    stack<int> minStack;
+
+   public:
+    MinStack() {
+        //
+    }
+    void push(int val) {
+        generalStack.push(val);
+        if (minStack.empty() == true) {
+            minStack.push(val);
+        } else {
+            int minValue = minStack.top();
+            minStack.push(min(val, minValue));
+        }
+    }
+    void pop() {
+        generalStack.pop();
+        minStack.pop();
+    }
+    int top() {
+        int retVal = generalStack.top();
+
+        return retVal;
+    }
+    int getMin() {
+        int retVal = minStack.top();
+
+        return retVal;
+    }
+};
+/**
+ * Your MinStack object will be instantiated and called as such:
+ * MinStack* obj = new MinStack();
+ * obj->push(val);
+ * obj->pop();
+ * int param_3 = obj->top();
+ * int param_4 = obj->getMin();
+ */
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class MinStack:
+    def __init__(self):
+        self.stack = []
+        self.minStack = []
+
+    def push(self, val: int) -> None:
+        self.stack.append(val)
+        if len(self.minStack) == 0:
+            self.minStack.append(val)
+        else:
+            self.minStack.append(min(val, self.minStack[-1]))
+
+    def pop(self) -> None:
+        self.stack.pop()
+        self.minStack.pop()
+
+    def top(self) -> int:
+        retVal = self.stack[-1]
+
+        return retVal
+
+    def getMin(self) -> int:
+        retVal = retVal = self.minStack[-1]
+
+        return retVal
+
+# Your MinStack object will be instantiated and called as such:
+# obj = MinStack()
+# obj.push(val)
+# obj.pop()
+# param_3 = obj.top()
+# param_4 = obj.getMin()
 ```
 
 </details>

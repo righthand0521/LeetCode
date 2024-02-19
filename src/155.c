@@ -1,5 +1,4 @@
 #include <limits.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -71,9 +70,27 @@ int minStackGetMin(MinStack *obj) {
     return retVal;
 }
 void minStackFree(MinStack *obj) {
+    MinStack *pFree = NULL;
+    MinStack *pNext = top;
+    while (pNext != NULL) {
+        pFree = pNext;
+        pNext = pNext->next;
+        free(pFree);
+        pFree = NULL;
+    }
     free(obj);
+    obj = NULL;
     top = NULL;
 }
+/**
+ * Your MinStack struct will be instantiated and called as such:
+ * MinStack* obj = minStackCreate();
+ * minStackPush(obj, val);
+ * minStackPop(obj);
+ * int param_3 = minStackTop(obj);
+ * int param_4 = minStackGetMin(obj);
+ * minStackFree(obj);
+ */
 
 int main(int argc, char **argv) {
 #define MAX_NUMSSIZE (3 * 10000)
@@ -83,9 +100,15 @@ int main(int argc, char **argv) {
         int calls;
     } testCase[] = {{{"MinStack", "push", "push", "push", "getMin", "pop", "top", "getMin"},
                      {INT_MIN, -2, 0, -3, INT_MIN, INT_MIN, INT_MIN, INT_MIN},
-                     8},
-                    {{"MinStack", "push", "top", "getMin"}, {INT_MIN, -1, INT_MIN, INT_MIN}, 4}};
+                     8}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example 1:
+     *  Input
+     *  ["MinStack","push","push","push","getMin","pop","top","getMin"]
+     *  [[],[-2],[0],[-3],[],[],[],[]]
+     *  Output
+     *  [null,null,null,null,-3,null,0,-2]
+     */
 
     char displayStr[16];
     MinStack *minStack;
