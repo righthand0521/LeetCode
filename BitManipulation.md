@@ -988,6 +988,8 @@ class Solution:
 
 ## [268. Missing Number](https://leetcode.com/problems/missing-number/)
 
+- [Official](https://leetcode.cn/problems/missing-number/solutions/1085105/diu-shi-de-shu-zi-by-leetcode-solution-naow/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -1027,36 +1029,78 @@ Follow up: Could you implement a solution using only O(1) extra space complexity
 <details><summary>C</summary>
 
 ```c
-#define METHOD_SUM  1
-#define METHOD_XOR  0
-
+#define METHOD_SUM (0)
+#define METHOD_XOR (1)
+int missingNumber(int* nums, int numsSize) {
 #if (METHOD_SUM)
-int missingNumber(int* nums, int numsSize){
-    int retVal = (numsSize * (numsSize+1)) / 2;
-
-    int i;
-    for (i=0; i<numsSize; ++i)
-    {
-        retVal -= nums[i];
-    }
-
-    return retVal;
-}
-#endif
-#if (METHOD_XOR)
-int missingNumber(int* nums, int numsSize){
+    int retVal = (numsSize * (numsSize + 1)) / 2;
+#elif (METHOD_XOR)
     int retVal = numsSize;
+#endif
 
     int i;
-    for (i=0; i<numsSize; ++i)
-    {
+    for (i = 0; i < numsSize; ++i) {
+#if (METHOD_SUM)
+        retVal -= nums[i];
+#elif (METHOD_XOR)
         retVal ^= i;
         retVal ^= nums[i];
+#endif
     }
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+#define METHOD_SUM (0)
+#define METHOD_XOR (1)
+    int missingNumber(vector<int>& nums) {
+        int retVal = 0;
+
+        int numsSize = nums.size();
+
+#if (METHOD_SUM)
+        retVal = (numsSize * (numsSize + 1)) / 2;
+#elif (METHOD_XOR)
+        retVal = numsSize;
 #endif
+
+        for (int i = 0; i < numsSize; ++i) {
+#if (METHOD_SUM)
+            retVal -= nums[i];
+#elif (METHOD_XOR)
+            retVal ^= i;
+            retVal ^= nums[i];
+#endif
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def missingNumber(self, nums: List[int]) -> int:
+        retVal = 0
+
+        numSize = len(nums)
+        retVal = (1 + numSize) * numSize // 2
+        for num in nums:
+            retVal -= num
+
+        return retVal
 ```
 
 </details>
