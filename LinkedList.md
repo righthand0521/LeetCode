@@ -971,16 +971,26 @@ class Solution:
 
 ## [61. Rotate List](https://leetcode.com/problems/rotate-list/)
 
+- [Official](https://leetcode.cn/problems/rotate-list/solutions/681812/xuan-zhuan-lian-biao-by-leetcode-solutio-woq1/)
+
 <details><summary>Description</summary>
 
 ```text
 Given the head of a linked list, rotate the list to the right by k places.
 
 Example 1:
+            (1)->(2)->(3)->(4)->(5)
+rotate 1    (5)->(1)->(2)->(3)->(4)
+rotate 2    (4)->(5)->(1)->(2)->(3)
 Input: head = [1,2,3,4,5], k = 2
 Output: [4,5,1,2,3]
 
 Example 2:
+            (0)->(1)->(2)
+rotate 1    (2)->(0)->(1)
+rotate 2    (1)->(2)->(0)
+rotate 3    (0)->(1)->(2)
+rotate 4    (2)->(0)->(1)
 Input: head = [0,1,2], k = 4
 Output: [2,0,1]
 
@@ -1002,58 +1012,114 @@ The number of nodes in the list is in the range [0, 500].
  *     struct ListNode *next;
  * };
  */
-struct ListNode* rotateRight(struct ListNode* head, int k){
+struct ListNode* rotateRight(struct ListNode* head, int k) {
     struct ListNode* pRetVal = head;
 
-    if ((pRetVal == NULL) || (pRetVal->next == NULL))
-    {
+    if ((pRetVal == NULL) || (pRetVal->next == NULL)) {
         return pRetVal;
     }
 
+    struct ListNode* pCurrent = head;
     int headSize = 0;
-#if 1   // Time Complexity: O(n) + O(k)
-    while (pRetVal->next != NULL)
-    {
+    while (pCurrent->next != NULL) {
         ++headSize;
-        pRetVal = pRetVal->next;
+        pCurrent = pCurrent->next;
     }
-    k = headSize - (k % (headSize+1));
+    k = headSize - (k % (headSize + 1));
 
-    pRetVal->next = head;
-    while (k--)
-    {
+    pCurrent->next = head;
+    while (k--) {
         head = head->next;
     }
-    pRetVal = head;
+    pCurrent = head;
     head = head->next;
-    pRetVal->next = NULL;
-#else   // Time Complexity: O(n) + O(k*n)
-    while (pRetVal != NULL)
-    {
-        ++headSize;
-        pRetVal = pRetVal->next;
-    }
-    k = k % headSize;
+    pCurrent->next = NULL;
+    pRetVal = head;
 
-    struct ListNode* pPrevious;
-    int i;
-    for (i=0; i<k; ++i)
-    {
-        pRetVal = head;
-        pPrevious = NULL;
-        while (pRetVal->next != NULL)
-        {
-            pPrevious = pRetVal;
-            pRetVal = pRetVal->next;
-        }
-        pPrevious->next = NULL;
-        pRetVal->next = head;
-        head = pRetVal;
-    }
-#endif
-
-    return head;
+    return pRetVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+   public:
+    ListNode* rotateRight(ListNode* head, int k) {
+        ListNode* pRetVal = head;
+
+        if ((pRetVal == nullptr) || (pRetVal->next == nullptr)) {
+            return pRetVal;
+        }
+
+        ListNode* pCurrent = head;
+        int headSize = 0;
+        while (pCurrent->next != nullptr) {
+            ++headSize;
+            pCurrent = pCurrent->next;
+        }
+        k = headSize - (k % (headSize + 1));
+
+        pCurrent->next = head;
+        while (k--) {
+            head = head->next;
+        }
+        pCurrent = head;
+        head = head->next;
+        pCurrent->next = nullptr;
+        pRetVal = head;
+
+        return pRetVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def rotateRight(self, head: Optional[ListNode], k: int) -> Optional[ListNode]:
+        retVal = head
+
+        if (retVal is None) or (retVal.next is None):
+            return retVal
+
+        pCurrent = head
+        headSize = 0
+        while pCurrent.next != None:
+            headSize += 1
+            pCurrent = pCurrent.next
+        k = headSize - (k % (headSize + 1))
+
+        pCurrent.next = head
+        while (k > 0):
+            head = head.next
+            k -= 1
+        pCurrent = head
+        head = head.next
+        pCurrent.next = None
+        retVal = head
+
+        return retVal
 ```
 
 </details>

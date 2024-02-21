@@ -2,56 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct ListNode {
-    int val;
-    struct ListNode* next;
-};
-void display(struct ListNode* pHead) {
-    struct ListNode* pCurrent = pHead;
-    while (pCurrent != NULL) {
-        printf("%d%s", pCurrent->val, (pCurrent->next == NULL) ? "" : ",");
-        pCurrent = pCurrent->next;
-    }
-}
-struct ListNode* createNode(int value) {
-    struct ListNode* pNew = (struct ListNode*)malloc(sizeof(struct ListNode));
-    if (pNew == NULL) {
-        perror("malloc");
-        return pNew;
-    }
-    pNew->val = value;
-    pNew->next = NULL;
+#include "list.h"
 
-    return pNew;
-}
-void freeNode(struct ListNode* pHead) {
-    struct ListNode* pCurrent = pHead;
-    struct ListNode* pFree = NULL;
-    while (pCurrent != NULL) {
-        pFree = pCurrent;
-        pCurrent = pCurrent->next;
-        free(pFree);
-    }
-}
-struct ListNode* addValueToEnd(struct ListNode* pHead, int value) {
-    struct ListNode* pNew = createNode(value);
-    if (pNew == NULL) {
-        return pHead;
-    }
-
-    if (pHead == NULL) {
-        pHead = pNew;
-        return pHead;
-    }
-
-    struct ListNode* pCurrent = pHead;
-    while (pCurrent->next != NULL) {
-        pCurrent = pCurrent->next;
-    }
-    pCurrent->next = pNew;
-
-    return pHead;
-}
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
 struct ListNode* rotateRight(struct ListNode* head, int k) {
     struct ListNode* pRetVal = head;
 
@@ -59,44 +18,24 @@ struct ListNode* rotateRight(struct ListNode* head, int k) {
         return pRetVal;
     }
 
+    struct ListNode* pCurrent = head;
     int headSize = 0;
-#if 1  // Time Complexity: O(n) + O(k)
-    while (pRetVal->next != NULL) {
+    while (pCurrent->next != NULL) {
         ++headSize;
-        pRetVal = pRetVal->next;
+        pCurrent = pCurrent->next;
     }
     k = headSize - (k % (headSize + 1));
 
-    pRetVal->next = head;
+    pCurrent->next = head;
     while (k--) {
         head = head->next;
     }
-    pRetVal = head;
+    pCurrent = head;
     head = head->next;
-    pRetVal->next = NULL;
-#else  // Time Complexity: O(n) + O(k*n)
-    while (pRetVal != NULL) {
-        ++headSize;
-        pRetVal = pRetVal->next;
-    }
-    k = k % headSize;
+    pCurrent->next = NULL;
+    pRetVal = head;
 
-    struct ListNode* pPrevious;
-    int i;
-    for (i = 0; i < k; ++i) {
-        pRetVal = head;
-        pPrevious = NULL;
-        while (pRetVal->next != NULL) {
-            pPrevious = pRetVal;
-            pRetVal = pRetVal->next;
-        }
-        pPrevious->next = NULL;
-        pRetVal->next = head;
-        head = pRetVal;
-    }
-#endif
-
-    return head;
+    return pRetVal;
 }
 
 int main(int argc, char** argv) {
@@ -107,25 +46,32 @@ int main(int argc, char** argv) {
         int k;
     } testCase[] = {{{1, 2, 3, 4, 5}, 5, 2}, {{0, 1, 2}, 3, 4}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: head = [1,2,3,4,5], k = 2
+     *  Output: [4,5,1,2,3]
+     *
+     *  Input: head = [0,1,2], k = 4
+     *  Output: [2,0,1]
+     */
 
     struct ListNode* pHead = NULL;
-    int i, j;
+    struct ListNode* pAnswer = NULL;
+    int i;
     for (i = 0; i < numberOfTestCase; ++i) {
-        for (j = 0; j < testCase[i].nodeSize; ++j) {
-            pHead = addValueToEnd(pHead, testCase[i].node[j]);
-        }
+        pHead = buildList(testCase[i].node, testCase[i].nodeSize);
         printf("Input: head = [");
-        display(pHead);
+        printList(pHead);
         printf("], k = %d\n", testCase[i].k);
 
-        pHead = rotateRight(pHead, testCase[i].k);
+        pAnswer = rotateRight(pHead, testCase[i].k);
         printf("Output: [");
-        display(pHead);
+        printList(pAnswer);
         printf("]\n");
 
         printf("\n");
 
-        freeNode(pHead);
+        freeListNode(pAnswer);
+        pAnswer = NULL;
         pHead = NULL;
     }
 
