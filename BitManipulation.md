@@ -828,6 +828,8 @@ class Solution:
 
 ## [201. Bitwise AND of Numbers Range](https://leetcode.com/problems/bitwise-and-of-numbers-range/)
 
+- [Official](https://leetcode.cn/problems/bitwise-and-of-numbers-range/solutions/384938/shu-zi-fan-wei-an-wei-yu-by-leetcode-solution/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -855,17 +857,61 @@ Constraints:
 <details><summary>C</summary>
 
 ```c
-int rangeBitwiseAnd(int left, int right){
+int rangeBitwiseAnd(int left, int right) {
     int retVal = 0;
 
-    while (left < right)
-    {
-        right = right & (right - 1);
+    int shift = 0;
+    while (left < right) {
+        left >>= 1;
+        right >>= 1;
+        shift += 1;
     }
-    retVal = left & right;
+    retVal = left << shift;
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int rangeBitwiseAnd(int left, int right) {
+        int retVal = 0;
+
+        int shift = 0;
+        while (left < right) {
+            left >>= 1;
+            right >>= 1;
+            shift += 1;
+        }
+        retVal = left << shift;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def rangeBitwiseAnd(self, left: int, right: int) -> int:
+        retVal = 0
+
+        shift = 0
+        while left < right:
+            left >>= 1
+            right >>= 1
+            shift += 1
+        retVal = left << shift
+
+        return retVal
 ```
 
 </details>

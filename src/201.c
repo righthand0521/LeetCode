@@ -1,4 +1,3 @@
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,21 +5,33 @@
 int rangeBitwiseAnd(int left, int right) {
     int retVal = 0;
 
+    int shift = 0;
     while (left < right) {
-        right = right & (right - 1);
+        left >>= 1;
+        right >>= 1;
+        shift += 1;
     }
-    retVal = left & right;
+    retVal = left << shift;
 
     return retVal;
 }
 
 int main(int argc, char **argv) {
-#define MAX_NUMSSIZE 1024
     struct testCaseType {
         int left;
         int right;
     } testCase[] = {{5, 7}, {0, 0}, {1, 2147483647}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: left = 5, right = 7
+     *  Output: 4
+     *
+     *  Input: left = 0, right = 0
+     *  Output: 0
+     *
+     *  Input: left = 1, right = 2147483647
+     *  Output: 0
+     */
 
     int answer;
     int i;
