@@ -5137,3 +5137,29 @@ class Solution {
 ```
 
 </details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def findJudge(self, n: int, trust: List[List[int]]) -> int:
+        retVal = -1
+
+        indegree = [0] * n
+        outdegree = [0] * n
+        for a, b in trust:
+            indegree[b-1] += 1
+            outdegree[a-1] += 1
+
+        for idx, value in enumerate(outdegree):
+            if value != 0:
+                continue
+
+            if indegree[idx] == (n-1):
+                retVal = idx + 1
+                break
+
+        return retVal
+```
+
+</details>

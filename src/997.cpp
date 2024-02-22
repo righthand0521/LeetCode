@@ -46,6 +46,19 @@ int main(int argc, char** argv) {
     };
     vector<subject> testData{{2, {{1, 2}}}, {3, {{1, 3}, {2, 3}}}, {3, {{1, 3}, {2, 3}, {3, 1}}}, {1, {}}};
     int numberOfTestCase = testData.size();
+    /* Example
+     *  Input: n = 2, trust = [[1,2]]
+     *  Output: 2
+     *
+     *  Input: n = 3, trust = [[1,3],[2,3]]
+     *  Output: 3
+     *
+     *  Input: n = 3, trust = [[1,3],[2,3],[3,1]]
+     *  Output: -1
+     *
+     *  Input: n = 1, trust = []
+     *  Output: 1
+     */
 
     Solution cSolution;
     int answer = 0;
