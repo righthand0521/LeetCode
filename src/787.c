@@ -4,13 +4,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define BELLMAN_FORD (1)  // https://en.wikipedia.org/wiki/Bellman%E2%80%93Ford_algorithm
 int findCheapestPrice(int n, int** flights, int flightsSize, int* flightsColSize, int src, int dst, int k) {
     int retVal = -1;
 
-#if (BELLMAN_FORD)
     int i, j;
 
+    // https://en.wikipedia.org/wiki/Bellman%E2%80%93Ford_algorithm
     int distance[n];
     for (i = 0; i < n; ++i) {
         distance[i] = INT_MAX;
@@ -36,7 +35,6 @@ int findCheapestPrice(int n, int** flights, int flightsSize, int* flightsColSize
     if (distance[dst] != INT_MAX) {
         retVal = distance[dst];
     }
-#endif
 
     return retVal;
 }
@@ -55,6 +53,16 @@ int main(int argc, char** argv) {
                     {3, {{0, 1, 100}, {1, 2, 100}, {0, 2, 500}}, 3, {3, 3, 3}, 0, 2, 1},
                     {3, {{0, 1, 100}, {1, 2, 100}, {0, 2, 500}}, 3, {3, 3, 3}, 0, 2, 0}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: n = 4, flights = [[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]], src = 0, dst = 3, k = 1
+     *  Output: 700
+     *
+     *  Input: n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 1
+     *  Output: 200
+     *
+     *  Input: n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 0
+     *  Output: 500
+     */
 
     int** pFlights = NULL;
     int answer = 0;

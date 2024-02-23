@@ -6,16 +6,13 @@
 using namespace std;
 
 class Solution {
-#define BELLMAN_FORD (1)  // https://en.wikipedia.org/wiki/Bellman%E2%80%93Ford_algorithm
-
    public:
     int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int k) {
         int retVal = -1;
 
-#if (BELLMAN_FORD)
+        // https://en.wikipedia.org/wiki/Bellman%E2%80%93Ford_algorithm
         vector<int> distance(n, numeric_limits<int>::max());
         distance[src] = 0;
-
         for (int i = 0; i <= k; ++i) {
             vector<int> temp(distance);
             for (auto& flight : flights) {
@@ -32,7 +29,6 @@ class Solution {
         if (distance[dst] != numeric_limits<int>::max()) {
             retVal = distance[dst];
         }
-#endif
 
         return retVal;
     }
@@ -50,6 +46,16 @@ int main(int argc, char** argv) {
                              {3, {{0, 1, 100}, {1, 2, 100}, {0, 2, 500}}, 0, 2, 1},
                              {3, {{0, 1, 100}, {1, 2, 100}, {0, 2, 500}}, 0, 2, 0}};
     int numberOfTestCase = testData.size();
+    /* Example
+     *  Input: n = 4, flights = [[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]], src = 0, dst = 3, k = 1
+     *  Output: 700
+     *
+     *  Input: n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 1
+     *  Output: 200
+     *
+     *  Input: n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 0
+     *  Output: 500
+     */
 
     Solution cSolution;
     int answer = 0;

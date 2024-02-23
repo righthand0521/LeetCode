@@ -2795,7 +2795,6 @@ class Solution:
 
 ## [787. Cheapest Flights Within K Stops](https://leetcode.com/problems/cheapest-flights-within-k-stops/)  1786
 
-- [Official](https://leetcode.com/problems/cheapest-flights-within-k-stops/solutions/2825208/cheapest-flights-within-k-stops/)
 - [Official](https://leetcode.cn/problems/cheapest-flights-within-k-stops/solutions/954402/k-zhan-zhong-zhuan-nei-zui-bian-yi-de-ha-abzi/)
 
 <details><summary>Description</summary>
@@ -2807,88 +2806,51 @@ that there is a flight from city fromi to city toi with cost pricei.
 
 You are also given three integers src, dst, and k, return the cheapest price from src to dst with at most k stops.
 If there is no such route, return -1.
-```
 
-```text
 Example 1:
-```
-
-```mermaid
-graph TD
-    0((0))-.->d01(100)
-    d01(100)-.->1((1))
-
-    1((1))-->d12(100)
-    d12(100)-->2((2))
-
-    1((1))-.->d13(600)
-    d13(600)-.->3((3))
-
-    2((2))-->d20(100)
-    d20(100)-->0((0))
-
-    2((2))-->d23(200)
-    d23(200)-->3((3))
-```
-
-```text
+ +-- (0) <---+
+ |           |
+100          |
+ |          100
+ v           |
+(1) --100-> (2)
+ |           |
+600         200
+ |           |
+ +--> (3) <--+
 Input: n = 4, flights = [[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]], src = 0, dst = 3, k = 1
 Output: 700
 Explanation:
 The graph is shown above.
 The optimal path with at most 1 stop from city 0 to 3 is marked in red and has cost 100 + 600 = 700.
 Note that the path through cities [0,1,2,3] is cheaper but is invalid because it uses 2 stops.
-```
 
-```text
 Example 2:
-```
-
-```mermaid
-graph TD
-    0((0))-.->d01(100)
-    d01(100)-.->1((1))
-
-    0((0))-->d02(500)
-    d02(500)-->2((2))
-
-    1((1))-.->d12(100)
-    d12(100)-.->2((2))
-```
-
-```text
+ +--- (0) ---+
+ |           |
+100         500
+ |           |
+ v           v
+(1) --100-> (2)
 Input: n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 1
 Output: 200
 Explanation:
 The graph is shown above.
 The optimal path with at most 1 stop from city 0 to 2 is marked in red and has cost 100 + 100 = 200.
-```
 
-```text
 Example 3:
-```
-
-```mermaid
-graph TD
-    0((0))-->d01(100)
-    d01(100)-->1((1))
-
-    0((0))-.->d02(500)
-    d02(500)-.->2((2))
-
-    1((1))-->d12(100)
-    d12(100)-->2((2))
-```
-
-```text
+ +--- (0) ---+
+ |           |
+100         500
+ |           |
+ v           v
+(1) --100-> (2)
 Input: n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 0
 Output: 500
 Explanation:
 The graph is shown above.
 The optimal path with no stops from city 0 to 2 is marked in red and has cost 500.
-```
 
-```text
 Constraints:
 1 <= n <= 100
 0 <= flights.length <= (n * (n - 1) / 2)
@@ -2906,13 +2868,12 @@ src != dst
 <details><summary>C</summary>
 
 ```c
-#define BELLMAN_FORD (1)  // https://en.wikipedia.org/wiki/Bellman%E2%80%93Ford_algorithm
 int findCheapestPrice(int n, int** flights, int flightsSize, int* flightsColSize, int src, int dst, int k) {
     int retVal = -1;
 
-#if (BELLMAN_FORD)
     int i, j;
 
+    // https://en.wikipedia.org/wiki/Bellman%E2%80%93Ford_algorithm
     int distance[n];
     for (i = 0; i < n; ++i) {
         distance[i] = INT_MAX;
@@ -2938,7 +2899,6 @@ int findCheapestPrice(int n, int** flights, int flightsSize, int* flightsColSize
     if (distance[dst] != INT_MAX) {
         retVal = distance[dst];
     }
-#endif
 
     return retVal;
 }
@@ -2950,16 +2910,13 @@ int findCheapestPrice(int n, int** flights, int flightsSize, int* flightsColSize
 
 ```c++
 class Solution {
-#define BELLMAN_FORD (1)  // https://en.wikipedia.org/wiki/Bellman%E2%80%93Ford_algorithm
-
    public:
     int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int k) {
         int retVal = -1;
 
-#if (BELLMAN_FORD)
+        // https://en.wikipedia.org/wiki/Bellman%E2%80%93Ford_algorithm
         vector<int> distance(n, numeric_limits<int>::max());
         distance[src] = 0;
-
         for (int i = 0; i <= k; ++i) {
             vector<int> temp(distance);
             for (auto& flight : flights) {
@@ -2976,11 +2933,36 @@ class Solution {
         if (distance[dst] != numeric_limits<int>::max()) {
             retVal = distance[dst];
         }
-#endif
 
         return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def findCheapestPrice(self, n: int, flights: List[List[int]], src: int, dst: int, k: int) -> int:
+        retVal = -1
+
+        # https://en.wikipedia.org/wiki/Bellman%E2%80%93Ford_algorithm
+        maxValue = float('inf')
+        distance = [maxValue] * n
+        distance[src] = 0
+        for i in range(k+1):
+            tmp = distance.copy()
+            for start, end, price in flights:
+                if distance[start] != maxValue:
+                    tmp[end] = min(tmp[end], distance[start]+price)
+            distance = tmp.copy()
+
+        if distance[dst] != maxValue:
+            retVal = distance[dst]
+
+        return retVal
 ```
 
 </details>
