@@ -1311,6 +1311,8 @@ class Solution:
 
 ## [83. Remove Duplicates from Sorted List](https://leetcode.com/problems/remove-duplicates-from-sorted-list/)
 
+- [Official](https://leetcode.cn/problems/remove-duplicates-from-sorted-list/solutions/680357/shan-chu-pai-xu-lian-biao-zhong-de-zhong-49v5/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -1343,33 +1345,100 @@ The list is guaranteed to be sorted in ascending order.
  *     struct ListNode *next;
  * };
  */
+struct ListNode* deleteDuplicates(struct ListNode* head) {
+    struct ListNode* pRetVal = head;
 
-
-struct ListNode* deleteDuplicates(struct ListNode* head){
-    if ((head == NULL) || (head->next == NULL))
-    {
-        return head;
+    if ((head == NULL) || (head->next == NULL)) {
+        return pRetVal;
     }
 
-    struct ListNode *p = head->next;
-    struct ListNode *pPrevious = head;
-    while (p != NULL)
-    {
-        if (p->val == pPrevious->val)
-        {
-            pPrevious->next = p->next;
-            free(p);
-            p = pPrevious->next;
-        }
-        else
-        {
-            pPrevious = p;
-            p = p->next;
+    struct ListNode* pCurrent = head->next;
+    struct ListNode* pPrevious = head;
+    while (pCurrent != NULL) {
+        if (pCurrent->val == pPrevious->val) {
+            pPrevious->next = pCurrent->next;
+            free(pCurrent);
+            pCurrent = pPrevious->next;
+        } else {
+            pPrevious = pCurrent;
+            pCurrent = pCurrent->next;
         }
     }
 
-    return head;
+    return pRetVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+   public:
+    ListNode* deleteDuplicates(ListNode* head) {
+        ListNode* pRetVal = head;
+
+        if ((head == nullptr) || (head->next == nullptr)) {
+            return pRetVal;
+        }
+
+        ListNode* pCurrent = head->next;
+        ListNode* pPrevious = head;
+        while (pCurrent != nullptr) {
+            if (pCurrent->val == pPrevious->val) {
+                pPrevious->next = pCurrent->next;
+                delete pCurrent;
+                pCurrent = pPrevious->next;
+            } else {
+                pPrevious = pCurrent;
+                pCurrent = pCurrent->next;
+            }
+        }
+
+        return pRetVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def deleteDuplicates(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        retVal = head
+
+        if (head is None) or (head.next is None):
+            return retVal
+
+        pCurrent = head.next
+        pPrevious = head
+        while pCurrent is not None:
+            if pCurrent.val == pPrevious.val:
+                pPrevious.next = pCurrent.next
+                pCurrent = pPrevious.next
+            else:
+                pPrevious = pCurrent
+                pCurrent = pCurrent.next
+
+        return retVal
 ```
 
 </details>
