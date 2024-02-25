@@ -2992,3 +2992,356 @@ class Solution {
 ```
 
 </details>
+
+## [2709. Greatest Common Divisor Traversal](https://leetcode.com/problems/greatest-common-divisor-traversal/)  2171
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed integer array nums, and you are allowed to traverse between its indices.
+You can traverse between index i and index j, i != j,
+if and only if gcd(nums[i], nums[j]) > 1, where gcd is the greatest common divisor.
+
+Your task is to determine if for every pair of indices i and j in nums, where i < j,
+there exists a sequence of traversals that can take us from i to j.
+
+Return true if it is possible to traverse between all such pairs of indices, or false otherwise.
+
+Example 1:
+Input: nums = [2,3,6]
+Output: true
+Explanation: In this example, there are 3 possible pairs of indices: (0, 1), (0, 2), and (1, 2).
+To go from index 0 to index 1, we can use the sequence of traversals 0 -> 2 -> 1,
+where we move from index 0 to index 2 because gcd(nums[0], nums[2]) = gcd(2, 6) = 2 > 1,
+and then move from index 2 to index 1 because gcd(nums[2], nums[1]) = gcd(6, 3) = 3 > 1.
+To go from index 0 to index 2, we can just go directly because gcd(nums[0], nums[2]) = gcd(2, 6) = 2 > 1.
+Likewise, to go from index 1 to index 2, we can just go directly because gcd(nums[1], nums[2]) = gcd(3, 6) = 3 > 1.
+
+Example 2:
+Input: nums = [3,9,5]
+Output: false
+Explanation: No sequence of traversals can take us from index 0 to index 2 in this example. So, we return false.
+
+Example 3:
+Input: nums = [4,3,12,8]
+Output: true
+Explanation:
+There are 6 possible pairs of indices to traverse between: (0, 1), (0, 2), (0, 3), (1, 2), (1, 3), and (2, 3).
+A valid sequence of traversals exists for each pair, so we return true.
+
+Constraints:
+1 <= nums.length <= 10^5
+1 <= nums[i] <= 10^5
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Create a (prime) factor-numbers list for all the indices.
+2. Add an edge between the neighbors of the (prime) factor-numbers list. The order of the numbers doesn’t matter.
+   We only need edges between 2 neighbors instead of edges for all pairs.
+3. The problem is now similar to checking if all the numbers (nodes of the graph) are in the same connected component.
+4. Any algorithm (i.e., BFS, DFS, or Union-Find Set) should work to find or check connected components
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// https://leetcode.cn/problems/greatest-common-divisor-traversal/
+void swap(int* a, int* b) {
+    int tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+struct DisjointSetUnion {
+    int* f;
+    int* size;
+    int n;
+    int setCount;
+};
+int initDSU(struct DisjointSetUnion* obj, int n) {
+    obj->f = (int*)malloc(n * sizeof(int));
+    if (obj->f == NULL) {
+        perror("malloc");
+        return EXIT_FAILURE;
+    }
+    memset(obj->f, 0, (n * sizeof(int)));
+
+    obj->size = (int*)malloc(n * sizeof(int));
+    if (obj->size == NULL) {
+        perror("malloc");
+        free(obj->f);
+        obj->f = NULL;
+        return EXIT_FAILURE;
+    }
+    memset(obj->size, 0, (n * sizeof(int)));
+
+    int i;
+    for (i = 0; i < n; i++) {
+        obj->f[i] = i;
+        obj->size[i] = 1;
+    }
+    obj->n = n;
+    obj->setCount = n;
+
+    return EXIT_SUCCESS;
+}
+int find(struct DisjointSetUnion* obj, int x) {
+    int retVal = x;
+
+    if (obj->f[x] != x) {
+        obj->f[x] = find(obj, obj->f[x]);
+        retVal = obj->f[x];
+    }
+
+    return retVal;
+}
+bool unionSet(struct DisjointSetUnion* obj, int x, int y) {
+    bool retVal = false;
+
+    int fx = find(obj, x);
+    int fy = find(obj, y);
+    if (fx == fy) {
+        return retVal;
+    }
+
+    if (obj->size[fx] < obj->size[fy]) {
+        swap(&fx, &fy);
+    }
+    obj->size[fx] += obj->size[fy];
+    obj->f[fy] = fx;
+    obj->setCount--;
+    retVal = true;
+
+    return retVal;
+}
+bool canTraverseAllPairs(int* nums, int numsSize) {
+    bool retVal = true;
+
+    if (numsSize == 1) {
+        return retVal;
+    }
+
+    struct DisjointSetUnion* ufa = (struct DisjointSetUnion*)malloc(sizeof(struct DisjointSetUnion));
+    if (ufa == NULL) {
+        perror("malloc");
+        return retVal;
+    }
+    if (initDSU(ufa, numsSize) == EXIT_FAILURE) {
+        perror("malloc");
+        free(ufa);
+        ufa = NULL;
+        return retVal;
+    }
+
+    int i;
+
+    int maxVal = 0;
+    for (i = 0; i < numsSize; i++) {
+        maxVal = fmax(maxVal, nums[i]);
+    }
+
+    int occured[maxVal + 1];
+    memset(occured, -1, sizeof(occured));
+    for (i = 0; i < numsSize; i++) {
+        if (occured[nums[i]] == -1) {
+            occured[nums[i]] = i;
+        } else if (nums[i] == 1) {
+            retVal = false;
+            goto exit;
+        } else {
+            ufa->setCount--;
+        }
+    }
+
+    int j;
+    int subGcd;
+    for (i = 2; i <= maxVal; i++) {
+        subGcd = -1;
+        for (j = i; j <= maxVal; j += i) {
+            if (occured[j] != -1) {
+                if (subGcd == -1) {
+                    subGcd = occured[j];
+                } else {
+                    unionSet(ufa, subGcd, occured[j]);
+                    subGcd = occured[j];
+                }
+            }
+        }
+    }
+
+    if (ufa->setCount != 1) {
+        retVal = false;
+    }
+
+exit:
+    free(ufa->f);
+    ufa->f = NULL;
+    free(ufa->size);
+    ufa->size = NULL;
+    free(ufa);
+    ufa = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+    // https://leetcode.com/problems/greatest-common-divisor-traversal/solutions/4778264/mastering-javascript-python-python3-and-c-achieved-100-00-efficiency/
+   private:
+    int findSetLeader(vector<int>& disjointSet, int x) {
+        int retVal = x;
+
+        if (disjointSet[x] == x) {
+            return retVal;
+        }
+        disjointSet[x] = findSetLeader(disjointSet, disjointSet[x]);
+        retVal = disjointSet[x];
+
+        return retVal;
+    }
+    void unionSets(vector<int>& disjointSet, vector<int>& setSize, int x, int y) {
+        int xLeader = findSetLeader(disjointSet, x);
+        int yLeader = findSetLeader(disjointSet, y);
+        if (xLeader == yLeader) {
+            return;
+        }
+
+        if (setSize[xLeader] < setSize[yLeader]) {
+            disjointSet[xLeader] = yLeader;
+            setSize[yLeader] += setSize[xLeader];
+        } else {
+            disjointSet[yLeader] = xLeader;
+            setSize[xLeader] += setSize[yLeader];
+        }
+    }
+
+   public:
+    bool canTraverseAllPairs(vector<int>& nums) {
+        bool retVal = true;
+
+        int numsSize = nums.size();
+        if (numsSize == 1) {
+            return retVal;
+        }
+
+        vector<int> disjointSet(numsSize);
+        vector<int> setSize(numsSize, 1);
+        unordered_map<int, int> factorFirstOccurrence;
+        for (int i = 0; i < numsSize; ++i) {
+            disjointSet[i] = i;
+
+            int num = nums[i];
+            int divisor = 2;
+            while (divisor * divisor <= num) {
+                if (num % divisor == 0) {
+                    if (factorFirstOccurrence.find(divisor) != factorFirstOccurrence.end()) {
+                        unionSets(disjointSet, setSize, i, factorFirstOccurrence[divisor]);
+                    } else {
+                        factorFirstOccurrence[divisor] = i;
+                    }
+
+                    while (num % divisor == 0) {
+                        num /= divisor;
+                    }
+                }
+                divisor++;
+            }
+
+            if (num > 1) {
+                if (factorFirstOccurrence.find(num) != factorFirstOccurrence.end()) {
+                    unionSets(disjointSet, setSize, i, factorFirstOccurrence[num]);
+                } else {
+                    factorFirstOccurrence[num] = i;
+                }
+            }
+        }
+        retVal = setSize[findSetLeader(disjointSet, 0)] == numsSize;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    # https://leetcode.com/problems/greatest-common-divisor-traversal/solutions/4778264/mastering-javascript-python-python3-and-c-achieved-100-00-efficiency/
+    def __init__(self) -> None:
+        self.disjoint_set = []
+        self.set_size = []
+        self.factor_first_occurrence = {}
+
+    def find_set_leader(self, x) -> int:
+        retVal = x
+
+        if self.disjoint_set[x] == x:
+            return retVal
+
+        self.disjoint_set[x] = self.find_set_leader(self.disjoint_set[x])
+        retVal = self.disjoint_set[x]
+
+        return retVal
+
+    def union_sets(self, x, y) -> None:
+        x_leader = self.find_set_leader(x)
+        y_leader = self.find_set_leader(y)
+        if x_leader == y_leader:
+            return
+
+        if self.set_size[x_leader] < self.set_size[y_leader]:
+            self.disjoint_set[x_leader] = y_leader
+            self.set_size[y_leader] += self.set_size[x_leader]
+        else:
+            self.disjoint_set[y_leader] = x_leader
+            self.set_size[x_leader] += self.set_size[y_leader]
+
+    def canTraverseAllPairs(self, nums: List[int]) -> bool:
+        retVal = True
+
+        numsSize = len(nums)
+        if numsSize == 1:
+            return retVal
+
+        self.disjoint_set = [i for i in range(numsSize)]
+        self.set_size = [1] * numsSize
+        self.factor_first_occurrence = {}
+
+        for i, num in enumerate(nums):
+            divisor = 2
+            while divisor * divisor <= num:
+                if num % divisor == 0:
+                    if divisor in self.factor_first_occurrence:
+                        self.union_sets(i, self.factor_first_occurrence[divisor])
+                    else:
+                        self.factor_first_occurrence[divisor] = i
+
+                    while num % divisor == 0:
+                        num //= divisor
+
+                divisor += 1
+
+            if num > 1:
+                if num in self.factor_first_occurrence:
+                    self.union_sets(i, self.factor_first_occurrence[num])
+                else:
+                    self.factor_first_occurrence[num] = i
+
+        retVal = self.set_size[self.find_set_leader(0)] == numsSize
+
+        return retVal
+```
+
+</details>
