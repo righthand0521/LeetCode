@@ -14,27 +14,29 @@
  * };
  */
 bool isSameTree(struct TreeNode* p, struct TreeNode* q) {
+    bool retVal = false;
+
     if ((p == NULL) && (q == NULL)) {
-        return true;
+        retVal = true;
+        return retVal;
     } else if ((p == NULL) && (q != NULL)) {
-        return false;
+        return retVal;
     } else if ((p != NULL) && (q == NULL)) {
-        return false;
+        return retVal;
     }
 
     if (isSameTree(p->left, q->left) == false) {
-        return false;
+        return retVal;
     }
-
     if (p->val != q->val) {
-        return false;
+        return retVal;
     }
-
     if (isSameTree(p->right, q->right) == false) {
-        return false;
+        return retVal;
     }
+    retVal = true;
 
-    return true;
+    return retVal;
 }
 
 int main(int argc, char** argv) {

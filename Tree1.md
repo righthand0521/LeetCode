@@ -531,7 +531,6 @@ bool isValidBST(struct TreeNode* root) {
 
 ## [100. Same Tree](https://leetcode.com/problems/same-tree/)
 
-- [Official](https://leetcode.com/problems/same-tree/solutions/250926/same-tree/)
 - [Official](https://leetcode.cn/problems/same-tree/solutions/363636/xiang-tong-de-shu-by-leetcode-solution/)
 
 <details><summary>Description</summary>
@@ -581,27 +580,29 @@ The number of nodes in both trees is in the range [0, 100].
  * };
  */
 bool isSameTree(struct TreeNode* p, struct TreeNode* q) {
+    bool retVal = false;
+
     if ((p == NULL) && (q == NULL)) {
-        return true;
+        retVal = true;
+        return retVal;
     } else if ((p == NULL) && (q != NULL)) {
-        return false;
+        return retVal;
     } else if ((p != NULL) && (q == NULL)) {
-        return false;
+        return retVal;
     }
 
     if (isSameTree(p->left, q->left) == false) {
-        return false;
+        return retVal;
     }
-
     if (p->val != q->val) {
-        return false;
+        return retVal;
     }
-
     if (isSameTree(p->right, q->right) == false) {
-        return false;
+        return retVal;
     }
+    retVal = true;
 
-    return true;
+    return retVal;
 }
 ```
 
@@ -623,28 +624,66 @@ bool isSameTree(struct TreeNode* p, struct TreeNode* q) {
  */
 class Solution {
    public:
-    bool isSameTree(TreeNode *p, TreeNode *q) {
-        if ((p == nullptr) && (q != nullptr)) {
-            return false;
+    bool isSameTree(TreeNode* p, TreeNode* q) {
+        bool retVal = false;
+
+        if ((p == nullptr) && (q == nullptr)) {
+            retVal = true;
+            return retVal;
+        } else if ((p == nullptr) && (q != nullptr)) {
+            return retVal;
         } else if ((p != nullptr) && (q == nullptr)) {
-            return false;
-        } else if ((p == nullptr) && (q == nullptr)) {
-            return true;
+            return retVal;
         }
 
         if (isSameTree(p->left, q->left) == false) {
-            return false;
+            return retVal;
         }
         if (p->val != q->val) {
-            return false;
+            return retVal;
         }
         if (isSameTree(p->right, q->right) == false) {
-            return false;
+            return retVal;
         }
+        retVal = true;
 
-        return true;
+        return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def isSameTree(self, p: Optional[TreeNode], q: Optional[TreeNode]) -> bool:
+        retVal = False
+
+        if (p is None) and (q is None):
+            retVal = True
+            return retVal
+        elif (p is None) and (q is not None):
+            return retVal
+        elif (p is not None) and (q is None):
+            return retVal
+
+        if self.isSameTree(p.left, q.left) == False:
+            return retVal
+        if p.val != q.val:
+            return retVal
+        if self.isSameTree(p.right, q.right) == False:
+            return retVal
+        retVal = True
+
+        return retVal
 ```
 
 </details>
