@@ -1110,17 +1110,21 @@ The number of nodes in the tree is in the range [0, 2000].
 
 ```c
 int treeHeight(struct TreeNode* pRoot) {
+    int retVal = 0;
+
     if (pRoot == NULL) {
-        return 0;
+        return retVal;
     }
 
     int leftHeight = treeHeight(pRoot->left);
     int rightHeight = treeHeight(pRoot->right);
     if (leftHeight > rightHeight) {
-        return leftHeight + 1;
+        retVal = leftHeight + 1;
+    } else {
+        retVal = rightHeight + 1;
     }
 
-    return rightHeight + 1;
+    return retVal;
 }
 void treeLevel(struct TreeNode* pRoot, int level, int* startLevel, int* pReturnArray, int* pReturnArrayIndex) {
     if (pRoot == NULL) {
@@ -1233,7 +1237,7 @@ int** zigzagLevelOrder(struct TreeNode* root, int* returnSize, int** returnColum
  */
 class Solution {
    public:
-    vector<vector<int>> zigzagLevelOrder(TreeNode *root) {
+    vector<vector<int>> zigzagLevelOrder(TreeNode* root) {
         vector<vector<int>> retVal;
 
         if (root == NULL) {
@@ -1241,7 +1245,7 @@ class Solution {
         }
 
         int level = 0;
-        queue<TreeNode *> q;
+        queue<TreeNode*> q;
         q.push(root);
         while (q.empty() == false) {
             retVal.push_back(vector<int>());
@@ -1268,6 +1272,44 @@ class Solution {
         return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def zigzagLevelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
+        retVal = []
+
+        if root == None:
+            return retVal
+
+        queue = deque([])
+        queue.append(root)
+        while queue:
+            tmp = []
+            for _ in range(len(queue)):
+                node = queue.popleft()
+                tmp.append(node.val)
+                if node.left:
+                    queue.append(node.left)
+                if node.right:
+                    queue.append(node.right)
+
+            if len(retVal) % 2 == 1:
+                retVal.append(tmp[::-1])
+            else:
+                retVal.append(tmp)
+
+        return retVal
 ```
 
 </details>

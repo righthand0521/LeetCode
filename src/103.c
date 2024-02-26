@@ -5,17 +5,21 @@
 #include "tree.h"
 
 int treeHeight(struct TreeNode* pRoot) {
+    int retVal = 0;
+
     if (pRoot == NULL) {
-        return 0;
+        return retVal;
     }
 
     int leftHeight = treeHeight(pRoot->left);
     int rightHeight = treeHeight(pRoot->right);
     if (leftHeight > rightHeight) {
-        return leftHeight + 1;
+        retVal = leftHeight + 1;
+    } else {
+        retVal = rightHeight + 1;
     }
 
-    return rightHeight + 1;
+    return retVal;
 }
 void treeLevel(struct TreeNode* pRoot, int level, int* startLevel, int* pReturnArray, int* pReturnArrayIndex) {
     if (pRoot == NULL) {
