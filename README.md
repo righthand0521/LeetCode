@@ -448,6 +448,13 @@
 
 </details>
 
+<details><summary>Maximum Depth of Binary Tree</summary>
+
+- [104. Maximum Depth of Binary Tree](https://leetcode.com/problems/maximum-depth-of-binary-tree/)
+- [543. Diameter of Binary Tree](https://leetcode.com/problems/diameter-of-binary-tree/)
+
+</details>
+
 ## Two Pointers
 
 <details><summary>3Sum</summary>

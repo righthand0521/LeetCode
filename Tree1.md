@@ -6217,6 +6217,8 @@ class Solution:
 
 ## [543. Diameter of Binary Tree](https://leetcode.com/problems/diameter-of-binary-tree/)
 
+- [Official](https://leetcode.cn/problems/diameter-of-binary-tree/solutions/139683/er-cha-shu-de-zhi-jing-by-leetcode-solution/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -6259,20 +6261,20 @@ The number of nodes in the tree is in the range [1, 10^4].
  *     struct TreeNode *right;
  * };
  */
-#define MAX(a,b)    (((a)>(b))?(a):(b))
-
 int maxDepth(struct TreeNode* root, int* diameter) {
+    int retVal = 0;
+
     if (root == NULL) {
-        return 0;
+        return retVal;
     }
 
     int left = maxDepth(root->left, diameter);
     int right = maxDepth(root->right, diameter);
-    (*diameter) = MAX(left+right, (*diameter));
+    (*diameter) = fmax(left + right, (*diameter));
+    retVal = fmax(left, right) + 1;
 
-    return (MAX(left, right) + 1);
+    return retVal;
 }
-
 int diameterOfBinaryTree(struct TreeNode* root) {
     int retVal = 0;
 
@@ -6283,6 +6285,97 @@ int diameterOfBinaryTree(struct TreeNode* root) {
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   private:
+    int diameter = 0;
+
+   public:
+    int maxDepth(TreeNode* root) {
+        int retVal = 0;
+
+        if (root == NULL) {
+            return retVal;
+        }
+        int left = maxDepth(root->left);
+        int right = maxDepth(root->right);
+        diameter = max(diameter, left + right);
+        retVal = max(left, right) + 1;
+
+        return retVal;
+    }
+    int diameterOfBinaryTree(TreeNode* root) {
+        int retVal = 0;
+
+        diameter = 0;
+
+        if (root == nullptr) {
+            return retVal;
+        }
+        maxDepth(root);
+        retVal = diameter;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def __init__(self) -> None:
+        self.diameter = 0
+
+    def maxDepth(self, root: Optional[TreeNode]) -> int:
+        retVal = 0
+
+        if root == None:
+            return retVal
+
+        left = self.maxDepth(root.left)
+        right = self.maxDepth(root.right)
+        self.diameter = max(self.diameter, left+right)
+        retVal = max(left, right) + 1
+
+        return retVal
+
+    def diameterOfBinaryTree(self, root: Optional[TreeNode]) -> int:
+        retVal = 0
+
+        self.diameter = 0
+
+        if root is None:
+            return retVal
+        self.maxDepth(root)
+        retVal = self.diameter
+
+        return retVal
 ```
 
 </details>

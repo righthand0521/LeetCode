@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,17 +13,19 @@
  *     struct TreeNode *right;
  * };
  */
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
 int maxDepth(struct TreeNode* root, int* diameter) {
+    int retVal = 0;
+
     if (root == NULL) {
-        return 0;
+        return retVal;
     }
 
     int left = maxDepth(root->left, diameter);
     int right = maxDepth(root->right, diameter);
-    (*diameter) = MAX(left + right, (*diameter));
+    (*diameter) = fmax(left + right, (*diameter));
+    retVal = fmax(left, right) + 1;
 
-    return (MAX(left, right) + 1);
+    return retVal;
 }
 int diameterOfBinaryTree(struct TreeNode* root) {
     int retVal = 0;
@@ -36,7 +39,7 @@ int diameterOfBinaryTree(struct TreeNode* root) {
 }
 
 int main(int argc, char** argv) {
-#define MAX_SIZE (10000)
+#define MAX_SIZE (int)(1e4)
     struct testCaseType {
         int nums[MAX_SIZE];
         int numsSize;
