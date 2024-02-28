@@ -5800,6 +5800,152 @@ class Solution:
 
 </details>
 
+## [513. Find Bottom Left Tree Value](https://leetcode.com/problems/find-bottom-left-tree-value/)
+
+- [Official](https://leetcode.com/problems/find-bottom-left-tree-value/editorial/)
+- [Official](https://leetcode.cn/problems/find-bottom-left-tree-value/solutions/1614779/zhao-shu-zuo-xia-jiao-de-zhi-by-leetcode-weeh/)
+
+<details><summary>Description</summary>
+
+```text
+Given the root of a binary tree, return the leftmost value in the last row of the tree.
+
+Example 1:
+  2
+ / \
+1   3
+Input: root = [2,1,3]
+Output: 1
+
+Example 2:
+    1
+   / \
+  2   3
+ /   / \
+4   5   6
+   /
+  7
+Input: root = [1,2,3,4,null,5,6,null,null,7]
+Output: 7
+
+Constraints:
+The number of nodes in the tree is in the range [1, 10^4].
+-2^31 <= Node.val <= 2^31 - 1
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+int findBottomLeftValue(struct TreeNode* root) {
+    int retVal = 0;
+
+#define MAX_QUEUE_SIZE (int)(1e4)  // The number of nodes in the tree is in the range [1, 10^4].
+    struct TreeNode* bfsQueue[MAX_QUEUE_SIZE];
+    int bfsQueueHead = 0;
+    int bfsQueueTail = 0;
+
+    struct TreeNode* pCurrent = root;
+    bfsQueue[bfsQueueTail++] = pCurrent;
+
+    while (bfsQueueHead < bfsQueueTail) {
+        pCurrent = bfsQueue[bfsQueueHead++];
+
+        if (pCurrent->right != NULL) {
+            bfsQueue[bfsQueueTail++] = pCurrent->right;
+        }
+
+        if (pCurrent->left != NULL) {
+            bfsQueue[bfsQueueTail++] = pCurrent->left;
+        }
+    }
+    retVal = pCurrent->val;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   public:
+    int findBottomLeftValue(TreeNode* root) {
+        int retVal = 0;
+
+        queue<TreeNode*> bfsQueue;
+        TreeNode* current = root;
+        bfsQueue.push(current);
+        while (bfsQueue.empty() == false) {
+            current = bfsQueue.front();
+            bfsQueue.pop();
+            if (current->right != nullptr) {
+                bfsQueue.push(current->right);
+            }
+            if (current->left != nullptr) {
+                bfsQueue.push(current->left);
+            }
+        }
+        retVal = current->val;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def findBottomLeftValue(self, root: Optional[TreeNode]) -> int:
+        retVal = 0
+
+        bfsQueue = deque()
+        current = root
+        bfsQueue.append(current)
+        while bfsQueue:
+            current = bfsQueue.popleft()
+            if current.right:
+                bfsQueue.append(current.right)
+            if current.left:
+                bfsQueue.append(current.left)
+        retVal = current.val
+
+        return retVal
+```
+
+</details>
+
 ## [515. Find Largest Value in Each Tree Row](https://leetcode.com/problems/find-largest-value-in-each-tree-row/)
 
 - [Official](https://leetcode.com/problems/find-largest-value-in-each-tree-row/editorial/)
