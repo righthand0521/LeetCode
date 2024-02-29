@@ -1504,6 +1504,274 @@ class Solution:
 
 </details>
 
+## [1609. Even Odd Tree](https://leetcode.com/problems/even-odd-tree/)  1438
+
+- [Official](https://leetcode.com/problems/even-odd-tree/editorial/)
+- [Official](https://leetcode.cn/problems/even-odd-tree/solutions/1174334/qi-ou-shu-by-leetcode-solution-l7bw/?envType=daily-question&envId=2024-02-29)
+
+<details><summary>Description</summary>
+
+```text
+A binary tree is named Even-Odd if it meets the following conditions:
+- The root of the binary tree is at level index 0, its children are at level index 1,
+  their children are at level index 2, etc.
+- For every even-indexed level,
+  all nodes at the level have odd integer values in strictly increasing order (from left to right).
+- For every odd-indexed level,
+  all nodes at the level have even integer values in strictly decreasing order (from left to right).
+Given the root of a binary tree, return true if the binary tree is Even-Odd, otherwise return false.
+
+Example 1:
+         1
+       /   \
+     10     4
+    /      / \
+   3      7   9
+  / \    /     \
+12   8  6       2
+Input: root = [1,10,4,3,null,7,9,12,8,6,null,null,2]
+Output: true
+Explanation: The node values on each level are:
+Level 0: [1]
+Level 1: [10,4]
+Level 2: [3,7,9]
+Level 3: [12,8,6,2]
+Since levels 0 and 2 are all odd and increasing and levels 1 and 3 are all even and decreasing, the tree is Even-Odd.
+
+Example 2:
+     5
+   /   \
+  4     2
+ / \   /
+3   3 7
+Input: root = [5,4,2,3,3,7]
+Output: false
+Explanation: The node values on each level are:
+Level 0: [5]
+Level 1: [4,2]
+Level 2: [3,3,7]
+Node values in level 2 must be in strictly increasing order, so the tree is not Even-Odd.
+
+Example 3:
+     5
+   /   \
+  9     1
+ / \   /
+3   5 7
+Input: root = [5,9,1,3,5,7]
+Output: false
+Explanation: Node values in the level 1 should be even integers.
+
+Constraints:
+The number of nodes in the tree is in the range [1, 10^5].
+1 <= Node.val <= 10^6
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use the breadth-first search to go through all nodes layer by layer.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+bool isEvenOddTree(struct TreeNode* root) {
+    bool retVal = false;
+
+#define MAX_QUEUE_SIZE (int)(1e5)  // The number of nodes in the tree is in the range [1, 10^5].
+    struct TreeNode* bfsQueue[MAX_QUEUE_SIZE];
+    int bfsQueueHead = 0;
+    int bfsQueueTail = 0;
+    bfsQueue[bfsQueueTail++] = root;
+
+    int i;
+    int level = 0;
+    int previous, value;
+    int bfsQueueSize = 0;
+    struct TreeNode* pCurrent = NULL;
+    while (bfsQueueHead < bfsQueueTail) {
+        if (level % 2 == 0) {
+            previous = INT_MIN;
+        } else {
+            previous = INT_MAX;
+        }
+
+        bfsQueueSize = bfsQueueTail - bfsQueueHead;
+        for (i = 0; i < bfsQueueSize; ++i) {
+            pCurrent = bfsQueue[bfsQueueHead++];
+            value = pCurrent->val;
+            if (level % 2 == 0) {
+                if (value % 2 == 0) {
+                    return retVal;
+                } else if (value <= previous) {
+                    return retVal;
+                } else {
+                    previous = value;
+                }
+            } else {
+                if (value % 2 != 0) {
+                    return retVal;
+                } else if (value >= previous) {
+                    return retVal;
+                } else {
+                    previous = value;
+                }
+            }
+
+            if (pCurrent->left != NULL) {
+                bfsQueue[bfsQueueTail++] = pCurrent->left;
+            }
+            if (pCurrent->right != NULL) {
+                bfsQueue[bfsQueueTail++] = pCurrent->right;
+            }
+        }
+        level++;
+    }
+    retVal = true;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   public:
+    bool isEvenOddTree(TreeNode* root) {
+        bool retVal = false;
+
+        int level = 0;
+        queue<TreeNode*> bfsQueue;
+        bfsQueue.push(root);
+        while (bfsQueue.empty() == false) {
+            int previous;
+            if (level % 2 == 0) {
+                previous = numeric_limits<int>::min();
+            } else {
+                previous = numeric_limits<int>::max();
+            }
+
+            int bfsQueueSize = bfsQueue.size();
+            for (int i = 0; i < bfsQueueSize; ++i) {
+                TreeNode* current = bfsQueue.front();
+                bfsQueue.pop();
+                int value = current->val;
+                if (level % 2 == 0) {
+                    if (value % 2 == 0) {
+                        return retVal;
+                    } else if (value <= previous) {
+                        return retVal;
+                    } else {
+                        previous = value;
+                    }
+                } else {
+                    if (value % 2 != 0) {
+                        return retVal;
+                    } else if (value >= previous) {
+                        return retVal;
+                    } else {
+                        previous = value;
+                    }
+                }
+
+                if (current->left != nullptr) {
+                    bfsQueue.push(current->left);
+                }
+                if (current->right != nullptr) {
+                    bfsQueue.push(current->right);
+                }
+            }
+            level++;
+        }
+        retVal = true;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def isEvenOddTree(self, root: Optional[TreeNode]) -> bool:
+        retVal = False
+
+        level = 0
+        bfsQueue = deque()
+        bfsQueue.append(root)
+        while bfsQueue:
+            if level % 2 == 0:
+                previous = float('-inf')
+            else:
+                previous = float('inf')
+
+            bfsSize = len(bfsQueue)
+            for _ in range(bfsSize):
+                current = bfsQueue.popleft()
+                value = current.val
+                if level % 2 == 0:
+                    if value % 2 == 0:
+                        return retVal
+                    elif value <= previous:
+                        return retVal
+                    previous = value
+                else:
+                    if value % 2 != 0:
+                        return retVal
+                    elif value >= previous:
+                        return retVal
+                    previous = value
+
+                if current.left:
+                    bfsQueue.append(current.left)
+                if current.right:
+                    bfsQueue.append(current.right)
+
+            level += 1
+
+        retVal = True
+
+        return retVal
+```
+
+</details>
+
 ## [2196. Create Binary Tree From Descriptions](https://leetcode.com/problems/create-binary-tree-from-descriptions/)  1643
 
 <details><summary>Description</summary>
