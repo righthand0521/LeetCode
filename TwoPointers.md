@@ -2491,28 +2491,85 @@ could you find an O(n) solution using a different approach?
 int* sortedSquares(int* nums, int numsSize, int* returnSize) {
     int* pRetVal = NULL;
 
-    (*returnSize) = numsSize;
-    pRetVal = (int*)malloc((*returnSize) * sizeof(int));
+    (*returnSize) = 0;
+
+    pRetVal = (int*)malloc(numsSize * sizeof(int));
     if (pRetVal == NULL) {
         perror("malloc");
         return pRetVal;
     }
 
-    int head = 0;
-    int tail = numsSize - 1;
+    int left = 0;
+    int right = numsSize - 1;
     int i;
     for (i = (numsSize - 1); i >= 0; --i) {
-        if (abs(nums[head]) > abs(nums[tail])) {
-            pRetVal[i] = nums[head] * nums[head];
-            ++head;
+        if (abs(nums[left]) > abs(nums[right])) {
+            pRetVal[i] = nums[left] * nums[left];
+            ++left;
         } else {
-            pRetVal[i] = nums[tail] * nums[tail];
-            --tail;
+            pRetVal[i] = nums[right] * nums[right];
+            --right;
         }
     }
+    (*returnSize) = numsSize;
 
     return pRetVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> sortedSquares(vector<int>& nums) {
+        vector<int> retVal;
+
+        int numsSize = nums.size();
+        retVal.resize(numsSize, 0);
+
+        int left = 0;
+        int right = numsSize - 1;
+        for (int i = (numsSize - 1); i >= 0; --i) {
+            if (abs(nums[left]) > abs(nums[right])) {
+                retVal[i] = nums[left] * nums[left];
+                ++left;
+            } else {
+                retVal[i] = nums[right] * nums[right];
+                --right;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def sortedSquares(self, nums: List[int]) -> List[int]:
+        retVal = []
+
+        numsSize = len(nums)
+        retVal = [0] * numsSize
+
+        left = 0
+        right = numsSize - 1
+        for i in range(numsSize-1, -1, -1):
+            if abs(nums[left]) > abs(nums[right]):
+                retVal[i] = nums[left] * nums[left]
+                left += 1
+            else:
+                retVal[i] = nums[right] * nums[right]
+                right -= 1
+
+        return retVal
 ```
 
 </details>

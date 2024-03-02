@@ -8,37 +8,46 @@
 int* sortedSquares(int* nums, int numsSize, int* returnSize) {
     int* pRetVal = NULL;
 
-    (*returnSize) = numsSize;
-    pRetVal = (int*)malloc((*returnSize) * sizeof(int));
+    (*returnSize) = 0;
+
+    pRetVal = (int*)malloc(numsSize * sizeof(int));
     if (pRetVal == NULL) {
         perror("malloc");
         return pRetVal;
     }
 
-    int head = 0;
-    int tail = numsSize - 1;
+    int left = 0;
+    int right = numsSize - 1;
     int i;
     for (i = (numsSize - 1); i >= 0; --i) {
-        if (abs(nums[head]) > abs(nums[tail])) {
-            pRetVal[i] = nums[head] * nums[head];
-            ++head;
+        if (abs(nums[left]) > abs(nums[right])) {
+            pRetVal[i] = nums[left] * nums[left];
+            ++left;
         } else {
-            pRetVal[i] = nums[tail] * nums[tail];
-            --tail;
+            pRetVal[i] = nums[right] * nums[right];
+            --right;
         }
     }
+    (*returnSize) = numsSize;
 
     return pRetVal;
 }
 
 int main(int argc, char** argv) {
-#define MAX_SIZE (10000)
+#define MAX_SIZE (int)(1e4)
     struct testCaseType {
         int nums[MAX_SIZE];
         int numsSize;
         int returnSize;
     } testCase[] = {{{-4, -1, 0, 3, 10}, 5, 0}, {{-7, -3, 2, 3, 11}, 5, 0}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: nums = [-4,-1,0,3,10]
+     *  Output: [0,1,9,16,100]
+     *
+     *  Input: nums = [-7,-3,2,3,11]
+     *  Output: [4,9,9,49,121]
+     */
 
     int* pAnswer = NULL;
     int i, j;
