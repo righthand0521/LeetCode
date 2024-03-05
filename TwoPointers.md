@@ -2911,6 +2911,17 @@ Constraints:
 s only consists of characters 'a', 'b', and 'c'.
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. If both ends have distinct characters, no more operations can be made.
+   Otherwise, the only operation is to remove all of the same characters from both ends.
+   We will do this as many times as we can.
+2. Note that if the length is equal 1 the answer is 1
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
@@ -2919,25 +2930,72 @@ s only consists of characters 'a', 'b', and 'c'.
 int minimumLength(char* s) {
     int retVal = 0;
 
-    int len = strlen(s);
-    char sameChar;
-    int head = 0;
-    int tail = len - 1;
-    while ((head < tail) && (s[head] == s[tail])) {
-        sameChar = s[head];
-
-        while ((head <= tail) && (s[head] == sameChar)) {
-            ++head;
+    char equal;
+    int left = 0;
+    int right = strlen(s) - 1;
+    while ((left < right) && (s[left] == s[right])) {
+        equal = s[left];
+        while ((left <= right) && (s[left] == equal)) {
+            ++left;
         }
-
-        while ((head <= tail) && (s[tail] == sameChar)) {
-            --tail;
+        while ((left <= right) && (s[right] == equal)) {
+            --right;
         }
     }
-    retVal = tail - head + 1;
+    retVal = right - left + 1;
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minimumLength(string s) {
+        int retVal = 0;
+
+        int left = 0;
+        int right = s.size() - 1;
+        while ((left < right) && (s[left] == s[right])) {
+            char equal = s[left];
+            while ((left <= right) && (s[left] == equal)) {
+                ++left;
+            }
+            while ((left <= right) && (s[right] == equal)) {
+                --right;
+            }
+        }
+        retVal = right - left + 1;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minimumLength(self, s: str) -> int:
+        retVal = 0
+
+        left = 0
+        right = len(s) - 1
+        while (left < right) and (s[left] == s[right]):
+            equal = s[left]
+            while (left <= right) and (s[left] == equal):
+                left += 1
+            while (left <= right) and (s[right] == equal):
+                right -= 1
+        retVal = right - left + 1
+
+        return retVal
 ```
 
 </details>

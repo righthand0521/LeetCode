@@ -5,22 +5,19 @@
 int minimumLength(char* s) {
     int retVal = 0;
 
-    int len = strlen(s);
-    char sameChar;
-    int head = 0;
-    int tail = len - 1;
-    while ((head < tail) && (s[head] == s[tail])) {
-        sameChar = s[head];
-
-        while ((head <= tail) && (s[head] == sameChar)) {
-            ++head;
+    char equal;
+    int left = 0;
+    int right = strlen(s) - 1;
+    while ((left < right) && (s[left] == s[right])) {
+        equal = s[left];
+        while ((left <= right) && (s[left] == equal)) {
+            ++left;
         }
-
-        while ((head <= tail) && (s[tail] == sameChar)) {
-            --tail;
+        while ((left <= right) && (s[right] == equal)) {
+            --right;
         }
     }
-    retVal = tail - head + 1;
+    retVal = right - left + 1;
 
     return retVal;
 }
@@ -30,6 +27,16 @@ int main(int argc, char** argv) {
         char* s;
     } testCase[] = {{"ca"}, {"cabaabac"}, {"aabccabba"}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: s = "ca"
+     *  Output: 2
+     *
+     *  Input: s = "cabaabac"
+     *  Output: 0
+     *
+     *  Input: s = "aabccabba"
+     *  Output: 3
+     */
 
     int answer = 0;
     int i;
