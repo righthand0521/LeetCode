@@ -1,4 +1,3 @@
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,18 +13,18 @@
  * };
  */
 struct TreeNode* invertTree(struct TreeNode* root) {
-    if (root == NULL) {
-        return root;
+    struct TreeNode* pRetVal = root;
+
+    if (pRetVal == NULL) {
+        return pRetVal;
     }
+    struct TreeNode* pTmp = pRetVal->left;
+    pRetVal->left = pRetVal->right;
+    pRetVal->right = pTmp;
+    pRetVal->left = invertTree(pRetVal->left);
+    pRetVal->right = invertTree(pRetVal->right);
 
-    struct TreeNode* pTmp = root->left;
-    root->left = root->right;
-    root->right = pTmp;
-
-    root->left = invertTree(root->left);
-    root->right = invertTree(root->right);
-
-    return root;
+    return pRetVal;
 }
 
 int main(int argc, char** argv) {

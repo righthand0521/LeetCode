@@ -3842,18 +3842,18 @@ The number of nodes in the tree is in the range [0, 100].
  * };
  */
 struct TreeNode* invertTree(struct TreeNode* root) {
-    if (root == NULL) {
-        return root;
+    struct TreeNode* pRetVal = root;
+
+    if (pRetVal == NULL) {
+        return pRetVal;
     }
+    struct TreeNode* pTmp = pRetVal->left;
+    pRetVal->left = pRetVal->right;
+    pRetVal->right = pTmp;
+    pRetVal->left = invertTree(pRetVal->left);
+    pRetVal->right = invertTree(pRetVal->right);
 
-    struct TreeNode* pTmp = root->left;
-    root->left = root->right;
-    root->right = pTmp;
-
-    root->left = invertTree(root->left);
-    root->right = invertTree(root->right);
-
-    return root;
+    return pRetVal;
 }
 ```
 
@@ -3876,20 +3876,46 @@ struct TreeNode* invertTree(struct TreeNode* root) {
 class Solution {
    public:
     TreeNode *invertTree(TreeNode *root) {
-        if (root == NULL) {
-            return root;
+        TreeNode *pRetVal = root;
+
+        if (pRetVal == NULL) {
+            return pRetVal;
         }
+        TreeNode *pTemp = pRetVal->left;
+        pRetVal->left = pRetVal->right;
+        pRetVal->right = pTemp;
+        invertTree(pRetVal->left);
+        invertTree(pRetVal->right);
 
-        TreeNode *pTemp = root->left;
-        root->left = root->right;
-        root->right = pTemp;
-
-        invertTree(root->left);
-        invertTree(root->right);
-
-        return root;
+        return pRetVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        retVal = root
+
+        if retVal is None:
+            return retVal
+        temp = retVal.left
+        retVal.left = retVal.right
+        retVal.right = temp
+        self.invertTree(retVal.left)
+        self.invertTree(retVal.right)
+
+        return retVal
 ```
 
 </details>
