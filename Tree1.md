@@ -1601,6 +1601,55 @@ class Solution {
 
 </details>
 
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def buildTree(self, preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
+        retVal = None
+
+        inorderSize = len(inorder)
+        preorderSize = len(preorder)
+
+        if preorderSize == 0:
+            return retVal
+
+        preorderIndex = preorderSize
+        inorderIndex = 0
+        stack = []
+
+        # /* Example
+        #  *      (3)        v  pre: 3  9 20 15  7
+        #  *   (9)   (20)    v   in: 9  3 15 20  7
+        #  *      (15)  (7)    post: 9 15  7 20  3
+        #  */
+        retVal = TreeNode(preorder[0])
+        stack.append(retVal)
+        for i in range(1, preorderIndex):
+            preorderVal = preorder[i]
+            node = stack[-1]
+            if node.val != inorder[inorderIndex]:
+                node.left = TreeNode(preorderVal)
+                stack.append(node.left)
+            else:
+                while (len(stack) != 0) and (stack[-1].val == inorder[inorderIndex]):
+                    node = stack[-1]
+                    stack.pop()
+                    inorderIndex += 1
+                node.right = TreeNode(preorderVal)
+                stack.append(node.right)
+
+        return retVal
+```
+
+</details>
+
 ## [106. Construct Binary Tree from Inorder and Postorder Traversal](https://leetcode.com/problems/construct-binary-tree-from-inorder-and-postorder-traversal/)
 
 - [Official](https://leetcode.cn/problems/construct-binary-tree-from-inorder-and-postorder-traversal/solutions/426738/cong-zhong-xu-yu-hou-xu-bian-li-xu-lie-gou-zao-14/)
