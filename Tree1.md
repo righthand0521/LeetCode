@@ -1820,6 +1820,55 @@ class Solution {
 
 </details>
 
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def buildTree(self, inorder: List[int], postorder: List[int]) -> Optional[TreeNode]:
+        retVal = None
+
+        inorderSize = len(inorder)
+        postorderSize = len(postorder)
+
+        if postorderSize == 0:
+            return retVal
+
+        inorderIndex = inorderSize - 1
+        postorderIndex = postorderSize - 1
+        stack = []
+
+        # /* Example
+        #  *      (3)           pre: 3  9 20 15  7
+        #  *   (9)   (20)    v   in: 9  3 15 20  7
+        #  *      (15)  (7)  v post: 9 15  7 20  3
+        #  */
+        retVal = TreeNode(postorder[postorderIndex])
+        stack.append(retVal)
+        for i in range(postorderIndex - 1, -1, -1):
+            postorderVal = postorder[i]
+            node = stack[-1]
+            if node.val != inorder[inorderIndex]:
+                node.right = TreeNode(postorderVal)
+                stack.append(node.right)
+            else:
+                while (len(stack) != 0) and (stack[-1].val == inorder[inorderIndex]):
+                    node = stack[-1]
+                    stack.pop()
+                    inorderIndex -= 1
+                node.left = TreeNode(postorderVal)
+                stack.append(node.left)
+
+        return retVal
+```
+
+</details>
+
 ## [108. Convert Sorted Array to Binary Search Tree](https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree/)
 
 - [Official](https://leetcode.cn/problems/convert-sorted-array-to-binary-search-tree/solutions/312607/jiang-you-xu-shu-zu-zhuan-huan-wei-er-cha-sou-s-33/)
