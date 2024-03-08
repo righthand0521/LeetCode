@@ -6529,3 +6529,138 @@ class Solution:
 ```
 
 </details>
+
+## [3005. Count Elements With Maximum Frequency](https://leetcode.com/problems/count-elements-with-maximum-frequency/)  1216
+
+- [Official](https://leetcode.com/problems/count-elements-with-maximum-frequency/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an array nums consisting of positive integers.
+
+Return the total frequencies of elements in nums such that those elements all have the maximum frequency.
+
+The frequency of an element is the number of occurrences of that element in the array.
+
+Example 1:
+Input: nums = [1,2,2,3,1,4]
+Output: 4
+Explanation: The elements 1 and 2 have a frequency of 2 which is the maximum frequency in the array.
+So the number of elements in the array with maximum frequency is 4.
+
+Example 2:
+Input: nums = [1,2,3,4,5]
+Output: 5
+Explanation: All elements of the array have a frequency of 1 which is the maximum.
+So the number of elements in the array with maximum frequency is 5.
+
+Constraints:
+1 <= nums.length <= 100
+1 <= nums[i] <= 100
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Find frequencies of all elements of the array.
+2. Find the elements that have the maximum frequencies and count their total occurrences.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareInteger(const void* n1, const void* n2) {
+    // descending order
+    return (*(int*)n1 < *(int*)n2);
+}
+int maxFrequencyElements(int* nums, int numsSize) {
+    int retVal = 0;
+
+#define MAX_NUMS_SIZE (100)  // 1 <= nums.length <= 100; 1 <= nums[i] <= 100;
+    int hashTable[MAX_NUMS_SIZE];
+    memset(hashTable, 0, sizeof(hashTable));
+
+    int i;
+    for (i = 0; i < numsSize; ++i) {
+        hashTable[nums[i] - 1]++;
+    }
+    qsort(hashTable, MAX_NUMS_SIZE, sizeof(int), compareInteger);
+
+    int frequency;
+    int maxFrequency = 0;
+    for (i = 0; i < MAX_NUMS_SIZE; ++i) {
+        frequency = hashTable[i];
+        if (frequency >= maxFrequency) {
+            maxFrequency = frequency;
+            retVal += frequency;
+        } else {
+            break;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int numsMAXsize = 100;  // 1 <= nums.length <= 100; 1 <= nums[i] <= 100;
+
+   public:
+    int maxFrequencyElements(vector<int>& nums) {
+        int retVal = 0;
+
+        vector<int> hashTable(numsMAXsize, 0);
+        for (int num : nums) {
+            hashTable[num - 1]++;
+        }
+        sort(hashTable.begin(), hashTable.end(), greater());
+
+        int maxFrequency = 0;
+        for (int frequency : hashTable) {
+            if (frequency >= maxFrequency) {
+                maxFrequency = frequency;
+                retVal += frequency;
+            } else {
+                break;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxFrequencyElements(self, nums: List[int]) -> int:
+        retVal = 0
+
+        frequency = Counter(nums).most_common()
+
+        previous = 0
+        for _, value in frequency:
+            if value >= previous:
+                previous = value
+                retVal += value
+            else:
+                break
+
+        return retVal
+```
+
+</details>
