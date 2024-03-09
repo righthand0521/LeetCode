@@ -3789,6 +3789,129 @@ class Solution:
 
 </details>
 
+## [2540. Minimum Common Value](https://leetcode.com/problems/minimum-common-value/)  1249
+
+- [Official](https://leetcode.com/problems/minimum-common-value/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+Given two integer arrays nums1 and nums2, sorted in non-decreasing order,
+return the minimum integer common to both arrays.
+If there is no common integer amongst nums1 and nums2, return -1.
+
+Note that an integer is said to be common to nums1 and nums2
+if both arrays have at least one occurrence of that integer.
+
+Example 1:
+Input: nums1 = [1,2,3], nums2 = [2,4]
+Output: 2
+Explanation: The smallest element common to both arrays is 2, so we return 2.
+
+Example 2:
+Input: nums1 = [1,2,3,6], nums2 = [2,3,4,5]
+Output: 2
+Explanation: There are two common elements in the array 2 and 3 out of which 2 is the smallest, so 2 is returned.
+
+Constraints:
+1 <= nums1.length, nums2.length <= 10^5
+1 <= nums1[i], nums2[j] <= 10^9
+Both nums1 and nums2 are sorted in non-decreasing order.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Try to use a set.
+2. Otherwise, try to use a two-pointer approach.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int getCommon(int* nums1, int nums1Size, int* nums2, int nums2Size) {
+    int retVal = -1;
+
+    int nums1Idx = 0;
+    int nums2Idx = 0;
+    while ((nums1Idx < nums1Size) && (nums2Idx < nums2Size)) {
+        if (nums1[nums1Idx] == nums2[nums2Idx]) {
+            retVal = nums1[nums1Idx];
+            break;
+        } else if (nums1[nums1Idx] > nums2[nums2Idx]) {
+            nums2Idx++;
+        } else if (nums1[nums1Idx] < nums2[nums2Idx]) {
+            nums1Idx++;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int getCommon(vector<int>& nums1, vector<int>& nums2) {
+        int retVal = -1;
+
+        int nums1Size = nums1.size();
+        int nums2Size = nums2.size();
+
+        int nums1Idx = 0;
+        int nums2Idx = 0;
+        while ((nums1Idx < nums1Size) && (nums2Idx < nums2Size)) {
+            if (nums1[nums1Idx] == nums2[nums2Idx]) {
+                retVal = nums1[nums1Idx];
+                break;
+            } else if (nums1[nums1Idx] > nums2[nums2Idx]) {
+                nums2Idx++;
+            } else if (nums1[nums1Idx] < nums2[nums2Idx]) {
+                nums1Idx++;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def getCommon(self, nums1: List[int], nums2: List[int]) -> int:
+        retVal = -1
+
+        num1Size = len(nums1)
+        num2Size = len(nums2)
+
+        nums1Idx = 0
+        nums2Idx = 0
+        while (nums1Idx < num1Size) and (nums2Idx < num2Size):
+            if nums1[nums1Idx] == nums2[nums2Idx]:
+                retVal = nums1[nums1Idx]
+                break
+            elif nums1[nums1Idx] > nums2[nums2Idx]:
+                nums2Idx += 1
+            elif nums1[nums1Idx] < nums2[nums2Idx]:
+                nums1Idx += 1
+
+        return retVal
+```
+
+</details>
+
 ## [2810. Faulty Keyboard](https://leetcode.com/problems/faulty-keyboard/)  1192
 
 <details><summary>Description</summary>
