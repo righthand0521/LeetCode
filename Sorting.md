@@ -795,6 +795,128 @@ int dominantIndex(int* nums, int numsSize){
 
 </details>
 
+## [791. Custom Sort String](https://leetcode.com/problems/custom-sort-string/)  1423
+
+- [Official](https://leetcode.cn/problems/custom-sort-string/solutions/1963410/zi-ding-yi-zi-fu-chuan-pai-xu-by-leetcod-1qvf/)
+
+<details><summary>Description</summary>
+
+```text
+You are given two strings order and s.
+All the characters of order are unique and were sorted in some custom order previously.
+
+Permute the characters of s so that they match the order that order was sorted.
+More specifically, if a character x occurs before a character y in order,
+then x should occur before y in the permuted string.
+
+Return any permutation of s that satisfies this property.
+
+Example 1:
+Input:  order = "cba", s = "abcd"
+Output:  "cbad"
+Explanation: "a", "b", "c" appear in order, so the order of "a", "b", "c" should be "c", "b", and "a".
+Since "d" does not appear in order, it can be at any position in the returned string.
+"dcba", "cdba", "cbda" are also valid outputs.
+
+Example 2:
+Input:  order = "bcafg", s = "abcd"
+Output:  "bcad"
+Explanation: The characters "b", "c", and "a" from order dictate the order for the characters in s.
+The character "d" in s does not appear in order, so its position is flexible.
+Following the order of appearance in order, "b", "c", and "a" from s
+should be arranged as "b", "c", "a". "d" can be placed at any position since it's not in order.
+The output "bcad" correctly follows this rule.
+Other arrangements like "bacd" or "bcda" would also be valid, as long as "b", "c", "a" maintain their order.
+
+Constraints:
+1 <= order.length <= 26
+1 <= s.length <= 200
+order and s consist of lowercase English letters.
+All the characters of order are unique.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MAX_VAL_SIZE (26)  // 1 <= order.length <= 26
+int val[MAX_VAL_SIZE];
+int compareInteger(const void* n1, const void* n2) {
+    // descending order
+    return (val[*(char*)n1 - 'a'] < val[*(char*)n2 - 'a']);
+}
+char* customSortString(char* order, char* s) {
+    char* pRetVal = NULL;
+
+    memset(val, 0, sizeof(val));
+
+    int orderSize = strlen(order);
+    int idx;
+    int i;
+    for (i = 0; i < orderSize; ++i) {
+        idx = order[i] - 'a';
+        val[idx] = MAX_VAL_SIZE - i;
+    }
+
+    int sSize = strlen(s);
+    qsort(s, sSize, sizeof(char), compareInteger);
+    pRetVal = s;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int valSize = 26;  // 1 <= order.length <= 26
+
+   public:
+    string customSortString(string order, string s) {
+        string retVal;
+
+        int orderSize = order.size();
+        vector<int> val(valSize, 0);
+        for (int i = 0; i < orderSize; ++i) {
+            int idx = order[i] - 'a';
+            val[idx] = valSize - i;
+        }
+
+        sort(s.begin(), s.end(), [&](char c0, char c1) {
+            // descending order
+            return val[c0 - 'a'] > val[c1 - 'a'];
+        });
+        retVal = s;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def customSortString(self, order: str, s: str) -> str:
+        retVal = ""
+
+        val = defaultdict(int)
+        for i, ch in enumerate(order):
+            val[ch] = 26 - i    # 1 <= order.length <= 26
+        retVal = "".join(sorted(s, key=lambda ch: val[ch], reverse=True))
+
+        return retVal
+```
+
+</details>
+
 ## [853. Car Fleet](https://leetcode.com/problems/car-fleet/)  1678
 
 - [Official](https://leetcode.cn/problems/car-fleet/solutions/20104/che-dui-by-leetcode/)
