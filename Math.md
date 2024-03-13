@@ -5392,6 +5392,122 @@ class Solution:
 
 </details>
 
+## [2485. Find the Pivot Integer](https://leetcode.com/problems/find-the-pivot-integer/)  1207
+
+- [Official](https://leetcode.com/problems/find-the-pivot-integer/editorial/)
+- [Official](https://leetcode.cn/problems/find-the-pivot-integer/solutions/2306030/zhao-chu-zhong-shu-zheng-shu-by-leetcode-t7gn/)
+
+<details><summary>Description</summary>
+
+```text
+Given a positive integer n, find the pivot integer x such that:
+- The sum of all elements between 1 and x inclusively equals the sum of all elements between x and n inclusively.
+Return the pivot integer x. If no such integer exists, return -1.
+It is guaranteed that there will be at most one pivot index for the given input.
+
+Example 1:
+Input: n = 8
+Output: 6
+Explanation: 6 is the pivot integer since: 1 + 2 + 3 + 4 + 5 + 6 = 6 + 7 + 8 = 21.
+
+Example 2:
+Input: n = 1
+Output: 1
+Explanation: 1 is the pivot integer since: 1 = 1.
+
+Example 3:
+Input: n = 4
+Output: -1
+Explanation: It can be proved that no such integer exist.
+
+Constraints:
+1 <= n <= 1000
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Can you use brute force to check every number from 1 to n if any of them is the pivot integer?
+2. If you know the sum of [1: pivot], how can you efficiently calculate the sum of the other parts?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int pivotInteger(int n) {
+    int retVal = -1;
+
+    /* 1 + 2 + ... + x = x + ... + n
+     * => x * (x+1) / 2 = (n-x+1) * (n+x) / 2
+     * => 2 * x^2 = n^2 + n
+     * => x = ((n^2 + n) / 2)^(1/2)
+     * => x = ((n * (n+1) / 2))^(1/2)
+     */
+    int sum = n * (n + 1) / 2;
+    int x = sqrt(sum);
+    if (x * x == sum) {
+        retVal = x;
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int pivotInteger(int n) {
+        int retVal = -1;
+
+        /* 1 + 2 + ... + x = x + ... + n
+         * => x * (x+1) / 2 = (n-x+1) * (n+x) / 2
+         * => 2 * x^2 = n^2 + n
+         * => x = ((n^2 + n) / 2)^(1/2)
+         * => x = ((n * (n+1) / 2))^(1/2)
+         */
+        int sum = n * (n + 1) / 2;
+        int x = sqrt(sum);
+        if (x * x == sum) {
+            retVal = x;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def pivotInteger(self, n: int) -> int:
+        retVal = -1
+
+        # 1 + 2 + ... + x = x + ... + n
+        # => x * (x+1) / 2 = (n-x+1) * (n+x) / 2
+        # => 2 * x^2 = n^2 + n
+        # => x = ((n^2 + n) / 2)^(1/2)
+        # => x = ((n * (n+1) / 2))^(1/2)
+        sum = n * (n + 1) // 2
+        x = int(sqrt(sum))
+        if x * x == sum:
+            retVal = x
+
+        return retVal
+```
+
+</details>
+
 ## [2544. Alternating Digit Sum](https://leetcode.com/problems/alternating-digit-sum/)  1184
 
 <details><summary>Description</summary>
