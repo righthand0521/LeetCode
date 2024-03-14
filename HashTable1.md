@@ -5034,3 +5034,140 @@ class MyHashMap:
 ```
 
 </details>
+
+## [930. Binary Subarrays With Sum](https://leetcode.com/problems/binary-subarrays-with-sum/)  1591
+
+- [Official](https://leetcode.com/problems/binary-subarrays-with-sum/editorial/)
+- [Official](https://leetcode.cn/problems/binary-subarrays-with-sum/solutions/864087/he-xiang-tong-de-er-yuan-zi-shu-zu-by-le-5caf/)
+
+<details><summary>Description</summary>
+
+```text
+Given a binary array nums and an integer goal, return the number of non-empty subarrays with a sum goal.
+
+A subarray is a contiguous part of the array.
+
+Example 1:
+Input: nums = [1,0,1,0,1], goal = 2
+Output: 4
+Explanation: The 4 subarrays are bolded and underlined below:
+[1,0,1,0,1]
+[1,0,1,0,1]
+[1,0,1,0,1]
+[1,0,1,0,1]
+
+Example 2:
+Input: nums = [0,0,0,0,0], goal = 0
+Output: 15
+
+Constraints:
+1 <= nums.length <= 3 * 10^4
+nums[i] is either 0 or 1.
+0 <= goal <= nums.length
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *current;
+    struct hashTable *tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int numSubarraysWithSum(int *nums, int numsSize, int goal) {
+    int retVal = 0;
+
+    struct hashTable *pHashTable = NULL;
+    struct hashTable *pTemp;
+
+    int key;
+    int sum = 0;
+    int i;
+    for (i = 0; i < numsSize; ++i) {
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTable, &sum, pTemp);
+        if (pTemp == NULL) {
+            pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                goto exit;
+            }
+            pTemp->key = sum;
+            pTemp->value = 1;
+            HASH_ADD_INT(pHashTable, key, pTemp);
+        } else {
+            pTemp->value += 1;
+        }
+
+        sum += nums[i];
+
+        key = sum - goal;
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTable, &key, pTemp);
+        if (pTemp != NULL) {
+            retVal += pTemp->value;
+        }
+    }
+
+exit:
+    freeAll(pHashTable);
+    pHashTable = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int numSubarraysWithSum(vector<int>& nums, int goal) {
+        int retVal = 0;
+
+        unordered_map<int, int> hashTable;
+        int sum = 0;
+        for (int num : nums) {
+            hashTable[sum] += 1;
+            sum += num;
+            retVal += hashTable[sum - goal];
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def numSubarraysWithSum(self, nums: List[int], goal: int) -> int:
+        retVal = 0
+
+        hashTable = defaultdict(int)
+        sum = 0
+        for num in nums:
+            hashTable[sum] += 1
+            sum += num
+            retVal += hashTable[sum - goal]
+
+        return retVal
+```
+
+</details>
