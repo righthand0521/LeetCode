@@ -14,18 +14,22 @@
  * };
  */
 bool hasPathSum(struct TreeNode* root, int targetSum) {
+    bool retVal = false;
+
     if (root == NULL) {
-        return false;
+        return retVal;
     }
 
     if ((root->left == NULL) && (root->right == NULL)) {
         if (root->val == targetSum) {
-            return true;
+            retVal = true;
+            return retVal;
         }
     }
     targetSum -= root->val;
+    retVal = hasPathSum(root->left, targetSum) || hasPathSum(root->right, targetSum);
 
-    return hasPathSum(root->left, targetSum) || hasPathSum(root->right, targetSum);
+    return retVal;
 }
 
 int main(int argc, char** argv) {
