@@ -4089,6 +4089,160 @@ bool checkSubarraySum(int* nums, int numsSize, int k)
 
 </details>
 
+## [525. Contiguous Array](https://leetcode.com/problems/contiguous-array/)
+
+- [Official](https://leetcode.com/problems/contiguous-array/editorial/)
+- [Official](https://leetcode.cn/problems/contiguous-array/solutions/809683/lian-xu-shu-zu-by-leetcode-solution-mvnm/)
+
+<details><summary>Description</summary>
+
+```text
+Given a binary array nums, return the maximum length of a contiguous subarray with an equal number of 0 and 1.
+
+Example 1:
+Input: nums = [0,1]
+Output: 2
+Explanation: [0, 1] is the longest contiguous subarray with an equal number of 0 and 1.
+
+Example 2:
+Input: nums = [0,1,0]
+Output: 2
+Explanation: [0, 1] (or [1, 0]) is a longest contiguous subarray with equal number of 0 and 1.
+
+Constraints:
+1 <= nums.length <= 10^5
+nums[i] is either 0 or 1.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *current;
+    struct hashTable *tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int findMaxLength(int *nums, int numsSize) {
+    int retVal = 0;
+
+    int sum = 0;
+    struct hashTable *pHashTable = NULL;
+    struct hashTable *pTemp = NULL;
+    pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+    if (pTemp == NULL) {
+        perror("malloc");
+        goto exit;
+    }
+    pTemp->key = sum;
+    pTemp->value = -1;
+    HASH_ADD_INT(pHashTable, key, pTemp);
+
+    int i;
+    for (i = 0; i < numsSize; ++i) {
+        if (nums[i] == 1) {
+            sum++;
+        } else if (nums[i] == 0) {
+            sum--;
+        }
+
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTable, &sum, pTemp);
+        if (pTemp != NULL) {
+            retVal = fmax(retVal, i - pTemp->value);
+        } else {
+            pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                goto exit;
+            }
+            pTemp->key = sum;
+            pTemp->value = i;
+            HASH_ADD_INT(pHashTable, key, pTemp);
+        }
+    }
+
+exit:
+    freeAll(pHashTable);
+    pHashTable = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int findMaxLength(vector<int>& nums) {
+        int retVal = 0;
+
+        int numsSize = nums.size();
+
+        int sum = 0;
+        unordered_map<int, int> hashTable;
+        hashTable[sum] = -1;
+        for (int i = 0; i < numsSize; ++i) {
+            if (nums[i] == 1) {
+                sum++;
+            } else if (nums[i] == 0) {
+                sum--;
+            }
+
+            if (hashTable.count(sum) > 0) {
+                retVal = max(retVal, i - hashTable[sum]);
+            } else {
+                hashTable[sum] = i;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def findMaxLength(self, nums: List[int]) -> int:
+        retVal = 0
+
+        hashTable = defaultdict(int)
+
+        sum = 0
+        hashTable[sum] = -1
+        for idx, num in enumerate(nums):
+            if num == 1:
+                sum += 1
+            elif num == 0:
+                sum -= 1
+
+            if sum in hashTable:
+                retVal = max(retVal, idx-hashTable[sum])
+            else:
+                hashTable[sum] = idx
+
+        return retVal
+```
+
+</details>
+
 ## [560. Subarray Sum Equals K](https://leetcode.com/problems/subarray-sum-equals-k/)
 
 - [Official](https://leetcode.cn/problems/subarray-sum-equals-k/solutions/238572/he-wei-kde-zi-shu-zu-by-leetcode-solution/)
