@@ -1,4 +1,3 @@
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,14 +13,17 @@
  * };
  */
 int countNodes(struct TreeNode* root) {
+    int retVal = 0;
+
     if (root == NULL) {
-        return 0;
+        return retVal;
     }
 
     int leftCount = countNodes(root->left);
     int rightCount = countNodes(root->right);
+    retVal = 1 + leftCount + rightCount;
 
-    return (1 + leftCount + rightCount);
+    return retVal;
 }
 
 int main(int argc, char** argv) {

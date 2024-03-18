@@ -3907,6 +3907,8 @@ class Solution:
 
 ## [222. Count Complete Tree Nodes](https://leetcode.com/problems/count-complete-tree-nodes/)
 
+- [Official](https://leetcode.cn/problems/count-complete-tree-nodes/solutions/495655/wan-quan-er-cha-shu-de-jie-dian-ge-shu-by-leetco-2/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -3955,15 +3957,77 @@ The tree is guaranteed to be complete.
  * };
  */
 int countNodes(struct TreeNode* root) {
+    int retVal = 0;
+
     if (root == NULL) {
-        return 0;
+        return retVal;
     }
 
     int leftCount = countNodes(root->left);
     int rightCount = countNodes(root->right);
+    retVal = 1 + leftCount + rightCount;
 
-    return (1 + leftCount + rightCount);
+    return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   public:
+    int countNodes(TreeNode* root) {
+        int retVal = 0;
+
+        if (root == nullptr) {
+            return retVal;
+        }
+
+        int leftCount = countNodes(root->left);
+        int rightCount = countNodes(root->right);
+        retVal = 1 + leftCount + rightCount;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def countNodes(self, root: Optional[TreeNode]) -> int:
+        retVal = 0
+
+        if root == None:
+            return retVal
+
+        leftCount = self.countNodes(root.left)
+        rightCount = self.countNodes(root.right)
+        retVal = 1 + leftCount + rightCount
+
+        return retVal
 ```
 
 </details>
