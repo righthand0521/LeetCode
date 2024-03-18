@@ -3437,6 +3437,39 @@ class Solution {
 
 </details>
 
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def dfs(self, root: Optional[TreeNode], sum: int) -> int:
+        retVal = 0
+
+        if root is None:
+            return retVal
+
+        retVal = 10 * sum + root.val
+        if (root.left is None) and (root.right is None):
+            return retVal
+        retVal = self.dfs(root.left, retVal) + self.dfs(root.right, retVal)
+
+        return retVal
+
+    def sumNumbers(self, root: Optional[TreeNode]) -> int:
+        retVal = 0
+
+        retVal = self.dfs(root, 0)
+
+        return retVal
+```
+
+</details>
+
 ## [144. Binary Tree Preorder Traversal](https://leetcode.com/problems/binary-tree-preorder-traversal/)
 
 - [Official](https://leetcode.cn/problems/binary-tree-preorder-traversal/solutions/461821/er-cha-shu-de-qian-xu-bian-li-by-leetcode-solution/)
