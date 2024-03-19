@@ -2637,6 +2637,145 @@ int** matrixReshape(int** mat, int matSize, int* matColSize, int r, int c, int* 
 
 </details>
 
+## [621. Task Scheduler](https://leetcode.com/problems/task-scheduler/)
+
+- [Official](https://leetcode.com/problems/task-scheduler/editorial/)
+- [Official](https://leetcode.cn/problems/task-scheduler/solutions/509687/ren-wu-diao-du-qi-by-leetcode-solution-ur9w/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an array of CPU tasks, each represented by letters A to Z, and a cooling time, n.
+Each cycle or interval allows the completion of one task.
+Tasks can be completed in any order, but there's a constraint:
+identical tasks must be separated by at least n intervals due to cooling time.
+
+​Return the minimum number of intervals required to complete all tasks.
+
+Example 1:
+Input: tasks = ["A","A","A","B","B","B"], n = 2
+Output: 8
+Explanation: A possible sequence is: A -> B -> idle -> A -> B -> idle -> A -> B.
+After completing task A, you must wait two cycles before doing A again.
+The same applies to task B. In the 3rd interval, neither A nor B can be done,
+so you idle. By the 4th cycle, you can do A again as 2 intervals have passed.
+
+Example 2:
+Input: tasks = ["A","C","A","B","D","B"], n = 1
+Output: 6
+Explanation: A possible sequence is: A -> B -> C -> D -> A -> B.
+With a cooling interval of 1, you can repeat a task after just one other task.
+
+Example 3:
+Input: tasks = ["A","A","A", "B","B","B"], n = 3
+Output: 10
+Explanation: A possible sequence is: A -> B -> idle -> idle -> A -> B -> idle -> idle -> A -> B.
+There are only two types of tasks, A and B, which need to be separated by 3 intervals.
+This leads to idling twice between repetitions of these tasks.
+
+Constraints:
+1 <= tasks.length <= 10^4
+tasks[i] is an uppercase English letter.
+0 <= n <= 100
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int leastInterval(char* tasks, int tasksSize, int n) {
+    int retVal = 0;
+
+    int frequencySize = 26;
+    int frequency[frequencySize];
+    memset(frequency, 0, sizeof(frequency));
+    int maxFrequency = 0;
+
+    int i;
+    for (i = 0; i < tasksSize; ++i) {
+        int idx = tasks[i] - 'A';
+        frequency[idx]++;
+        maxFrequency = fmax(maxFrequency, frequency[idx]);
+    }
+
+    int time = (maxFrequency - 1) * (n + 1);
+    for (i = 0; i < frequencySize; ++i) {
+        if (frequency[i] == maxFrequency) {
+            time++;
+        }
+    }
+
+    retVal = fmax(tasksSize, time);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int leastInterval(vector<char>& tasks, int n) {
+        int retVal = 0;
+
+        int tasksSize = tasks.size();
+
+        vector<int> frequency(26, 0);
+        int maxFrequency = 0;
+        for (char task : tasks) {
+            int idx = task - 'A';
+            frequency[idx]++;
+            maxFrequency = max(maxFrequency, frequency[idx]);
+        }
+
+        int time = (maxFrequency - 1) * (n + 1);
+        for (int f : frequency) {
+            if (f == maxFrequency) {
+                time++;
+            }
+        }
+
+        retVal = max(tasksSize, time);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def leastInterval(self, tasks: List[str], n: int) -> int:
+        retVal = 0
+
+        tasksSize = len(tasks)
+
+        frequency = [0] * 26
+        maxFrequency = 0
+        for task in tasks:
+            idx = ord(task) - ord('A')
+            frequency[idx] += 1
+            maxFrequency = max(maxFrequency, frequency[idx])
+
+        time = (maxFrequency - 1) * (n + 1)
+        for f in frequency:
+            if f == maxFrequency:
+                time += 1
+
+        retVal = max(tasksSize, time)
+
+        return retVal
+```
+
+</details>
+
 ## [661. Image Smoother](https://leetcode.com/problems/image-smoother/)
 
 - [Official](https://leetcode.com/problems/image-smoother/editorial/)
