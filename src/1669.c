@@ -53,6 +53,13 @@ int main(int argc, char** argv) {
     } testCase[] = {{{0, 1, 2, 3, 4, 5}, 6, 3, 4, {1000000, 1000001, 1000002}, 3},
                     {{0, 1, 2, 3, 4, 5, 6}, 7, 2, 5, {1000000, 1000001, 1000002, 1000003, 1000004}, 5}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: list1 = [0,1,2,3,4,5], a = 3, b = 4, list2 = [1000000,1000001,1000002]
+     *  Output: [0,1,2,1000000,1000001,1000002,5]
+     *
+     *  Input: list1 = [0,1,2,3,4,5,6], a = 2, b = 5, list2 = [1000000,1000001,1000002,1000003,1000004]
+     *  Output: [0,1,1000000,1000001,1000002,1000003,1000004,6]
+     */
 
     struct ListNode* pList1 = NULL;
     struct ListNode* pList2 = NULL;

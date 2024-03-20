@@ -4896,6 +4896,7 @@ int getDecimalValue(struct ListNode* head) {
 
 ## [1669. Merge In Between Linked Lists](https://leetcode.com/problems/merge-in-between-linked-lists/)  1428
 
+- [Official](https://leetcode.com/problems/merge-in-between-linked-lists/editorial/)
 - [Official](https://leetcode.cn/problems/merge-in-between-linked-lists/solutions/2079499/he-bing-liang-ge-lian-biao-by-leetcode-s-alt8/)
 
 <details><summary>Description</summary>
@@ -4945,6 +4946,16 @@ Constraints:
 1 <= a <= b < list1.length - 1
 1 <= list2.length <= 10^4
 ```
+
+<details><summary>Hint</summary>
+
+```text
+1. Check which edges need to be changed.
+2. Let the next node of the (a-1)th node of list1 be the 0-th node in list 2.
+3. Let the next node of the last node of list2 be the (b+1)-th node in list 1.
+```
+
+</details>
 
 </details>
 
@@ -5005,11 +5016,68 @@ struct ListNode* mergeInBetween(struct ListNode* list1, int a, int b, struct Lis
  * };
  */
 class Solution {
-public:
+   public:
     ListNode* mergeInBetween(ListNode* list1, int a, int b, ListNode* list2) {
+        ListNode* pRetVal = list1;
 
+        struct ListNode* pPrevious = nullptr;
+        struct ListNode* pNext1 = list1;
+        for (int i = 0; i < a; ++i) {
+            pPrevious = pNext1;
+            pNext1 = pNext1->next;
+        }
+        struct ListNode* pNext2 = pPrevious;
+
+        for (int i = a; i <= b; ++i) {
+            pPrevious->next = pNext1->next;
+            delete pNext1;
+            pNext1 = pPrevious->next;
+        }
+
+        pNext2->next = list2;
+        while (pNext2 != nullptr) {
+            pPrevious = pNext2;
+            pNext2 = pNext2->next;
+        }
+        pPrevious->next = pNext1;
+
+        return pRetVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def mergeInBetween(self, list1: ListNode, a: int, b: int, list2: ListNode) -> ListNode:
+        retVal = list1
+
+        pPrevious = None
+        pNext1 = list1
+        for _ in range(a):
+            pPrevious = pNext1
+            pNext1 = pNext1.next
+        pNext2 = pPrevious
+
+        for _ in range(a, b+1):
+            pPrevious.next = pNext1.next
+            pNext1 = pPrevious.next
+
+        pNext2.next = list2
+        while pNext2 != None:
+            pPrevious = pNext2
+            pNext2 = pNext2.next
+        pPrevious.next = pNext1
+
+        return retVal
 ```
 
 </details>
