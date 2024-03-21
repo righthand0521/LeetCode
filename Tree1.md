@@ -3119,11 +3119,11 @@ If there is no next right node, the next pointer should be set to NULL.
 Initially, all next pointers are set to NULL.
 
 Example 1:
-    1               1
-   / \            /   \
-  2   3    =>    2 --> 3 --> NULL
- / \   \       /   \     \
-4   5   7     4 --> 5 --> 7 --> NULL
+     1                   1
+   /   \            /         \
+  2     3    =>    2 --------> 3 --> NULL
+ / \   / \       /   \       /   \
+4   5 6   7     4 --> 5 --> 6 --> 7 --> NULL
 Input: root = [1,2,3,4,5,6,7]
 Output: [1,#,2,3,#,4,5,6,7,#]
 Explanation:
@@ -3286,6 +3286,199 @@ class Solution:
         retVal = root
 
         self.dfs(retVal)
+
+        return retVal
+```
+
+</details>
+
+## [117. Populating Next Right Pointers in Each Node II](https://leetcode.com/problems/populating-next-right-pointers-in-each-node-ii/)
+
+- [Official](https://leetcode.cn/problems/populating-next-right-pointers-in-each-node-ii/solutions/429828/tian-chong-mei-ge-jie-dian-de-xia-yi-ge-you-ce-15/)
+
+<details><summary>Description</summary>
+
+```text
+Given a binary tree
+struct Node {
+  int val;
+  Node *left;
+  Node *right;
+  Node *next;
+}
+Populate each next pointer to point to its next right node.
+If there is no next right node, the next pointer should be set to NULL.
+
+Initially, all next pointers are set to NULL.
+
+Example 1:
+    1               1
+   / \            /   \
+  2   3    =>    2 --> 3 --> NULL
+ / \   \       /   \     \
+4   5   7     4 --> 5 --> 7 --> NULL
+Input: root = [1,2,3,4,5,null,7]
+Output: [1,#,2,3,#,4,5,7,#]
+Explanation: Given the above binary tree (Figure A),
+your function should populate each next pointer to point to its next right node, just like in Figure B.
+The serialized output is in level order as connected by the next pointers, with '#' signifying the end of each level.
+
+Example 2:
+Input: root = []
+Output: []
+
+Constraints:
+The number of nodes in the tree is in the range [0, 6000].
+-100 <= Node.val <= 100
+
+Follow-up:
+You may only use constant extra space.
+The recursive approach is fine. You may assume implicit stack space does not count as extra space for this problem.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Definition for a Node.
+ * struct Node {
+ *     int val;
+ *     struct Node *left;
+ *     struct Node *right;
+ *     struct Node *next;
+ * };
+ */
+struct Node* connect(struct Node* root) {
+    struct Node* pRetVal = NULL;
+
+    if (root == NULL) {
+        return pRetVal;
+    }
+
+#define MAX_QUEUE_SIZE (12000)  // The number of nodes in the tree is in the range [0, 6000].
+    struct Node* levelQueue[MAX_QUEUE_SIZE];
+    int levelQueueHead = 0;
+    int levelQueueTail = 0;
+    levelQueue[levelQueueTail++] = root;
+
+    int levelQueueSize;
+    struct Node* pLast = NULL;
+    struct Node* pNode = NULL;
+    int i;
+    while (levelQueueHead < levelQueueTail) {
+        pLast = NULL;
+        levelQueueSize = levelQueueTail - levelQueueHead;
+        for (i = 1; i <= levelQueueSize; ++i) {
+            pNode = levelQueue[levelQueueHead++];
+            if (pNode->left) {
+                levelQueue[levelQueueTail++] = pNode->left;
+            }
+            if (pNode->right) {
+                levelQueue[levelQueueTail++] = pNode->right;
+            }
+            if (i != 1) {
+                pLast->next = pNode;
+            }
+            pLast = pNode;
+        }
+    }
+    pRetVal = root;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a Node.
+ * class Node {
+ *  public:
+ *      int val;
+ *      Node* left;
+ *      Node* right;
+ *      Node* next;
+ *      Node() : val(0), left(NULL), right(NULL), next(NULL) {}
+ *      Node(int _val) : val(_val), left(NULL), right(NULL), next(NULL) {}
+ *      Node(int _val, Node* _left, Node* _right, Node* _next): val(_val), left(_left), right(_right), next(_next) {}
+ * };
+ * */
+class Solution {
+   public:
+    Node* connect(Node* root) {
+        Node* pRetVal = nullptr;
+
+        if (root == nullptr) {
+            return pRetVal;
+        }
+
+        queue<Node*> levelQueue;
+        levelQueue.push(root);
+        while (levelQueue.empty() == false) {
+            Node* pLast = nullptr;
+            int levelQueueSize = levelQueue.size();
+            for (int i = 1; i <= levelQueueSize; ++i) {
+                Node* node = levelQueue.front();
+                levelQueue.pop();
+                if (node->left) {
+                    levelQueue.push(node->left);
+                }
+                if (node->right) {
+                    levelQueue.push(node->right);
+                }
+                if (i != 1) {
+                    pLast->next = node;
+                }
+                pLast = node;
+            }
+        }
+        pRetVal = root;
+
+        return pRetVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# """
+# # Definition for a Node.
+# class Node:
+#     def __init__(self, val: int = 0, left: 'Node' = None, right: 'Node' = None, next: 'Node' = None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+#         self.next = next
+# """
+class Solution:
+    def connect(self, root: 'Node') -> 'Node':
+        retVal = None
+
+        if root is None:
+            return None
+
+        queue = deque([root])
+        while queue:
+            queueSize = len(queue)
+            last = None
+            for _ in range(queueSize):
+                node = queue.popleft()
+                if node.left:
+                    queue.append(node.left)
+                if node.right:
+                    queue.append(node.right)
+                if last:
+                    last.next = node
+                last = node
+        retVal = root
 
         return retVal
 ```
