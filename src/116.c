@@ -53,6 +53,13 @@ int main(int argc, char** argv) {
         int rootSize;
     } testCase[] = {{{1, 2, 3, 4, 5, 6, 7}, 7}, {{}, 0}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: root = [1,2,3,4,5,6,7]
+     *  Output: [1,#,2,3,#,4,5,6,7,#]
+     *
+     *  Input: root = []
+     *  Output: []
+     */
 
     struct Node* pRoot = NULL;
     int i, j;
@@ -67,15 +74,11 @@ int main(int argc, char** argv) {
         }
         printf("]\n");
 
-        createNodeTree(&pRoot, testCase[i].root, 0, testCase[i].rootSize);
+        pRoot = buildNodeTree(testCase[i].root, testCase[i].rootSize, 0);
         pRoot = connect(pRoot);
         printf("Output: [");
         displayNodeTreeByNext(pRoot);
         printf("]\n");
-#if (DEBUG)
-        displayNodeTree(pRoot, 0);
-        printf("\n");
-#endif
 
         printf("\n");
 
