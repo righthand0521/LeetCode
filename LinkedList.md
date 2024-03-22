@@ -3078,7 +3078,6 @@ class Solution:
 
 ## [234. Palindrome Linked List](https://leetcode.com/problems/palindrome-linked-list/)
 
-- [Official](https://leetcode.com/problems/palindrome-linked-list/editorial/)
 - [Official](https://leetcode.cn/problems/palindrome-linked-list/solutions/457059/hui-wen-lian-biao-by-leetcode-solution/)
 
 <details><summary>Description</summary>
@@ -3106,54 +3105,6 @@ Follow up: Could you do it in O(n) time and O(1) space?
 <details><summary>C</summary>
 
 ```c
-#define ARRAY (0)
-#define STACK (1)
-#define REVERSE (1)
-#if (ARRAY)
-#elif (STACK)
-#define EMPTY_STACK_POP (-1)  // 0 <= Node.val <= 9
-struct ListNode* stackPush(struct ListNode* pTop, int value) {
-    struct ListNode* pRetVal = pTop;
-
-    struct ListNode* pNew = (struct ListNode*)calloc(1, sizeof(struct ListNode));
-    if (pNew == NULL) {
-        perror("pNew");
-        return pRetVal;
-    }
-    pNew->val = value;
-    pNew->next = NULL;
-
-    if (pRetVal != NULL) {
-        pNew->next = pRetVal;
-    }
-    pRetVal = pNew;
-
-    return pRetVal;
-}
-int stackPop(struct ListNode** pTop) {
-    int retVal = EMPTY_STACK_POP;
-
-    struct ListNode* pCurrent = (*pTop);
-    if (pCurrent == NULL) {
-        printf("Stack is Empty");
-        return retVal;
-    }
-    retVal = pCurrent->val;
-    (*pTop) = pCurrent->next;
-    free(pCurrent);
-
-    return retVal;
-}
-void stackFree(struct ListNode* pTop) {
-    struct ListNode* pFree = NULL;
-    while (pTop != NULL) {
-        pFree = pTop;
-        pTop = pTop->next;
-        free(pFree);
-    }
-}
-#elif (REVERSE)
-#endif
 /**
  * Definition for singly-linked list.
  * struct ListNode {
@@ -3164,79 +3115,54 @@ void stackFree(struct ListNode* pTop) {
 bool isPalindrome(struct ListNode* head) {
     bool retVal = true;
 
+    //
     struct ListNode* pCurrent = head;
     if ((pCurrent == NULL) || (pCurrent->next == NULL)) {
         return retVal;
     }
 
-#if (ARRAY)
-    printf("ARRAY\n");
-
-#define MAX_NODES (100000)
-    int TwoPointers[MAX_NODES];
-    memset(TwoPointers, 0, sizeof(TwoPointers));
-
-    int count = 0;
-    while (pCurrent != NULL) {
-        TwoPointers[count++] = pCurrent->val;
-        pCurrent = pCurrent->next;
-    }
-
-    int left = 0;
-    int right = count - 1;
-    while (left < right) {
-        if (TwoPointers[left++] != TwoPointers[right--]) {
-            retVal = false;
-            break;
-        }
-    }
-#elif (STACK)
-    printf("STACK\n");
-
+    // stack push
     struct ListNode* pStackTop = NULL;
+    struct ListNode* pNew = NULL;
     while (pCurrent != NULL) {
-        pStackTop = stackPush(pStackTop, pCurrent->val);
+        pNew = (struct ListNode*)malloc(sizeof(struct ListNode));
+        if (pNew == NULL) {
+            perror("malloc");
+            goto exit;
+        }
+        pNew->val = pCurrent->val;
+        pNew->next = pStackTop;
+        pStackTop = pNew;
+
         pCurrent = pCurrent->next;
     }
 
+    // stack pop
     pCurrent = head;
+    int popValue;
+    struct ListNode* pFree = NULL;
     while (pCurrent != NULL) {
-        if (pCurrent->val != stackPop(&pStackTop)) {
+        pFree = pStackTop;
+        popValue = pFree->val;
+        pStackTop = pStackTop->next;
+        free(pFree);
+        pFree = NULL;
+        if (pCurrent->val != popValue) {
             retVal = false;
             break;
         }
         pCurrent = pCurrent->next;
     }
-    stackFree(pStackTop);
+
+    // free
+exit:
+    while (pStackTop != NULL) {
+        pFree = pStackTop;
+        pStackTop = pStackTop->next;
+        free(pFree);
+        pFree = NULL;
+    }
     pStackTop = NULL;
-
-#elif (REVERSE)
-    printf("REVERSE\n");
-
-    struct ListNode* pReverseHead = NULL;
-    struct ListNode* pNext = NULL;
-    struct ListNode* pNextNext = pCurrent;
-    while ((pNextNext != NULL) && (pNextNext->next != NULL)) {
-        pNextNext = pNextNext->next->next;
-
-        pNext = pCurrent->next;
-        pCurrent->next = pReverseHead;
-        pReverseHead = pCurrent;
-        pCurrent = pNext;
-    }
-
-    while (pCurrent != NULL) {
-        if (pCurrent->val != pReverseHead->val) {
-            pCurrent = pCurrent->next;
-            continue;
-        }
-        pCurrent = pCurrent->next;
-        pReverseHead = pReverseHead->next;
-    }
-    if (pReverseHead != NULL) {
-        retVal = false;
-    }
-#endif
 
     return retVal;
 }
