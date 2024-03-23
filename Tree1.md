@@ -3529,15 +3529,6 @@ The number of nodes in the tree is in the range [1, 3 * 10^4].
 <details><summary>C</summary>
 
 ```c
-/**
- * Definition for a binary tree node.
- * struct TreeNode {
- *     int val;
- *     struct TreeNode *left;
- *     struct TreeNode *right;
- * };
- */
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
 int dfs(struct TreeNode* root, int* returnMax) {
     int retVal = 0;
 
@@ -3547,17 +3538,21 @@ int dfs(struct TreeNode* root, int* returnMax) {
 
     int left = dfs(root->left, returnMax);
     int right = dfs(root->right, returnMax);
+    retVal = fmax((left + root->val), (right + root->val));
+    retVal = fmax(retVal, root->val);
 
-    retVal = MAX((left + root->val), (right + root->val));
-    retVal = MAX(retVal, root->val);
-
-    (*returnMax) = MAX((*returnMax), MAX(retVal, (left + right + root->val)));
+    int maxValue = fmax(retVal, (left + right + root->val));
+    (*returnMax) = fmax((*returnMax), maxValue);
 
     return retVal;
 }
-/* Official
- *  https://leetcode.com/problems/binary-tree-maximum-path-sum/solutions/2827786/binary-tree-maximum-path-sum/
- *  https://leetcode.cn/problems/binary-tree-maximum-path-sum/solutions/297005/er-cha-shu-zhong-de-zui-da-lu-jing-he-by-leetcode-/
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
  */
 int maxPathSum(struct TreeNode* root) {
     int retVal = 0;
@@ -3567,38 +3562,106 @@ int maxPathSum(struct TreeNode* root) {
     }
 
     retVal = INT_MIN;
-#if (1)
-    // https://leetcode.cn/problems/binary-tree-maximum-path-sum/solutions/298031/di-gui-zui-you-jie-bu-jing-guo-gen-jie-dian-de-chu/
     dfs(root, &retVal);
-#else
-    // https://leetcode.cn/problems/binary-tree-maximum-path-sum/solutions/1731711/by-xun-ge-v-7r1v/
-    int left;
-    int right;
-    int val = root->val;
-
-    if (root->left) {
-        left = maxPathSum(root->left);
-        retVal = MAX(retVal, left);
-        val = MAX(val, (root->val + root->left->val));
-    }
-
-    if (root->right) {
-        right = maxPathSum(root->right);
-        retVal = MAX(retVal, right);
-        val = MAX(val, (root->val + root->right->val));
-    }
-
-    if (root->left && root->right) {
-        retVal = MAX(retVal, (root->val + root->left->val + root->right->val));
-    }
-
-    root->val = val;
-
-    retVal = MAX(retVal, root->val);
-#endif
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   private:
+    int maxPathValue = 0;
+
+   public:
+    int dfs(struct TreeNode* root) {
+        int retVal = 0;
+
+        if (root == nullptr) {
+            return retVal;
+        }
+
+        int left = dfs(root->left);
+        int right = dfs(root->right);
+        retVal = max((left + root->val), (right + root->val));
+        retVal = max(retVal, root->val);
+
+        int maxValue = max(retVal, (left + right + root->val));
+        maxPathValue = max(maxPathValue, maxValue);
+
+        return retVal;
+    }
+    int maxPathSum(TreeNode* root) {
+        int retVal = 0;
+
+        if (root == nullptr) {
+            return retVal;
+        }
+
+        maxPathValue = numeric_limits<int>::min();
+        dfs(root);
+        retVal = maxPathValue;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def __init__(self) -> None:
+        self.maxPathValue = 0
+
+    def dfs(self, root: Optional[TreeNode]) -> int:
+        retVal = 0
+
+        if root == None:
+            return retVal
+
+        left = self.dfs(root.left)
+        right = self.dfs(root.right)
+        retVal = max((left + root.val), (right + root.val), root.val)
+
+        self.maxPathValue = max(self.maxPathValue, retVal, (left + right + root.val))
+
+        return retVal
+
+    def maxPathSum(self, root: Optional[TreeNode]) -> int:
+        retVal = 0
+
+        if root == None:
+            return retVal
+
+        self.maxPathValue = float('-inf')
+        self.dfs(root)
+        retVal = self.maxPathValue
+
+        return retVal
 ```
 
 </details>
