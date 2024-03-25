@@ -3653,6 +3653,122 @@ int longestPalindrome(char* s) {
 
 </details>
 
+## [442. Find All Duplicates in an Array](https://leetcode.com/problems/find-all-duplicates-in-an-array/)
+
+- [Official](https://leetcode.cn/problems/find-all-duplicates-in-an-array/solutions/1473718/shu-zu-zhong-zhong-fu-de-shu-ju-by-leetc-782l/)
+
+<details><summary>Description</summary>
+
+```text
+Given an integer array nums of length n where all the integers of nums are in the range [1, n]
+and each integer appears once or twice,
+return an array of all the integers that appears twice.
+
+You must write an algorithm that runs in O(n) time and uses only constant extra space.
+
+Example 1:
+Input: nums = [4,3,2,7,8,2,3,1]
+Output: [2,3]
+
+Example 2:
+Input: nums = [1,1,2]
+Output: [1]
+
+Example 3:
+Input: nums = [1]
+Output: []
+
+Constraints:
+n == nums.length
+1 <= n <= 10^5
+1 <= nums[i] <= n
+Each element in nums appears once or twice.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *findDuplicates(int *nums, int numsSize, int *returnSize) {
+    int *pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    pRetVal = (int *)malloc(numsSize * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (numsSize * sizeof(int)));
+
+    int idx;
+    int i;
+    for (i = 0; i < numsSize; ++i) {
+        idx = abs(nums[i]);
+        if (nums[idx - 1] > 0) {
+            // in the range [1, n]
+            nums[idx - 1] *= (-1);
+        } else {
+            // each integer appears once or twice
+            pRetVal[(*returnSize)++] = idx;
+        }
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> findDuplicates(vector<int>& nums) {
+        vector<int> retVal;
+
+        for (int num : nums) {
+            int idx = abs(num);
+            if (nums[idx - 1] > 0) {
+                // in the range [1, n]
+                nums[idx - 1] *= (-1);
+            } else {
+                // each integer appears once or twice
+                retVal.emplace_back(idx);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def findDuplicates(self, nums: List[int]) -> List[int]:
+        retVal = []
+
+        for num in nums:
+            idx = abs(num)
+            if nums[idx-1] > 0:     # in the range [1, n]
+                nums[idx-1] *= (-1)
+            else:                   # each integer appears once or twice
+                retVal.append(idx)
+
+        return retVal
+```
+
+</details>
+
 ## [448. Find All Numbers Disappeared in an Array](https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/)
 
 <details><summary>Description</summary>
