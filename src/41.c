@@ -4,48 +4,52 @@
 #include <string.h>
 
 int firstMissingPositive(int* nums, int numsSize) {
-    int retVal = 1;
+    int retVal = 0;
 
+    int seenSize = numsSize + 1;
+    int seen[seenSize];
+    memset(seen, 0, sizeof(seen));
+
+    int value;
     int i;
-
-#define MAX_RECORD 100000
-    int RECORD[MAX_RECORD];
-    for (i = 0; i < MAX_RECORD; ++i) {
-        RECORD[i] = INT_MAX;
-    }
-
-    int idx;
     for (i = 0; i < numsSize; ++i) {
-        if (nums[i] <= 0) {
-            continue;
-        }
-        idx = (nums[i] - 1) % MAX_RECORD;
-        RECORD[idx] = (RECORD[idx] < nums[i]) ? RECORD[idx] : nums[i];
-
-        if (nums[i] == retVal) {
-            ++retVal;
+        value = nums[i];
+        if ((0 < value) && (value <= numsSize)) {
+            seen[value] = 1;
         }
     }
 
-    idx = (retVal - 1) % MAX_RECORD;
-    while (retVal <= INT_MAX) {
-        if ((RECORD[idx] == INT_MAX) || (RECORD[idx] != retVal)) {
-            break;
+    for (i = 1; i <= numsSize; ++i) {
+        if (seen[i] == 0) {
+            retVal = i;
+            return retVal;
         }
-        ++retVal;
-        idx = (retVal - 1) % MAX_RECORD;
     }
+    retVal = numsSize + 1;
 
     return retVal;
 }
 
 int main(int argc, char** argv) {
-#define MAX_SIZE (100000)
+#define MAX_SIZE (int)(1e5)
     struct testCaseType {
         int nums[MAX_SIZE];
         int numsSize;
     } testCase[] = {{{1, 2, 0}, 3}, {{3, 4, -1, 1}, 4}, {{7, 8, 9, 11, 12}, 5}, {{2, 1}, 2}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: nums = [1,2,0]
+     *  Output: 3
+     *
+     *  Input: nums = [3,4,-1,1]
+     *  Output: 2
+     *
+     *  Input: nums = [7,8,9,11,12]
+     *  Output: 1
+     *
+     *  Input: nums = [2, 1]
+     *  Output: 3
+     */
 
     int answer;
     int i, j;

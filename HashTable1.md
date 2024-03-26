@@ -361,6 +361,8 @@ class Solution:
 
 ## [41. First Missing Positive](https://leetcode.com/problems/first-missing-positive/)
 
+- [Official](https://leetcode.cn/problems/first-missing-positive/solutions/304743/que-shi-de-di-yi-ge-zheng-shu-by-leetcode-solution/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -388,52 +390,104 @@ Constraints:
 -2^31 <= nums[i] <= 2^31 - 1
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. Think about how you would solve the problem in non-constant space. Can you apply that logic to the existing space?
+2. We don't care about duplicates or non-positive integers
+3. Remember that O(2n) = O(n)
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
 
 ```c
-int firstMissingPositive(int* nums, int numsSize){
-    int retVal = 1;
+int firstMissingPositive(int* nums, int numsSize) {
+    int retVal = 0;
 
+    int seenSize = numsSize + 1;
+    int seen[seenSize];
+    memset(seen, 0, sizeof(seen));
+
+    int value;
     int i;
-
-#define MAX_RECORD      100000
-    int RECORD[MAX_RECORD];
-    for (i=0; i<MAX_RECORD; ++i)
-    {
-        RECORD[i] = INT_MAX;
-    }
-
-    int idx;
-    for (i=0; i<numsSize; ++i)
-    {
-        if (nums[i] <= 0)
-        {
-            continue;
-        }
-        idx = (nums[i] - 1) % MAX_RECORD;
-        RECORD[idx] = (RECORD[idx]<nums[i])?RECORD[idx]:nums[i];
-
-        if (nums[i] == retVal)
-        {
-            ++retVal;
+    for (i = 0; i < numsSize; ++i) {
+        value = nums[i];
+        if ((0 < value) && (value <= numsSize)) {
+            seen[value] = 1;
         }
     }
 
-    idx = (retVal-1) % MAX_RECORD;
-    while (retVal <= INT_MAX)
-    {
-        if ((RECORD[idx] == INT_MAX) || (RECORD[idx] != retVal))
-        {
-            break;
+    for (i = 1; i <= numsSize; ++i) {
+        if (seen[i] == 0) {
+            retVal = i;
+            return retVal;
         }
-        ++retVal;
-        idx = (retVal-1) % MAX_RECORD;
     }
+    retVal = numsSize + 1;
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int firstMissingPositive(vector<int>& nums) {
+        int retVal = 0;
+
+        int numsSize = nums.size();
+
+        vector<bool> seen((numsSize + 1), false);
+        for (int num : nums) {
+            if ((0 < num) && (num <= numsSize)) {
+                seen[num] = true;
+            }
+        }
+
+        for (int i = 1; i <= numsSize; ++i) {
+            if (seen[i] == false) {
+                retVal = i;
+                return retVal;
+            }
+        }
+        retVal = numsSize + 1;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def firstMissingPositive(self, nums: List[int]) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+
+        seen = [False] * (numsSize + 1)
+        for num in nums:
+            if 0 < num <= numsSize:
+                seen[num] = True
+
+        for i in range(1, numsSize + 1):
+            if seen[i] == False:
+                retVal = i
+                return retVal
+        retVal = numsSize + 1
+
+        return retVal
 ```
 
 </details>
