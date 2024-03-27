@@ -1133,7 +1133,7 @@ class Solution:
 
 ## [713. Subarray Product Less Than K](https://leetcode.com/problems/subarray-product-less-than-k/)
 
-- [Official](https://leetcode.com/problems/subarray-product-less-than-k/solutions/127670/subarray-product-less-than-k/)
+- [Official](https://leetcode.com/problems/subarray-product-less-than-k/editorial/)
 - [Official](https://leetcode.cn/problems/subarray-product-less-than-k/solutions/1463527/cheng-ji-xiao-yu-k-de-zi-shu-zu-by-leetc-92wl/)
 
 <details><summary>Description</summary>
@@ -1159,6 +1159,15 @@ Constraints:
 0 <= k <= 10^6
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. For each j, let opt(j) be the smallest i so that nums[i] * nums[i+1] * ... * nums[j] is less than k.
+   opt is an increasing function.
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
@@ -1176,10 +1185,56 @@ int numSubarrayProductLessThanK(int* nums, int numsSize, int k) {
         return retVal;
     }
 
+    /* Sliding window with Two Pointer
+     *  +--------------------------------------------+
+     *  |    0   |      1      |   2   |      3      |
+     *  +--------------------------------------------+
+     *  |   10   |      5      |   2   |      6      |
+     *  +--------------------------------------------+
+     *  |  right -1-> right -2-> right -4-> right    |
+     *  |  left  -3-> left                           |
+     *  +--------------------------------------------+
+     *  | product = 10                               |
+     *  | product = 50, product = 100                |
+     *  | product = 10                               |
+     *  | product = 60                               |
+     *  +--------------------------------------------+
+     */
     int product = 1;
     int right = 0;
     int left = 0;
-    for (right=0; right<numsSize; right++) {
+    for (right = 0; right < numsSize; right++) {
+        product *= nums[right];
+        while (product >= k) {
+            product /= nums[left];
+            left++;
+        }
+        retVal += (right - left + 1);
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int numSubarrayProductLessThanK(vector<int>& nums, int k) {
+        int retVal = 0;
+
+        /* the product of nums could not be strictly less than 1
+         *  1 <= nums.length <= 3 * 10^4
+         *  1 <= nums[i] <= 1000
+         *  0 <= k <= 10^6
+         */
+        if (k <= 1) {
+            return retVal;
+        }
+
         /* Sliding window with Two Pointer
          *  +--------------------------------------------+
          *  |    0   |      1      |   2   |      3      |
@@ -1195,17 +1250,68 @@ int numSubarrayProductLessThanK(int* nums, int numsSize, int k) {
          *  | product = 60                               |
          *  +--------------------------------------------+
          */
-        product *= nums[right];
-        while (product >= k) {
-            product /= nums[left];
-            left++;
+        int numsSize = nums.size();
+        int product = 1;
+        int right = 0;
+        int left = 0;
+        for (right = 0; right < numsSize; right++) {
+            product *= nums[right];
+            while (product >= k) {
+                product /= nums[left];
+                left++;
+            }
+            retVal += (right - left + 1);
         }
 
-        retVal += (right - left + 1);
+        return retVal;
     }
+};
+```
 
-    return retVal;
-}
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def numSubarrayProductLessThanK(self, nums: List[int], k: int) -> int:
+        retVal = 0
+
+        # /* the product of nums could not be strictly less than 1
+        #  *  1 <= nums.length <= 3 * 10^4
+        #  *  1 <= nums[i] <= 1000
+        #  *  0 <= k <= 10^6
+        #  */
+        if k <= 1:
+            return retVal
+
+        # /* Sliding window with Two Pointer
+        #  *  +--------------------------------------------+
+        #  *  |    0   |      1      |   2   |      3      |
+        #  *  +--------------------------------------------+
+        #  *  |   10   |      5      |   2   |      6      |
+        #  *  +--------------------------------------------+
+        #  *  |  right -1-> right -2-> right -4-> right    |
+        #  *  |  left  -3-> left                           |
+        #  *  +--------------------------------------------+
+        #  *  | product = 10                               |
+        #  *  | product = 50, product = 100                |
+        #  *  | product = 10                               |
+        #  *  | product = 60                               |
+        #  *  +--------------------------------------------+
+        #  */
+        numsSize = len(nums)
+        product = 1
+        right = 0
+        left = 0
+        for right in range(numsSize):
+            product *= nums[right]
+            while product >= k:
+                product /= nums[left]
+                left += 1
+            retVal += (right - left + 1)
+
+        return retVal
 ```
 
 </details>

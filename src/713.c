@@ -14,31 +14,30 @@ int numSubarrayProductLessThanK(int* nums, int numsSize, int k) {
         return retVal;
     }
 
+    /* Sliding window with Two Pointer
+     *  +--------------------------------------------+
+     *  |    0   |      1      |   2   |      3      |
+     *  +--------------------------------------------+
+     *  |   10   |      5      |   2   |      6      |
+     *  +--------------------------------------------+
+     *  |  right -1-> right -2-> right -4-> right    |
+     *  |  left  -3-> left                           |
+     *  +--------------------------------------------+
+     *  | product = 10                               |
+     *  | product = 50, product = 100                |
+     *  | product = 10                               |
+     *  | product = 60                               |
+     *  +--------------------------------------------+
+     */
     int product = 1;
     int right = 0;
     int left = 0;
     for (right = 0; right < numsSize; right++) {
-        /* Sliding window with Two Pointer
-         *  +--------------------------------------------+
-         *  |    0   |      1      |   2   |      3      |
-         *  +--------------------------------------------+
-         *  |   10   |      5      |   2   |      6      |
-         *  +--------------------------------------------+
-         *  |  right -1-> right -2-> right -4-> right    |
-         *  |  left  -3-> left                           |
-         *  +--------------------------------------------+
-         *  | product = 10                               |
-         *  | product = 50, product = 100                |
-         *  | product = 10                               |
-         *  | product = 60                               |
-         *  +--------------------------------------------+
-         */
         product *= nums[right];
         while (product >= k) {
             product /= nums[left];
             left++;
         }
-
         retVal += (right - left + 1);
     }
 
@@ -46,13 +45,23 @@ int numSubarrayProductLessThanK(int* nums, int numsSize, int k) {
 }
 
 int main(int argc, char** argv) {
-#define MAX_SIZE (10000)
+#define MAX_SIZE (3 * 10000)
     struct testCaseType {
         int nums[MAX_SIZE];
         int numsSize;
         int k;
     } testCase[] = {{{10, 5, 2, 6}, 4, 100}, {{1, 2, 3}, 0, 0}, {{1, 1, 1}, 3, 1}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: nums = [10,5,2,6], k = 100
+     *  Output: 8
+     *
+     *  Input: nums = [1,2,3], k = 0
+     *  Output: 0
+     *
+     *  Input: nums = [1,1,1], k = 1
+     *  Output: 0
+     */
 
     int answer = 0;
     int i, j;
