@@ -3224,3 +3224,135 @@ class Solution:
 ```
 
 </details>
+
+## [2962. Count Subarrays Where Max Element Appears at Least K Times](https://leetcode.com/problems/count-subarrays-where-max-element-appears-at-least-k-times/)  1700
+
+- [Official](https://leetcode.com/problems/count-subarrays-where-max-element-appears-at-least-k-times/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array nums and a positive integer k.
+
+Return the number of subarrays where the maximum element of nums appears at least k times in that subarray.
+
+A subarray is a contiguous sequence of elements within an array.
+
+Example 1:
+Input: nums = [1,3,2,3,3], k = 2
+Output: 6
+Explanation: The subarrays that contain the element 3 at least 2 times are:
+[1,3,2,3], [1,3,2,3,3], [3,2,3], [3,2,3,3], [2,3,3] and [3,3].
+
+Example 2:
+Input: nums = [1,4,2,1], k = 3
+Output: 0
+Explanation: No subarray contains the element 4 at least 3 times.
+
+Constraints:
+1 <= nums.length <= 10^5
+1 <= nums[i] <= 10^6
+1 <= k <= 10^5
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+long long countSubarrays(int *nums, int numsSize, int k) {
+    long long retVal = 0;
+
+    int maxNum = nums[0];  // 1 <= nums.length <= 10^5
+    int i;
+    for (i = 1; i < numsSize; ++i) {
+        if (maxNum < nums[i]) {
+            maxNum = nums[i];
+        }
+    }
+    int maxNumWindow = 0;
+
+    int start = 0;
+    int end = 0;
+    for (end = 0; end < numsSize; ++end) {
+        if (nums[end] == maxNum) {
+            maxNumWindow++;
+        }
+
+        while (maxNumWindow == k) {
+            if (nums[start] == maxNum) {
+                maxNumWindow--;
+            }
+            start++;
+        }
+
+        retVal += start;
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    long long countSubarrays(vector<int>& nums, int k) {
+        long long retVal = 0;
+
+        int numsSize = nums.size();
+        int maxNum = *max_element(nums.begin(), nums.end());
+        int maxNumWindow = 0;
+        int start = 0;
+        int end = 0;
+        for (end = 0; end < numsSize; ++end) {
+            if (nums[end] == maxNum) {
+                maxNumWindow++;
+            }
+
+            while (maxNumWindow == k) {
+                if (nums[start] == maxNum) {
+                    maxNumWindow--;
+                }
+                start++;
+            }
+
+            retVal += start;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def countSubarrays(self, nums: List[int], k: int) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+        maxNum = max(nums)
+        maxNumWindow = 0
+        start = 0
+        for end in range(numsSize):
+            if nums[end] == maxNum:
+                maxNumWindow += 1
+
+            while maxNumWindow == k:
+                if nums[start] == maxNum:
+                    maxNumWindow -= 1
+                start += 1
+
+            retVal += start
+
+        return retVal
+```
+
+</details>
