@@ -1479,6 +1479,7 @@ class Solution {
 
 ## [992. Subarrays with K Different Integers](https://leetcode.com/problems/subarrays-with-k-different-integers/)  2210
 
+- [Official](https://leetcode.com/problems/subarrays-with-k-different-integers/editorial/)
 - [Official](https://leetcode.cn/problems/subarrays-with-k-different-integers/solutions/597667/k-ge-bu-tong-zheng-shu-de-zi-shu-zu-by-l-ud34/)
 
 <details><summary>Description</summary>
@@ -1511,32 +1512,65 @@ Constraints:
 <details><summary>C</summary>
 
 ```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable* pFree) {
+    struct hashTable* current;
+    struct hashTable* tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
 int atMostDifferent(int* nums, int numsSize, int k) {
     int retVal = 0;
 
-    // 1 <= nums.length <= 2 * 10^4, 1 <= nums[i], k <= nums.length.
-#define MAX_HASHTABLE (int)(2 * 1e4 + 4)
-    int HashTable[MAX_HASHTABLE];
-    memset(HashTable, 0, sizeof(HashTable));
-    int countHashTable = 0;
-    int head = 0;
-    int tail = 0;
-    while (tail < numsSize) {
-        if (HashTable[nums[tail]] == 0) {
-            ++countHashTable;
-        }
-        ++HashTable[nums[tail]];
-        ++tail;
-
-        while (countHashTable > k) {
-            --HashTable[nums[head]];
-            if (HashTable[nums[head]] == 0) {
-                --countHashTable;
+    int pHashTableSize = 0;
+    struct hashTable* pHashTable = NULL;
+    struct hashTable* pTemp;
+    int key;
+    int left = 0;
+    int right = 0;
+    for (right = 0; right < numsSize; ++right) {
+        key = nums[right];
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTable, &key, pTemp);
+        if (pTemp == NULL) {
+            pTemp = (struct hashTable*)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                break;
             }
-            ++head;
+            pTemp->key = key;
+            pTemp->value = 1;
+            HASH_ADD_INT(pHashTable, key, pTemp);
+        } else {
+            pTemp->value += 1;
         }
-        retVal += (tail - head);
+
+        pHashTableSize = HASH_COUNT(pHashTable);
+        while (pHashTableSize > k) {
+            key = nums[left];
+            pTemp = NULL;
+            HASH_FIND_INT(pHashTable, &key, pTemp);
+            if (pTemp != NULL) {
+                pTemp->value -= 1;
+                if (pTemp->value == 0) {
+                    HASH_DEL(pHashTable, pTemp);
+                    free(pTemp);
+                    pHashTableSize = HASH_COUNT(pHashTable);
+                }
+            }
+            ++left;
+        }
+
+        retVal += (right - left);
     }
+    freeAll(pHashTable);
 
     return retVal;
 }
@@ -1560,22 +1594,22 @@ class Solution {
     int atMostDifferent(vector<int>& nums, int k) {
         int retVal = 0;
 
+        int numsSize = nums.size();
         unordered_map<int, int> hashTable;
-        int len = nums.size();
-        int head = 0;
-        int tail = 0;
-        while (tail < len) {
-            hashTable[nums[tail]]++;
-            tail++;
-
-            while ((int)hashTable.size() > k) {
-                hashTable[nums[head]]--;
-                if (hashTable[nums[head]] == 0) {
-                    hashTable.erase(nums[head]);
+        int left = 0;
+        int right = 0;
+        for (right = 0; right < numsSize; ++right) {
+            hashTable[nums[right]]++;
+            int hashTableSize = hashTable.size();
+            while (hashTableSize > k) {
+                hashTable[nums[left]]--;
+                if (hashTable[nums[left]] == 0) {
+                    hashTable.erase(nums[left]);
+                    hashTableSize = hashTable.size();
                 }
-                head++;
+                left++;
             }
-            retVal += (tail - head);
+            retVal += (right - left);
         }
 
         return retVal;
@@ -1589,6 +1623,42 @@ class Solution {
         return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def atMostDifferent(self, nums: List[int], k: int) -> int:
+        retVal = 0
+
+        hashTable = defaultdict(int)
+        left = 0
+        for right, rightValue in enumerate(nums):
+            hashTable[rightValue] += 1
+
+            hashTableSize = len(hashTable)
+            while hashTableSize > k:
+                leftValue= nums[left]
+                hashTable[leftValue] -= 1
+                if hashTable[leftValue] == 0:
+                    del hashTable[leftValue]
+                    hashTableSize = len(hashTable)
+                left += 1
+
+            retVal += (right - left)
+
+        return retVal
+
+    def subarraysWithKDistinct(self, nums: List[int], k: int) -> int:
+        retVal = 0
+
+        # https://leetcode.com/problems/subarrays-with-k-different-integers/solutions/523136/JavaC++Python-Sliding-Window/
+        retVal = self.atMostDifferent(nums, k) - self.atMostDifferent(nums, k - 1)
+
+        return retVal
 ```
 
 </details>

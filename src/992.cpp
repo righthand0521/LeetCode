@@ -10,22 +10,22 @@ class Solution {
     int atMostDifferent(vector<int>& nums, int k) {
         int retVal = 0;
 
+        int numsSize = nums.size();
         unordered_map<int, int> hashTable;
-        int len = nums.size();
-        int head = 0;
-        int tail = 0;
-        while (tail < len) {
-            hashTable[nums[tail]]++;
-            tail++;
-
-            while ((int)hashTable.size() > k) {
-                hashTable[nums[head]]--;
-                if (hashTable[nums[head]] == 0) {
-                    hashTable.erase(nums[head]);
+        int left = 0;
+        int right = 0;
+        for (right = 0; right < numsSize; ++right) {
+            hashTable[nums[right]]++;
+            int hashTableSize = hashTable.size();
+            while (hashTableSize > k) {
+                hashTable[nums[left]]--;
+                if (hashTable[nums[left]] == 0) {
+                    hashTable.erase(nums[left]);
+                    hashTableSize = hashTable.size();
                 }
-                head++;
+                left++;
             }
-            retVal += (tail - head);
+            retVal += (right - left);
         }
 
         return retVal;
@@ -47,6 +47,13 @@ int main(int argc, char** argv) {
     };
     vector<subject> testData{{{1, 2, 1, 2, 3}, 2}, {{1, 2, 1, 3, 4}, 3}};
     int numberOfTestCase = testData.size();
+    /* Example
+     *  Input: nums = [1,2,1,2,3], k = 2
+     *  Output: 7
+     *
+     *  Input: nums = [1,2,1,3,4], k = 3
+     *  Output: 3
+     */
 
     Solution cSolution;
     int answer = 0;
