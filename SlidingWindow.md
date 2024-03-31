@@ -3129,6 +3129,47 @@ class Solution {
 
 </details>
 
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def countSubarrays(self, nums: List[int], minK: int, maxK: int) -> int:
+        retVal = 0
+
+        # /* Ref
+        #  *  https://leetcode.com/problems/count-subarrays-with-fixed-bounds/solutions/2708099/java-c-python-sliding-window-with-explanation/
+        #  *  https://leetcode.cn/problems/count-subarrays-with-fixed-bounds/solutions/1895734/fen-xi-ding-jie-zi-shu-zu-de-xing-zhi-yi-qusi/
+        #  *  https://leetcode.cn/problems/count-subarrays-with-fixed-bounds/solutions/1895713/jian-ji-xie-fa-pythonjavacgo-by-endlessc-gag2/
+        #  */
+        numsSize = len(nums)
+        badIdx = -1
+        minIdx = -1
+        maxIdx = -1
+        for i in range(numsSize):
+            if (nums[i] < minK) or (nums[i] > maxK):
+                badIdx = i
+
+            if (nums[i] == minK):
+                minIdx = i
+
+            if (nums[i] == maxK):
+                maxIdx = i
+
+            # /* avoid different type between a and b in max function
+            #  *  Because std::max is a function template whose signature is, for example,
+            #  *  template< class T >
+            #  *  const T& max( const T& a, const T& b );
+            #  */
+
+            n1 = 0
+            n2 = min(minIdx, maxIdx) - badIdx
+            retVal += max(n1, n2)
+
+        return retVal
+```
+
+</details>
+
 ## [2958. Length of Longest Subarray With at Most K Frequency](https://leetcode.com/problems/length-of-longest-subarray-with-at-most-k-frequency/)  1535
 
 - [Official](https://leetcode.com/problems/length-of-longest-subarray-with-at-most-k-frequency/editorial/)
