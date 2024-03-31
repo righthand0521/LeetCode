@@ -513,6 +513,8 @@ char * getPermutation(int n, int k){
 
 ## [66. Plus One](https://leetcode.com/problems/plus-one/)
 
+- [Official](https://leetcode.cn/problems/plus-one/solutions/1057162/jia-yi-by-leetcode-solution-2hor/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -558,58 +560,80 @@ digits does not contain any leading 0's.
 /**
  * Note: The returned array must be malloced, assume caller calls free().
  */
-int* plusOne(int* digits, int digitsSize, int* returnSize){
-    int *pRetVal = NULL;
+int* plusOne(int* digits, int digitsSize, int* returnSize) {
+    int* pRetVal = NULL;
 
-    if (digitsSize != 0)
-    {
-        digits[digitsSize-1] += 1;
-    }
-    int i;
-    for (i=digitsSize-1; i>0; --i)
-    {
-        digits[i-1] += (digits[i]/10);
-        digits[i] %= 10;
-    }
+    (*returnSize) = 0;
 
-    int newDigits = 0;
-    if (digitsSize != 0)
-    {
-        newDigits = digits[0] / 10;
-        digits[0] %= 10;
-    }
-    else
-    {
-        newDigits = 1;
-    }
-
-    *returnSize = digitsSize;
-    if (newDigits != 0)
-    {
-        *returnSize += 1;
-    }
-    pRetVal = (int *)malloc(*returnSize * sizeof(int));
-    if (pRetVal == NULL)
-    {
+    pRetVal = (int*)malloc((digitsSize + 1) * sizeof(int));
+    if (pRetVal == NULL) {
         perror("malloc");
         return pRetVal;
     }
+    memset(pRetVal, 0, ((digitsSize + 1) * sizeof(int)));
+    memcpy(pRetVal, digits, (digitsSize * sizeof(int)));
+    (*returnSize) = digitsSize;
 
-    if (newDigits != 0)
-    {
-        *pRetVal = newDigits;
-        if (digitsSize != 0)
-        {
-            memcpy(pRetVal+1, digits, digitsSize * sizeof(int));
+    int i;
+    for (i = digitsSize - 1; i >= 0; --i) {
+        pRetVal[i] += 1;
+        if (pRetVal[i] != 10) {
+            return pRetVal;
         }
+        pRetVal[i] = 0;
     }
-    else
-    {
-        memcpy(pRetVal, digits, digitsSize * sizeof(int));
-    }
+    memset(pRetVal, 0, ((digitsSize + 1) * sizeof(int)));
+    pRetVal[0] = 1;
+    (*returnSize) = digitsSize + 1;
 
     return pRetVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> plusOne(vector<int>& digits) {
+        vector<int> retVal = digits;
+
+        int digitsSize = digits.size();
+        for (int i = digitsSize - 1; i >= 0; --i) {
+            retVal[i] += 1;
+            if (retVal[i] != 10) {
+                return retVal;
+            }
+            retVal[i] = 0;
+        }
+        retVal.resize(digitsSize + 1);
+        retVal[0] = 1;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def plusOne(self, digits: List[int]) -> List[int]:
+        retVal = digits
+
+        digitsSize = len(digits)
+        for i in range(digitsSize-1, -1, -1):
+            retVal[i] += 1
+            if retVal[i] != 10:
+                return retVal
+            retVal[i] %= 10
+        retVal = [1] + retVal
+
+        return retVal
 ```
 
 </details>
