@@ -259,6 +259,40 @@ class Solution {
 
 </details>
 
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def addBinary(self, a: str, b: str) -> str:
+        retVal = ""
+
+        carry = 0
+        aIdx = len(a) - 1
+        bIdx = len(b) - 1
+        while (aIdx >= 0) and (bIdx >= 0):
+            value = int(a[aIdx]) + int(b[bIdx]) + carry
+            retVal = str(value % 2) + retVal
+            carry = value // 2
+            aIdx -= 1
+            bIdx -= 1
+        while (aIdx >= 0):
+            value = int(a[aIdx]) + carry
+            retVal = str(value % 2) + retVal
+            carry = value // 2
+            aIdx -= 1
+        while (bIdx >= 0):
+            value = int(b[bIdx]) + carry
+            retVal = str(value % 2) + retVal
+            carry = value // 2
+            bIdx -= 1
+        if carry == 1:
+            retVal = "1" + retVal
+
+        return retVal
+```
+
+</details>
+
 ## [78. Subsets](https://leetcode.com/problems/subsets/)
 
 - [Official](https://leetcode.com/problems/subsets/solutions/464411/subsets/)

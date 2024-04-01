@@ -47,7 +47,7 @@ char *addBinary(char *a, char *b) {
 }
 
 int main(int argc, char **argv) {
-#define MAX_SIZE (10000)
+#define MAX_SIZE (int)(1e4)
     struct testCaseType {
         char a[MAX_SIZE];
         char b[MAX_SIZE];
