@@ -31,6 +31,13 @@ uint32_t reverseBits(uint32_t n) {
 int main(int argc, char **argv) {
     uint32_t testCase[] = {43261596, 4294967293};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: n = 00000010100101000001111010011100
+     *  Output:    964176192 (00111001011110000010100101000000)
+     *
+     *  Input: n = 11111111111111111111111111111101
+     *  Output:   3221225471 (10111111111111111111111111111111)
+     */
 
     uint32_t answer = 0;
     int i, j;

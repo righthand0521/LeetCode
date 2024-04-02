@@ -771,6 +771,42 @@ uint32_t reverseBits(uint32_t n) {
 
 </details>
 
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    uint32_t reverseBits(uint32_t n) {
+        uint32_t retVal = 0;
+
+        for (int i = 0; i < 32; ++i) {
+            retVal = (retVal << 1) | (n & 0x1);
+            n >>= 1;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def reverseBits(self, n: int) -> int:
+        retVal = 0
+
+        for _ in range(32):
+            retVal = (retVal << 1) | (n & 0x1)
+            n >>= 1
+
+        return retVal
+```
+
+</details>
+
 ## [191. Number of 1 Bits](https://leetcode.com/problems/number-of-1-bits/)
 
 - [Official](https://leetcode.cn/problems/number-of-1-bits/solutions/672082/wei-1de-ge-shu-by-leetcode-solution-jnwf/)
