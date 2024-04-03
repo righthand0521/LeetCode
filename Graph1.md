@@ -6,6 +6,8 @@
 
 ## [79. Word Search](https://leetcode.com/problems/word-search/)
 
+- [Official](https://leetcode.cn/problems/word-search/solutions/411613/dan-ci-sou-suo-by-leetcode-solution/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -63,46 +65,44 @@ Follow up: Could you use search pruning to make your solution faster with a larg
 <details><summary>C</summary>
 
 ```c
-bool dfs(char** board, int i, int j, int boardSize, int* boardColSize, char* word, int wordIdx) {
+bool dfs(char** board, int boardSize, int* boardColSize, char* word, int row, int col, int idx) {
     int retVal = false;
 
-    if (wordIdx == strlen(word)) {
+    // 1 <= word.length <= 15
+    int wordSize = strlen(word);
+    if (idx == wordSize) {
         retVal = true;
         return retVal;
     }
 
-    if (((i < 0) || (i > boardSize-1)) || ((j < 0) || (j > boardColSize[i]-1)) || (board[i][j] != word[wordIdx])) {
+    // m == board.length, n = board[i].length, 1 <= m, n <= 6
+    if ((row < 0) || (row > (boardSize - 1))) {
+        return retVal;
+    } else if ((col < 0) || (col > (boardColSize[row] - 1))) {
         return retVal;
     }
 
-    char tmp = board[i][j];
-    board[i][j] = ' ';
+    if (board[row][col] != word[idx]) {
+        return retVal;
+    }
 
-    retVal = dfs(board, i-1, j, boardSize, boardColSize, word, wordIdx+1);
-    retVal |= dfs(board, i+1, j, boardSize, boardColSize, word, wordIdx+1);
-    retVal |= dfs(board, i, j-1, boardSize, boardColSize, word, wordIdx+1);
-    retVal |= dfs(board, i, j+1, boardSize, boardColSize, word, wordIdx+1);
-
-    board[i][j] = tmp;
+    char tmp = board[row][col];
+    board[row][col] = ' ';
+    retVal = dfs(board, boardSize, boardColSize, word, row - 1, col, idx + 1);
+    retVal |= dfs(board, boardSize, boardColSize, word, row + 1, col, idx + 1);
+    retVal |= dfs(board, boardSize, boardColSize, word, row, col - 1, idx + 1);
+    retVal |= dfs(board, boardSize, boardColSize, word, row, col + 1, idx + 1);
+    board[row][col] = tmp;
 
     return retVal;
 }
-
 bool exist(char** board, int boardSize, int* boardColSize, char* word) {
     int retVal = false;
 
-    if ((board == NULL) || (boardSize == 0) || (boardColSize == NULL)) {
-        return retVal;
-    }
-    else if (word == NULL) {
-        retVal  = true;
-        return retVal;
-    }
-
-    int i, j;
-    for (i=0; i<boardSize; ++i) {
-        for (j=0; j<boardColSize[i]; ++j) {
-            retVal = dfs(board, i, j, boardSize, boardColSize, word, 0);
+    int row, col;
+    for (row = 0; row < boardSize; ++row) {
+        for (col = 0; col < boardColSize[row]; ++col) {
+            retVal = dfs(board, boardSize, boardColSize, word, row, col, 0);
             if (retVal == true) {
                 return retVal;
             }
@@ -111,6 +111,114 @@ bool exist(char** board, int boardSize, int* boardColSize, char* word) {
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool dfs(vector<vector<char>>& board, string word, int row, int col, int idx) {
+        bool retVal = false;
+
+        // 1 <= word.length <= 15
+        int wordSize = word.size();
+        if (idx == wordSize) {
+            retVal = true;
+            return retVal;
+        }
+
+        // m == board.length, n = board[i].length, 1 <= m, n <= 6
+        int boardSize = board.size();
+        int boardColSize = board[0].size();
+        if ((row < 0) || (row > (boardSize - 1))) {
+            return retVal;
+        } else if ((col < 0) || (col > (boardColSize - 1))) {
+            return retVal;
+        }
+
+        if (board[row][col] != word[idx]) {
+            return retVal;
+        }
+
+        char tmp = board[row][col];
+        board[row][col] = ' ';
+        retVal = dfs(board, word, row - 1, col, idx + 1);
+        retVal |= dfs(board, word, row + 1, col, idx + 1);
+        retVal |= dfs(board, word, row, col - 1, idx + 1);
+        retVal |= dfs(board, word, row, col + 1, idx + 1);
+        board[row][col] = tmp;
+
+        return retVal;
+    }
+    bool exist(vector<vector<char>>& board, string word) {
+        bool retVal = false;
+
+        // m == board.length, n = board[i].length, 1 <= m, n <= 6
+        int boardSize = board.size();
+        int boardColSize = board[0].size();
+        for (int row = 0; row < boardSize; ++row) {
+            for (int col = 0; col < boardColSize; ++col) {
+                retVal = dfs(board, word, row, col, 0);
+                if (retVal == true) {
+                    return retVal;
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def dfs(self, board: List[List[str]], word: str, row: int, col: int, idx: int) -> bool:
+        retVal = False
+
+        # 1 <= word.length <= 15
+        if idx == len(word):
+            retVal = True
+            return retVal
+
+        # m == board.length, n = board[i].length, 1 <= m, n <= 6
+        if (row < 0) or (row > (len(board)-1)):
+            return retVal
+        elif (col < 0) or (col > (len(board[0])-1)):
+            return retVal
+
+        if board[row][col] != word[idx]:
+            return retVal
+
+        tmp = board[row][col]
+        board[row][col] = ' '
+        retVal = self.dfs(board, word, row-1, col, idx+1)
+        retVal |= self.dfs(board, word, row+1, col, idx+1)
+        retVal |= self.dfs(board, word, row, col-1, idx+1)
+        retVal |= self.dfs(board, word, row, col+1, idx+1)
+        board[row][col] = tmp
+
+        return retVal
+
+    def exist(self, board: List[List[str]], word: str) -> bool:
+        retVal = False
+
+        # m == board.length, n = board[i].length, 1 <= m, n <= 6
+        boardSize = len(board)
+        boardColSize = len(board[0])
+        for row in range(boardSize):
+            for col in range(boardColSize):
+                retVal = self.dfs(board, word, row, col, 0)
+                if retVal == True:
+                    return retVal
+
+        return retVal
 ```
 
 </details>

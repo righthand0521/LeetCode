@@ -3,44 +3,44 @@
 #include <stdlib.h>
 #include <string.h>
 
-bool dfs(char** board, int i, int j, int boardSize, int* boardColSize, char* word, int wordIdx) {
+bool dfs(char** board, int boardSize, int* boardColSize, char* word, int row, int col, int idx) {
     int retVal = false;
 
-    if (wordIdx == strlen(word)) {
+    // 1 <= word.length <= 15
+    int wordSize = strlen(word);
+    if (idx == wordSize) {
         retVal = true;
         return retVal;
     }
 
-    if (((i < 0) || (i > boardSize - 1)) || ((j < 0) || (j > boardColSize[i] - 1)) || (board[i][j] != word[wordIdx])) {
+    // m == board.length, n = board[i].length, 1 <= m, n <= 6
+    if ((row < 0) || (row > (boardSize - 1))) {
+        return retVal;
+    } else if ((col < 0) || (col > (boardColSize[row] - 1))) {
         return retVal;
     }
 
-    char tmp = board[i][j];
-    board[i][j] = ' ';
+    if (board[row][col] != word[idx]) {
+        return retVal;
+    }
 
-    retVal = dfs(board, i - 1, j, boardSize, boardColSize, word, wordIdx + 1);
-    retVal |= dfs(board, i + 1, j, boardSize, boardColSize, word, wordIdx + 1);
-    retVal |= dfs(board, i, j - 1, boardSize, boardColSize, word, wordIdx + 1);
-    retVal |= dfs(board, i, j + 1, boardSize, boardColSize, word, wordIdx + 1);
-
-    board[i][j] = tmp;
+    char tmp = board[row][col];
+    board[row][col] = ' ';
+    retVal = dfs(board, boardSize, boardColSize, word, row - 1, col, idx + 1);
+    retVal |= dfs(board, boardSize, boardColSize, word, row + 1, col, idx + 1);
+    retVal |= dfs(board, boardSize, boardColSize, word, row, col - 1, idx + 1);
+    retVal |= dfs(board, boardSize, boardColSize, word, row, col + 1, idx + 1);
+    board[row][col] = tmp;
 
     return retVal;
 }
 bool exist(char** board, int boardSize, int* boardColSize, char* word) {
     int retVal = false;
 
-    if ((board == NULL) || (boardSize == 0) || (boardColSize == NULL)) {
-        return retVal;
-    } else if (word == NULL) {
-        retVal = true;
-        return retVal;
-    }
-
-    int i, j;
-    for (i = 0; i < boardSize; ++i) {
-        for (j = 0; j < boardColSize[i]; ++j) {
-            retVal = dfs(board, i, j, boardSize, boardColSize, word, 0);
+    int row, col;
+    for (row = 0; row < boardSize; ++row) {
+        for (col = 0; col < boardColSize[row]; ++col) {
+            retVal = dfs(board, boardSize, boardColSize, word, row, col, 0);
             if (retVal == true) {
                 return retVal;
             }
@@ -51,7 +51,7 @@ bool exist(char** board, int boardSize, int* boardColSize, char* word) {
 }
 
 int main(int argc, char** argv) {
-#define MAX_SIZE (300)
+#define MAX_SIZE (10)
     struct testCaseType {
         char board[MAX_SIZE][MAX_SIZE];
         int boardSize;
@@ -60,11 +60,25 @@ int main(int argc, char** argv) {
     } testCase[] = {{{{'A', 'B', 'C', 'E'}, {'S', 'F', 'C', 'S'}, {'A', 'D', 'E', 'E'}}, 3, {4, 4, 4}, "ABCCED"},
                     {{{'A', 'B', 'C', 'E'}, {'S', 'F', 'C', 'S'}, {'A', 'D', 'E', 'E'}}, 3, {4, 4, 4}, "SEE"},
                     {{{'A', 'B', 'C', 'E'}, {'S', 'F', 'C', 'S'}, {'A', 'D', 'E', 'E'}}, 3, {4, 4, 4}, "ABCB"},
-                    {{{'a', 'a'}}, 2, {2}, "aaa"},
-                    {{{'a'}}, 1, {1}, "a"}
-
-    };
+                    {{{'A', 'A'}}, 2, {2}, "AAA"},
+                    {{{'A'}}, 1, {1}, "A"}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: Input: board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCCED"
+     *  Output: true
+     *
+     *  Input: board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "SEE"
+     *  Output: true
+     *
+     *  Input: board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCB"
+     *  Output: false
+     *
+     *  Input: board = [["A","A"]], word = "AAA"
+     *  Output: false
+     *
+     *  Input: board = [["A"]], word = "A"
+     *  Output: true
+     */
 
     char** pBoard = NULL;
     bool answer = false;
