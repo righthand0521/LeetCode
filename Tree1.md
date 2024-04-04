@@ -1976,6 +1976,39 @@ class Solution {
 
 </details>
 
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def buildBSTbyPreorder(self, nums: List[int], left: int, right: int) -> Optional[TreeNode]:
+        retVal = None
+
+        if left > right:
+            return retVal
+
+        middle = (left + right + 1) // 2
+        retVal = TreeNode(nums[middle])
+        retVal.left = self.buildBSTbyPreorder(nums, left, middle - 1)
+        retVal.right = self.buildBSTbyPreorder(nums, middle + 1, right)
+
+        return retVal
+
+    def sortedArrayToBST(self, nums: List[int]) -> Optional[TreeNode]:
+        retVal = None
+
+        retVal = self.buildBSTbyPreorder(nums, 0, len(nums) - 1)
+
+        return retVal
+```
+
+</details>
+
 ## [109. Convert Sorted List to Binary Search Tree](https://leetcode.com/problems/convert-sorted-list-to-binary-search-tree/)
 
 - [Official](https://leetcode.cn/problems/convert-sorted-list-to-binary-search-tree/solutions/378582/you-xu-lian-biao-zhuan-huan-er-cha-sou-suo-shu-1-3/)

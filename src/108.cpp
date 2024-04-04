@@ -1,11 +1,9 @@
 ﻿#include <algorithm>
 #include <iostream>
-#include <stack>
 #include <vector>
 
 using namespace std;
 
-#include "list.h"
 #include "tree.h"
 
 /**

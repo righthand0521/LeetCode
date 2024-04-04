@@ -33,7 +33,7 @@ struct TreeNode* sortedArrayToBST(int* nums, int numsSize) {
 }
 
 int main(int argc, char** argv) {
-#define MAX_SIZE (10000)
+#define MAX_SIZE (int)(1e4)
     struct testCaseType {
         int nums[MAX_SIZE];
         int numsSize;
