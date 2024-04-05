@@ -2,44 +2,20 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define ENHANCE (1)
 char* makeGood(char* s) {
-    char* pRetVal = NULL;
+    char* pRetVal = s;
 
-    int len = strlen(s);
+    int sSize = strlen(s);
     int top = -1;
     int i;
-#if (ENHANCE)
-    printf("Time Complexity: O(n), Space Complexity: O(1).\n");
-
-    for (i = 0; i < len; ++i) {
-        if ((top != -1) && (s[top] == (s[i] ^ 32))) {
+    for (i = 0; i < sSize; ++i) {
+        if ((top != -1) && (pRetVal[top] == (pRetVal[i] ^ 32))) {
             --top;
         } else {
-            s[++top] = s[i];
+            pRetVal[++top] = pRetVal[i];
         }
     }
-    s[++top] = 0;
-
-    pRetVal = s;
-#else
-    printf("Time Complexity: O(n), Space Complexity: O(n).\n");
-
-    pRetVal = (char*)malloc((len + 1) * sizeof(char));
-    if (pRetVal == NULL) {
-        perror("malloc");
-        return pRetVal;
-    }
-    memset(pRetVal, 0, ((len + 1) * sizeof(char)));
-
-    for (i = 0; i < len; ++i) {
-        if ((top != -1) && (pRetVal[top] == (s[i] ^ 32))) {
-            pRetVal[top--] = 0;
-        } else {
-            pRetVal[++top] = s[i];
-        }
-    }
-#endif
+    pRetVal[++top] = 0;
 
     return pRetVal;
 }
@@ -50,6 +26,16 @@ int main(int argc, char** argv) {
         char s[MAX_SIZE];
     } testCase[] = {{"leEeetcode"}, {"abBAcC"}, {"s"}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: s = "leEeetcode"
+     *  Output: "leetcode"
+     *
+     *  Input: s = "abBAcC"
+     *  Output: ""
+     *
+     *  Input: s = "s"
+     *  Output: "s"
+     */
 
     char* pAnswer = NULL;
     int i;
@@ -60,13 +46,6 @@ int main(int argc, char** argv) {
         printf("Output: \"%s\"\n", pAnswer);
 
         printf("\n");
-
-#if (!ENHANCE)
-        if (pAnswer) {
-            free(pAnswer);
-            pAnswer = NULL;
-        }
-#endif
     }
 
     return EXIT_SUCCESS;

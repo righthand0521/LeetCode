@@ -3911,6 +3911,8 @@ class Solution:
 
 ## [1544. Make The String Great](https://leetcode.com/problems/make-the-string-great/)  1344
 
+- [Official](https://leetcode.cn/problems/make-the-string-great/solutions/382513/zheng-li-zi-fu-chuan-by-leetcode-solution/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -3948,55 +3950,78 @@ Constraints:
 s contains only lower and upper case English letters.
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. The order you choose 2 characters to remove doesn't matter.
+2. Keep applying the mentioned step to s till the length of the string is not changed.
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
 
 ```c
-#define ENHANCE     (1)
-
 char* makeGood(char* s) {
-    char* pRetVal = NULL;
+    char* pRetVal = s;
 
-    int len = strlen(s);
+    int sSize = strlen(s);
     int top = -1;
     int i;
-#if (ENHANCE)
-    printf("Time Complexity: O(n), Space Complexity: O(1).\n");
-
-    for (i=0; i<len; ++i) {
-        if ((top != -1) && (s[top] == (s[i]^32))) {
+    for (i = 0; i < sSize; ++i) {
+        if ((top != -1) && (pRetVal[top] == (pRetVal[i] ^ 32))) {
             --top;
-        }
-        else {
-            s[++top] = s[i];
-        }
-    }
-    s[++top] = 0;
-
-    pRetVal = s;
-#else
-    printf("Time Complexity: O(n), Space Complexity: O(n).\n");
-
-    pRetVal = (char*)malloc((len+1)*sizeof(char));
-    if (pRetVal == NULL) {
-        perror("malloc");
-        return pRetVal;
-    }
-    memset(pRetVal, 0, ((len+1)*sizeof(char)));
-
-    for (i=0; i<len; ++i) {
-        if ((top != -1) && (pRetVal[top] == (s[i]^32))) {
-            pRetVal[top--] = 0;
-        }
-        else {
-            pRetVal[++top] = s[i];
+        } else {
+            pRetVal[++top] = pRetVal[i];
         }
     }
-#endif
+    pRetVal[++top] = 0;
 
     return pRetVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    string makeGood(string s) {
+        string retVal;
+
+        for (char c : s) {
+            if ((retVal.empty() == false) && (retVal.back() == (c ^ 32))) {
+                retVal.pop_back();
+            } else {
+                retVal.push_back(c);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def makeGood(self, s: str) -> str:
+        retVal = ""
+
+        for c in s:
+            if (retVal != "") and (ord(retVal[-1]) == ord(c) ^ 32):
+                retVal = retVal[:-1]
+            else:
+                retVal += c
+
+        return retVal
 ```
 
 </details>
