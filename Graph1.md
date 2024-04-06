@@ -1405,7 +1405,6 @@ class Solution:
 
 ## [433. Minimum Genetic Mutation](https://leetcode.com/problems/minimum-genetic-mutation/)
 
-- [Official](https://leetcode.com/problems/minimum-genetic-mutation/solutions/2631788/minimum-genetic-mutation/)
 - [Official](https://leetcode.cn/problems/minimum-genetic-mutation/solutions/1470943/zui-xiao-ji-yin-bian-hua-by-leetcode-sol-lhwy/)
 
 <details><summary>Description</summary>
@@ -1491,11 +1490,12 @@ void hashFree(HashItem** obj) {
     }
 }
 int minMutation(char* start, char* end, char** bank, int bankSize) {
-    int retVal = 0;
+    int retVal = -1;
 
     int i, j, k;
 
     if (strcmp(start, end) == 0) {
+        retVal = 0;
         return retVal;
     }
 
@@ -1505,7 +1505,7 @@ int minMutation(char* start, char* end, char** bank, int bankSize) {
     }
     if (hashFind(&cnt, end) == false) {
         hashFree(&cnt);
-        retVal = -1;
+        cnt = NULL;
         return retVal;
     }
 
@@ -1513,7 +1513,7 @@ int minMutation(char* start, char* end, char** bank, int bankSize) {
     if (queue == NULL) {
         perror("malloc");
         hashFree(&cnt);
-        retVal = -1;
+        cnt = NULL;
         return retVal;
     }
 
@@ -1523,9 +1523,9 @@ int minMutation(char* start, char* end, char** bank, int bankSize) {
     if (queue[tail] == NULL) {
         perror("malloc");
         hashFree(&cnt);
+        cnt = NULL;
         free(queue);
         queue = NULL;
-        retVal = -1;
         return retVal;
     }
     strcpy(queue[tail], start);
@@ -1554,45 +1554,49 @@ int minMutation(char* start, char* end, char** bank, int bankSize) {
                     next = (char*)malloc(16 * sizeof(char));
                     if (next == NULL) {
                         perror("malloc");
-                        hashFree(&cnt);
-                        hashFree(&visited);
-                        free(queue);
-                        queue = NULL;
-                        retVal = -1;
-                        return retVal;
+                        goto exit;
                     }
                     strcpy(next, curr);
 
                     next[j] = keys[k];
                     if ((hashFind(&visited, next) == false) && (hashFind(&cnt, next) == true)) {
                         if (strcmp(next, end) == 0) {
-                            while (head != tail) {
-                                free(queue[head++]);
-                            }
-                            hashFree(&cnt);
-                            hashFree(&visited);
                             free(next);
                             next = NULL;
-
                             retVal = step;
-                            return retVal;
+                            goto exit;
                         }
                         queue[tail++] = next;
                         hashInsert(&visited, next);
                     } else {
                         free(next);
+                        next = NULL;
                     }
                 }
             }
             free(curr);
+            curr = NULL;
         }
         step++;
     }
-    hashFree(&cnt);
-    hashFree(&visited);
-    free(queue);
 
-    retVal = -1;
+exit:
+    hashFree(&cnt);
+    cnt = NULL;
+    hashFree(&visited);
+    visited = NULL;
+    //
+    free(curr);
+    curr = NULL;
+    //
+    while (head != tail) {
+        free(queue[head]);
+        queue[head] = NULL;
+        head++;
+    }
+    free(queue);
+    queue = NULL;
+
     return retVal;
 }
 ```
@@ -1603,8 +1607,10 @@ int minMutation(char* start, char* end, char** bank, int bankSize) {
 
 ```c++
 class Solution {
-public:
+   public:
     int minMutation(string start, string end, vector<string>& bank) {
+        int retVal = -1;
+
         int steps = 0;
 
         // a queue to store each gene string
@@ -1621,15 +1627,16 @@ public:
         string neighbor;
         while (!queue.empty()) {
             nodesInQueue = queue.size();
-            for (int i=0; i<nodesInQueue; ++i) {
+            for (int i = 0; i < nodesInQueue; ++i) {
                 node = queue.front();
                 queue.pop();
                 if (node == end) {
-                    return steps;
+                    retVal = steps;
+                    return retVal;
                 }
 
-                for (long unsigned j=0; j<node.size(); ++j) {
-                    for (int k=0; k<4; ++k) {
+                for (long unsigned j = 0; j < node.size(); ++j) {
+                    for (int k = 0; k < 4; ++k) {
                         neighbor = node;
                         // replace the j-th character in neighbor with the k-th character in ACGT
                         neighbor[j] = "ACGT"[k];
@@ -1645,7 +1652,7 @@ public:
         }
 
         // If there is no such a mutation, return -1.
-        return -1;
+        return retVal;
     }
 };
 ```
@@ -1657,17 +1664,16 @@ public:
 ```python
 class Solution:
     def minMutation(self, start: str, end: str, bank: List[str]) -> int:
-        # a queue to store each gene string
-        queue = deque([(start, 0)])
-
-        # a hash table to record visited gene string
-        seen = {start}
+        retVal = -1
 
         # Breadth-First Search
+        queue = deque([(start, 0)])  # a queue to store each gene string
+        seen = {start}  # a hash table to record visited gene string
         while queue:
             node, steps = queue.popleft()
             if node == end:
-                return steps
+                retVal = steps
+                return retVal
 
             for c in "ACGT":
                 for i in range(len(node)):
@@ -1676,7 +1682,7 @@ class Solution:
                         queue.append((neighbor, steps+1))
                         seen.add(neighbor)
 
-        return -1
+        return retVal
 ```
 
 </details>

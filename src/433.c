@@ -45,11 +45,12 @@ void hashFree(HashItem** obj) {
     }
 }
 int minMutation(char* start, char* end, char** bank, int bankSize) {
-    int retVal = 0;
+    int retVal = -1;
 
     int i, j, k;
 
     if (strcmp(start, end) == 0) {
+        retVal = 0;
         return retVal;
     }
 
@@ -59,7 +60,7 @@ int minMutation(char* start, char* end, char** bank, int bankSize) {
     }
     if (hashFind(&cnt, end) == false) {
         hashFree(&cnt);
-        retVal = -1;
+        cnt = NULL;
         return retVal;
     }
 
@@ -67,7 +68,7 @@ int minMutation(char* start, char* end, char** bank, int bankSize) {
     if (queue == NULL) {
         perror("malloc");
         hashFree(&cnt);
-        retVal = -1;
+        cnt = NULL;
         return retVal;
     }
 
@@ -77,9 +78,9 @@ int minMutation(char* start, char* end, char** bank, int bankSize) {
     if (queue[tail] == NULL) {
         perror("malloc");
         hashFree(&cnt);
+        cnt = NULL;
         free(queue);
         queue = NULL;
-        retVal = -1;
         return retVal;
     }
     strcpy(queue[tail], start);
@@ -108,45 +109,49 @@ int minMutation(char* start, char* end, char** bank, int bankSize) {
                     next = (char*)malloc(16 * sizeof(char));
                     if (next == NULL) {
                         perror("malloc");
-                        hashFree(&cnt);
-                        hashFree(&visited);
-                        free(queue);
-                        queue = NULL;
-                        retVal = -1;
-                        return retVal;
+                        goto exit;
                     }
                     strcpy(next, curr);
 
                     next[j] = keys[k];
                     if ((hashFind(&visited, next) == false) && (hashFind(&cnt, next) == true)) {
                         if (strcmp(next, end) == 0) {
-                            while (head != tail) {
-                                free(queue[head++]);
-                            }
-                            hashFree(&cnt);
-                            hashFree(&visited);
                             free(next);
                             next = NULL;
-
                             retVal = step;
-                            return retVal;
+                            goto exit;
                         }
                         queue[tail++] = next;
                         hashInsert(&visited, next);
                     } else {
                         free(next);
+                        next = NULL;
                     }
                 }
             }
             free(curr);
+            curr = NULL;
         }
         step++;
     }
-    hashFree(&cnt);
-    hashFree(&visited);
-    free(queue);
 
-    retVal = -1;
+exit:
+    hashFree(&cnt);
+    cnt = NULL;
+    hashFree(&visited);
+    visited = NULL;
+    //
+    free(curr);
+    curr = NULL;
+    //
+    while (head != tail) {
+        free(queue[head]);
+        queue[head] = NULL;
+        head++;
+    }
+    free(queue);
+    queue = NULL;
+
     return retVal;
 }
 
@@ -162,6 +167,16 @@ int main(int argc, char** argv) {
                     {"AACCGGTT", "AAACGGTA", {"AACCGGTA", "AACCGCTA", "AAACGGTA"}, 3},
                     {"AAAAACCC", "AACCCCCC", {"AAAACCCC", "AAACCCCC", "AACCCCCC"}, 3}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: start = "AACCGGTT", end = "AACCGGTA", bank = ["AACCGGTA"]
+     *  Output: 1
+     *
+     *  Input: start = "AACCGGTT", end = "AAACGGTA", bank = ["AACCGGTA","AACCGCTA","AAACGGTA"]
+     *  Output: 2
+     *
+     *  Input: start = "AAAAACCC", end = "AACCCCCC", bank = ["AAAACCCC","AAACCCCC","AACCCCCC"]
+     *  Output: 3
+     */
 
     int answer = 0;
     int i, j;

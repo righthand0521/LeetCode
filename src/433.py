@@ -22,17 +22,16 @@ def logging_setting():
 
 class Solution:
     def minMutation(self, start: str, end: str, bank: List[str]) -> int:
-        # a queue to store each gene string
-        queue = deque([(start, 0)])
-
-        # a hash table to record visited gene string
-        seen = {start}
+        retVal = -1
 
         # Breadth-First Search
+        queue = deque([(start, 0)])  # a queue to store each gene string
+        seen = {start}  # a hash table to record visited gene string
         while queue:
             node, steps = queue.popleft()
             if node == end:
-                return steps
+                retVal = steps
+                return retVal
 
             for c in "ACGT":
                 for i in range(len(node)):
@@ -41,30 +40,37 @@ class Solution:
                         queue.append((neighbor, steps+1))
                         seen.add(neighbor)
 
-        return -1
+        return retVal
 
 
 if __name__ == "__main__":
     logging_setting()
 
-    logging.info("sys.version: %s", sys.version)
-    print("")
     try:
-        testCase = [Counter(start="AACCGGTT", end="AACCGGTA", bank=["AACCGGTA"]),
-                    Counter(start="AACCGGTT", end="AAACGGTA", bank=[
-                            "AACCGGTA", "AACCGCTA", "AAACGGTA"]),
-                    Counter(start="AAAAACCC", end="AACCCCCC", bank=["AAAACCCC", "AAACCCCC", "AACCCCCC"])]
+        logging.info("sys.version: %s", sys.version)
+        print()
 
         pSolution = Solution()
-        for i in range(0, len(testCase)):
-            print('Input: start = "{}", end = "{}", bank = {}'
-                  .format(testCase[i]['start'], testCase[i]['end'], testCase[i]['bank']))
+        for start, end, bank in zip(
+            ["AACCGGTT", "AACCGGTT", "AAAAACCC"],
+            ["AACCGGTA", "AAACGGTA", "AACCCCCC"],
+            [["AACCGGTA"], ["AACCGGTA", "AACCGCTA", "AAACGGTA"], ["AAAACCCC", "AAACCCCC", "AACCCCCC"]]):
+            # /* Example
+            #  *  Input: start = "AACCGGTT", end = "AACCGGTA", bank = ["AACCGGTA"]
+            #  *  Output: 1
+            #  *
+            #  *  Input: start = "AACCGGTT", end = "AAACGGTA", bank = ["AACCGGTA","AACCGCTA","AAACGGTA"]
+            #  *  Output: 2
+            #  *
+            #  *  Input: start = "AAAAACCC", end = "AACCCCCC", bank = ["AAAACCCC","AAACCCCC","AACCCCCC"]
+            #  *  Output: 3
+            #  */
+            logging.info("Input: start = \"%s\", end = \"%s\", bank = %s", start, end, bank)
 
-            retVal = pSolution.minMutation(
-                testCase[i]['start'], testCase[i]['end'], testCase[i]['bank'])
-            print('Output: {}'.format(retVal))
+            retVal = pSolution.minMutation(start, end, bank)
+            logging.info("Output: %s", retVal)
 
-            print("")
+            print()
     except KeyboardInterrupt as exception:
         logging.error("%s: %s", exception.__class__.__name__,
                       exception, exc_info=True)

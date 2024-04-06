@@ -9,6 +9,8 @@ using namespace std;
 class Solution {
    public:
     int minMutation(string start, string end, vector<string>& bank) {
+        int retVal = -1;
+
         int steps = 0;
 
         // a queue to store each gene string
@@ -29,7 +31,8 @@ class Solution {
                 node = queue.front();
                 queue.pop();
                 if (node == end) {
-                    return steps;
+                    retVal = steps;
+                    return retVal;
                 }
 
                 for (long unsigned j = 0; j < node.size(); ++j) {
@@ -49,7 +52,7 @@ class Solution {
         }
 
         // If there is no such a mutation, return -1.
-        return -1;
+        return retVal;
     }
 };
 
@@ -63,15 +66,23 @@ int main(int argc, char** argv) {
                              {"AACCGGTT", "AAACGGTA", {"AACCGGTA", "AACCGCTA", "AAACGGTA"}},
                              {"AAAAACCC", "AACCCCCC", {"AAAACCCC", "AAACCCCC", "AACCCCCC"}}};
     int numberOfTestCase = testData.size();
+    /* Example
+     *  Input: start = "AACCGGTT", end = "AACCGGTA", bank = ["AACCGGTA"]
+     *  Output: 1
+     *
+     *  Input: start = "AACCGGTT", end = "AAACGGTA", bank = ["AACCGGTA","AACCGCTA","AAACGGTA"]
+     *  Output: 2
+     *
+     *  Input: start = "AAAAACCC", end = "AACCCCCC", bank = ["AAAACCCC","AAACCCCC","AACCCCCC"]
+     *  Output: 3
+     */
 
     Solution cSolution;
     int answer = 0;
     for (int i = 0; i < numberOfTestCase; ++i) {
         cout << "Input";
-        cout << ": start = "
-             << "\"" << testData[i].start << "\"";
-        cout << ", end = "
-             << "\"" << testData[i].end << "\"";
+        cout << ": start = " << "\"" << testData[i].start << "\"";
+        cout << ", end = " << "\"" << testData[i].end << "\"";
         cout << ", bank = [";
         for (long unsigned int j = 0; j < testData[i].bank.size(); ++j) {
             cout << ((j == 0) ? "" : ",") << "\"" << testData[i].bank[j] << "\"";
