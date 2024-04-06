@@ -3733,6 +3733,183 @@ class Solution:
 
 </details>
 
+## [1249. Minimum Remove to Make Valid Parentheses](https://leetcode.com/problems/minimum-remove-to-make-valid-parentheses/)  1657
+
+- [Official](https://leetcode.cn/problems/minimum-remove-to-make-valid-parentheses/solutions/99460/yi-chu-wu-xiao-gua-hao-by-leetcode/)
+
+<details><summary>Description</summary>
+
+```text
+Given a string s of '(' , ')' and lowercase English characters.
+
+Your task is to remove the minimum number of parentheses ( '(' or ')', in any positions )
+so that the resulting parentheses string is valid and return any valid string.
+
+Formally, a parentheses string is valid if and only if:
+- It is the empty string, contains only lowercase characters, or
+- It can be written as AB (A concatenated with B), where A and B are valid strings, or
+- It can be written as (A), where A is a valid string.
+
+Example 1:
+Input: s = "lee(t(c)o)de)"
+Output: "lee(t(c)o)de"
+Explanation: "lee(t(co)de)" , "lee(t(c)ode)" would also be accepted.
+
+Example 2:
+Input: s = "a)b(c)d"
+Output: "ab(c)d"
+
+Example 3:
+Input: s = "))(("
+Output: ""
+Explanation: An empty string is also valid.
+
+Constraints:
+1 <= s.length <= 10^5
+s[i] is either'(' , ')', or lowercase English letter.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Each prefix of a balanced parentheses has a number of open parentheses greater or equal than closed parentheses,
+   similar idea with each suffix.
+2. Check the array from left to right, remove characters that do not meet the property mentioned above,
+   same idea in backward way.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+char* minRemoveToMakeValid(char* s) {
+    char* pRetVal = s;
+
+    int sSize = strlen(s);
+
+    int parenthesesRight[sSize];
+    memset(parenthesesRight, 0, sizeof(parenthesesRight));
+    int parenthesesStack[sSize];
+    memset(parenthesesStack, 0, sizeof(parenthesesStack));
+    int parenthesesStackTop = -1;
+
+    int i, j;
+    for (i = 0; i < sSize; ++i) {
+        if (s[i] == '(') {
+            parenthesesStack[i] = 1;
+            parenthesesStackTop = i;
+        } else if (s[i] == ')') {
+            if (parenthesesStackTop == -1) {
+                parenthesesRight[i] = 1;
+                continue;
+            }
+
+            for (j = parenthesesStackTop; j >= 0; --j) {
+                if (parenthesesStack[j] == 1) {
+                    parenthesesStack[j] = 0;
+                    parenthesesStackTop = j;
+                    break;
+                }
+            }
+            for (j = parenthesesStackTop; j >= 0; --j) {
+                if (parenthesesStack[j] == 1) {
+                    parenthesesStackTop = j;
+                    break;
+                }
+            }
+            if (j == -1) {
+                parenthesesStackTop = j;
+            }
+        }
+    }
+
+    int idx = 0;
+    for (i = 0; i < sSize; ++i) {
+        if ((parenthesesRight[i] == 1) || (parenthesesStack[i] == 1)) {
+            continue;
+        }
+        pRetVal[idx++] = s[i];
+    }
+    pRetVal[idx] = 0;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    string minRemoveToMakeValid(string s) {
+        string retVal;
+
+        int sSize = s.size();
+
+        vector<int> parenthesesRight;
+        vector<int> parenthesesStack;
+        for (int i = 0; i < sSize; ++i) {
+            if (s[i] == '(') {
+                parenthesesStack.push_back(i);
+            } else if (s[i] == ')') {
+                int parenthesesStackSize = parenthesesStack.size();
+                if (parenthesesStackSize == 0) {
+                    parenthesesRight.push_back(i);
+                } else {
+                    parenthesesStack.pop_back();
+                }
+            }
+        }
+        parenthesesStack.insert(parenthesesStack.end(), parenthesesRight.begin(), parenthesesRight.end());
+
+        for (int i = 0; i < sSize; ++i) {
+            if (find(parenthesesStack.begin(), parenthesesStack.end(), i) != parenthesesStack.end()) {
+                continue;
+            }
+            retVal.push_back(s[i]);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minRemoveToMakeValid(self, s: str) -> str:
+        retVal = ""
+
+        parenthesesRight = []
+        parenthesesStack = []
+        for idx, value in enumerate(s):
+            if value == "(":
+                parenthesesStack.append(idx)
+            elif value == ")":
+                if len(parenthesesStack) == 0:
+                    parenthesesRight.append(idx)
+                else:
+                    parenthesesStack.pop()
+        parenthesesStack = parenthesesStack + parenthesesRight
+
+        for idx, value in enumerate(s):
+            if idx in parenthesesStack:
+                continue
+            retVal += value
+
+        return retVal
+```
+
+</details>
+
 ## [1441. Build an Array With Stack Operations](https://leetcode.com/problems/build-an-array-with-stack-operations/)  1180
 
 - [Official](https://leetcode.com/problems/build-an-array-with-stack-operations/editorial/)
