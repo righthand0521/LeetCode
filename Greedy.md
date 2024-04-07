@@ -1440,6 +1440,148 @@ class Solution:
 
 </details>
 
+## [678. Valid Parenthesis String](https://leetcode.com/problems/valid-parenthesis-string/)
+
+- [Official](https://leetcode.com/problems/valid-parenthesis-string/editorial/)
+- [Official](https://leetcode.cn/problems/valid-parenthesis-string/solutions/992347/you-xiao-de-gua-hao-zi-fu-chuan-by-leetc-osi3/)
+
+<details><summary>Description</summary>
+
+```text
+Given a string s containing only three types of characters: '(', ')' and '*', return true if s is valid.
+
+The following rules define a valid string:
+- Any left parenthesis '(' must have a corresponding right parenthesis ')'.
+- Any right parenthesis ')' must have a corresponding left parenthesis '('.
+- Left parenthesis '(' must go before the corresponding right parenthesis ')'.
+- '*' could be treated as a single right parenthesis ')' or a single left parenthesis '(' or an empty string "".
+
+Example 1:
+Input: s = "()"
+Output: true
+
+Example 2:
+Input: s = "(*)"
+Output: true
+
+Example 3:
+Input: s = "(*))"
+Output: true
+
+Constraints:
+1 <= s.length <= 100
+s[i] is '(', ')' or '*'.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool checkValidString(char* s) {
+    bool retVal = false;
+
+    int sSize = strlen(s);
+    int leftParenthesis = 0;
+    int rightParenthesis = 0;
+    int left, right;
+    for (left = 0; left < sSize; ++left) {
+        if ((s[left] == '(') || (s[left] == '*')) {
+            leftParenthesis++;
+        } else if (s[left] == ')') {
+            leftParenthesis--;
+        }
+
+        right = sSize - 1 - left;
+        if ((s[right] == ')') || (s[right] == '*')) {
+            rightParenthesis++;
+        } else if (s[right] == '(') {
+            rightParenthesis--;
+        }
+
+        if ((leftParenthesis < 0) || (rightParenthesis < 0)) {
+            return retVal;
+        }
+    }
+    retVal = true;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool checkValidString(string s) {
+        bool retVal = false;
+
+        int sSize = s.size();
+        int leftParenthesis = 0;
+        int rightParenthesis = 0;
+        for (int left = 0; left < sSize; ++left) {
+            if ((s[left] == '(') || (s[left] == '*')) {
+                leftParenthesis++;
+            } else if (s[left] == ')') {
+                leftParenthesis--;
+            }
+
+            int right = sSize - 1 - left;
+            if ((s[right] == ')') || (s[right] == '*')) {
+                rightParenthesis++;
+            } else if (s[right] == '(') {
+                rightParenthesis--;
+            }
+
+            if ((leftParenthesis < 0) || (rightParenthesis < 0)) {
+                return retVal;
+            }
+        }
+        retVal = true;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def checkValidString(self, s: str) -> bool:
+        retVal = False
+
+        sSize = len(s)
+
+        leftParenthesis = 0
+        rightParenthesis = 0
+        for left in range(sSize):
+            if (s[left] == '(') or (s[left] == '*'):
+                leftParenthesis += 1
+            elif s[left] == ')':
+                leftParenthesis -= 1
+
+            right = sSize - 1 - left
+            if (s[right] == ')') or (s[right] == '*'):
+                rightParenthesis += 1
+            elif s[right] == '(':
+                rightParenthesis -= 1
+
+            if (leftParenthesis < 0) or (rightParenthesis < 0):
+                return retVal
+
+        retVal = True
+
+        return retVal
+```
+
+</details>
+
 ## [826. Most Profit Assigning Work](https://leetcode.com/problems/most-profit-assigning-work/)  1708
 
 - [Official](https://leetcode.cn/problems/most-profit-assigning-work/solutions/22424/an-pai-gong-zuo-yi-da-dao-zui-da-shou-yi-by-leetco/)
