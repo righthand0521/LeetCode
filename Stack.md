@@ -776,6 +776,8 @@ class MinStack:
 
 ## [224. Basic Calculator](https://leetcode.com/problems/basic-calculator/)
 
+- [Official](https://leetcode.cn/problems/basic-calculator/solutions/646369/ji-ben-ji-suan-qi-by-leetcode-solution-jvir/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -811,88 +813,18 @@ Every number and running calculation will fit in a signed 32-bit integer.
 <details><summary>C</summary>
 
 ```c
-#define REFERENCE_1     (1) // 適用於帶括號的加減乘除運算: 遇到左括號, 將括號內的元素遞歸處理; 遞歸結束後, 再繼續與外層運算計算.
-#define REFERENCE_2     (1) // 適用於帶括號的加減運算: 考慮加減運算, 使用stack, 遇到括號時, 將括號外的運算符保留和結果保留.
-
-#if (REFERENCE_1)
-int recursive(char** s) {
+int calculate(char* s) {
     int retVal = 0;
 
-    char* pStr = *s;
-    int len = strlen(pStr);
+    int sSize = strlen(s);
 
+    int stack[sSize];
     int top = 0;
-    int* stack = (int*)malloc(sizeof(int)*len);
-    if (stack == NULL) {
-        perror("malloc");
-        return retVal;
-    }
-
-    char sign = '+';
+    int sign = 1;
     int num = 0;
     char ch;
-    while (*pStr) {
-        ch = *pStr;
-        if (isdigit(ch)) {
-            num = num * 10 + (ch - '0');
-        }
-
-        // 遇到左括號, 將括號內的元素遞歸處理
-        if (ch == '(') {
-            pStr++;
-            num = recursive(&pStr);
-        }
-
-        if (((!isdigit(ch)) && (ch!=' ')) || (*(pStr+1) == '\0')) {
-            if (sign == '+') {
-                stack[top++] = num;
-            } else if (sign == '-') {
-                stack[top++] = -num;
-            }
-            sign = ch;
-            num  = 0;
-
-            // 遇到右括號, 退出本次處理, 更新字符串起始.
-            if (ch == ')') {
-                *s = pStr;
-                break;
-            }
-        }
-        pStr++;
-    }
-
-    while (top > 0) {
-        retVal += stack[--top];
-    }
-    free(stack);
-    stack = NULL;
-
-    return retVal;
-}
-
-int calculate(char* s) {
-    printf("REFERENCE_1\n");
-
-    int retVal = recursive(&s);
-
-    return retVal;
-}
-#elif (REFERENCE_2)
-int calculate(char* s) {
-    printf("REFERENCE_2\n");
-
-    int retVal = 0;
-
-    int len = strlen(s);
-
-    int stack[len];
-    int top  = 0;
-
-    int sign = 1;
-    int num  = 0;
-    char ch;
     int i = 0;
-    for (i=0; i<len; ++i) {
+    for (i = 0; i < sSize; ++i) {
         ch = s[i];
 
         if (isdigit(ch)) {
@@ -901,12 +833,12 @@ int calculate(char* s) {
             retVal += (sign * num);
             num = 0;
             sign = (ch == '+') ? 1 : -1;
-        } else if (ch == '(') {    // 左括號, 保留當前結果和符號位.
+        } else if (ch == '(') {
             stack[top++] = retVal;
             stack[top++] = sign;
-            retVal  = 0;
+            retVal = 0;
             sign = 1;
-        } else if (ch == ')') {    // 右符號, 計算完括號內的結果, 並與Stack結果相加減.
+        } else if (ch == ')') {
             retVal += (sign * num);
             num = 0;
             retVal *= stack[--top];
@@ -917,7 +849,85 @@ int calculate(char* s) {
 
     return retVal;
 }
-#endif
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int calculate(string s) {
+        int retVal = 0;
+
+        vector<int> stack;
+        int sign = 1;
+        int num = 0;
+        for (auto ch : s) {
+            if (isdigit(ch)) {
+                num = num * 10 + (ch - '0');
+            } else if ((ch == '+') || (ch == '-')) {
+                retVal += (sign * num);
+                num = 0;
+                sign = (ch == '+') ? 1 : -1;
+            } else if (ch == '(') {
+                stack.emplace_back(retVal);
+                stack.emplace_back(sign);
+                retVal = 0;
+                sign = 1;
+            } else if (ch == ')') {
+                retVal += (sign * num);
+                num = 0;
+                retVal *= stack.back();
+                stack.pop_back();
+                retVal += stack.back();
+                stack.pop_back();
+            }
+        }
+        retVal += (sign * num);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def calculate(self, s: str) -> int:
+        retVal = 0
+
+        stack = []
+        sign = 1
+        num = 0
+        for c in s:
+            if c.isdigit():
+                num = num * 10 + int(c)
+            elif (c == '+') or (c == '-'):
+                retVal += (sign * num)
+                num = 0
+                sign = -1
+                if c == '+':
+                    sign = 1
+            elif (c == '('):
+                stack.append(retVal)
+                stack.append(sign)
+                retVal = 0
+                sign = 1
+            elif (c == ')'):
+                retVal += (sign * num)
+                num = 0
+                retVal *= stack[-1]
+                stack.pop()
+                retVal += stack[-1]
+                stack.pop()
+        retVal += (sign * num)
+
+        return retVal
 ```
 
 </details>
