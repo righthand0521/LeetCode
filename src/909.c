@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-// https://leetcode.cn/problems/snakes-and-ladders/solutions/86815/cyu-yan-bfsni-zhi-de-yong-you-by-dave-19-2/
 int getNextBoardValue(int** board, int boardSize, int num) {
     int retVal = -1;
 
@@ -11,14 +10,13 @@ int getNextBoardValue(int** board, int boardSize, int num) {
         return retVal;
     }
 
-    int n = boardSize;
-    int x = (num - 1) / n;
-    int y = (num - 1) % n;
+    int x = (num - 1) / boardSize;
+    int y = (num - 1) % boardSize;
 
     if (x % 2 != 0) {
-        y = (n - 1) - y;
+        y = (boardSize - 1) - y;
     }
-    x = (n - 1) - x;
+    x = (boardSize - 1) - x;
     retVal = board[x][y];
 
     return retVal;
@@ -30,15 +28,15 @@ int snakesAndLadders(int** board, int boardSize, int* boardColSize) {
         return retVal;
     }
 
-    int n = boardSize;
+    int bfsQueueHead = 0;
+    int bfsQueueTail = 0;
+    int bfsQueueSize = boardSize * boardSize;
+    int bfsQueue[bfsQueueSize];
+    memset(bfsQueue, 0, sizeof(bfsQueue));
+    bfsQueue[bfsQueueTail++] = 1;
 
-    int queue[n * n];
-    memset(queue, 0, sizeof(queue));
-    int rear = 0;
-    int front = 0;
-    queue[rear++] = 1;
-
-    int visited[n * n + 1];
+    int visitedSize = boardSize * boardSize + 1;
+    int visited[visitedSize];
     memset(visited, 0, sizeof(visited));
 
     int cur = 0;
@@ -46,16 +44,16 @@ int snakesAndLadders(int** board, int boardSize, int* boardColSize) {
     int minStep = 0;
     int layerNum = 0;
     int i, j;
-    while (rear != front) {
-        layerNum = rear - front;
+    while (bfsQueueTail != bfsQueueHead) {
+        layerNum = bfsQueueTail - bfsQueueHead;
         for (i = 0; i < layerNum; ++i) {
-            cur = queue[front++];
-            if (cur == n * n) {
+            cur = bfsQueue[bfsQueueHead++];
+            if (cur == (visitedSize - 1)) {
                 retVal = minStep;
                 return retVal;
             }
 
-            for (j = 1; j <= 6 && cur + j <= n * n; ++j) {
+            for (j = 1; (j <= 6 && cur + j < visitedSize); ++j) {
                 next = getNextBoardValue(board, boardSize, cur + j);
                 if (next == -1) {
                     next = cur + j;
@@ -65,7 +63,7 @@ int snakesAndLadders(int** board, int boardSize, int* boardColSize) {
                     continue;
                 }
                 visited[next] = true;
-                queue[rear++] = next;
+                bfsQueue[bfsQueueTail++] = next;
             }
         }
 
@@ -91,6 +89,20 @@ int main(int argc, char** argv) {
                      {6, 6, 6, 6, 6, 6}},
                     {{{-1, -1}, {-1, 3}}, 2, {2, 2}}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: board = [
+     *      [-1,-1,-1,-1,-1,-1],
+     *      [-1,-1,-1,-1,-1,-1],
+     *      [-1,-1,-1,-1,-1,-1],
+     *      [-1,35,-1,-1,13,-1],
+     *      [-1,-1,-1,-1,-1,-1],
+     *      [-1,15,-1,-1,-1,-1]
+     *  ]
+     *  Output: 4
+     *
+     *  Input: board = [[-1,-1],[-1,3]]
+     *  Output: 1
+     */
 
     int** pBoard = NULL;
     int answer = 0;

@@ -5,45 +5,46 @@
 
 using namespace std;
 
-// https://leetcode.com/problems/snakes-and-ladders/solutions/794701/c-bfs-detailed-explanation-faster-than-99-31/
 class Solution {
    public:
-    void getCoordinate(int n, int s, int& row, int& col) {
-        row = n - 1 - (s - 1) / n;
-        col = (s - 1) % n;
+    void getCoordinate(int boardSize, int s, int& row, int& col) {
+        row = boardSize - 1 - (s - 1) / boardSize;
+        col = (s - 1) % boardSize;
 
-        if (((n % 2 == 1) && (row % 2 == 1)) || ((n % 2 == 0) && (row % 2 == 0))) {
-            col = n - 1 - col;
+        if (((boardSize % 2 == 1) && (row % 2 == 1)) || ((boardSize % 2 == 0) && (row % 2 == 0))) {
+            col = boardSize - 1 - col;
         }
     }
     int snakesAndLadders(vector<vector<int>>& board) {
         int retVal = -1;
 
-        int n = board.size();
-        vector<bool> seen(n * n + 1, false);
+        int boardSize = board.size();
+
+        int seenSize = boardSize * boardSize + 1;
+        vector<bool> seen(seenSize, false);
         seen[1] = true;
 
-        queue<pair<int, int>> q;
-        q.push({1, 0});
-        while (q.empty() == false) {
-            pair<int, int> p = q.front();
-            q.pop();
-
-            int s = p.first;
-            int dist = p.second;
-            if (s == n * n) {
+        queue<pair<int, int>> bfsQueue;
+        bfsQueue.push({1, 0});
+        while (bfsQueue.empty() == false) {
+            auto [s, dist] = bfsQueue.front();
+            bfsQueue.pop();
+            if (s == (seenSize - 1)) {
                 retVal = dist;
                 return retVal;
             }
 
             int row, col;
-            for (int i = 1; s + i <= n * n && i <= 6; i++) {
-                getCoordinate(n, s + i, row, col);
+            for (int i = 1; ((s + i < seenSize) && (i <= 6)); i++) {
+                getCoordinate(boardSize, s + i, row, col);
+                int sfinal = board[row][col];
+                if (board[row][col] == -1) {
+                    sfinal = s + i;
+                }
 
-                int sfinal = ((board[row][col] == -1) ? (s + i) : (board[row][col]));
                 if (seen[sfinal] == false) {
                     seen[sfinal] = true;
-                    q.push({sfinal, dist + 1});
+                    bfsQueue.push({sfinal, dist + 1});
                 }
             }
         }
@@ -64,6 +65,20 @@ int main(int argc, char** argv) {
                                {-1, 15, -1, -1, -1, -1}}},
                              {{{-1, -1}, {-1, 3}}}};
     int numberOfTestCase = testData.size();
+    /* Example
+     *  Input: board = [
+     *      [-1,-1,-1,-1,-1,-1],
+     *      [-1,-1,-1,-1,-1,-1],
+     *      [-1,-1,-1,-1,-1,-1],
+     *      [-1,35,-1,-1,13,-1],
+     *      [-1,-1,-1,-1,-1,-1],
+     *      [-1,15,-1,-1,-1,-1]
+     *  ]
+     *  Output: 4
+     *
+     *  Input: board = [[-1,-1],[-1,3]]
+     *  Output: 1
+     */
 
     Solution cSolution;
     int answer = 0;

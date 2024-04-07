@@ -4113,7 +4113,6 @@ class Solution:
 
 ## [909. Snakes and Ladders](https://leetcode.com/problems/snakes-and-ladders/)  2019
 
-- [Official](https://leetcode.com/problems/snakes-and-ladders/solutions/2912646/snakes-and-ladders/)
 - [Official](https://leetcode.cn/problems/snakes-and-ladders/solutions/846328/she-ti-qi-by-leetcode-solution-w0vl/)
 
 <details><summary>Description</summary>
@@ -4180,7 +4179,6 @@ The squares labeled 1 and n2 do not have any ladders or snakes.
 <details><summary>C</summary>
 
 ```c
-// https://leetcode.cn/problems/snakes-and-ladders/solutions/86815/cyu-yan-bfsni-zhi-de-yong-you-by-dave-19-2/
 int getNextBoardValue(int** board, int boardSize, int num) {
     int retVal = -1;
 
@@ -4188,14 +4186,13 @@ int getNextBoardValue(int** board, int boardSize, int num) {
         return retVal;
     }
 
-    int n = boardSize;
-    int x = (num - 1) / n;
-    int y = (num - 1) % n;
+    int x = (num - 1) / boardSize;
+    int y = (num - 1) % boardSize;
 
     if (x % 2 != 0) {
-        y = (n - 1) - y;
+        y = (boardSize - 1) - y;
     }
-    x = (n - 1) - x;
+    x = (boardSize - 1) - x;
     retVal = board[x][y];
 
     return retVal;
@@ -4207,15 +4204,15 @@ int snakesAndLadders(int** board, int boardSize, int* boardColSize) {
         return retVal;
     }
 
-    int n = boardSize;
+    int bfsQueueHead = 0;
+    int bfsQueueTail = 0;
+    int bfsQueueSize = boardSize * boardSize;
+    int bfsQueue[bfsQueueSize];
+    memset(bfsQueue, 0, sizeof(bfsQueue));
+    bfsQueue[bfsQueueTail++] = 1;
 
-    int queue[n * n];
-    memset(queue, 0, sizeof(queue));
-    int rear = 0;
-    int front = 0;
-    queue[rear++] = 1;
-
-    int visited[n * n + 1];
+    int visitedSize = boardSize * boardSize + 1;
+    int visited[visitedSize];
     memset(visited, 0, sizeof(visited));
 
     int cur = 0;
@@ -4223,16 +4220,16 @@ int snakesAndLadders(int** board, int boardSize, int* boardColSize) {
     int minStep = 0;
     int layerNum = 0;
     int i, j;
-    while (rear != front) {
-        layerNum = rear - front;
+    while (bfsQueueTail != bfsQueueHead) {
+        layerNum = bfsQueueTail - bfsQueueHead;
         for (i = 0; i < layerNum; ++i) {
-            cur = queue[front++];
-            if (cur == n * n) {
+            cur = bfsQueue[bfsQueueHead++];
+            if (cur == (visitedSize - 1)) {
                 retVal = minStep;
                 return retVal;
             }
 
-            for (j = 1; j <= 6 && cur + j <= n * n; ++j) {
+            for (j = 1; (j <= 6 && cur + j < visitedSize); ++j) {
                 next = getNextBoardValue(board, boardSize, cur + j);
                 if (next == -1) {
                     next = cur + j;
@@ -4242,7 +4239,7 @@ int snakesAndLadders(int** board, int boardSize, int* boardColSize) {
                     continue;
                 }
                 visited[next] = true;
-                queue[rear++] = next;
+                bfsQueue[bfsQueueTail++] = next;
             }
         }
 
@@ -4258,45 +4255,46 @@ int snakesAndLadders(int** board, int boardSize, int* boardColSize) {
 <details><summary>C++</summary>
 
 ```c++
-// https://leetcode.com/problems/snakes-and-ladders/solutions/794701/c-bfs-detailed-explanation-faster-than-99-31/
 class Solution {
    public:
-    void getCoordinate(int n, int s, int& row, int& col) {
-        row = n - 1 - (s - 1) / n;
-        col = (s - 1) % n;
+    void getCoordinate(int boardSize, int s, int& row, int& col) {
+        row = boardSize - 1 - (s - 1) / boardSize;
+        col = (s - 1) % boardSize;
 
-        if (((n % 2 == 1) && (row % 2 == 1)) || ((n % 2 == 0) && (row % 2 == 0))) {
-            col = n - 1 - col;
+        if (((boardSize % 2 == 1) && (row % 2 == 1)) || ((boardSize % 2 == 0) && (row % 2 == 0))) {
+            col = boardSize - 1 - col;
         }
     }
     int snakesAndLadders(vector<vector<int>>& board) {
         int retVal = -1;
 
-        int n = board.size();
-        vector<bool> seen(n * n + 1, false);
+        int boardSize = board.size();
+
+        int seenSize = boardSize * boardSize + 1;
+        vector<bool> seen(seenSize, false);
         seen[1] = true;
 
-        queue<pair<int, int>> q;
-        q.push({1, 0});
-        while (q.empty() == false) {
-            pair<int, int> p = q.front();
-            q.pop();
-
-            int s = p.first;
-            int dist = p.second;
-            if (s == n * n) {
+        queue<pair<int, int>> bfsQueue;
+        bfsQueue.push({1, 0});
+        while (bfsQueue.empty() == false) {
+            auto [s, dist] = bfsQueue.front();
+            bfsQueue.pop();
+            if (s == (seenSize - 1)) {
                 retVal = dist;
                 return retVal;
             }
 
             int row, col;
-            for (int i = 1; s + i <= n * n && i <= 6; i++) {
-                getCoordinate(n, s + i, row, col);
+            for (int i = 1; ((s + i < seenSize) && (i <= 6)); i++) {
+                getCoordinate(boardSize, s + i, row, col);
+                int sfinal = board[row][col];
+                if (board[row][col] == -1) {
+                    sfinal = s + i;
+                }
 
-                int sfinal = ((board[row][col] == -1) ? (s + i) : (board[row][col]));
                 if (seen[sfinal] == false) {
                     seen[sfinal] = true;
-                    q.push({sfinal, dist + 1});
+                    bfsQueue.push({sfinal, dist + 1});
                 }
             }
         }
@@ -4304,6 +4302,57 @@ class Solution {
         return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.row = 0
+        self.col = 0
+
+    def getCoordinate(self, boardSize: int, s: int) -> None:
+        self.row = boardSize - 1 - (s - 1) // boardSize
+        self.col = (s - 1) % boardSize
+
+        if (((boardSize % 2 == 1) and (self.row % 2 == 1)) or ((boardSize % 2 == 0) and (self.row % 2 == 0))):
+            self.col = boardSize - 1 - self.col
+
+    def snakesAndLadders(self, board: List[List[int]]) -> int:
+        retVal = -1
+
+        boardSize = len(board)
+        seenSize = boardSize * boardSize + 1
+        seen = [False] * seenSize
+        seen[1] = True
+
+        bfsQueue = deque([(1, 0)])
+        while bfsQueue:
+            s, dist = bfsQueue.popleft()
+            if s == (seenSize - 1):
+                retVal = dist
+                return retVal
+
+            self.row = 0
+            self.col = 0
+            for i in range(1, 7):
+                if (s + i) >= seenSize:
+                    break
+
+                self.getCoordinate(boardSize, s + i)
+                if board[self.row][self.col] == -1:
+                    sfinal = s + i
+                else:
+                    sfinal = board[self.row][self.col]
+
+                if seen[sfinal] == False:
+                    seen[sfinal] = True
+                    bfsQueue.append((sfinal, dist + 1))
+
+        return retVal
 ```
 
 </details>
