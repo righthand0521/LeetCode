@@ -2622,7 +2622,7 @@ int *getOrder(int **tasks, int tasksSize, int *tasksColSize, int *returnSize) {
 
 </details>
 
-## [1845. Seat Reservation Manager](https://leetcode.com/problems/seat-reservation-manager/description/)  1428
+## [1845. Seat Reservation Manager](https://leetcode.com/problems/seat-reservation-manager/)  1428
 
 - [Official](https://leetcode.com/problems/seat-reservation-manager/editorial/)
 - [Official](https://leetcode.cn/problems/seat-reservation-manager/solutions/754909/zuo-wei-yu-yue-guan-li-xi-tong-by-leetco-wj45/)
@@ -2962,6 +2962,127 @@ int minStoneSum(int* piles, int pilesSize, int k) {
 
     return retVal;
 }
+```
+
+</details>
+
+## [2073. Time Needed to Buy Tickets](https://leetcode.com/problems/time-needed-to-buy-tickets/)  1325
+
+- [Official](https://leetcode.com/problems/time-needed-to-buy-tickets/editorial/)
+- [Official](https://leetcode.cn/problems/time-needed-to-buy-tickets/solutions/1102684/mai-piao-xu-yao-de-shi-jian-by-leetcode-jnfxx/)
+
+<details><summary>Description</summary>
+
+```text
+There are n people in a line queuing to buy tickets,
+where the 0th person is at the front of the line and the (n - 1)th person is at the back of the line.
+
+You are given a 0-indexed integer array tickets of length n
+where the number of tickets that the ith person would like to buy is tickets[i].
+
+Each person takes exactly 1 second to buy a ticket.
+A person can only buy 1 ticket at a time and has to go back to the end of the line (which happens instantaneously)
+in order to buy more tickets.
+If a person does not have any tickets left to buy, the person will leave the line.
+
+Return the time taken for the person at position k (0-indexed) to finish buying tickets.
+
+Example 1:
+Input: tickets = [2,3,2], k = 2
+Output: 6
+Explanation:
+- In the first pass, everyone in the line buys a ticket and the line becomes [1, 2, 1].
+- In the second pass, everyone in the line buys a ticket and the line becomes [0, 1, 0].
+The person at position 2 has successfully bought 2 tickets and it took 3 + 3 = 6 seconds.
+
+Example 2:
+Input: tickets = [5,1,1,1], k = 0
+Output: 8
+Explanation:
+- In the first pass, everyone in the line buys a ticket and the line becomes [4, 0, 0, 0].
+- In the next 4 passes, only the person in position 0 is buying tickets.
+The person at position 0 has successfully bought 5 tickets and it took 4 + 1 + 1 + 1 + 1 = 8 seconds.
+
+Constraints:
+n == tickets.length
+1 <= n <= 100
+1 <= tickets[i] <= 100
+0 <= k < n
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Loop through the line of people and decrement the number of tickets for each
+   to buy one at a time as if simulating the line moving forward.
+   Keep track of how many tickets have been sold up until person k has no more tickets to buy.
+2. Remember that those who have no more tickets to buy will leave the line.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int timeRequiredToBuy(int* tickets, int ticketsSize, int k) {
+    int retVal = 0;
+
+    int i;
+    for (i = 0; i < ticketsSize; ++i) {
+        if (i <= k) {
+            retVal += fmin(tickets[i], tickets[k]);
+        } else {
+            retVal += fmin(tickets[i], (tickets[k] - 1));
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int timeRequiredToBuy(vector<int>& tickets, int k) {
+        int retVal = 0;
+
+        int ticketsSize = tickets.size();
+        for (int i = 0; i < ticketsSize; ++i) {
+            if (i <= k) {
+                retVal += min(tickets[i], tickets[k]);
+            } else {
+                retVal += min(tickets[i], (tickets[k] - 1));
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def timeRequiredToBuy(self, tickets: List[int], k: int) -> int:
+        retVal = 0
+
+        ticketsSize = len(tickets)
+        for i in range(ticketsSize):
+            if i <= k:
+                retVal += min(tickets[i], tickets[k])
+            else:
+                retVal += min(tickets[i], (tickets[k]-1))
+
+        return retVal
 ```
 
 </details>
