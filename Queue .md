@@ -1838,6 +1838,155 @@ class RecentCounter:
 
 </details>
 
+## [950. Reveal Cards In Increasing Order](https://leetcode.com/problems/reveal-cards-in-increasing-order/)  1686
+
+- [Official](https://leetcode.com/problems/reveal-cards-in-increasing-order/editorial/)
+- [Official](https://leetcode.cn/problems/reveal-cards-in-increasing-order/solutions/15988/an-di-zeng-shun-xu-xian-shi-qia-pai-by-leetcode/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array deck. There is a deck of cards where every card has a unique integer.
+The integer on the ith card is deck[i].
+
+You can order the deck in any order you want. Initially, all the cards start face down (unrevealed) in one deck.
+
+You will do the following steps repeatedly until all cards are revealed:
+1. Take the top card of the deck, reveal it, and take it out of the deck.
+2. If there are still cards in the deck then put the next top card of the deck at the bottom of the deck.
+3. If there are still unrevealed cards, go back to step 1. Otherwise, stop.
+
+Return an ordering of the deck that would reveal the cards in increasing order.
+
+Note that the first entry in the answer is considered to be the top of the deck.
+
+Example 1:
+Input: deck = [17,13,11,2,3,5,7]
+Output: [2,13,3,11,5,17,7]
+Explanation:
+We get the deck in the order [17,13,11,2,3,5,7] (this order does not matter), and reorder it.
+After reordering, the deck starts as [2,13,3,11,5,17,7], where 2 is the top of the deck.
+We reveal 2, and move 13 to the bottom.  The deck is now [3,11,5,17,7,13].
+We reveal 3, and move 11 to the bottom.  The deck is now [5,17,7,13,11].
+We reveal 5, and move 17 to the bottom.  The deck is now [7,13,11,17].
+We reveal 7, and move 13 to the bottom.  The deck is now [11,17,13].
+We reveal 11, and move 17 to the bottom.  The deck is now [13,17].
+We reveal 13, and move 17 to the bottom.  The deck is now [17].
+We reveal 17.
+Since all the cards revealed are in increasing order, the answer is correct.
+
+Example 2:
+Input: deck = [1,1000]
+Output: [1,1000]
+
+Constraints:
+1 <= deck.length <= 1000
+1 <= deck[i] <= 10^6
+All the values of deck are unique.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareInteger(const void *n1, const void *n2) {
+    // ascending order
+    return (*(int *)n1 > *(int *)n2);
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *deckRevealedIncreasing(int *deck, int deckSize, int *returnSize) {
+    int *pRetVal = NULL;
+
+    (*returnSize) = 0;
+    pRetVal = (int *)malloc(deckSize * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (deckSize * sizeof(int)));
+
+    int indexQueueSize = deckSize * 2;
+    int indexQueue[indexQueueSize];
+    memset(indexQueue, 0, sizeof(indexQueue));
+    int indexQueueHead = 0;
+    int indexQueueTail = 0;
+    for (indexQueueTail = 0; indexQueueTail < deckSize; ++indexQueueTail) {
+        indexQueue[indexQueueTail] = indexQueueTail;
+    }
+
+    qsort(deck, deckSize, sizeof(int), compareInteger);
+    int i;
+    for (i = 0; i < deckSize; ++i) {
+        pRetVal[indexQueue[indexQueueHead++]] = deck[i];
+        (*returnSize)++;
+        if (indexQueueHead < indexQueueTail) {
+            indexQueue[indexQueueTail++] = indexQueue[indexQueueHead++];
+        }
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> deckRevealedIncreasing(vector<int>& deck) {
+        vector<int> retVal;
+
+        int deckSize = deck.size();
+        queue<int> indexQueue;
+        for (int i = 0; i < deckSize; ++i) {
+            indexQueue.emplace(i);
+        }
+
+        sort(deck.begin(), deck.end());
+        retVal.resize(deckSize, 0);
+        for (int card : deck) {
+            retVal[indexQueue.front()] = card;
+            indexQueue.pop();
+            if (indexQueue.empty() == false) {
+                indexQueue.emplace(indexQueue.front());
+                indexQueue.pop();
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def deckRevealedIncreasing(self, deck: List[int]) -> List[int]:
+        retVal = []
+
+        deckSize = len(deck)
+        indexQueue = deque(range(deckSize))
+
+        deck.sort()
+        retVal = [None] * deckSize
+        for card in deck:
+            retVal[indexQueue.popleft()] = card
+            if indexQueue:
+                indexQueue.append(indexQueue.popleft())
+
+        return retVal
+```
+
+</details>
+
 ## [1046. Last Stone Weight](https://leetcode.com/problems/last-stone-weight/)  1172
 
 - [Official](https://leetcode.cn/problems/last-stone-weight/solutions/540130/zui-hou-yi-kuai-shi-tou-de-zhong-liang-b-xgsx/)
