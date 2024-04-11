@@ -497,6 +497,155 @@ class Solution:
 
 </details>
 
+## [402. Remove K Digits](https://leetcode.com/problems/remove-k-digits/)
+
+- [Official](https://leetcode.cn/problems/remove-k-digits/solutions/484940/yi-diao-kwei-shu-zi-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+Given string num representing a non-negative integer num, and an integer k,
+return the smallest possible integer after removing k digits from num.
+
+Example 1:
+Input: num = "1432219", k = 3
+Output: "1219"
+Explanation: Remove the three digits 4, 3, and 2 to form the new number 1219 which is the smallest.
+
+Example 2:
+Input: num = "10200", k = 1
+Output: "200"
+Explanation: Remove the leading 1 and the number is 200. Note that the output must not contain leading zeroes.
+
+Example 3:
+Input: num = "10", k = 2
+Output: "0"
+Explanation: Remove all the digits from the number and it is left with nothing which is 0.
+
+Constraints:
+1 <= k <= num.length <= 10^5
+num consists of only digits.
+num does not have any leading zeros except for the zero itself.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+char* removeKdigits(char* num, int k) {
+    char* pRetVal = NULL;
+
+    int numSize = strlen(num);
+
+    char numStack[numSize + 1];
+    memset(numStack, 0, sizeof(numStack));
+    int numStackTop = -1;
+    int i;
+    for (i = 0; i < numSize; ++i) {
+        while ((k > 0) && (numStackTop != -1) && (numStack[numStackTop] > num[i])) {
+            numStackTop--;
+            k--;
+        }
+        numStack[++numStackTop] = num[i];
+    }
+
+    while (k > 0) {
+        numStackTop--;
+        k--;
+    }
+
+    pRetVal = (char*)malloc((numStackTop + 4) * sizeof(char));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, ((numStackTop + 4) * sizeof(char)));
+
+    int leadingZeros = 1;
+    int idx = 0;
+    for (i = 0; i <= numStackTop; ++i) {
+        if ((leadingZeros == 1) && (numStack[i] == '0')) {
+            continue;
+        }
+        leadingZeros = 0;
+        pRetVal[idx++] = numStack[i];
+    }
+    if (idx == 0) {
+        pRetVal[0] = '0';
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    string removeKdigits(string num, int k) {
+        string retVal = "";
+
+        vector<char> numStack;
+        for (auto c : num) {
+            while ((k > 0) && (numStack.empty() == false) && (numStack.back() > c)) {
+                numStack.pop_back();
+                k--;
+            }
+            numStack.emplace_back(c);
+        }
+
+        while (k > 0) {
+            numStack.pop_back();
+            k--;
+        }
+
+        bool leadingZeros = true;
+        for (auto c : numStack) {
+            if ((leadingZeros == true) && (c == '0')) {
+                continue;
+            }
+            leadingZeros = false;
+            retVal += c;
+        }
+        if (retVal == "") {
+            retVal = "0";
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def removeKdigits(self, num: str, k: int) -> str:
+        retVal = ""
+
+        numStack = []
+        for digit in num:
+            while k and numStack and numStack[-1] > digit:
+                numStack.pop()
+                k -= 1
+            numStack.append(digit)
+
+        if k > 0:
+            numStack = numStack[:-k]
+
+        retVal = "".join(numStack).lstrip('0') or "0"
+
+        return retVal
+```
+
+</details>
+
 ## [435. Non-overlapping Intervals](https://leetcode.com/problems/non-overlapping-intervals/)
 
 - [Official](https://leetcode.com/problems/non-overlapping-intervals/editorial/)
