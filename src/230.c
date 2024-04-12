@@ -1,10 +1,22 @@
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "tree.h"
 
+void inorder(struct TreeNode* root, int* k, int* retVal) {
+    if (root == NULL) {
+        return;
+    }
+
+    inorder(root->left, k, retVal);
+    (*k)--;
+    if ((*k) == 0) {
+        (*retVal) = root->val;
+        return;
+    }
+    inorder(root->right, k, retVal);
+}
 /**
  * Definition for a binary tree node.
  * struct TreeNode {
@@ -13,36 +25,16 @@
  *     struct TreeNode *right;
  * };
  */
-#define MAX_NODE (10000)
-void inorder(struct TreeNode* root, int* pTreeNodeCount, int* pTreeArray) {
-    if (root == NULL) {
-        return;
-    }
-    inorder(root->left, pTreeNodeCount, pTreeArray);
-    *(pTreeArray + (*pTreeNodeCount)) = root->val;
-    (*pTreeNodeCount) = (*pTreeNodeCount) + 1;
-    inorder(root->right, pTreeNodeCount, pTreeArray);
-}
 int kthSmallest(struct TreeNode* root, int k) {
     int retVal = 0;
 
-    int* pTreeArray = (int*)malloc(MAX_NODE * sizeof(int));
-    if (pTreeArray == NULL) {
-        perror("malloc");
-        return retVal;
-    }
-    int treeNodeCount = 0;
-    inorder(root, &treeNodeCount, pTreeArray);
-    if (k <= treeNodeCount) {
-        retVal = *(pTreeArray + k - 1);
-    }
-    free(pTreeArray);
+    inorder(root, &k, &retVal);
 
     return retVal;
 }
 
 int main(int argc, char** argv) {
-#define MAX_SIZE (10000)
+#define MAX_SIZE (int)(1e4)
     struct testCaseType {
         int nums[MAX_SIZE];
         int numsSize;

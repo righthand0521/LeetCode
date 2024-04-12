@@ -4676,6 +4676,8 @@ class Solution:
 
 ## [230. Kth Smallest Element in a BST](https://leetcode.com/problems/kth-smallest-element-in-a-bst/)
 
+- [Official](https://leetcode.cn/problems/kth-smallest-element-in-a-bst/solutions/1050055/er-cha-sou-suo-shu-zhong-di-kxiao-de-yua-8o07/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -4706,13 +4708,40 @@ Constraints:
 The number of nodes in the tree is n.
 1 <= k <= n <= 10^4
 0 <= Node.val <= 10^4
+
+Follow up: If the BST is modified often (i.e., we can do insert and delete operations)
+and you need to find the kth smallest frequently, how would you optimize?
 ```
+
+<details><summary>Hint</summary>
+
+```text
+1. Try to utilize the property of a BST.
+2. Try in-order traversal. (Credits to @chan13)
+3. What if you could modify the BST node's structure?
+4. The optimal runtime complexity is O(height of BST).
+```
+
+</details>
 
 </details>
 
 <details><summary>C</summary>
 
 ```c
+void inorder(struct TreeNode* root, int* k, int* retVal) {
+    if (root == NULL) {
+        return;
+    }
+
+    inorder(root->left, k, retVal);
+    (*k)--;
+    if ((*k) == 0) {
+        (*retVal) = root->val;
+        return;
+    }
+    inorder(root->right, k, retVal);
+}
 /**
  * Definition for a binary tree node.
  * struct TreeNode {
@@ -4721,38 +4750,93 @@ The number of nodes in the tree is n.
  *     struct TreeNode *right;
  * };
  */
-#define MAX_NODE    (10000)
-void inorder(struct TreeNode* root, int* pTreeNodeCount, int* pTreeArray)
-{
-    if (root == NULL)
-    {
-        return;
-    }
-    inorder(root->left, pTreeNodeCount, pTreeArray);
-    *(pTreeArray + (*pTreeNodeCount)) = root->val;
-    (*pTreeNodeCount) = (*pTreeNodeCount) + 1;
-    inorder(root->right, pTreeNodeCount, pTreeArray);
-}
-
-int kthSmallest(struct TreeNode* root, int k){
+int kthSmallest(struct TreeNode* root, int k) {
     int retVal = 0;
 
-    int *pTreeArray = (int *)malloc(MAX_NODE * sizeof(int));
-    if (pTreeArray == NULL)
-    {
-        perror("malloc");
-        return retVal;
-    }
-    int treeNodeCount = 0;
-    inorder(root, &treeNodeCount, pTreeArray);
-    if (k <= treeNodeCount)
-    {
-        retVal = *(pTreeArray + k - 1);
-    }
-    free(pTreeArray);
+    inorder(root, &k, &retVal);
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   private:
+    int retVal = 0;
+
+   public:
+    void inorder(TreeNode* root, int* k) {
+        if (root == nullptr) {
+            return;
+        }
+
+        inorder(root->left, k);
+        (*k)--;
+        if ((*k) == 0) {
+            retVal = root->val;
+        }
+        inorder(root->right, k);
+    }
+    int kthSmallest(TreeNode* root, int k) {
+        retVal = 0;
+
+        inorder(root, &k);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def __init__(self) -> None:
+        self.retVal = 0
+        self.k = 0
+
+    def inorder(self, root: Optional[TreeNode]) -> None:
+        if root is None:
+            return
+
+        self.inorder(root.left)
+        self.k -= 1
+        if self.k == 0:
+            self.retVal = root.val
+        self.inorder(root.right)
+
+    def kthSmallest(self, root: Optional[TreeNode], k: int) -> int:
+        retVal = 0
+
+        self.retVal = 0
+        self.k = k
+        self.inorder(root)
+        retVal = self.retVal
+
+        return retVal
 ```
 
 </details>
