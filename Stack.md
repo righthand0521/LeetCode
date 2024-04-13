@@ -333,6 +333,195 @@ class Solution:
 
 </details>
 
+## [85. Maximal Rectangle](https://leetcode.com/problems/maximal-rectangle/)
+
+- [Official](https://leetcode.cn/problems/maximal-rectangle/solutions/535672/zui-da-ju-xing-by-leetcode-solution-bjlu/)
+
+<details><summary>Description</summary>
+
+```text
+Given a rows x cols binary matrix filled with 0's and 1's,
+find the largest rectangle containing only 1's and return its area.
+
+Example 1:
+Input: matrix = [["1","0","1","0","0"],["1","0","1","1","1"],["1","1","1","1","1"],["1","0","0","1","0"]]
+Output: 6
+Explanation: The maximal rectangle is shown in the above picture.
+
+Example 2:
+Input: matrix = [["0"]]
+Output: 0
+
+Example 3:
+Input: matrix = [["1"]]
+Output: 1
+
+Constraints:
+rows == matrix.length
+cols == matrix[i].length
+1 <= row, cols <= 200
+matrix[i][j] is '0' or '1'.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int maximalRectangle(char** matrix, int matrixSize, int* matrixColSize) {
+    int retVal = 0;
+
+    int rowSize = matrixSize;
+    if (rowSize == 0) {
+        return 0;
+    }
+    int colSize = matrixColSize[0];
+
+    int i, j;
+
+    int left[rowSize][colSize];
+    memset(left, 0, sizeof(left));
+    for (i = 0; i < rowSize; i++) {
+        for (j = 0; j < colSize; j++) {
+            if (matrix[i][j] == '1') {
+                left[i][j] = (j == 0 ? 0 : left[i][j - 1]) + 1;
+            }
+        }
+    }
+
+    int up[rowSize], down[rowSize];
+    int monotonicStack[rowSize];
+    int monotonicStackTop = 0;
+    int height, area;
+    for (j = 0; j < colSize; j++) {
+        memset(up, 0, sizeof(up));
+        monotonicStackTop = 0;
+        for (i = 0; i < rowSize; i++) {
+            while ((monotonicStackTop > 0) && (left[monotonicStack[monotonicStackTop - 1]][j] >= left[i][j])) {
+                monotonicStackTop--;
+            }
+            up[i] = monotonicStackTop == 0 ? -1 : monotonicStack[monotonicStackTop - 1];
+            monotonicStack[monotonicStackTop++] = i;
+        }
+
+        memset(down, 0, sizeof(down));
+        monotonicStackTop = 0;
+        for (i = rowSize - 1; i >= 0; i--) {
+            while ((monotonicStackTop > 0) && (left[monotonicStack[monotonicStackTop - 1]][j] >= left[i][j])) {
+                monotonicStackTop--;
+            }
+            down[i] = monotonicStackTop == 0 ? rowSize : monotonicStack[monotonicStackTop - 1];
+            monotonicStack[monotonicStackTop++] = i;
+        }
+
+        for (i = 0; i < rowSize; i++) {
+            height = down[i] - up[i] - 1;
+            area = height * left[i][j];
+            retVal = fmax(retVal, area);
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maximalRectangle(vector<vector<char>>& matrix) {
+        int retVal = 0;
+
+        int rowSize = matrix.size();
+        if (rowSize == 0) {
+            return retVal;
+        }
+        int colSize = matrix[0].size();
+
+        vector<vector<int>> left(rowSize, vector<int>(colSize, 0));
+        for (int i = 0; i < rowSize; i++) {
+            for (int j = 0; j < colSize; j++) {
+                if (matrix[i][j] == '1') {
+                    left[i][j] = (j == 0 ? 0 : left[i][j - 1]) + 1;
+                }
+            }
+        }
+
+        for (int j = 0; j < colSize; j++) {
+            vector<int> up(rowSize, 0);
+            stack<int> upMmonotonicStack;
+            for (int i = 0; i < rowSize; i++) {
+                while ((upMmonotonicStack.empty() == false) && (left[upMmonotonicStack.top()][j] >= left[i][j])) {
+                    upMmonotonicStack.pop();
+                }
+                up[i] = upMmonotonicStack.empty() ? -1 : upMmonotonicStack.top();
+                upMmonotonicStack.push(i);
+            }
+
+            vector<int> down(rowSize, 0);
+            stack<int> downMmonotonicStack;
+            for (int i = rowSize - 1; i >= 0; i--) {
+                while ((downMmonotonicStack.empty() == false) && (left[downMmonotonicStack.top()][j] >= left[i][j])) {
+                    downMmonotonicStack.pop();
+                }
+                down[i] = downMmonotonicStack.empty() ? rowSize : downMmonotonicStack.top();
+                downMmonotonicStack.push(i);
+            }
+
+            for (int i = 0; i < rowSize; i++) {
+                int height = down[i] - up[i] - 1;
+                int area = height * left[i][j];
+                retVal = max(retVal, area);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maximalRectangle(self, matrix: List[List[str]]) -> int:
+        retVal = 0
+
+        rowSize = len(matrix)
+        if rowSize == 0:
+            return retVal
+        colSize = len(matrix[0])
+
+        for i in range(rowSize):
+            for j in range(colSize):
+                if j==0:
+                    matrix[i][j] = int(matrix[i][j])
+                else:
+                    matrix[i][j] = matrix[i][j-1]+1 if matrix[i][j]=='1' else 0
+
+        for j in range(colSize):
+            monostack = list()
+            left = [-1]*rowSize
+            right = [rowSize]*rowSize
+            for i in range(rowSize):
+                while monostack and matrix[monostack[-1]][j]>matrix[i][j]:
+                    right[monostack[-1]] = i
+                    monostack.pop()
+                left[i] = monostack[-1] if monostack else -1
+                monostack.append(i)
+            tmp = max((right[i]-left[i]-1)*matrix[i][j] for i in range(rowSize))
+            retVal = max(retVal,tmp)
+
+        return retVal
+```
+
+</details>
+
 ## [150. Evaluate Reverse Polish Notation](https://leetcode.com/problems/evaluate-reverse-polish-notation/)
 
 - [Official](https://leetcode.cn/problems/evaluate-reverse-polish-notation/solutions/667892/ni-bo-lan-biao-da-shi-qiu-zhi-by-leetcod-wue9/)
