@@ -1,9 +1,25 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "tree.h"
 
+int preorder(struct TreeNode* root, bool isLeft) {
+    int retVal = 0;
+
+    if (root == NULL) {
+        return retVal;
+    }
+
+    if ((root->left == NULL) && (root->right == NULL) & (isLeft == true)) {
+        retVal += root->val;
+    }
+    retVal += preorder(root->left, true);
+    retVal += preorder(root->right, false);
+
+    return retVal;
+}
 /**
  * Definition for a binary tree node.
  * struct TreeNode {
@@ -13,17 +29,14 @@
  * };
  */
 int sumOfLeftLeaves(struct TreeNode* root) {
+    int retVal = 0;
+
     if (root == NULL) {
-        return 0;
+        return retVal;
     }
+    retVal = preorder(root, false);
 
-    if (root->left != NULL) {
-        if ((root->left->left == NULL) && (root->left->right == NULL)) {
-            return root->left->val + sumOfLeftLeaves(root->right);
-        }
-    }
-
-    return sumOfLeftLeaves(root->left) + sumOfLeftLeaves(root->right);
+    return retVal;
 }
 
 int main(int argc, char** argv) {

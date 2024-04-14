@@ -5362,6 +5362,8 @@ class Codec {
 
 <details><summary>Description</summary>
 
+- [Official](https://leetcode.cn/problems/sum-of-left-leaves/solutions/419103/zuo-xie-zi-zhi-he-by-leetcode-solution/)
+
 ```text
 Given the root of a binary tree, return the sum of all left leaves.
 
@@ -5391,6 +5393,21 @@ The number of nodes in the tree is in the range [1, 1000].
 <details><summary>C</summary>
 
 ```c
+int preorder(struct TreeNode* root, bool isLeft) {
+    int retVal = 0;
+
+    if (root == NULL) {
+        return retVal;
+    }
+
+    if ((root->left == NULL) && (root->right == NULL) & (isLeft == true)) {
+        retVal += root->val;
+    }
+    retVal += preorder(root->left, true);
+    retVal += preorder(root->right, false);
+
+    return retVal;
+}
 /**
  * Definition for a binary tree node.
  * struct TreeNode {
@@ -5400,18 +5417,96 @@ The number of nodes in the tree is in the range [1, 1000].
  * };
  */
 int sumOfLeftLeaves(struct TreeNode* root) {
+    int retVal = 0;
+
     if (root == NULL) {
-        return 0;
+        return retVal;
     }
+    retVal = preorder(root, false);
 
-    if (root->left != NULL) {
-        if ((root->left->left == NULL) && (root->left->right == NULL)) {
-            return root->left->val + sumOfLeftLeaves(root->right);
-        }
-    }
-
-    return sumOfLeftLeaves(root->left) + sumOfLeftLeaves(root->right);
+    return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   public:
+    int preorder(TreeNode* root, bool isLeft) {
+        int retVal = 0;
+
+        if (root == nullptr) {
+            return retVal;
+        }
+
+        if ((root->left == nullptr) && (root->right == nullptr) & (isLeft == true)) {
+            retVal += root->val;
+        }
+        retVal += preorder(root->left, true);
+        retVal += preorder(root->right, false);
+
+        return retVal;
+    }
+    int sumOfLeftLeaves(TreeNode* root) {
+        int retVal = 0;
+
+        if (root == nullptr) {
+            return retVal;
+        }
+        retVal = preorder(root, false);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def preorder(self, root: Optional[TreeNode], isLeft: bool) -> int:
+        retVal = 0
+
+        if root == None:
+            return retVal
+
+        if (root.left is None) and (root.right is None) and (isLeft is True):
+            retVal += root.val
+        retVal += self.preorder(root.left, True)
+        retVal += self.preorder(root.right, False)
+
+        return retVal
+
+    def sumOfLeftLeaves(self, root: Optional[TreeNode]) -> int:
+        retVal = 0
+
+        if root is None:
+            return retVal
+        retVal = self.preorder(root, False)
+
+        return retVal
 ```
 
 </details>
