@@ -13,23 +13,25 @@
  *     struct TreeNode *right;
  * };
  */
-void inOrder(struct TreeNode* pRoot, long* pMin) {
-    if (pRoot != NULL) {
-        inOrder(pRoot->left, pMin);
-        if ((long)(pRoot->val) > *pMin) {
-            *pMin = pRoot->val;
-        } else {
-            *pMin = LONG_MAX;
-        }
-        inOrder(pRoot->right, pMin);
+void inOrder(struct TreeNode* pRoot, long* pMinVal) {
+    if (pRoot == NULL) {
+        return;
     }
+
+    inOrder(pRoot->left, pMinVal);
+    if ((long)(pRoot->val) <= (*pMinVal)) {
+        (*pMinVal) = LONG_MAX;
+        return;
+    }
+    (*pMinVal) = pRoot->val;
+    inOrder(pRoot->right, pMinVal);
 }
 bool isValidBST(struct TreeNode* root) {
     bool retVal = true;
 
-    long minLeaf = LONG_MIN;
-    inOrder(root, &minLeaf);
-    if (minLeaf == LONG_MAX) {
+    long minVal = LONG_MIN;
+    inOrder(root, &minVal);
+    if (minVal == LONG_MAX) {
         retVal = false;
     }
 
@@ -37,7 +39,7 @@ bool isValidBST(struct TreeNode* root) {
 }
 
 int main(int argc, char** argv) {
-#define MAX_SIZE (10000)
+#define MAX_SIZE (int)(1e4)
     struct testCaseType {
         int nums[MAX_SIZE];
         int numsSize;
@@ -48,6 +50,9 @@ int main(int argc, char** argv) {
      *  Output: true
      *
      *  Input: root = [5,1,4,null,null,3,6]
+     *  Output: false
+     *
+     *  Input: root = [1,1]
      *  Output: false
      */
 

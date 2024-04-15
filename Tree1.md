@@ -456,6 +456,8 @@ int numTrees(int n) {
 
 ## [98. Validate Binary Search Tree](https://leetcode.com/problems/validate-binary-search-tree/)
 
+- [Official](https://leetcode.com/problems/validate-binary-search-tree/description/?envType=study-plan-v2&envId=top-interview-150)
+
 <details><summary>Description</summary>
 
 ```text
@@ -501,30 +503,122 @@ The number of nodes in the tree is in the range [1, 10^4].
  *     struct TreeNode *right;
  * };
  */
-void inOrder(struct TreeNode* pRoot, long* pMin) {
-    if (pRoot != NULL) {
-        inOrder(pRoot->left, pMin);
-        if ((long)(pRoot->val) > *pMin) {
-            *pMin = pRoot->val;
-        }
-        else {
-            *pMin = LONG_MAX;
-        }
-        inOrder(pRoot->right, pMin);
+void inOrder(struct TreeNode* pRoot, long* pMinVal) {
+    if (pRoot == NULL) {
+        return;
     }
-}
 
+    inOrder(pRoot->left, pMinVal);
+    if ((long)(pRoot->val) <= (*pMinVal)) {
+        (*pMinVal) = LONG_MAX;
+        return;
+    }
+    (*pMinVal) = pRoot->val;
+    inOrder(pRoot->right, pMinVal);
+}
 bool isValidBST(struct TreeNode* root) {
     bool retVal = true;
 
-    long minLeaf = LONG_MIN;
-    inOrder(root, &minLeaf);
-    if (minLeaf == LONG_MAX) {
+    long minVal = LONG_MIN;
+    inOrder(root, &minVal);
+    if (minVal == LONG_MAX) {
         retVal = false;
     }
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   private:
+    long minVal = 0;
+
+   public:
+    bool inOrder(TreeNode* root) {
+        bool retVal = true;
+
+        if (root == nullptr) {
+            return retVal;
+        }
+
+        bool left = inOrder(root->left);
+        if (root->val <= minVal) {
+            retVal = false;
+            return retVal;
+        }
+        minVal = root->val;
+        bool right = inOrder(root->right);
+
+        retVal = (left && right);
+
+        return retVal;
+    }
+    bool isValidBST(TreeNode* root) {
+        bool retVal = true;
+
+        minVal = numeric_limits<long>::min();
+        retVal = inOrder(root);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def __init__(self) -> None:
+        self.minVal = 0
+
+    def inOrder(self, root: Optional[TreeNode]) -> bool:
+        retVal = True
+
+        if root is None:
+            return retVal
+
+        left = self.inOrder(root.left)
+        if root.val <= self.minVal:
+            retVal = False
+            return retVal
+        self.minVal = root.val
+        right = self.inOrder(root.right)
+
+        retVal = left and right
+
+        return retVal
+
+    def isValidBST(self, root: Optional[TreeNode]) -> bool:
+        retVal = False
+
+        self.minVal = float('-inf')
+        retVal = self.inOrder(root)
+
+        return retVal
 ```
 
 </details>
