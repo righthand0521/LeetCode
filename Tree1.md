@@ -8211,6 +8211,228 @@ struct TreeNode* mergeTrees(struct TreeNode* root1, struct TreeNode* root2) {
 
 </details>
 
+## [623. Add One Row to Tree](https://leetcode.com/problems/add-one-row-to-tree/)
+
+- [Official](https://leetcode.cn/problems/add-one-row-to-tree/solutions/1720824/zai-er-cha-shu-zhong-zeng-jia-yi-xing-by-xcaf/)
+
+<details><summary>Description</summary>
+
+```text
+Given the root of a binary tree and two integers val and depth,
+add a row of nodes with value val at the given depth depth.
+
+Note that the root node is at depth 1.
+
+The adding rule is:
+- Given the integer depth, for each not null tree node cur at the depth depth - 1,
+  create two tree nodes with value val as cur's left subtree root and right subtree root.
+- cur's original left subtree should be the left subtree of the new left subtree root.
+- cur's original right subtree should be the right subtree of the new right subtree root.
+- If depth == 1 that means there is no depth depth - 1 at all,
+  then create a tree node with value val as the new root of the whole original tree,
+  and the original tree is the new root's left subtree.
+
+Example 1:
+     4           4
+   /   \        / \
+  2     6  =>  1   1
+ / \   /      /     \
+3   1 5      2       6
+            / \     /
+           3   1   5
+Input: root = [4,2,6,3,1,5], val = 1, depth = 2
+Output: [4,1,1,2,null,null,6,3,1,5]
+
+Example 2:
+    4        4
+   /        /
+  2   =>   2
+ / \      / \
+3   1    1   1
+        /     \
+       3       1
+Input: root = [4,2,null,3,1], val = 1, depth = 3
+Output: [4,2,null,1,1,3,null,null,1]
+
+Constraints:
+The number of nodes in the tree is in the range [1, 10^4].
+The depth of the tree is in the range [1, 10^4].
+-100 <= Node.val <= 100
+-10^5 <= val <= 10^5
+1 <= depth <= the depth of tree + 1
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+struct TreeNode* addOneRow(struct TreeNode* root, int val, int depth) {
+    struct TreeNode* pRetVal = root;
+
+    if (depth == 1) {
+        pRetVal = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+        if (pRetVal == NULL) {
+            perror("malloc");
+            return pRetVal;
+        }
+        pRetVal->val = val;
+        pRetVal->left = root;
+        pRetVal->right = NULL;
+        return pRetVal;
+    }
+
+#define MAX_NODE_SIZE (int)(1e4)  // The number of nodes in the tree is in the range [1, 10^4].
+    struct TreeNode** currentLevel = (struct TreeNode**)malloc(sizeof(struct TreeNode*) * MAX_NODE_SIZE);
+    if (currentLevel == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    int currentLevelHead = 0;
+    int currentLevelTail = 0;
+    currentLevel[currentLevelTail++] = root;
+
+    int nodeCount = 0;
+    int i, j;
+    for (i = 1; i < (depth - 1); ++i) {
+        nodeCount = currentLevelTail - currentLevelHead;
+        for (j = 0; j < nodeCount; ++j) {
+            if (currentLevel[currentLevelHead]->left != NULL) {
+                currentLevel[currentLevelTail++] = currentLevel[currentLevelHead]->left;
+            }
+            if (currentLevel[currentLevelHead]->right != NULL) {
+                currentLevel[currentLevelTail++] = currentLevel[currentLevelHead]->right;
+            }
+            currentLevelHead++;
+        }
+    }
+
+    struct TreeNode* pNew = NULL;
+    for (; currentLevelHead != currentLevelTail; currentLevelHead++) {
+        pNew = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+        if (pRetVal == NULL) {
+            perror("malloc");
+            break;
+        }
+        pNew->val = val;
+        pNew->left = currentLevel[currentLevelHead]->left;
+        pNew->right = NULL;
+        currentLevel[currentLevelHead]->left = pNew;
+
+        pNew = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+        if (pRetVal == NULL) {
+            perror("malloc");
+            break;
+        }
+        pNew->val = val;
+        pNew->left = NULL;
+        pNew->right = currentLevel[currentLevelHead]->right;
+        currentLevel[currentLevelHead]->right = pNew;
+    }
+
+    free(currentLevel);
+    currentLevel = NULL;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   public:
+    TreeNode *addOneRow(TreeNode *root, int val, int depth) {
+        TreeNode *pRetVal = root;
+
+        if (depth == 1) {
+            pRetVal = new TreeNode(val, root, nullptr);
+            return pRetVal;
+        }
+
+        vector<TreeNode *> currentLevel(1, root);
+        for (int i = 1; i < (depth - 1); ++i) {
+            vector<TreeNode *> tmp;
+            for (auto &node : currentLevel) {
+                if (node->left != nullptr) {
+                    tmp.emplace_back(node->left);
+                }
+                if (node->right != nullptr) {
+                    tmp.emplace_back(node->right);
+                }
+            }
+            currentLevel = move(tmp);
+        }
+
+        for (auto &node : currentLevel) {
+            node->left = new TreeNode(val, node->left, nullptr);
+            node->right = new TreeNode(val, nullptr, node->right);
+        }
+
+        return pRetVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def addOneRow(self, root: Optional[TreeNode], val: int, depth: int) -> Optional[TreeNode]:
+        retVal = root
+
+        if depth == 1:
+            retVal = TreeNode(val, root, None)
+            return retVal
+
+        currentLevel = [root]
+        for _ in range(1, depth-1):
+            tmp = []
+            for node in currentLevel:
+                if node.left != None:
+                    tmp.append(node.left)
+                if node.right != None:
+                    tmp.append(node.right)
+            currentLevel = tmp
+
+        for node in currentLevel:
+            node.left = TreeNode(val, node.left, None)
+            node.right = TreeNode(val, None, node.right)
+
+        return retVal
+```
+
+</details>
+
 ## [652. Find Duplicate Subtrees](https://leetcode.com/problems/find-duplicate-subtrees/)
 
 - [Official](https://leetcode.cn/problems/find-duplicate-subtrees/solutions/1798953/xun-zhao-zhong-fu-de-zi-shu-by-leetcode-zoncw/)
