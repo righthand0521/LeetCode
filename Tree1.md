@@ -10794,3 +10794,224 @@ class Solution {
 ```
 
 </details>
+
+## [988. Smallest String Starting From Leaf](https://leetcode.com/problems/smallest-string-starting-from-leaf/)  1429
+
+- [Official](https://leetcode.com/problems/smallest-string-starting-from-leaf/)
+- [Official](https://leetcode.cn/problems/smallest-string-starting-from-leaf/solutions/3603/cong-xie-jie-dian-kai-shi-de-zui-xiao-zi-fu-chuan-/)
+
+<details><summary>Description</summary>
+
+```text
+You are given the root of a binary tree
+where each node has a value in the range [0, 25] representing the letters 'a' to 'z'.
+
+Return the lexicographically smallest string that starts at a leaf of this tree and ends at the root.
+
+As a reminder, any shorter prefix of a string is lexicographically smaller.
+- For example, "ab" is lexicographically smaller than "aba".
+
+A leaf of a node is a node that has no children.
+
+Example 1:
+        [a]
+      /     \
+   [b]       (c)
+   / \       / \
+[d]   (e) (d)   (e)
+Input: root = [0,1,2,3,4,3,4]
+Output: "dba"
+
+Example 2:
+        [z]
+      /     \
+   (b)       [d]
+   / \       / \
+(b)   (d) [a]   (c)
+Input: root = [25,1,3,1,3,0,2]
+Output: "adz"
+
+Example 3:
+        [c]
+      /     \
+   (c)       [b]
+     \       /
+      (b) [a]
+     /
+   (a)
+Input: root = [2,2,1,null,1,0,null,0]
+Output: "abc"
+
+Constraints:
+The number of nodes in the tree is in the range [1, 8500].
+0 <= Node.val <= 25
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MAX_RETURN_SIZE (8500 + 4)  // The number of nodes in the tree is in the range [1, 8500].
+void dfs(struct TreeNode* root, char* currentStr, int currentStrIdx, char* answer, int* answerIdx) {
+    if (root == NULL) {
+        return;
+    }
+
+    currentStr[currentStrIdx] = root->val + 'a';
+    if ((root->left == NULL) && (root->right == NULL)) {
+        if (((*answerIdx) == 0) || (strcmp(&currentStr[currentStrIdx], &answer[(*answerIdx)]) < 0)) {
+            (*answerIdx) = currentStrIdx;
+            strcpy(&answer[(*answerIdx)], &currentStr[currentStrIdx]);
+        }
+        return;
+    }
+
+    if (root->left) {
+        dfs(root->left, currentStr, currentStrIdx - 1, answer, answerIdx);
+    }
+
+    if (root->right) {
+        dfs(root->right, currentStr, currentStrIdx - 1, answer, answerIdx);
+    }
+}
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+char* smallestFromLeaf(struct TreeNode* root) {
+    char* pRetVal = NULL;
+
+    int pRetValIdx = 0;
+    pRetVal = (char*)malloc(MAX_RETURN_SIZE * sizeof(char));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (MAX_RETURN_SIZE * sizeof(char)));
+
+    int pCurrentIdx = MAX_RETURN_SIZE - 2;
+    char* pCurrent = (char*)malloc(MAX_RETURN_SIZE * sizeof(char));
+    if (pCurrent == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pCurrent, 0, (MAX_RETURN_SIZE * sizeof(char)));
+
+    dfs(root, pCurrent, pCurrentIdx, pRetVal, &pRetValIdx);
+    if (pRetValIdx == 0) {
+        memset(pRetVal, 0, (MAX_RETURN_SIZE * sizeof(char)));
+    } else {
+        memset(pCurrent, 0, (MAX_RETURN_SIZE * sizeof(char)));
+        snprintf(pCurrent, MAX_RETURN_SIZE, "%s", pRetVal + pRetValIdx);
+        memset(pRetVal, 0, (MAX_RETURN_SIZE * sizeof(char)));
+        memcpy(pRetVal, pCurrent, (MAX_RETURN_SIZE * sizeof(char)));
+    }
+
+    free(pCurrent);
+    pCurrent = NULL;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   private:
+    string answer;
+
+   public:
+    void dfs(TreeNode* root, string currentStr) {
+        if (root == nullptr) {
+            return;
+        }
+
+        currentStr = char(root->val + 'a') + currentStr;
+
+        if ((root->left == nullptr) && (root->right == nullptr)) {
+            if ((answer == "") || (answer > currentStr)) {
+                answer = currentStr;
+            }
+        }
+
+        if (root->left) {
+            dfs(root->left, currentStr);
+        }
+
+        if (root->right) {
+            dfs(root->right, currentStr);
+        }
+    }
+    string smallestFromLeaf(TreeNode* root) {
+        string retVal;
+
+        answer = "";
+        dfs(root, "");
+        retVal = answer;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def __init__(self) -> None:
+        self.answer = ""
+
+    def dfs(self, root: Optional[TreeNode], currentStr: str) -> None:
+        if root is None:
+            return
+
+        currentStr = chr(root.val + ord('a')) + currentStr
+
+        if (root.left is None) and (root.right is None):
+            if (not self.answer) or (self.answer > currentStr):
+                self.answer = currentStr
+
+        if root.left:
+            self.dfs(root.left, currentStr)
+
+        if root.right:
+            self.dfs(root.right, currentStr)
+
+    def smallestFromLeaf(self, root: Optional[TreeNode]) -> str:
+        retVal = ""
+
+        self.answer = ""
+        self.dfs(root, "")
+        retVal = self.answer
+
+        return retVal
+```
+
+</details>
