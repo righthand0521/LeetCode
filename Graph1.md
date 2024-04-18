@@ -1687,6 +1687,152 @@ class Solution:
 
 </details>
 
+## [463. Island Perimeter](https://leetcode.com/problems/island-perimeter/)
+
+- [Official](https://leetcode.cn/problems/island-perimeter/solutions/466248/dao-yu-de-zhou-chang-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+You are given row x col grid representing a map where grid[i][j] = 1 represents land and grid[i][j] = 0 represents water.
+
+Grid cells are connected horizontally/vertically (not diagonally).
+The grid is completely surrounded by water, and there is exactly one island (i.e., one or more connected land cells).
+
+The island doesn't have "lakes", meaning the water inside isn't connected to the water around the island.
+One cell is a square with side length 1. The grid is rectangular, width and height don't exceed 100.
+Determine the perimeter of the island.
+
+Example 1:
+Input: grid = [[0,1,0,0],[1,1,1,0],[0,1,0,0],[1,1,0,0]]
+Output: 16
+Explanation: The perimeter is the 16 yellow stripes in the image above.
+
+Example 2:
+Input: grid = [[1]]
+Output: 4
+
+Example 3:
+Input: grid = [[1,0]]
+Output: 4
+
+Constraints:
+row == grid.length
+col == grid[i].length
+1 <= row, col <= 100
+grid[i][j] is 0 or 1.
+There is exactly one island in grid.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int islandPerimeter(int** grid, int gridSize, int* gridColSize) {
+    int retVal = 0;
+
+    int rowDirection[4] = {1, -1, 0, 0};
+    int colDirection[4] = {0, 0, 1, -1};
+
+    int rowSize = gridSize;
+    int colColSize = gridColSize[0];
+    int x, y, i, row, col, count;
+    for (x = 0; x < rowSize; ++x) {
+        for (y = 0; y < colColSize; ++y) {
+            if (grid[x][y] == 0) {
+                continue;
+            }
+
+            count = 0;
+            for (i = 0; i < 4; ++i) {
+                row = x + rowDirection[i];
+                col = y + colDirection[i];
+                if ((row < 0) || (row >= rowSize) || (col < 0) || (col >= colColSize)) {
+                    count++;
+                } else if (grid[row][col] == 0) {
+                    count++;
+                }
+            }
+            retVal += count;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int rowDirection[4] = {1, -1, 0, 0};
+    int colDirection[4] = {0, 0, 1, -1};
+
+   public:
+    int islandPerimeter(vector<vector<int>>& grid) {
+        int retVal = 0;
+
+        int gridSize = grid.size();
+        int gridColSize = grid[0].size();
+
+        for (int x = 0; x < gridSize; ++x) {
+            for (int y = 0; y < gridColSize; ++y) {
+                if (grid[x][y] == 0) {
+                    continue;
+                }
+
+                int count = 0;
+                for (int i = 0; i < 4; ++i) {
+                    int row = x + rowDirection[i];
+                    int col = y + colDirection[i];
+                    if ((row < 0) || (row >= gridSize) || (col < 0) || (col >= gridColSize)) {
+                        count++;
+                    } else if (grid[row][col] == 0) {
+                        count++;
+                    }
+                }
+                retVal += count;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def islandPerimeter(self, grid: List[List[int]]) -> int:
+        retVal = 0
+
+        gridSize = len(grid)
+        gridColSize = len(grid[0])
+        for x in range(gridSize):
+            for y in range(gridColSize):
+                if grid[x][y] == 0:
+                    continue
+
+                count = 0
+                for i, j in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
+                    if (x+i < 0) or (x+i >= gridSize) or (y+j < 0) or (y+j >= gridColSize):
+                        count += 1
+                    elif grid[x+i][y+j] == 0:
+                        count += 1
+                retVal += count
+
+        return retVal
+```
+
+</details>
+
 ## [547. Number of Provinces](https://leetcode.com/problems/number-of-provinces/)
 
 - [Official](https://leetcode.com/problems/number-of-provinces/editorial/)
