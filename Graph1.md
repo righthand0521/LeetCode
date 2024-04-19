@@ -380,51 +380,118 @@ grid[i][j] is '0' or '1'.
 <details><summary>C</summary>
 
 ```c
-#define DEPTH_FIRST_SEARCH (1)
-#define BREADTH_FIRST_SEARCH (0)
-#if (DEPTH_FIRST_SEARCH)
-void dfs(char** grid, int i, int j, int gridSize, int* gridColSize) {
-    grid[i][j] = '0';
+void dfs(char** grid, int rowSize, int colSize, int x, int y) {
+    grid[x][y] = '0';
 
-    if ((i != 0) && (grid[i - 1][j] == '1')) {
-        dfs(grid, i - 1, j, gridSize, gridColSize);
+    if ((x - 1 >= 0) && (grid[x - 1][y] == '1')) {
+        dfs(grid, rowSize, colSize, x - 1, y);
     }
-
-    if (((i + 1) != gridSize) && (grid[i + 1][j] == '1')) {
-        dfs(grid, i + 1, j, gridSize, gridColSize);
+    if ((x + 1 < rowSize) && (grid[x + 1][y] == '1')) {
+        dfs(grid, rowSize, colSize, x + 1, y);
     }
-
-    if ((j != 0) && (grid[i][j - 1] == '1')) {
-        dfs(grid, i, j - 1, gridSize, gridColSize);
+    if ((y - 1 >= 0) && (grid[x][y - 1] == '1')) {
+        dfs(grid, rowSize, colSize, x, y - 1);
     }
-
-    if (((j + 1) != gridColSize[i]) && (grid[i][j + 1] == '1')) {
-        dfs(grid, i, j + 1, gridSize, gridColSize);
+    if ((y + 1 < colSize) && (grid[x][y + 1] == '1')) {
+        dfs(grid, rowSize, colSize, x, y + 1);
     }
 }
-#elif (BREADTH_FIRST_SEARCH)
-#endif
 int numIslands(char** grid, int gridSize, int* gridColSize) {
     int retVal = 0;
 
-#if (DEPTH_FIRST_SEARCH)
-    printf("DEPTH_FIRST_SEARCH\n");
-
-    int i, j;
-    for (i = 0; i < gridSize; i++) {
-        for (j = 0; j < gridColSize[i]; j++) {
-            if (grid[i][j] == '1') {
-                retVal++;
-                dfs(grid, i, j, gridSize, gridColSize);
+    int x, y;
+    for (x = 0; x < gridSize; x++) {
+        for (y = 0; y < gridColSize[x]; y++) {
+            if (grid[x][y] == '0') {
+                continue;
             }
+            retVal++;
+            dfs(grid, gridSize, gridColSize[x], x, y);
         }
     }
-#elif (BREADTH_FIRST_SEARCH)
-    printf("BREADTH_FIRST_SEARCH\n");
-#endif
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    void dfs(vector<vector<char>>& grid, int x, int y) {
+        grid[x][y] = '0';
+
+        int gridSize = grid.size();
+        int gridColSize = grid[0].size();
+        if ((x - 1 >= 0) && (grid[x - 1][y] == '1')) {
+            dfs(grid, x - 1, y);
+        }
+        if ((x + 1 < gridSize) && (grid[x + 1][y] == '1')) {
+            dfs(grid, x + 1, y);
+        }
+        if ((y - 1 >= 0) && (grid[x][y - 1] == '1')) {
+            dfs(grid, x, y - 1);
+        }
+        if ((y + 1 < gridColSize) && (grid[x][y + 1] == '1')) {
+            dfs(grid, x, y + 1);
+        }
+    }
+    int numIslands(vector<vector<char>>& grid) {
+        int retVal = 0;
+
+        int gridSize = grid.size();
+        int gridColSize = grid[0].size();
+        for (int x = 0; x < gridSize; ++x) {
+            for (int y = 0; y < gridColSize; ++y) {
+                if (grid[x][y] == '0') {
+                    continue;
+                }
+                retVal++;
+                dfs(grid, x, y);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def dfs(self, grid: List[List[str]], x: int, y: int) -> None:
+        grid[x][y] = "0"
+
+        gridSize = len(grid)
+        gridColSize = len(grid[0])
+        if (x-1 >= 0) and (grid[x-1][y] == "1"):
+            self.dfs(grid, x-1, y)
+        if (x+1 < gridSize) and (grid[x+1][y] == "1"):
+            self.dfs(grid, x+1, y)
+        if (y-1 >= 0) and (grid[x][y-1] == "1"):
+            self.dfs(grid, x, y-1)
+        if (y+1 < gridColSize) and (grid[x][y+1] == "1"):
+            self.dfs(grid, x, y+1)
+
+    def numIslands(self, grid: List[List[str]]) -> int:
+        retVal = 0
+
+        gridSize = len(grid)
+        gridColSize = len(grid[0])
+        for x in range(gridSize):
+            for y in range(gridColSize):
+                if grid[x][y] == "0":
+                    continue
+                retVal += 1
+                self.dfs(grid, x, y)
+
+        return retVal
 ```
 
 </details>
