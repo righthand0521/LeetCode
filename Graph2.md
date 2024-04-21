@@ -5849,6 +5849,247 @@ class Solution:
 
 </details>
 
+## [1971. Find if Path Exists in Graph](https://leetcode.com/problems/find-if-path-exists-in-graph/)
+
+- [Official](https://leetcode.cn/problems/find-if-path-exists-in-graph/solutions/2024085/xun-zhao-tu-zhong-shi-fou-cun-zai-lu-jin-d0q0/)
+
+<details><summary>Description</summary>
+
+```text
+There is a bi-directional graph with n vertices, where each vertex is labeled from 0 to n - 1 (inclusive).
+The edges in the graph are represented as a 2D integer array edges,
+where each edges[i] = [ui, vi] denotes a bi-directional edge between vertex ui and vertex vi.
+Every vertex pair is connected by at most one edge, and no vertex has an edge to itself.
+
+You want to determine if there is a valid path that exists from vertex source to vertex destination.
+
+Given edges and the integers n, source, and destination,
+return true if there is a valid path from source to destination, or false otherwise.
+
+Example 1:
+(0)---(1)
+  \   /
+   (2)
+Input: n = 3, edges = [[0,1],[1,2],[2,0]], source = 0, destination = 2
+Output: true
+Explanation: There are two paths from vertex 0 to vertex 2:
+- 0 → 1 → 2
+- 0 → 2
+
+Example 2:
+  (1)   (3)
+  /      | \
+(0)      | (5)
+  \      | /
+  (2)   (4)
+Input: n = 6, edges = [[0,1],[0,2],[3,5],[5,4],[4,3]], source = 0, destination = 5
+Output: false
+Explanation: There is no path from vertex 0 to vertex 5.
+
+Constraints:
+1 <= n <= 2 * 10^5
+0 <= edges.length <= 2 * 10^5
+edges[i].length == 2
+0 <= ui, vi <= n - 1
+ui != vi
+0 <= source, destination <= n - 1
+There are no duplicate edges.
+There are no self edges.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+##ifndef UNION_FIND
+#define UNION_FIND (1)
+
+typedef struct {
+    int *parent;
+    int *rank;
+} UnionFind;
+UnionFind *creatUnionFind(int n) {
+    UnionFind *obj = NULL;
+
+    obj = (UnionFind *)malloc(sizeof(UnionFind));
+    if (obj == NULL) {
+        perror("malloc");
+        return obj;
+    }
+
+    obj->parent = (int *)malloc(n * sizeof(int));
+    if (obj->parent == NULL) {
+        perror("malloc");
+        free(obj);
+        obj = NULL;
+        return obj;
+    }
+    memset(obj->parent, 0, (n * sizeof(int)));
+
+    obj->rank = (int *)malloc(sizeof(int) * n);
+    if (obj->rank == NULL) {
+        perror("malloc");
+        free(obj->parent);
+        obj->parent = NULL;
+        free(obj);
+        obj = NULL;
+        return obj;
+    }
+    memset(obj->rank, 0, (n * sizeof(int)));
+
+    for (int i = 0; i < n; i++) {
+        obj->parent[i] = i;
+    }
+
+    return obj;
+}
+int findUnionFind(UnionFind *obj, int x) {
+    if (obj->parent[x] != x) {
+        obj->parent[x] = findUnionFind(obj, obj->parent[x]);
+    }
+
+    return obj->parent[x];
+}
+void unionUnionFind(UnionFind *obj, int x, int y) {
+    int rootx = findUnionFind(obj, x);
+    int rooty = findUnionFind(obj, y);
+
+    if (rootx == rooty) {
+        return;
+    }
+
+    if (obj->rank[rootx] > obj->rank[rooty]) {
+        obj->parent[rooty] = rootx;
+    } else if (obj->rank[rootx] < obj->rank[rooty]) {
+        obj->parent[rootx] = rooty;
+    } else {
+        obj->parent[rooty] = rootx;
+        obj->rank[rootx]++;
+    }
+}
+bool connectUnionFind(UnionFind *obj, int x, int y) {
+    bool retVal = (findUnionFind(obj, x) == findUnionFind(obj, y));
+
+    return retVal;
+}
+void freeUnionFind(UnionFind *obj) {
+    if (obj == NULL) {
+        return;
+    }
+
+    free(obj->parent);
+    obj->parent = NULL;
+    free(obj->rank);
+    obj->rank = NULL;
+
+    free(obj);
+    obj = NULL;
+}
+#endif
+bool validPath(int n, int **edges, int edgesSize, int *edgesColSize, int source, int destination) {
+    bool retVal = false;
+
+    if (source == destination) {
+        retVal = true;
+        return retVal;
+    }
+
+    UnionFind *uf = creatUnionFind(n);
+    if (uf == NULL) {
+        return retVal;
+    }
+
+    int i;
+    for (i = 0; i < edgesSize; ++i) {
+        unionUnionFind(uf, edges[i][0], edges[i][1]);
+    }
+    retVal = connectUnionFind(uf, source, destination);
+
+    freeUnionFind(uf);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool validPath(int n, vector<vector<int>>& edges, int source, int destination) {
+        bool retVal = false;
+
+        vector<vector<int>> adjacency(n);
+        for (auto&& edge : edges) {
+            int src = edge[0];
+            int dst = edge[1];
+            adjacency[src].emplace_back(dst);
+            adjacency[dst].emplace_back(src);
+        }
+
+        queue<int> bfsQueue;
+        bfsQueue.emplace(source);
+        vector<bool> visited(n, false);
+        visited[source] = true;
+        while (bfsQueue.empty() == false) {
+            int vertex = bfsQueue.front();
+            bfsQueue.pop();
+            if (vertex == destination) {
+                break;
+            }
+
+            for (int next : adjacency[vertex]) {
+                if (visited[next] == false) {
+                    bfsQueue.emplace(next);
+                    visited[next] = true;
+                }
+            }
+        }
+        retVal = visited[destination];
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def validPath(self, n: int, edges: List[List[int]], source: int, destination: int) -> bool:
+        retVal = False
+
+        adjacency = [[] for _ in range(n)]
+        for src, dst in edges:
+            adjacency[src].append(dst)
+            adjacency[dst].append(src)
+
+        bfsQueue = deque()
+        bfsQueue.append(source)
+        visited = [False] * n
+        visited[source] = True
+        while bfsQueue:
+            vertex = bfsQueue.popleft()
+            if vertex == destination:
+                break
+
+            for next in adjacency[vertex]:
+                if visited[next] == False:
+                    bfsQueue.append(next)
+                    visited[next] = True
+
+        retVal = visited[destination]
+
+        return retVal
+```
+
+</details>
+
 ## [1992. Find All Groups of Farmland](https://leetcode.com/problems/find-all-groups-of-farmland/)  1539
 
 - [Official](https://leetcode.com/problems/find-all-groups-of-farmland/editorial/)

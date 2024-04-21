@@ -126,6 +126,13 @@ int main(int argc, char **argv) {
         {6, {{0, 1}, {0, 2}, {3, 5}, {5, 4}, {4, 3}}, 5, {2, 2, 2, 2, 2}, 0, 5},
     };
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: n = 3, edges = [[0,1],[1,2],[2,0]], source = 0, destination = 2
+     *  Output: true
+     *
+     *  Input: n = 6, edges = [[0,1],[0,2],[3,5],[5,4],[4,3]], source = 0, destination = 5
+     *  Output: false
+     */
 
     int **pEdges = NULL;
     bool answer = false;
