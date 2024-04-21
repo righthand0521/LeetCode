@@ -3,6 +3,7 @@
 - [Breadth-First Search](https://en.wikipedia.org/wiki/Breadth-first_search)
 - [Depth-First Search](https://en.wikipedia.org/wiki/Depth-first_search)
 - [Topological sorting](https://en.wikipedia.org/wiki/Topological_sorting)
+- [Union Find](https://en.wikipedia.org/wiki/Disjoint-set_data_structure)
 
 ## [133. Clone Graph](https://leetcode.com/problems/clone-graph/)
 
@@ -3574,6 +3575,239 @@ class Solution:
 
 </details>
 
+## [839. Similar String Groups](https://leetcode.com/problems/similar-string-groups/)  2053
+
+- [Official](https://leetcode.com/problems/similar-string-groups/editorial/)
+- [Official](https://leetcode.cn/problems/similar-string-groups/solutions/583944/xiang-si-zi-fu-chuan-zu-by-leetcode-solu-8jt9/)
+
+<details><summary>Description</summary>
+
+```text
+Two strings X and Y are similar if we can swap two letters (in different positions) of X, so that it equals Y.
+Also two strings X and Y are similar if they are equal.
+
+For example, "tars" and "rats" are similar (swapping at positions 0 and 2),
+and "rats" and "arts" are similar, but "star" is not similar to "tars", "rats", or "arts".
+
+Together, these form two connected groups by similarity: {"tars", "rats", "arts"} and {"star"}.
+Notice that "tars" and "arts" are in the same group even though they are not similar.
+Formally, each group is such that a word is in the group
+if and only if it is similar to at least one other word in the group.
+
+We are given a list strs of strings where every string in strs is an anagram of every other string in strs.
+How many groups are there?
+
+Example 1:
+Input: strs = ["tars","rats","arts","star"]
+Output: 2
+
+Example 2:
+Input: strs = ["omv","ovm"]
+Output: 1
+
+Constraints:
+1 <= strs.length <= 300
+1 <= strs[i].length <= 300
+strs[i] consists of lowercase letters only.
+All words in strs have the same length and are anagrams of each other.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int find(int* f, int x) {
+    int retVal = x;
+
+    if (f[x] == x) {
+        return retVal;
+    }
+    f[x] = find(f, f[x]);
+    retVal = f[x];
+
+    return retVal;
+}
+bool check(char* a, char* b, int len) {
+    bool retVal = false;
+
+    int num = 0;
+    int i;
+    for (i = 0; i < len; ++i) {
+        if (a[i] == b[i]) {
+            continue;
+        }
+        num++;
+        if (num > 2) {
+            return retVal;
+        }
+    }
+    retVal = true;
+
+    return retVal;
+}
+int numSimilarGroups(char** strs, int strsSize) {
+    int retVal = 0;
+
+    int i, j;
+
+    int f[strsSize];
+    for (int i = 0; i < strsSize; ++i) {
+        f[i] = i;
+    }
+
+    int fi, fj, len;
+    for (i = 0; i < strsSize; ++i) {
+        for (j = i + 1; j < strsSize; ++j) {
+            fi = find(f, i);
+            fj = find(f, j);
+            if (fi == fj) {
+                continue;
+            }
+
+            len = strlen(strs[i]);
+            if (check(strs[i], strs[j], len)) {
+                f[fi] = fj;
+            }
+        }
+    }
+
+    for (i = 0; i < strsSize; ++i) {
+        if (f[i] == i) {
+            ++retVal;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int find(vector<int>& f, int x) {
+        int retVal = x;
+
+        if (f[x] == x) {
+            return retVal;
+        }
+        f[x] = find(f, f[x]);
+        retVal = f[x];
+
+        return retVal;
+    }
+    bool check(const string& a, const string& b, int len) {
+        bool retVal = false;
+
+        int num = 0;
+        for (int i = 0; i < len; ++i) {
+            if (a[i] == b[i]) {
+                continue;
+            }
+            num++;
+            if (num > 2) {
+                return retVal;
+            }
+        }
+        retVal = true;
+
+        return retVal;
+    }
+    int numSimilarGroups(vector<string>& strs) {
+        int retVal = 0;
+
+        int strsSize = strs.size();
+        vector<int> f(strsSize);
+        for (int i = 0; i < strsSize; ++i) {
+            f[i] = i;
+        }
+
+        for (int i = 0; i < strsSize; ++i) {
+            for (int j = i + 1; j < strsSize; ++j) {
+                int fi = find(f, i);
+                int fj = find(f, j);
+                if (fi == fj) {
+                    continue;
+                }
+
+                int len = strs[i].length();
+                if (check(strs[i], strs[j], len)) {
+                    f[fi] = fj;
+                }
+            }
+        }
+
+        for (int i = 0; i < strsSize; ++i) {
+            if (f[i] == i) {
+                ++retVal;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def find(self, f: List[int], x: int) -> int:
+        retVal = x
+
+        if f[x] == x:
+            return retVal
+
+        f[x] = self.find(f, f[x])
+        retVal = f[x]
+
+        return retVal
+
+    def check(self, a: str, b: str) -> bool:
+        retVal = False
+
+        num = 0
+        for ac, bc in zip(a, b):
+            if ac == bc:
+                continue
+
+            num += 1
+            if num > 2:
+                return retVal
+
+        retVal = True
+
+        return retVal
+
+    def numSimilarGroups(self, strs: List[str]) -> int:
+        retVal = 0
+
+        strsSize = len(strs)
+        f = list(range(strsSize))
+
+        for i in range(strsSize):
+            for j in range(i + 1, strsSize):
+                fi = self.find(f, i)
+                fj = self.find(f, j)
+                if fi == fj:
+                    continue
+
+                if self.check(strs[i], strs[j]):
+                    f[fi] = fj
+
+        retVal = sum(1 for i in range(strsSize) if f[i] == i)
+
+        return retVal
+```
+
+</details>
+
 ## [841. Keys and Rooms](https://leetcode.com/problems/keys-and-rooms/)  1412
 
 - [Official](https://leetcode.com/problems/keys-and-rooms/editorial)
@@ -4324,6 +4558,172 @@ class Solution:
 
 </details>
 
+## [886. Possible Bipartition](https://leetcode.com/problems/possible-bipartition/)  1794
+
+- [Official](https://leetcode.com/problems/possible-bipartition/solutions/2834180/possible-bipartition/)
+- [Official](https://leetcode.cn/problems/possible-bipartition/solutions/1893341/ke-neng-de-er-fen-fa-by-leetcode-solutio-guo7/)
+
+<details><summary>Description</summary>
+
+```text
+We want to split a group of n people (labeled from 1 to n) into two groups of any size.
+Each person may dislike some other people, and they should not go into the same group.
+
+Given the integer n and the array dislikes where dislikes[i] = [ai, bi] indicates
+that the person labeled ai does not like the person labeled bi,
+return true if it is possible to split everyone into two groups in this way.
+
+Example 1:
+Input: n = 4, dislikes = [[1,2],[1,3],[2,4]]
+Output: true
+Explanation: group1 [1,4] and group2 [2,3].
+
+Example 2:
+Input: n = 3, dislikes = [[1,2],[1,3],[2,3]]
+Output: false
+
+Example 3:
+Input: n = 5, dislikes = [[1,2],[2,3],[3,4],[4,5],[1,5]]
+Output: false
+
+Constraints:
+1 <= n <= 2000
+0 <= dislikes.length <= 10^4
+dislikes[i].length == 2
+1 <= dislikes[i][j] <= n
+ai < bi
+All the pairs of dislikes are unique.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#ifndef UNION_FIND
+#define UNION_FIND (1)
+
+int findFa(int x, int *fa) {
+    if (fa[x] < 0) {
+        return x;
+    }
+
+    return (fa[x] = findFa(fa[x], fa));
+}
+void swap(int *a, int *b) {
+    int tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+void unit(int x, int y, int *fa) {
+    x = findFa(x, fa);
+    y = findFa(y, fa);
+    if (x == y) {
+        return;
+    }
+
+    if (fa[x] < fa[y]) {
+        swap(&x, &y);
+    }
+    fa[x] += fa[y];
+    fa[y] = x;
+}
+bool isconnect(int x, int y, int *fa) {
+    x = findFa(x, fa);
+    y = findFa(y, fa);
+
+    return (x == y);
+}
+#endif
+bool possibleBipartition(int n, int **dislikes, int dislikesSize, int *dislikesColSize) {
+    bool retVal = false;
+
+    int i, j;
+    struct ListNode *pNode;
+
+    int color[n + 1];
+    memset(color, 0, sizeof(color));
+    int fa[n + 1];
+    memset(fa, -1, sizeof(fa));
+    struct ListNode *g[n + 1];
+    for (i = 0; i <= n; ++i) {
+        g[i] = NULL;
+    }
+
+    int a, b;
+    for (i = 0; i < dislikesSize; ++i) {
+        a = dislikes[i][0];
+        b = dislikes[i][1];
+
+        pNode = (struct ListNode *)malloc(sizeof(struct ListNode));
+        if (pNode == NULL) {
+            perror("malloc");
+            for (i = 0; i <= n; ++i) {
+                if (g[i]) {
+                    free(g[i]);
+                    g[i] = NULL;
+                }
+            }
+            return retVal;
+        }
+        pNode->val = a;
+        pNode->next = g[b];
+        g[b] = pNode;
+
+        pNode = (struct ListNode *)malloc(sizeof(struct ListNode));
+        if (pNode == NULL) {
+            perror("malloc");
+            for (i = 0; i <= n; ++i) {
+                if (g[i]) {
+                    free(g[i]);
+                    g[i] = NULL;
+                }
+            }
+            return retVal;
+        }
+        pNode->val = b;
+        pNode->next = g[a];
+        g[a] = pNode;
+    }
+
+    struct ListNode *curr;
+    struct ListNode *prev;
+    for (i = 1; i <= n; ++i) {
+        for (pNode = g[i]; pNode; pNode = pNode->next) {
+            unit(g[i]->val, pNode->val, fa);
+
+            if (isconnect(i, pNode->val, fa) == false) {
+                continue;
+            }
+
+            for (j = 0; j <= n; ++j) {
+                curr = g[j];
+                while (curr) {
+                    prev = curr;
+                    curr = curr->next;
+                    free(prev);
+                }
+            }
+
+            return retVal;
+        }
+    }
+    for (j = 0; j <= n; j++) {
+        curr = g[j];
+        while (curr) {
+            prev = curr;
+            curr = curr->next;
+            free(prev);
+        }
+    }
+    retVal = true;
+
+    return retVal;
+}
+```
+
+</details>
+
 ## [909. Snakes and Ladders](https://leetcode.com/problems/snakes-and-ladders/)  2019
 
 - [Official](https://leetcode.cn/problems/snakes-and-ladders/solutions/846328/she-ti-qi-by-leetcode-solution-w0vl/)
@@ -4816,6 +5216,227 @@ class Solution:
             retVal += 1
 
         return retVal
+```
+
+</details>
+
+## [947. Most Stones Removed with Same Row or Column](https://leetcode.com/problems/most-stones-removed-with-same-row-or-column/)  2034
+
+<details><summary>Description</summary>
+
+```text
+On a 2D plane, we place n stones at some integer coordinate points. Each coordinate point may have at most one stone.
+
+A stone can be removed if it shares either the same row or the same column as another stone that has not been removed.
+
+Given an array stones of length n where stones[i] = [xi, yi] represents the location of the ith stone,
+return the largest possible number of stones that can be removed.
+
+Example 1:
+Input: stones = [[0,0],[0,1],[1,0],[1,2],[2,1],[2,2]]
+Output: 5
+Explanation: One way to remove 5 stones is as follows:
+1. Remove stone [2,2] because it shares the same row as [2,1].
+2. Remove stone [2,1] because it shares the same column as [0,1].
+3. Remove stone [1,2] because it shares the same row as [1,0].
+4. Remove stone [1,0] because it shares the same column as [0,0].
+5. Remove stone [0,1] because it shares the same row as [0,0].
+Stone [0,0] cannot be removed since it does not share a row/column with another stone still on the plane.
+
+Example 2:
+Input: stones = [[0,0],[0,2],[1,1],[2,0],[2,2]]
+Output: 3
+Explanation: One way to make 3 moves is as follows:
+1. Remove stone [2,2] because it shares the same row as [2,0].
+2. Remove stone [2,0] because it shares the same column as [0,0].
+3. Remove stone [0,2] because it shares the same row as [0,0].
+Stones [0,0] and [1,1] cannot be removed since they do not share a row/column with another stone still on the plane.
+
+Example 3:
+Input: stones = [[0,0]]
+Output: 0
+Explanation: [0,0] is the only stone on the plane, so you cannot remove it.
+
+Constraints:
+1 <= stones.length <= 1000
+0 <= xi, yi <= 10^4
+No two stones are at the same coordinate point.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashStruct {
+    int index;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashStruct* pFree) {
+    struct hashStruct* current;
+    struct hashStruct* tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int getUnionFind(int* pUnionFind, int idx) {
+    if (pUnionFind[idx] != idx) {
+        pUnionFind[idx] = getUnionFind(pUnionFind, pUnionFind[idx]);
+    }
+
+    return pUnionFind[idx];
+}
+int merge(int* pUnionFind, int exist, int new) {
+    int existValue = getUnionFind(pUnionFind, exist);
+    int newValue = getUnionFind(pUnionFind, new);
+    if (existValue == newValue) {
+        return 0;
+    }
+    pUnionFind[newValue] = existValue;
+
+    return 1;
+}
+
+int removeStones(int** stones, int stonesSize, int* stonesColSize) {
+    int retVal = stonesSize;
+
+    int i;
+
+    int UnionFind[stonesSize];
+    for (i=0; i<stonesSize; ++i) {
+        UnionFind[i] = i;
+    }
+
+    struct hashStruct* hashRow = NULL;
+    struct hashStruct* tmpRow;
+    struct hashStruct* hashCol = NULL;
+    struct hashStruct* tmpCol;
+    int count = stonesSize;
+    for (i=0; i<stonesSize; ++i) {
+        tmpRow = NULL;
+        HASH_FIND_INT(hashRow, stones[i], tmpRow);
+        if (tmpRow) {
+            count -= merge(UnionFind, tmpRow->index, i);
+        }
+        else {
+            tmpRow = malloc(sizeof(struct hashStruct));
+            if (tmpRow == NULL) {
+                perror("malloc");
+                freeAll(hashRow);
+                freeAll(hashCol);
+                return retVal;
+            }
+            tmpRow->value = stones[i][0];
+            tmpRow->index = i;
+            HASH_ADD_INT(hashRow, value, tmpRow);
+        }
+
+        tmpCol = NULL;
+        HASH_FIND_INT(hashCol, stones[i]+1, tmpCol);
+        if (tmpCol) {
+            count -= merge(UnionFind, tmpCol->index, i);
+        }
+        else {
+            tmpCol = malloc(sizeof(struct hashStruct));
+            if (tmpCol == NULL) {
+                perror("malloc");
+                freeAll(hashRow);
+                freeAll(hashCol);
+                return retVal;
+            }
+            tmpCol->value = stones[i][1];
+            tmpCol->index = i;
+            HASH_ADD_INT(hashCol, value, tmpCol);
+        }
+    }
+    retVal -= count;
+    freeAll(hashRow);
+    freeAll(hashCol);
+
+    return retVal;
+}
+```
+
+</details>
+
+## [990. Satisfiability of Equality Equations](https://leetcode.com/problems/satisfiability-of-equality-equations/)  1638
+
+<details><summary>Description</summary>
+
+```text
+You are given an array of strings equations that represent relationships between variables
+where each string equations[i] is of length 4 and takes one of two different forms:
+"xi==yi" or "xi!=yi".Here, xi and yi are lowercase letters (not necessarily different)
+that represent one-letter variable names.
+
+Return true if it is possible to assign integers to variable names so as to satisfy all the given equations,
+or false otherwise.
+
+Example 1:
+Input: equations = ["a==b","b!=a"]
+Output: false
+Explanation: If we assign say, a = 1 and b = 1, then the first equation is satisfied, but not the second.
+There is no way to assign the variables to satisfy both equations.
+
+Example 2:
+Input: equations = ["b==a","a==b"]
+Output: true
+Explanation: We could assign a = 1 and b = 1 to satisfy both equations.
+
+Constraints:
+- 1 <= equations.length <= 500
+- equations[i].length == 4
+- equations[i][0] is a lowercase letter.
+- equations[i][1] is either '=' or '!'.
+- equations[i][2] is '='.
+- equations[i][3] is a lowercase letter.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MAX_SIZE    26
+
+int find(int* pRecord, int x)
+{
+    if (x != pRecord[x]) {
+        pRecord[x] = find(pRecord, pRecord[x]);
+    }
+
+    return pRecord[x];
+}
+
+bool equationsPossible(char ** equations, int equationsSize)
+{
+    bool retVal = false;
+
+    int RECORD[MAX_SIZE];
+    int i;
+    for (i=0; i<MAX_SIZE; ++i) {
+        RECORD[i] = i;
+    }
+
+    for (i=0; i<equationsSize; ++i) {
+        if (equations[i][1] == '=') {
+            RECORD[find(RECORD, equations[i][0] - 'a')] = find(RECORD, equations[i][3] - 'a');
+        }
+    }
+
+    for (i=0; i<equationsSize; ++i) {
+        if (equations[i][1] == '!') {
+            if (find(RECORD, equations[i][0] - 'a') == find(RECORD, equations[i][3] - 'a')) {
+                return retVal;
+            }
+        }
+    }
+    retVal = true;
+
+    return retVal;
+}
 ```
 
 </details>
