@@ -937,6 +937,293 @@ class Solution:
 
 </details>
 
+## [310. Minimum Height Trees](https://leetcode.com/problems/minimum-height-trees/)
+
+- [Official](https://leetcode.cn/problems/minimum-height-trees/solutions/1395249/zui-xiao-gao-du-shu-by-leetcode-solution-6v6f/)
+
+<details><summary>Description</summary>
+
+```text
+A tree is an undirected graph in which any two vertices are connected by exactly one path.
+In other words, any connected graph without simple cycles is a tree.
+
+Given a tree of n nodes labelled from 0 to n - 1, and an array of n - 1 edges where edges[i] = [ai, bi] indicates that
+there is an undirected edge between the two nodes ai and bi in the tree, you can choose any node of the tree as the root.
+When you select a node x as the root, the result tree has height h.
+Among all possible rooted trees, those with minimum height (i.e. min(h))  are called minimum height trees (MHTs).
+
+Return a list of all MHTs' root labels. You can return the answer in any order.
+
+The height of a rooted tree is the number of edges on the longest downward path between the root and a leaf.
+
+Example 1:
+Input: n = 4, edges = [[1,0],[1,2],[1,3]]
+Output: [1]
+Explanation: As shown, the height of the tree is 1 when the root is the node with label 1 which is the only MHT.
+
+Example 2:
+Input: n = 6, edges = [[3,0],[3,1],[3,2],[3,4],[5,4]]
+Output: [3,4]
+
+Constraints:
+1 <= n <= 2 * 10^4
+edges.length == n - 1
+0 <= ai, bi < n
+ai != bi
+All the pairs (ai, bi) are distinct.
+The given input is guaranteed to be a tree and there will be no repeated edges.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. How many MHTs can a graph have at most?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* findMinHeightTrees(int n, int** edges, int edgesSize, int* edgesColSize, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    if (n == 1) {
+        pRetVal = (int*)malloc(1 * sizeof(int));
+        if (pRetVal == NULL) {
+            perror("malloc");
+            return pRetVal;
+        }
+        memset(pRetVal, 0, (1 * sizeof(int)));
+        pRetVal[(*returnSize)] = 0;
+        (*returnSize)++;
+        return pRetVal;
+    }
+
+    int i;
+    struct ListNode* pFree = NULL;
+
+    struct ListNode* adjacency[n];
+    for (i = 0; i < n; i++) {
+        adjacency[i] = NULL;
+    }
+    int degree[n];
+    memset(degree, 0, (n * sizeof(int)));
+    struct ListNode* pNode = NULL;
+    int src, dst;
+    for (i = 0; i < edgesSize; i++) {
+        src = edges[i][0];
+        dst = edges[i][1];
+
+        pNode = (struct ListNode*)malloc(sizeof(struct ListNode));
+        if (pNode == NULL) {
+            perror("malloc");
+            for (i = 0; i < n; i++) {
+                while (adjacency[i] != NULL) {
+                    pFree = adjacency[i];
+                    adjacency[i] = pFree->next;
+                    free(pFree);
+                    pFree = NULL;
+                }
+            }
+            return pRetVal;
+        }
+        pNode->val = src;
+        pNode->next = adjacency[dst];
+        adjacency[dst] = pNode;
+
+        pNode = (struct ListNode*)malloc(sizeof(struct ListNode));
+        if (pNode == NULL) {
+            perror("malloc");
+            for (i = 0; i < n; i++) {
+                while (adjacency[i] != NULL) {
+                    pFree = adjacency[i];
+                    adjacency[i] = pFree->next;
+                    free(pFree);
+                    pFree = NULL;
+                }
+            }
+            return pRetVal;
+        }
+        pNode->val = dst;
+        pNode->next = adjacency[src];
+        adjacency[src] = pNode;
+
+        degree[src]++;
+        degree[dst]++;
+    }
+
+    int queue[n];
+    memset(queue, 0, sizeof(queue));
+    int queueHead = 0;
+    int queueTail = 0;
+    for (i = 0; i < n; i++) {
+        if (degree[i] == 1) {
+            queue[queueTail] = i;
+            queueTail++;
+        }
+    }
+
+    int vertex;
+    struct ListNode* pCurrent = NULL;
+    int node;
+    int queueSize;
+    int remainNodes = n;
+    while (remainNodes > 2) {
+        queueSize = queueTail - queueHead;
+        remainNodes -= queueSize;
+        for (i = 0; i < queueSize; i++) {
+            node = queue[queueHead];
+            queueHead++;
+            pCurrent = adjacency[node];
+            while (pCurrent != NULL) {
+                vertex = pCurrent->val;
+                degree[vertex]--;
+                if (degree[vertex] == 1) {
+                    queue[queueTail] = vertex;
+                    queueTail++;
+                }
+                pCurrent = pCurrent->next;
+            }
+        }
+    }
+
+    pRetVal = (int*)malloc(remainNodes * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        for (i = 0; i < n; i++) {
+            while (adjacency[i] != NULL) {
+                pFree = adjacency[i];
+                adjacency[i] = pFree->next;
+                free(pFree);
+                pFree = NULL;
+            }
+        }
+        return pRetVal;
+    }
+    while (queueHead != queueTail) {
+        pRetVal[(*returnSize)++] = queue[queueHead++];
+    }
+
+    for (i = 0; i < n; i++) {
+        while (adjacency[i] != NULL) {
+            pFree = adjacency[i];
+            adjacency[i] = pFree->next;
+            free(pFree);
+            pFree = NULL;
+        }
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> findMinHeightTrees(int n, vector<vector<int>>& edges) {
+        vector<int> retVal;
+
+        if (n == 1) {
+            retVal.emplace_back(0);
+            return retVal;
+        }
+
+        vector<vector<int>> adjacency(n);
+        vector<int> degree(n, 0);
+        for (auto& edge : edges) {
+            int src = edge[0];
+            int dst = edge[1];
+            adjacency[src].emplace_back(dst);
+            adjacency[dst].emplace_back(src);
+            degree[src]++;
+            degree[dst]++;
+        }
+
+        queue<int> queue;
+        for (int i = 0; i < n; ++i) {
+            if (degree[i] == 1) {
+                queue.emplace(i);
+            }
+        }
+
+        int remainNodes = n;
+        while (remainNodes > 2) {
+            int queueSize = queue.size();
+            remainNodes -= queueSize;
+            for (int i = 0; i < queueSize; i++) {
+                int node = queue.front();
+                queue.pop();
+                for (auto& vertex : adjacency[node]) {
+                    --degree[vertex];
+                    if (degree[vertex] == 1) {
+                        queue.emplace(vertex);
+                    }
+                }
+            }
+        }
+        while (queue.empty() == false) {
+            retVal.emplace_back(queue.front());
+            queue.pop();
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def findMinHeightTrees(self, n: int, edges: List[List[int]]) -> List[int]:
+        retVal = []
+
+        if n == 1:
+            retVal = [0]
+            return retVal
+
+        adjacency = [[] for _ in range(n)]
+        degree = [0] * n
+        for src, dst in edges:
+            adjacency[src].append(dst)
+            adjacency[dst].append(src)
+            degree[src] += 1
+            degree[dst] += 1
+
+        for key, value in enumerate(degree):
+            if value == 1:
+                retVal.append(key)
+
+        remainNodes = n
+        while remainNodes > 2:
+            remainNodes -= len(retVal)
+            tmp = retVal
+            retVal = []
+            for x in tmp:
+                for y in adjacency[x]:
+                    degree[y] -= 1
+                    if degree[y] == 1:
+                        retVal.append(y)
+
+        return retVal
+```
+
+</details>
+
 ## [332. Reconstruct Itinerary](https://leetcode.com/problems/reconstruct-itinerary/)
 
 - [Official](https://leetcode.cn/problems/reconstruct-itinerary/solutions/389885/zhong-xin-an-pai-xing-cheng-by-leetcode-solution/)
