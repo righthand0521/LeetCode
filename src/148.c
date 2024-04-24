@@ -4,50 +4,13 @@
 
 #include "list.h"
 
-#define QUICK_SORT (1)
-#define ADD (1)  // Time Limit Exceeded
-#if (QUICK_SORT)
-int cmp_LinkedNode(const void* a, const void* b) {
+int compareListNode(const void* a, const void* b) {
     const struct ListNode* const* aa = a;
     const struct ListNode* const* bb = b;
+
+    // ascending order
     return ((*aa)->val > (*bb)->val) - ((*aa)->val < (*bb)->val);
 }
-#elif (ADD)
-struct ListNode* addValueToMiddle(struct ListNode* pHead, int value) {
-    struct ListNode* pNew = (struct ListNode*)malloc(sizeof(struct ListNode));
-    if (pNew == NULL) {
-        perror("malloc");
-        return pNew;
-    }
-    pNew->val = value;
-    pNew->next = NULL;
-
-    if (pHead == NULL) {
-        pHead = pNew;
-        return pHead;
-    }
-
-    struct ListNode* pPrevious = NULL;
-    struct ListNode* pCurrent = pHead;
-    while (pCurrent != NULL) {
-        // from small to large
-        if (pCurrent->val > value) {
-            break;
-        }
-        pPrevious = pCurrent;
-        pCurrent = pCurrent->next;
-    }
-    if (pPrevious == NULL) {
-        pNew->next = pHead;
-        pHead = pNew;
-        return pHead;
-    }
-    pNew->next = pPrevious->next;
-    pPrevious->next = pNew;
-
-    return pHead;
-}
-#endif
 /**
  * Definition for singly-linked list.
  * struct ListNode {
@@ -56,44 +19,30 @@ struct ListNode* addValueToMiddle(struct ListNode* pHead, int value) {
  * };
  */
 struct ListNode* sortList(struct ListNode* head) {
-    struct ListNode* pRetVal = NULL;
-
-#if (QUICK_SORT)
-    printf("QUICK_SORT\n");
+    struct ListNode* pRetVal = head;
 
     if ((head == NULL) || (head->next == NULL)) {
-        return head;
+        return pRetVal;
     }
 
-    int size_of_list = 0;
-    struct ListNode* p;
-    for (p = head; p != NULL; p = p->next) {
-        ++size_of_list;
+    int headSize = 0;
+    struct ListNode* pNext = NULL;
+    for (pNext = head; pNext != NULL; pNext = pNext->next) {
+        ++headSize;
     }
 
-    struct ListNode* arr[size_of_list + 1];
-    struct ListNode** arrp = arr;
-    for (p = head; p != NULL; p = p->next) {
-        *arrp++ = p;
+    int i = 0;
+    struct ListNode* address[headSize + 1];
+    for (pNext = head; pNext != NULL; pNext = pNext->next) {
+        address[i++] = pNext;
     }
-    *arrp = NULL;
-    qsort(arr, size_of_list, sizeof(*arr), cmp_LinkedNode);
-
-    int i;
-    for (i = 0; i < size_of_list; ++i) {
-        arr[i]->next = arr[i + 1];
+    address[i] = NULL;
+    qsort(address, headSize, sizeof(*address), compareListNode);
+    for (i = 0; i < headSize; ++i) {
+        address[i]->next = address[i + 1];
     }
-    head = arr[0];
-    pRetVal = arr[0];
-#elif (ADD)
-    printf("ADD\n");
-
-    struct ListNode* pCurrent = head;
-    while (pCurrent != NULL) {
-        pRetVal = addValueToMiddle(pRetVal, pCurrent->val);
-        pCurrent = pCurrent->next;
-    }
-#endif
+    head = address[0];
+    pRetVal = head;
 
     return pRetVal;
 }
@@ -118,11 +67,9 @@ int main(int argc, char** argv) {
 
     struct ListNode* pHead = NULL;
     struct ListNode* pAnswer = NULL;
-    int i, j;
+    int i;
     for (i = 0; i < numberOfTestCase; ++i) {
-        for (j = 0; j < testCase[i].nodeSize; ++j) {
-            pHead = addValueToEndListNode(pHead, testCase[i].node[j]);
-        }
+        pHead = buildList(testCase[i].node, testCase[i].nodeSize);
         printf("Input: head = [");
         printList(pHead);
         printf("]\n");
@@ -136,11 +83,6 @@ int main(int argc, char** argv) {
 
         freeListNode(pHead);
         pHead = NULL;
-#if (QUICK_SORT)
-#elif (ADD)
-        freeListNode(pAnswer);
-        pAnswer = NULL;
-#endif
     }
 
     return EXIT_SUCCESS;

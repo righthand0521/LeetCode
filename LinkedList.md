@@ -2477,7 +2477,6 @@ class Solution:
 
 ## [148. Sort List](https://leetcode.com/problems/sort-list/)
 
-- [Official](https://leetcode.com/problems/sort-list/solutions/840381/sort-list/)
 - [Official](https://leetcode.cn/problems/sort-list/solutions/492301/pai-xu-lian-biao-by-leetcode-solution/)
 
 <details><summary>Description</summary>
@@ -2507,50 +2506,13 @@ The number of nodes in the list is in the range [0, 5 * 10^4].
 <details><summary>C</summary>
 
 ```c
-#define QUICK_SORT (1)
-#define ADD (1)  // Time Limit Exceeded
-#if (QUICK_SORT)
-int cmp_LinkedNode(const void* a, const void* b) {
+int compareListNode(const void* a, const void* b) {
     const struct ListNode* const* aa = a;
     const struct ListNode* const* bb = b;
+
+    // ascending order
     return ((*aa)->val > (*bb)->val) - ((*aa)->val < (*bb)->val);
 }
-#elif (ADD)
-struct ListNode* addValueToMiddle(struct ListNode* pHead, int value) {
-    struct ListNode* pNew = (struct ListNode*)malloc(sizeof(struct ListNode));
-    if (pNew == NULL) {
-        perror("malloc");
-        return pNew;
-    }
-    pNew->val = value;
-    pNew->next = NULL;
-
-    if (pHead == NULL) {
-        pHead = pNew;
-        return pHead;
-    }
-
-    struct ListNode* pPrevious = NULL;
-    struct ListNode* pCurrent = pHead;
-    while (pCurrent != NULL) {
-        // from small to large
-        if (pCurrent->val > value) {
-            break;
-        }
-        pPrevious = pCurrent;
-        pCurrent = pCurrent->next;
-    }
-    if (pPrevious == NULL) {
-        pNew->next = pHead;
-        pHead = pNew;
-        return pHead;
-    }
-    pNew->next = pPrevious->next;
-    pPrevious->next = pNew;
-
-    return pHead;
-}
-#endif
 /**
  * Definition for singly-linked list.
  * struct ListNode {
@@ -2559,44 +2521,30 @@ struct ListNode* addValueToMiddle(struct ListNode* pHead, int value) {
  * };
  */
 struct ListNode* sortList(struct ListNode* head) {
-    struct ListNode* pRetVal = NULL;
-
-#if (QUICK_SORT)
-    printf("QUICK_SORT\n");
+    struct ListNode* pRetVal = head;
 
     if ((head == NULL) || (head->next == NULL)) {
-        return head;
+        return pRetVal;
     }
 
-    int size_of_list = 0;
-    struct ListNode* p;
-    for (p = head; p != NULL; p = p->next) {
-        ++size_of_list;
+    int headSize = 0;
+    struct ListNode* pNext = NULL;
+    for (pNext = head; pNext != NULL; pNext = pNext->next) {
+        ++headSize;
     }
 
-    struct ListNode* arr[size_of_list + 1];
-    struct ListNode** arrp = arr;
-    for (p = head; p != NULL; p = p->next) {
-        *arrp++ = p;
+    int i = 0;
+    struct ListNode* address[headSize + 1];
+    for (pNext = head; pNext != NULL; pNext = pNext->next) {
+        address[i++] = pNext;
     }
-    *arrp = NULL;
-    qsort(arr, size_of_list, sizeof(*arr), cmp_LinkedNode);
-
-    int i;
-    for (i = 0; i < size_of_list; ++i) {
-        arr[i]->next = arr[i + 1];
+    address[i] = NULL;
+    qsort(address, headSize, sizeof(*address), compareListNode);
+    for (i = 0; i < headSize; ++i) {
+        address[i]->next = address[i + 1];
     }
-    head = arr[0];
-    pRetVal = arr[0];
-#elif (ADD)
-    printf("ADD\n");
-
-    struct ListNode* pCurrent = head;
-    while (pCurrent != NULL) {
-        pRetVal = addValueToMiddle(pRetVal, pCurrent->val);
-        pCurrent = pCurrent->next;
-    }
-#endif
+    head = address[0];
+    pRetVal = head;
 
     return pRetVal;
 }
@@ -2622,27 +2570,95 @@ class Solution {
     ListNode *sortList(ListNode *head) {
         struct ListNode *pRetVal = head;
 
-        if (head == NULL) {
+        if (head == nullptr) {
             return pRetVal;
         }
 
         vector<ListNode *> address;
-        while (pRetVal != NULL) {
+        while (pRetVal != nullptr) {
             address.emplace_back(pRetVal);
             pRetVal = pRetVal->next;
         }
-        sort(address.begin(), address.end(), [](auto n1, auto n2) { return (n1->val < n2->val); });
+        sort(address.begin(), address.end(), [](auto n1, auto n2) {
+            // ascending order
+            return (n1->val < n2->val);
+        });
 
         int len = address.size();
         for (int i = 1; i < len; ++i) {
             address[i - 1]->next = address[i];
         }
-        address[len - 1]->next = NULL;
+        address[len - 1]->next = nullptr;
         pRetVal = address[0];
 
         return pRetVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def merge(self, head: Optional[ListNode], tail: Optional[ListNode]) -> Optional[ListNode]:
+        retVal = None
+
+        dummyHead = ListNode(0)
+
+        pNext = dummyHead
+        pHead = head
+        pTail = tail
+        while pHead and pTail:
+            if pHead.val <= pTail.val:
+                pNext.next = pHead
+                pHead = pHead.next
+            else:
+                pNext.next = pTail
+                pTail = pTail.next
+            pNext = pNext.next
+        if pHead:
+            pNext.next = pHead
+        elif pTail:
+            pNext.next = pTail
+
+        retVal = dummyHead.next
+
+        return retVal
+
+    def sortFunc(self, head: Optional[ListNode], tail: Optional[ListNode]) -> Optional[ListNode]:
+        retVal = head
+
+        if head is None:
+            return retVal
+        elif head.next == tail:
+            head.next = None
+            return retVal
+
+        slow = head
+        fast = head
+        while fast != tail:
+            slow = slow.next
+            fast = fast.next
+            if fast != tail:
+                fast = fast.next
+        mid = slow
+        retVal = self.merge(self.sortFunc(head, mid), self.sortFunc(mid, tail))
+
+        return retVal
+
+    def sortList(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        retVal = None
+
+        retVal = self.sortFunc(head, None)
+
+        return retVal
 ```
 
 </details>
