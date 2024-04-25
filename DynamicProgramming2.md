@@ -7925,6 +7925,150 @@ class Solution:
 
 </details>
 
+## [2370. Longest Ideal Subsequence](https://leetcode.com/problems/longest-ideal-subsequence/)  1834
+
+- [Official](https://leetcode.com/problems/longest-ideal-subsequence/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string s consisting of lowercase letters and an integer k.
+We call a string t ideal if the following conditions are satisfied:
+- t is a subsequence of the string s.
+- The absolute difference in the alphabet order of every two adjacent letters in t is less than or equal to k.
+
+Return the length of the longest ideal string.
+
+A subsequence is a string that can be derived from another string by deleting some
+or no characters without changing the order of the remaining characters.
+
+Note that the alphabet order is not cyclic.
+For example, the absolute difference in the alphabet order of 'a' and 'z' is 25, not 1.
+
+Example 1:
+Input: s = "acfgbd", k = 2
+Output: 4
+Explanation: The longest ideal string is "acbd". The length of this string is 4, so 4 is returned.
+Note that "acfgbd" is not ideal because 'c' and 'f' have a difference of 3 in alphabet order.
+
+Example 2:
+Input: s = "abcd", k = 3
+Output: 4
+Explanation: The longest ideal string is "abcd". The length of this string is 4, so 4 is returned.
+
+Constraints:
+1 <= s.length <= 10^5
+0 <= k <= 25
+s consists of lowercase English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. How can you calculate the longest ideal subsequence that ends at a specific index i?
+2. Can you calculate it for all positions i?
+   How can you use previously calculated answers to calculate the answer for the next position?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define LETTERS (26)  // s consists of lowercase English letters.
+int longestIdealString(char* s, int k) {
+    int retVal = 0;
+
+    int sSize = strlen(s);
+
+    int dp[LETTERS];
+    memset(dp, 0, sizeof(dp));
+
+    int current, best;
+    int i, j;
+    for (i = 0; i < sSize; ++i) {
+        current = s[i] - 'a';
+        best = 0;
+        for (j = 0; j < LETTERS; ++j) {
+            if (abs(j - current) <= k) {
+                best = fmax(best, dp[j]);
+            }
+        }
+
+        dp[current] = fmax(dp[current], best + 1);
+        retVal = fmax(retVal, dp[current]);
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int letters = 26;  // s consists of lowercase English letters.
+
+   public:
+    int longestIdealString(string s, int k) {
+        int retVal = 0;
+
+        int sSize = s.size();
+
+        vector<int> dp(letters, 0);
+        for (int i = 0; i < sSize; ++i) {
+            int current = s[i] - 'a';
+            int best = 0;
+            for (int j = 0; j < letters; ++j) {
+                if (abs(j - current) <= k) {
+                    best = max(best, dp[j]);
+                }
+            }
+
+            dp[current] = max(dp[current], best + 1);
+            retVal = max(retVal, dp[current]);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.letters = 26  # s consists of lowercase English letters.
+
+    def longestIdealString(self, s: str, k: int) -> int:
+        retVal = 0
+
+        sSize = len(s)
+
+        dp = [0] * self.letters
+        for i in range(sSize):
+            current = ord(s[i]) - ord('a')
+            best = 0
+            for i in range(self.letters):
+                if abs(i - current) <= k:
+                    best = max(best, dp[i])
+
+            dp[current] = max(dp[current], best + 1)
+            retVal = max(retVal, dp[current])
+
+        return retVal
+```
+
+</details>
+
 ## [2466. Count Ways To Build Good Strings](https://leetcode.com/problems/count-ways-to-build-good-strings/)  1694
 
 - [Official](https://leetcode.com/problems/count-ways-to-build-good-strings/editorial/)
