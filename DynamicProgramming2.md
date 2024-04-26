@@ -2850,6 +2850,156 @@ class Solution:
 
 </details>
 
+## [1289. Minimum Falling Path Sum II](https://leetcode.com/problems/minimum-falling-path-sum-ii/)  1697
+
+- [Official](https://leetcode.com/problems/minimum-falling-path-sum-ii/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-falling-path-sum-ii/solutions/101728/xia-jiang-lu-jing-zui-xiao-he-ii-by-leetcode-solut/)
+
+<details><summary>Description</summary>
+
+```text
+Given an n x n integer matrix grid, return the minimum sum of a falling path with non-zero shifts.
+
+A falling path with non-zero shifts is a choice of exactly one element
+from each row of grid such that no two elements chosen in adjacent rows are in the same column.
+
+Example 1:
+Input: grid = [[1,2,3],[4,5,6],[7,8,9]]
+Output: 13
+Explanation:
+The possible falling paths are:
+[1,5,9], [1,5,7], [1,6,7], [1,6,8],
+[2,4,8], [2,4,9], [2,6,7], [2,6,8],
+[3,4,8], [3,4,9], [3,5,7], [3,5,9]
+The falling path with the smallest sum is [1,5,7], so the answer is 13.
+
+Example 2:
+Input: grid = [[7]]
+Output: 7
+
+Constraints:
+n == grid.length == grid[i].length
+1 <= n <= 200
+-99 <= grid[i][j] <= 99
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use dynamic programming.
+2. Let dp[i][j] be the answer for the first i rows such that column j is chosen from row i.
+3. Use the concept of cumulative array to optimize the complexity of the solution.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int minFallingPathSum(int** grid, int gridSize, int* gridColSize) {
+    int retVal = 0;
+
+    int i, j, k;
+
+    int dp[gridSize][gridSize];
+    for (i = 0; i < gridSize; ++i) {
+        for (j = 0; j < gridSize; ++j) {
+            dp[i][j] = INT_MAX;
+        }
+    }
+    for (i = 0; i < gridSize; ++i) {
+        dp[0][i] = grid[0][i];
+    }
+
+    for (i = 1; i < gridSize; ++i) {
+        for (j = 0; j < gridSize; ++j) {
+            for (k = 0; k < gridSize; ++k) {
+                if (j == k) {
+                    continue;
+                }
+                dp[i][j] = fmin(dp[i][j], dp[i - 1][k] + grid[i][j]);
+            }
+        }
+    }
+
+    retVal = dp[gridSize - 1][0];
+    for (i = 1; i < gridSize; ++i) {
+        retVal = fmin(retVal, dp[gridSize - 1][i]);
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minFallingPathSum(vector<vector<int>>& grid) {
+        int retVal = 0;
+
+        int gridSize = grid.size();
+
+        vector<vector<int>> dp(gridSize, vector<int>(gridSize, numeric_limits<int>::max()));
+        for (int i = 0; i < gridSize; ++i) {
+            dp[0][i] = grid[0][i];
+        }
+
+        for (int i = 1; i < gridSize; ++i) {
+            for (int j = 0; j < gridSize; ++j) {
+                for (int k = 0; k < gridSize; ++k) {
+                    if (j == k) {
+                        continue;
+                    }
+                    dp[i][j] = min(dp[i][j], dp[i - 1][k] + grid[i][j]);
+                }
+            }
+        }
+
+        retVal = dp[gridSize - 1][0];
+        for (int i = 1; i < gridSize; ++i) {
+            retVal = min(retVal, dp[gridSize - 1][i]);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minFallingPathSum(self, grid: List[List[int]]) -> int:
+        retVal = 0
+
+        gridSize = len(grid)
+
+        dp = [[float('inf') for _ in range(gridSize)] for _ in range(gridSize)]
+        for i in range(gridSize):
+            dp[0][i] = grid[0][i]
+
+        for i in range(gridSize):
+            for j in range(gridSize):
+                for k in range(gridSize):
+                    if j == k:
+                        continue
+                    dp[i][j] = min(dp[i][j], dp[i - 1][k] + grid[i][j])
+
+        retVal = min(dp[gridSize - 1])
+
+        return retVal
+```
+
+</details>
+
 ## [1312. Minimum Insertion Steps to Make a String Palindrome](https://leetcode.com/problems/minimum-insertion-steps-to-make-a-string-palindrome/)  1786
 
 - [Official](https://leetcode.cn/problems/minimum-insertion-steps-to-make-a-string-palindrome/solutions/101721/rang-zi-fu-chuan-cheng-wei-hui-wen-chuan-de-zui--2/)

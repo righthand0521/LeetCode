@@ -210,6 +210,13 @@
 
 </details>
 
+<details><summary>Minimum Falling Path Sum</summary>
+
+- [931. Minimum Falling Path Sum](https://leetcode.com/problems/minimum-falling-path-sum/)
+- [1289. Minimum Falling Path Sum II](https://leetcode.com/problems/minimum-falling-path-sum-ii/)
+
+</details>
+
 ## Graph
 
 <details><summary>Topological Sort</summary>
