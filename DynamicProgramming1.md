@@ -5525,6 +5525,196 @@ class Solution:
 
 </details>
 
+## [514. Freedom Trail](https://leetcode.com/problems/freedom-trail/)
+
+- [Official](https://leetcode.com/problems/freedom-trail/editorial/)
+- [Official](https://leetcode.cn/problems/freedom-trail/solutions/480315/zi-you-zhi-lu-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+In the video game Fallout 4, the quest "Road to Freedom" requires players to reach a metal dial
+called the "Freedom Trail Ring" and use the dial to spell a specific keyword to open the door.
+
+Given a string ring that represents the code engraved on the outer ring and another string key
+that represents the keyword that needs to be spelled,
+return the minimum number of steps to spell all the characters in the keyword.
+
+Initially, the first character of the ring is aligned at the "12:00" direction.
+You should spell all the characters in key one by one by rotating ring clockwise or anticlockwise to
+make each character of the string key aligned at the "12:00" direction and then by pressing the center button.
+
+At the stage of rotating the ring to spell the key character key[i]:
+1. You can rotate the ring clockwise or anticlockwise by one place, which counts as one step.
+   The final purpose of the rotation is to align one of ring's characters at the "12:00" direction,
+   where this character must equal key[i].
+2. If the character key[i] has been aligned at the "12:00" direction, press the center button to spell,
+   which also counts as one step. After the pressing,
+   you could begin to spell the next character in the key (next stage).
+   Otherwise, you have finished all the spelling.
+
+Example 1:
+Input: ring = "godding", key = "gd"
+Output: 4
+Explanation:
+For the first key character 'g', since it is already in place, we just need 1 step to spell this character.
+For the second key character 'd',
+we need to rotate the ring "godding" anticlockwise by two steps to make it become "ddinggo".
+Also, we need 1 more step for spelling.
+So the final output is 4.
+
+Example 2:
+Input: ring = "godding", key = "godding"
+Output: 13
+
+Constraints:
+1 <= ring.length, key.length <= 100
+ring and key consist of only lower case English letters.
+It is guaranteed that key could always be spelled by rotating ring.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// Find the minimum steps between two indexes of ring
+int countSteps(int curr, int next, int ringLength) {
+    int retVal = 0;
+
+    int stepsBetween = abs(curr - next);
+    int stepsAround = ringLength - stepsBetween;
+    retVal = fmin(stepsBetween, stepsAround);
+
+    return retVal;
+}
+int findRotateSteps(char* ring, char* key) {
+    int retVal = 0;
+
+    int ringSize = strlen(ring);
+    int keySize = strlen(key);
+
+    // For each occurrence of the character at key_index of key in ring
+    // Stores minimum steps to the character from ringIndex of ring
+    int curr[ringSize];
+    int prev[ringSize];
+    memset(prev, 0, sizeof(prev));
+    int i;
+    int keyIndex, ringIndex, charIndex;
+    for (keyIndex = keySize - 1; keyIndex >= 0; keyIndex--) {
+        memset(curr, 0, sizeof(curr));
+        for (i = 0; i < ringSize; ++i) {
+            curr[i] = INT_MAX;
+        }
+        for (ringIndex = 0; ringIndex < ringSize; ringIndex++) {
+            for (charIndex = 0; charIndex < ringSize; charIndex++) {
+                if (ring[charIndex] == key[keyIndex]) {
+                    curr[ringIndex] =
+                        fmin(curr[ringIndex], 1 + countSteps(ringIndex, charIndex, ringSize) + prev[charIndex]);
+                }
+            }
+        }
+        memset(prev, 0, sizeof(prev));
+        memcpy(prev, curr, sizeof(prev));
+    }
+    retVal = prev[0];
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    // Find the minimum steps between two indexes of ring
+    int countSteps(int curr, int next, int ringLength) {
+        int retVal = 0;
+
+        int stepsBetween = abs(curr - next);
+        int stepsAround = ringLength - stepsBetween;
+        retVal = min(stepsBetween, stepsAround);
+
+        return retVal;
+    }
+
+   public:
+    int findRotateSteps(string ring, string key) {
+        int retVal = 0;
+
+        int ringSize = ring.size();
+        int keySize = key.size();
+
+        vector<int> curr(ringSize, 0);
+        vector<int> prev(ringSize, 0);
+        fill(prev.begin(), prev.end(), 0);
+        // For each occurrence of the character at key_index of key in ring
+        // Stores minimum steps to the character from ringIndex of ring
+        for (int keyIndex = keySize - 1; keyIndex >= 0; keyIndex--) {
+            fill(curr.begin(), curr.end(), numeric_limits<int>::max());
+            for (int ringIndex = 0; ringIndex < ringSize; ringIndex++) {
+                for (int charIndex = 0; charIndex < ringSize; charIndex++) {
+                    if (ring[charIndex] == key[keyIndex]) {
+                        curr[ringIndex] =
+                            min(curr[ringIndex], 1 + countSteps(ringIndex, charIndex, ringSize) + prev[charIndex]);
+                    }
+                }
+            }
+            prev = curr;
+        }
+        retVal = prev[0];
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    # Find the minimum steps between two indexes of ring
+    def count_steps(self, ring: str, curr: int, next: int) -> int:
+        retVal = 0
+
+        ringSize = len(ring)
+        steps_between = abs(curr - next)
+        steps_around = ringSize - steps_between
+        retVal = min(steps_between, steps_around)
+
+        return retVal
+
+    def findRotateSteps(self, ring: str, key: str) -> int:
+        retVal = 0
+
+        ringSize = len(ring)
+        keySize = len(key)
+
+        # For each occurrence of the character at keyIndex of key in ring
+        # Stores minimum steps to the character from ring_index of ring
+        curr = [float('inf') for _ in range(ringSize)]
+        prev = [0 for _ in range(ringSize)]
+        for key_index in range(keySize - 1, -1, -1):
+            curr = [float('inf') for _ in range(ringSize)]
+            for ring_index in range(ringSize):
+                for character in range(ringSize):
+                    if ring[character] == key[key_index]:
+                        curr[ring_index] = min(
+                            curr[ring_index], 1 + self.count_steps(ring, ring_index, character) + prev[character])
+            prev = curr.copy()
+
+        retVal = prev[0]
+
+        return retVal
+```
+
+</details>
+
 ## [516. Longest Palindromic Subsequence](https://leetcode.com/problems/longest-palindromic-subsequence/)
 
 - [Official](https://leetcode.cn/problems/longest-palindromic-subsequence/solutions/930442/zui-chang-hui-wen-zi-xu-lie-by-leetcode-hcjqp/)
