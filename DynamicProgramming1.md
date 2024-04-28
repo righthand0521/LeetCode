@@ -8614,9 +8614,8 @@ class Solution:
 
 </details>
 
-## [834. Sum of Distances in Tree](https://leetcode.com/problems/sum-of-distances-in-tree/)
+## [834. Sum of Distances in Tree](https://leetcode.com/problems/sum-of-distances-in-tree/)  2197
 
-- [Official](https://leetcode.com/problems/sum-of-distances-in-tree/solutions/130611/sum-of-distances-in-tree/)
 - [Official](https://leetcode.cn/problems/sum-of-distances-in-tree/solutions/437205/shu-zhong-ju-chi-zhi-he-by-leetcode-solution/)
 
 <details><summary>Description</summary>
@@ -8629,43 +8628,28 @@ the array edges where edges[i] = [ai, bi] indicates that there is an edge betwee
 
 Return an array answer of length n where answer[i] is the sum of the distances
 between the ith node in the tree and all other nodes.
-```
 
-```text
 Example 1:
-```
-
-```mermaid
-graph TD
-    root((0)) --> l((1))
-    root((0)) --> r((2))
-    r((2)) --> r1((3))
-    r((2)) --> r2((4))
-    r((2)) --> r3((5))
-```
-
-```text
+  0
+ / \
+1   2
+   /|\
+  3 4 5
 Input: n = 6, edges = [[0,1],[0,2],[2,3],[2,4],[2,5]]
 Output: [8,12,6,10,10,10]
 Explanation: The tree is shown above.
 We can see that dist(0,1) + dist(0,2) + dist(0,3) + dist(0,4) + dist(0,5)
 equals 1 + 1 + 2 + 2 + 2 = 8.
 Hence, answer[0] = 8, and so on.
-```
 
-```text
 Example 2:
 Input: n = 1, edges = []
 Output: [0]
-```
 
-```text
 Example 3:
 Input: n = 2, edges = [[1,0]]
 Output: [1,1]
-```
 
-```text
 Constraints:
 1 <= n <= 3 * 10^4
 edges.length == n - 1
@@ -8680,69 +8664,236 @@ The given input represents a valid tree.
 <details><summary>C</summary>
 
 ```c
-int *ans, *sz, *dp;
-int *hd, *nx, *e;
-void dfs(int u, int f) {
+void dfs(int u, int f, int* sz, int* dp, int* hd, int* nx, int* e) {
     sz[u] = 1;
     dp[u] = 0;
-    for (int i = hd[u]; i; i = nx[i]) {
-        int v = e[i];
+
+    int v;
+    int i;
+    for (i = hd[u]; i; i = nx[i]) {
+        v = e[i];
         if (v == f) {
             continue;
         }
-        dfs(v, u);
-        dp[u] += dp[v] + sz[v];
+
+        dfs(v, u, sz, dp, hd, nx, e);
+
+        dp[u] += (dp[v] + sz[v]);
         sz[u] += sz[v];
     }
 }
-void dfs2(int u, int f) {
-    ans[u] = dp[u];
-    for (int i = hd[u]; i; i = nx[i]) {
-        int v = e[i];
+void dfs2(int u, int f, int* sz, int* dp, int* hd, int* nx, int* e, int* pRetVal) {
+    pRetVal[u] = dp[u];
+
+    int v, pu, pv, su, sv;
+    int i;
+    for (i = hd[u]; i; i = nx[i]) {
+        v = e[i];
         if (v == f) {
             continue;
         }
-        int pu = dp[u], pv = dp[v];
-        int su = sz[u], sv = sz[v];
+
+        pu = dp[u];
+        pv = dp[v];
+        su = sz[u];
+        sv = sz[v];
 
         dp[u] -= dp[v] + sz[v];
         sz[u] -= sz[v];
         dp[v] += dp[u] + sz[u];
         sz[v] += sz[u];
 
-        dfs2(v, u);
+        dfs2(v, u, sz, dp, hd, nx, e, pRetVal);
 
-        dp[u] = pu, dp[v] = pv;
-        sz[u] = su, sz[v] = sv;
+        dp[u] = pu;
+        dp[v] = pv;
+        sz[u] = su;
+        sz[v] = sv;
     }
 }
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
 int* sumOfDistancesInTree(int n, int** edges, int edgesSize, int* edgesColSize, int* returnSize) {
-    ans = malloc(sizeof(int) * n);
-    sz = malloc(sizeof(int) * n);
-    dp = malloc(sizeof(int) * n);
-    hd = malloc(sizeof(int) * n);
-    nx = malloc(sizeof(int) * (edgesSize * 2 + 1));
-    e = malloc(sizeof(int) * (edgesSize * 2 + 1));
-    for (int i = 0; i < n; i++) {
-        ans[i] = sz[i] = dp[i] = hd[i] = 0;
-    }
-    for (int i = 0, num = 0; i < edgesSize; i++) {
-        int u = edges[i][0], v = edges[i][1];
-        nx[++num] = hd[u], hd[u] = num, e[num] = v;
-        nx[++num] = hd[v], hd[v] = num, e[num] = u;
-    }
-    dfs(0, -1);
-    dfs2(0, -1);
-    *returnSize = n;
+    int* pRetVal = NULL;
 
-    free(sz);
-    free(dp);
-    free(hd);
-    free(nx);
+    //
+    pRetVal = (int*)malloc(n * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (n * sizeof(int)));
+    (*returnSize) = n;
+
+    //
+    int* sz = malloc(n * sizeof(int));
+    if (sz == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(sz, 0, (n * sizeof(int)));
+    //
+    int* dp = malloc(n * sizeof(int));
+    if (dp == NULL) {
+        perror("malloc");
+        goto szExit;
+        return pRetVal;
+    }
+    memset(dp, 0, (n * sizeof(int)));
+    //
+    int* hd = malloc(n * sizeof(int));
+    if (hd == NULL) {
+        perror("malloc");
+        goto dpExit;
+        return pRetVal;
+    }
+    memset(hd, 0, (n * sizeof(int)));
+    //
+    int adjacencySize = edgesSize * 2 + 1;
+    int* nx = malloc(adjacencySize * sizeof(int));
+    if (nx == NULL) {
+        perror("malloc");
+        goto hdExit;
+        return pRetVal;
+    }
+    memset(nx, 0, (adjacencySize * sizeof(int)));
+    //
+    int* e = malloc(adjacencySize * sizeof(int));
+    if (e == NULL) {
+        perror("malloc");
+        goto nxExit;
+        return pRetVal;
+    }
+    memset(e, 0, (adjacencySize * sizeof(int)));
+    int src, dst;
+    int i, num;
+    for (i = 0, num = 0; i < edgesSize; i++) {
+        src = edges[i][0];
+        dst = edges[i][1];
+
+        nx[++num] = hd[src];
+        hd[src] = num;
+        e[num] = dst;
+
+        nx[++num] = hd[dst];
+        hd[dst] = num;
+        e[num] = src;
+    }
+
+    //
+    dfs(0, -1, sz, dp, hd, nx, e);
+    dfs2(0, -1, sz, dp, hd, nx, e, pRetVal);
+
+    //
     free(e);
+    e = NULL;
+nxExit:
+    free(nx);
+    nx = NULL;
+hdExit:
+    free(hd);
+    hd = NULL;
+dpExit:
+    free(dp);
+    dp = NULL;
+szExit:
+    free(sz);
+    sz = NULL;
 
-    return ans;
+    return pRetVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    void dfs(int children, int parent, int depth, vector<vector<int>>& adjacency, vector<int>& distances,
+             vector<int>& retVal) {
+        retVal[0] += depth;
+        for (auto& neighnor : adjacency[children]) {
+            if (neighnor != parent) {
+                dfs(neighnor, children, depth + 1, adjacency, distances, retVal);
+                distances[children] += distances[neighnor];
+            }
+        }
+    }
+    void reroot(int children, int parent, vector<vector<int>>& adjacency, vector<int>& distances, int vertex,
+                vector<int>& retVal) {
+        for (auto& neighnor : adjacency[children]) {
+            if (neighnor != parent) {
+                retVal[neighnor] = retVal[children] + vertex - 2 * distances[neighnor];
+                reroot(neighnor, children, adjacency, distances, vertex, retVal);
+            }
+        }
+    }
+    vector<int> sumOfDistancesInTree(int n, vector<vector<int>>& edges) {
+        vector<int> retVal(n, 0);
+
+        vector<vector<int>> adjacency(n);
+        for (auto& edge : edges) {
+            int src = edge[0];
+            int dst = edge[1];
+            adjacency[src].emplace_back(dst);
+            adjacency[dst].emplace_back(src);
+        }
+        vector<int> distances(n, 1);
+
+        dfs(0, -1, 0, adjacency, distances, retVal);
+        reroot(0, -1, adjacency, distances, n, retVal);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.answer = None
+        self.vertex = None
+        self.adjacency = None
+        self.distances = None
+
+    def dfs(self, children: int, parent: int, depth: int) -> None:
+        self.answer[0] += depth
+
+        for neighnor in self.adjacency[children]:
+            if neighnor != parent:
+                self.dfs(neighnor, children, depth + 1)
+                self.distances[children] += self.distances[neighnor]
+
+    def reroot(self, children: int, parent: int) -> None:
+        for neighnor in self.adjacency[children]:
+            if neighnor != parent:
+                self.answer[neighnor] = self.answer[children] + \
+                    self.vertex - 2 * self.distances[neighnor]
+                self.reroot(neighnor, children)
+
+    def sumOfDistancesInTree(self, n: int, edges: List[List[int]]) -> List[int]:
+        retVal = []
+
+        self.answer = [0] * n
+        self.vertex = n
+        self.adjacency = [[] for _ in range(n)]
+        for x, y in edges:
+            self.adjacency[x].append(y)
+            self.adjacency[y].append(x)
+        self.distances = [1] * n
+
+        self.dfs(0, -1, 0)
+        self.reroot(0, -1)
+        retVal = self.answer
+
+        return retVal
 ```
 
 </details>

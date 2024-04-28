@@ -2,75 +2,151 @@
 #include <stdlib.h>
 #include <string.h>
 
-int *ans, *sz, *dp;
-int *hd, *nx, *e;
-void dfs(int u, int f) {
+void dfs(int u, int f, int* sz, int* dp, int* hd, int* nx, int* e) {
     sz[u] = 1;
     dp[u] = 0;
-    for (int i = hd[u]; i; i = nx[i]) {
-        int v = e[i];
+
+    int v;
+    int i;
+    for (i = hd[u]; i; i = nx[i]) {
+        v = e[i];
         if (v == f) {
             continue;
         }
-        dfs(v, u);
-        dp[u] += dp[v] + sz[v];
+
+        dfs(v, u, sz, dp, hd, nx, e);
+
+        dp[u] += (dp[v] + sz[v]);
         sz[u] += sz[v];
     }
 }
-void dfs2(int u, int f) {
-    ans[u] = dp[u];
-    for (int i = hd[u]; i; i = nx[i]) {
-        int v = e[i];
+void dfs2(int u, int f, int* sz, int* dp, int* hd, int* nx, int* e, int* pRetVal) {
+    pRetVal[u] = dp[u];
+
+    int v, pu, pv, su, sv;
+    int i;
+    for (i = hd[u]; i; i = nx[i]) {
+        v = e[i];
         if (v == f) {
             continue;
         }
-        int pu = dp[u], pv = dp[v];
-        int su = sz[u], sv = sz[v];
+
+        pu = dp[u];
+        pv = dp[v];
+        su = sz[u];
+        sv = sz[v];
 
         dp[u] -= dp[v] + sz[v];
         sz[u] -= sz[v];
         dp[v] += dp[u] + sz[u];
         sz[v] += sz[u];
 
-        dfs2(v, u);
+        dfs2(v, u, sz, dp, hd, nx, e, pRetVal);
 
-        dp[u] = pu, dp[v] = pv;
-        sz[u] = su, sz[v] = sv;
+        dp[u] = pu;
+        dp[v] = pv;
+        sz[u] = su;
+        sz[v] = sv;
     }
 }
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
 int* sumOfDistancesInTree(int n, int** edges, int edgesSize, int* edgesColSize, int* returnSize) {
-    ans = malloc(sizeof(int) * n);
-    sz = malloc(sizeof(int) * n);
-    dp = malloc(sizeof(int) * n);
-    hd = malloc(sizeof(int) * n);
-    nx = malloc(sizeof(int) * (edgesSize * 2 + 1));
-    e = malloc(sizeof(int) * (edgesSize * 2 + 1));
-    for (int i = 0; i < n; i++) {
-        ans[i] = sz[i] = dp[i] = hd[i] = 0;
-    }
-    for (int i = 0, num = 0; i < edgesSize; i++) {
-        int u = edges[i][0], v = edges[i][1];
-        nx[++num] = hd[u], hd[u] = num, e[num] = v;
-        nx[++num] = hd[v], hd[v] = num, e[num] = u;
-    }
-    dfs(0, -1);
-    dfs2(0, -1);
-    *returnSize = n;
+    int* pRetVal = NULL;
 
-    free(sz);
-    free(dp);
-    free(hd);
-    free(nx);
+    //
+    pRetVal = (int*)malloc(n * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (n * sizeof(int)));
+    (*returnSize) = n;
+
+    //
+    int* sz = malloc(n * sizeof(int));
+    if (sz == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(sz, 0, (n * sizeof(int)));
+    //
+    int* dp = malloc(n * sizeof(int));
+    if (dp == NULL) {
+        perror("malloc");
+        goto szExit;
+        return pRetVal;
+    }
+    memset(dp, 0, (n * sizeof(int)));
+    //
+    int* hd = malloc(n * sizeof(int));
+    if (hd == NULL) {
+        perror("malloc");
+        goto dpExit;
+        return pRetVal;
+    }
+    memset(hd, 0, (n * sizeof(int)));
+    //
+    int adjacencySize = edgesSize * 2 + 1;
+    int* nx = malloc(adjacencySize * sizeof(int));
+    if (nx == NULL) {
+        perror("malloc");
+        goto hdExit;
+        return pRetVal;
+    }
+    memset(nx, 0, (adjacencySize * sizeof(int)));
+    //
+    int* e = malloc(adjacencySize * sizeof(int));
+    if (e == NULL) {
+        perror("malloc");
+        goto nxExit;
+        return pRetVal;
+    }
+    memset(e, 0, (adjacencySize * sizeof(int)));
+    int src, dst;
+    int i, num;
+    for (i = 0, num = 0; i < edgesSize; i++) {
+        src = edges[i][0];
+        dst = edges[i][1];
+
+        nx[++num] = hd[src];
+        hd[src] = num;
+        e[num] = dst;
+
+        nx[++num] = hd[dst];
+        hd[dst] = num;
+        e[num] = src;
+    }
+
+    //
+    dfs(0, -1, sz, dp, hd, nx, e);
+    dfs2(0, -1, sz, dp, hd, nx, e, pRetVal);
+
+    //
     free(e);
+    e = NULL;
+nxExit:
+    free(nx);
+    nx = NULL;
+hdExit:
+    free(hd);
+    hd = NULL;
+dpExit:
+    free(dp);
+    dp = NULL;
+szExit:
+    free(sz);
+    sz = NULL;
 
-    return ans;
+    return pRetVal;
 }
 
 int main(int argc, char** argv) {
-#define MAX_SIZE (3 * 100)
+#define MAX_SIZE (3 * 10000)
     struct testCaseType {
         int n;
-        int edges[MAX_SIZE][MAX_SIZE];
+        int edges[MAX_SIZE][2];
         int edgesSize;
         int edgesColSize[MAX_SIZE];
         int returnSize;
@@ -78,6 +154,16 @@ int main(int argc, char** argv) {
                     {1, {{}}, 0, {}, 0},
                     {2, {{1, 0}}, 1, {2}, 0}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: n = 6, edges = [[0,1],[0,2],[2,3],[2,4],[2,5]]
+     *  Output: [8,12,6,10,10,10]
+     *
+     *  Input: n = 1, edges = []
+     *  Output: [0]
+     *
+     *  Input: n = 2, edges = [[1,0]]
+     *  Output: [1,1]
+     */
 
     int** pEdges = NULL;
     int* pAnswer = NULL;
