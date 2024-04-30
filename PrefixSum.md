@@ -824,6 +824,232 @@ class Solution:
 
 </details>
 
+## [1915. Number of Wonderful Substrings](https://leetcode.com/problems/number-of-wonderful-substrings)  2234
+
+- [Official](https://leetcode.com/problems/number-of-wonderful-substrings/editorial/)
+- [Official](https://leetcode.cn/problems/number-of-wonderful-substrings/solutions/847086/zui-mei-zi-zi-fu-chuan-de-shu-mu-by-leet-2j7g/)
+
+<details><summary>Description</summary>
+
+```text
+A wonderful string is a string where at most one letter appears an odd number of times.
+- For example, "ccjjc" and "abab" are wonderful, but "ab" is not.
+
+Given a string word that consists of the first ten lowercase English letters ('a' through 'j'),
+return the number of wonderful non-empty substrings in word.
+If the same substring appears multiple times in word, then count each occurrence separately.
+
+A substring is a contiguous sequence of characters in a string.
+
+Example 1:
+Input: word = "aba"
+Output: 4
+Explanation: The four wonderful substrings are underlined below:
+- "aba" -> "a"
+- "aba" -> "b"
+- "aba" -> "a"
+- "aba" -> "aba"
+
+Example 2:
+Input: word = "aabb"
+Output: 9
+Explanation: The nine wonderful substrings are underlined below:
+- "aabb" -> "a"
+- "aabb" -> "aa"
+- "aabb" -> "aab"
+- "aabb" -> "aabb"
+- "aabb" -> "a"
+- "aabb" -> "abb"
+- "aabb" -> "b"
+- "aabb" -> "bb"
+- "aabb" -> "b"
+
+Example 3:
+Input: word = "he"
+Output: 2
+Explanation: The two wonderful substrings are underlined below:
+- "he" -> "h"
+- "he" -> "e"
+
+Constraints:
+1 <= word.length <= 10^5
+word consists of lowercase English letters from 'a' to 'j'.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. For each prefix of the string,
+   check which characters are of even frequency and which are not and represent it by a bitmask.
+2. Find the other prefixes whose masks differs from the current prefix mask by at most one bit.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable* pFree) {
+    struct hashTable* current;
+    struct hashTable* tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+long long wonderfulSubstrings(char* word) {
+    long long retVal = 0;
+
+    struct hashTable* pFrequency = NULL;
+    struct hashTable* pTemp = NULL;
+
+    // Create the frequency map : Key = bitmask, Value = frequency of bitmask key
+    pTemp = (struct hashTable*)malloc(sizeof(struct hashTable));
+    if (pTemp == NULL) {
+        perror("malloc");
+        goto exit;
+    }
+    pTemp->key = 0;
+    pTemp->value = 1;
+    HASH_ADD_INT(pFrequency, key, pTemp);
+
+    int bit, odd, bitmask;
+    int mask = 0;
+    int wordSize = strlen(word);
+    int i;
+    for (i = 0; i < wordSize; ++i) {
+        // a string word that consists of the first ten lowercase English letters
+        bit = word[i] - 'a';
+
+        // Flip the parity of the c-th bit in the running prefix mask
+        mask ^= (1 << bit);
+
+        // Count smaller prefixes that create substrings with no odd occurring letters
+        pTemp = NULL;
+        HASH_FIND_INT(pFrequency, &mask, pTemp);
+        if (pTemp != NULL) {
+            retVal += pTemp->value;
+            pTemp->value += 1;
+        } else {
+            pTemp = (struct hashTable*)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                goto exit;
+            }
+            pTemp->key = mask;
+            pTemp->value = 1;
+            HASH_ADD_INT(pFrequency, key, pTemp);
+        }
+
+        // Loop through every possible letter that can appear an odd number of times in a substring
+        for (odd = 0; odd < 10; ++odd) {
+            bitmask = mask ^ (1 << odd);
+            pTemp = NULL;
+            HASH_FIND_INT(pFrequency, &bitmask, pTemp);
+            if (pTemp != NULL) {
+                retVal += pTemp->value;
+            }
+        }
+    }
+
+exit:
+    freeAll(pFrequency);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    long long wonderfulSubstrings(string word) {
+        long long retVal = 0;
+
+        // Create the frequency map : Key = bitmask, Value = frequency of bitmask key
+        unordered_map<int, int> frequency;
+        frequency[0] = 1;
+
+        int mask = 0;
+        for (auto c : word) {
+            // a string word that consists of the first ten lowercase English letters
+            int bit = c - 'a';
+
+            // Flip the parity of the c-th bit in the running prefix mask
+            mask ^= (1 << bit);
+
+            // Count smaller prefixes that create substrings with no odd occurring letters
+            auto iterator = frequency.find(mask);
+            if (iterator != frequency.end()) {
+                retVal += frequency[mask];
+                frequency[mask] += 1;
+            } else {
+                frequency[mask] = 1;
+            }
+
+            // Loop through every possible letter that can appear an odd number of times in a substring
+            for (int odd = 0; odd < 10; ++odd) {
+                int bitmask = mask ^ (1 << odd);
+                auto iterator = frequency.find(bitmask);
+                if (iterator != frequency.end()) {
+                    retVal += frequency[bitmask];
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def wonderfulSubstrings(self, word: str) -> int:
+        retVal = 0
+
+        # Create the frequency map: Key = bitmask, Value = frequency of bitmask key
+        frequency = {}
+        frequency[0] = 1
+
+        mask = 0
+        for c in word:
+            # a string word that consists of the first ten lowercase English letters
+            bit = ord(c) - ord('a')
+
+            # Flip the parity of the c-th bit in the running prefix mask
+            mask ^= (1 << bit)
+            if mask in frequency:   # Count smaller prefixes that create substrings with no odd occurring letters
+                retVal += frequency[mask]
+                frequency[mask] += 1
+            else:
+                frequency[mask] = 1
+
+            # Loop through every possible letter that can appear an odd number of times in a substring
+            for odd in range(0, 10):
+                bitmask = mask ^ (1 << odd)
+                if bitmask in frequency:
+                    retVal += frequency[bitmask]
+
+        return retVal
+```
+
+</details>
+
 ## [1991. Find the Middle Index in Array](https://leetcode.com/problems/find-the-middle-index-in-array/)  1302
 
 - [Official](https://leetcode.cn/problems/find-the-middle-index-in-array/solutions/1010005/zhao-dao-shu-zu-de-zhong-jian-wei-zhi-by-s8cy/)
