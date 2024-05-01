@@ -3285,6 +3285,126 @@ class Solution {
 
 </details>
 
+## [2000. Reverse Prefix of Word](https://leetcode.com/problems/reverse-prefix-of-word/)  1199
+
+- [Official](https://leetcode.com/problems/reverse-prefix-of-word/editorial/)
+- [Official](https://leetcode.cn/problems/reverse-prefix-of-word/solutions/1239946/fan-zhuan-dan-ci-qian-zhui-by-leetcode-s-ruaj/)
+
+<details><summary>Description</summary>
+
+```text
+Given a 0-indexed string word and a character ch,
+reverse the segment of word that starts at index 0 and ends at the index of the first occurrence of ch (inclusive).
+If the character ch does not exist in word, do nothing.
+- For example, if word = "abcdefd" and ch = "d",
+  then you should reverse the segment that starts at 0 and ends at 3 (inclusive).
+  The resulting string will be "dcbaefd".
+
+Return the resulting string.
+
+Example 1:
+Input: word = "abcdefd", ch = "d"
+Output: "dcbaefd"
+Explanation: The first occurrence of "d" is at index 3.
+Reverse the part of word from 0 to 3 (inclusive), the resulting string is "dcbaefd".
+
+Example 2:
+Input: word = "xyxzxe", ch = "z"
+Output: "zxyxxe"
+Explanation: The first and only occurrence of "z" is at index 3.
+Reverse the part of word from 0 to 3 (inclusive), the resulting string is "zxyxxe".
+
+Example 3:
+Input: word = "abcd", ch = "z"
+Output: "abcd"
+Explanation: "z" does not exist in word.
+You should not do any reverse operation, the resulting string is "abcd".
+
+Constraints:
+1 <= word.length <= 250
+word consists of lowercase English letters.
+ch is a lowercase English letter.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Find the first index where ch appears.
+2. Find a way to reverse a substring of word.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+char* reversePrefix(char* word, char ch) {
+    char* pRetVal = word;
+
+    int wordSize = strlen(word);
+    int i;
+    for (i = 0; i < wordSize; ++i) {
+        if (word[i] == ch) {
+            break;
+        }
+    }
+    if (i == wordSize) {
+        return pRetVal;
+    }
+
+    char tmp;
+    int left = 0;
+    int right = i;
+    while (left < right) {
+        tmp = word[right];
+        word[right--] = word[left];
+        word[left++] = tmp;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    string reversePrefix(string word, char ch) {
+        string retVal = word;
+
+        size_t index = word.find(ch);
+        if (index == string::npos) {
+            return retVal;
+        }
+        reverse(retVal.begin(), retVal.begin() + index + 1);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def reversePrefix(self, word: str, ch: str) -> str:
+        retVal = word
+
+        idx = word.find(ch) + 1
+        retVal = word[:idx][::-1] + word[idx:]
+
+        return retVal
+```
+
+</details>
+
 ## [2108. Find First Palindromic String in the Array](https://leetcode.com/problems/find-first-palindromic-string-in-the-array/)  1215
 
 - [Official](https://leetcode.com/problems/find-first-palindromic-string-in-the-array/editorial/)
