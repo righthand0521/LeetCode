@@ -555,6 +555,8 @@ class WordDictionary:
 
 ## [212. Word Search II](https://leetcode.com/problems/word-search-ii/)
 
+- [Official](https://leetcode.cn/problems/word-search-ii/solutions/1000172/dan-ci-sou-suo-ii-by-leetcode-solution-7494/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -563,31 +565,15 @@ Given an m x n board of characters and a list of strings words, return all words
 Each word must be constructed from letters of sequentially adjacent cells,
 where adjacent cells are horizontally or vertically neighboring.
 The same letter cell may not be used more than once in a word.
-```
 
-```text
 Example 1:
 Input: board = [["o","a","a","n"],["e","t","a","e"],["i","h","k","r"],["i","f","l","v"]], words = ["oath","pea","eat","rain"]
 Output: ["eat","oath"]
-```
 
-```mermaid
-graph TD
-    subgraph words = oath, pea, eat, rain
-        root((root)) --> w00((o)) --> w01((a)) --> w02((t)) --> w03((h)) --- str0[oath]
-        root((root)) --> w10((p)) --> w11((e)) --> w12((a)) --- str1[pea]
-        root((root)) --> w20((e)) --> w21((a)) --> w22((t)) --- str2[eat]
-        root((root)) --> w30((r)) --> w31((a)) --> w32((i)) --> w33((n)) --- str3[rain]
-    end
-```
-
-```text
 Example 2:
 Input: board = [["a","b"],["c","d"]], words = ["abcb"]
 Output: []
-```
 
-```text
 Constraints:
 m == board.length
 n == board[i].length
@@ -716,6 +702,140 @@ char** findWords(char** board, int boardSize, int* boardColSize, char** words, i
 
     return pRetVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    struct TrieNode {
+        string word;
+        unordered_map<char, TrieNode*> children;
+        TrieNode() { this->word = ""; }
+    };
+    void insertTrie(TrieNode* root, const string& word) {
+        TrieNode* node = root;
+        for (auto c : word) {
+            if (node->children.count(c) == 0) {
+                node->children[c] = new TrieNode();
+            }
+            node = node->children[c];
+        }
+        node->word = word;
+    }
+
+   public:
+    bool dfs(vector<vector<char>>& board, int row, int col, TrieNode* root, set<string>& answer) {
+        bool retVal = false;
+
+        char ch = board[row][col];
+        if (root->children.count(ch) == 0) {
+            return retVal;
+        }
+
+        root = root->children[ch];
+        if (root->word.size() > 0) {
+            answer.insert(root->word);
+        }
+
+        board[row][col] = '#';
+        int dirs[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        int boardSize = board.size();
+        int boardColSize = board[0].size();
+        for (int i = 0; i < 4; ++i) {
+            int x = row + dirs[i][0];
+            int y = col + dirs[i][1];
+            if ((x >= 0) && (x < boardSize) && (y >= 0) && (y < boardColSize)) {
+                if (board[x][y] != '#') {
+                    dfs(board, x, y, root, answer);
+                }
+            }
+        }
+        board[row][col] = ch;
+        retVal = true;
+
+        return retVal;
+    }
+    vector<string> findWords(vector<vector<char>>& board, vector<string>& words) {
+        vector<string> retVal;
+
+        TrieNode* root = new TrieNode();
+        for (auto& word : words) {
+            insertTrie(root, word);
+        }
+
+        set<string> answer;
+        int boardSize = board.size();
+        int boardColSize = board[0].size();
+        for (int row = 0; row < boardSize; ++row) {
+            for (int col = 0; col < boardColSize; ++col) {
+                dfs(board, row, col, root, answer);
+            }
+        }
+        for (auto& word : answer) {
+            retVal.emplace_back(word);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Trie:
+    def __init__(self) -> None:
+        self.children = defaultdict(Trie)
+        self.word = ""
+
+    def insert(self, word: str) -> None:
+        cur = self
+        for c in word:
+            cur = cur.children[c]
+        cur.is_word = True
+        cur.word = word
+
+
+class Solution:
+    def dfs(self, board: List[List[str]], now: Trie, row: int, col: int, answer: set) -> None:
+        if board[row][col] not in now.children:
+            return
+
+        ch = board[row][col]
+        now = now.children[ch]
+        if now.word != "":
+            answer.add(now.word)
+
+        board[row][col] = "#"
+        boardSize = len(board)
+        boardColSize = len(board[0])
+        for i2, j2 in [(row + 1, col), (row - 1, col), (row, col + 1), (row, col - 1)]:
+            if (0 <= i2 < boardSize) and (0 <= j2 < boardColSize):
+                self.dfs(board, now, i2, j2, answer)
+        board[row][col] = ch
+
+    def findWords(self, board: List[List[str]], words: List[str]) -> List[str]:
+        retVal = []
+
+        trie = Trie()
+        for word in words:
+            trie.insert(word)
+
+        answer = set()
+        boardSize = len(board)
+        boardColSize = len(board[0])
+        for row in range(boardSize):
+            for col in range(boardColSize):
+                self.dfs(board, trie, row, col, answer)
+        retVal = list(answer)
+
+        return retVal
 ```
 
 </details>

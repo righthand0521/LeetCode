@@ -125,21 +125,17 @@ int main(int argc, char** argv) {
         char* words[WORDS_LENGTH];
         int wordsSize;
         int returnSize;
-    } testCase[] = {{// {{'o','a','a','n'},{'e','t','a','e'},{'i','h','k','r'},{'i','f','l','v'}}
-                     {"oaan", "etae", "ihkr", "iflv"},
-                     4,
-                     {4, 4, 4, 4},
-                     {"oath", "pea", "eat", "rain"},
-                     4,
-                     0},
-                    {//{{'a','b'},{'c','d'}}
-                     {"ab", "cd"},
-                     2,
-                     {2, 2},
-                     {"abcb"},
-                     1,
-                     0}};
+    } testCase[] = {{{"oaan", "etae", "ihkr", "iflv"}, 4, {4, 4, 4, 4}, {"oath", "pea", "eat", "rain"}, 4, 0},
+                    {{"ab", "cd"}, 2, {2, 2}, {"abcb"}, 1, 0}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: board = [["o","a","a","n"],["e","t","a","e"],["i","h","k","r"],["i","f","l","v"]],
+     *          words = ["oath","pea","eat","rain"]
+     *  Output: ["eat","oath"]
+     *
+     *  Input: board = [["a","b"],["c","d"]], words = ["abcb"]
+     *  Output: []
+     */
 
     char** pBoard = NULL;
     char** pAnswer = NULL;
