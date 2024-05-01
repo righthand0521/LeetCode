@@ -44,7 +44,6 @@ class WordDictionary {
 
         return retVal;
     }
-
     bool match(string& word, TrieNode* pRoot, int start) {
         bool retVal = false;
 

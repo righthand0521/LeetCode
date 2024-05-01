@@ -451,7 +451,6 @@ class WordDictionary {
 
         return retVal;
     }
-
     bool match(string& word, TrieNode* pRoot, int start) {
         bool retVal = false;
 
@@ -485,6 +484,71 @@ class WordDictionary {
  * obj->addWord(word);
  * bool param_2 = obj->search(word);
  */
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class TrieNode:
+    def __init__(self):
+        # word in addWord consists of lowercase English letters.
+        self.letters = 26
+        self.children = [None] * self.letters
+        self.isEnd = False
+
+    def insert(self, word: str) -> None:
+        node = self
+        for ch in word:
+            ch = ord(ch) - ord('a')
+            if not node.children[ch]:
+                node.children[ch] = TrieNode()
+            node = node.children[ch]
+        node.isEnd = True
+
+
+class WordDictionary:
+    def __init__(self):
+        self.trieRoot = TrieNode()
+
+    def addWord(self, word: str) -> None:
+        self.trieRoot.insert(word)
+
+    def search(self, word: str) -> bool:
+        retVal = False
+
+        wordSize = len(word)
+
+        def dfs(index: int, node: TrieNode) -> bool:
+            retVal = False
+
+            if index == wordSize:
+                retVal = node.isEnd
+                return retVal
+
+            ch = word[index]
+            if ch != '.':
+                child = node.children[ord(ch) - ord('a')]
+                if child is not None and dfs(index + 1, child):
+                    retVal = True
+            else:
+                for child in node.children:
+                    if child is not None and dfs(index + 1, child):
+                        retVal = True
+                        break
+
+            return retVal
+
+        retVal = dfs(0, self.trieRoot)
+
+        return retVal
+
+
+# Your WordDictionary object will be instantiated and called as such:
+# obj = WordDictionary()
+# obj.addWord(word)
+# param_2 = obj.search(word)
 ```
 
 </details>
