@@ -1072,66 +1072,33 @@ All the given revisions in version1 and version2 can be stored in a 32-bit integ
 int compareVersion(char* version1, char* version2) {
     int retVal = COMPARE_EQUAL;
 
-    int len1 = strlen(version1);
-    int len2 = strlen(version2);
+    int version1Size = strlen(version1);
+    int version2Size = strlen(version2);
+
+    int sum1, sum2 = 0;
     int idx1 = 0;
     int idx2 = 0;
-    int len = fmax(len1, len2);
-    char buf1[len];
-    char buf2[len];
-    char tmp[len];
-    int count;
-    int count1;
-    int count2;
-    int i;
-    while ((idx1 < len1) || (idx2 < len2)) {
-        //
-        count1 = 0;
-        memset(buf1, 0, sizeof(buf1));
-        while ((idx1 < len1) && (version1[idx1] != '.')) {
-            buf1[count1++] = version1[idx1];
-            ++idx1;
+    while ((idx1 < version1Size) || (idx2 < version2Size)) {
+        sum1 = 0;
+        while ((idx1 < version1Size) && (version1[idx1] != '.')) {
+            sum1 = 10 * sum1 + (version1[idx1] - '0');
+            idx1++;
         }
-        ++idx1;
+        idx1++;
 
-        count2 = 0;
-        memset(buf2, 0, sizeof(buf2));
-        while ((idx2 < len2) && (version2[idx2] != '.')) {
-            buf2[count2++] = version2[idx2];
-            ++idx2;
+        sum2 = 0;
+        while ((idx2 < version2Size) && (version2[idx2] != '.')) {
+            sum2 = 10 * sum2 + (version2[idx2] - '0');
+            idx2++;
         }
-        ++idx2;
+        idx2++;
 
-        //
-        count = fmax(count1, count2);
-
-        memset(tmp, 0, sizeof(tmp));
-        memcpy(tmp, buf1, sizeof(tmp));
-        for (i = 0; i < count - count1; ++i) {
-            buf1[i] = '0';
-        }
-        for (i = 0; i < count1; ++i) {
-            buf1[i + count - count1] = tmp[i];
-        }
-
-        memset(tmp, 0, sizeof(tmp));
-        memcpy(tmp, buf2, sizeof(tmp));
-        for (i = 0; i < count - count2; ++i) {
-            buf2[i] = '0';
-        }
-        for (i = 0; i < count2; ++i) {
-            buf2[i + count - count2] = tmp[i];
-        }
-
-        //
-        for (i = 0; i < count; ++i) {
-            if (buf1[i] < buf2[i]) {
-                retVal = COMPARE_SMALL;
-                return retVal;
-            } else if (buf1[i] > buf2[i]) {
-                retVal = COMPARE_LARGE;
-                return retVal;
-            }
+        if (sum1 > sum2) {
+            retVal = COMPARE_LARGE;
+            break;
+        } else if (sum1 < sum2) {
+            retVal = COMPARE_SMALL;
+            break;
         }
     }
 
@@ -1145,64 +1112,94 @@ int compareVersion(char* version1, char* version2) {
 
 ```c++
 class Solution {
-/* Return the following:
- *  If version1 < version2, return -1.
- *  If version1 > version2, return 1.
- *  Otherwise, return 0.
- */
-#define COMPARE_SMALL (-1)
-#define COMPARE_LARGE (1)
-#define COMPARE_EQUAL (0)
+   private:
+    /* Return the following:
+     *  If version1 < version2, return -1.
+     *  If version1 > version2, return 1.
+     *  Otherwise, return 0.
+     */
+    int small = -1;
+    int large = 1;
+    int equal = 0;
+
    public:
     int compareVersion(string version1, string version2) {
-        int retVal = COMPARE_EQUAL;
+        int retVal = equal;
 
-        int len1 = version1.size();
-        int len2 = version2.size();
+        int version1Size = version1.size();
+        int version2Size = version2.size();
+
         int idx1 = 0;
         int idx2 = 0;
-        while ((idx1 < len1) || (idx2 < len2)) {
-            //
-            vector<char> l1;
-            while ((idx1 < len1) && (version1[idx1] != '.')) {
-                l1.push_back(version1[idx1]);
-                ++idx1;
+        while ((idx1 < version1Size) || (idx2 < version2Size)) {
+            int sum1 = 0;
+            while ((idx1 < version1Size) && (version1[idx1] != '.')) {
+                sum1 = 10 * sum1 + (version1[idx1] - '0');
+                idx1++;
             }
-            ++idx1;
+            idx1++;
 
-            vector<char> l2;
-            while ((idx2 < len2) && (version2[idx2] != '.')) {
-                l2.push_back(version2[idx2]);
-                ++idx2;
+            int sum2 = 0;
+            while ((idx2 < version2Size) && (version2[idx2] != '.')) {
+                sum2 = 10 * sum2 + (version2[idx2] - '0');
+                idx2++;
             }
-            ++idx2;
+            idx2++;
 
-            //
-            int count1 = l1.size();
-            int count2 = l2.size();
-            int count = max(count1, count2);
-            for (int i = 0; i < count - count1; ++i) {
-                l1.insert(l1.begin(), '0');
-            }
-            for (int i = 0; i < count - count2; ++i) {
-                l2.insert(l2.begin(), '0');
-            }
-
-            //
-            for (int i = 0; i < count; ++i) {
-                if (l1[i] < l2[i]) {
-                    retVal = COMPARE_SMALL;
-                    return retVal;
-                } else if (l1[i] > l2[i]) {
-                    retVal = COMPARE_LARGE;
-                    return retVal;
-                }
+            if (sum1 > sum2) {
+                retVal = large;
+                break;
+            } else if (sum1 < sum2) {
+                retVal = small;
+                break;
             }
         }
 
         return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.small = -1
+        self.large = 1
+        self.equal = 0
+
+    def compareVersion(self, version1: str, version2: str) -> int:
+        retVal = self.equal
+
+        version1Size = len(version1)
+        version2Size = len(version2)
+
+        idx1 = 0
+        idx2 = 0
+        while (idx1 < version1Size) or (idx2 < version2Size):
+            sum1 = 0
+            while (idx1 < version1Size) and (version1[idx1] != '.'):
+                sum1 = sum1 * 10 + int(version1[idx1])
+                idx1 += 1
+            idx1 += 1
+
+            sum2 = 0
+            while (idx2 < version2Size) and (version2[idx2] != '.'):
+                sum2 = sum2 * 10 + int(version2[idx2])
+                idx2 += 1
+            idx2 += 1
+
+            if sum1 > sum2:
+                retVal = self.large
+                break
+            elif sum1 < sum2:
+                retVal = self.small
+                break
+
+        return retVal
 ```
 
 </details>

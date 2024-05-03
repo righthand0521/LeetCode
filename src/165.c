@@ -1,4 +1,3 @@
-#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,66 +13,33 @@
 int compareVersion(char* version1, char* version2) {
     int retVal = COMPARE_EQUAL;
 
-    int len1 = strlen(version1);
-    int len2 = strlen(version2);
+    int version1Size = strlen(version1);
+    int version2Size = strlen(version2);
+
+    int sum1, sum2 = 0;
     int idx1 = 0;
     int idx2 = 0;
-    int len = fmax(len1, len2);
-    char buf1[len];
-    char buf2[len];
-    char tmp[len];
-    int count;
-    int count1;
-    int count2;
-    int i;
-    while ((idx1 < len1) || (idx2 < len2)) {
-        //
-        count1 = 0;
-        memset(buf1, 0, sizeof(buf1));
-        while ((idx1 < len1) && (version1[idx1] != '.')) {
-            buf1[count1++] = version1[idx1];
-            ++idx1;
+    while ((idx1 < version1Size) || (idx2 < version2Size)) {
+        sum1 = 0;
+        while ((idx1 < version1Size) && (version1[idx1] != '.')) {
+            sum1 = 10 * sum1 + (version1[idx1] - '0');
+            idx1++;
         }
-        ++idx1;
+        idx1++;
 
-        count2 = 0;
-        memset(buf2, 0, sizeof(buf2));
-        while ((idx2 < len2) && (version2[idx2] != '.')) {
-            buf2[count2++] = version2[idx2];
-            ++idx2;
+        sum2 = 0;
+        while ((idx2 < version2Size) && (version2[idx2] != '.')) {
+            sum2 = 10 * sum2 + (version2[idx2] - '0');
+            idx2++;
         }
-        ++idx2;
+        idx2++;
 
-        //
-        count = fmax(count1, count2);
-
-        memset(tmp, 0, sizeof(tmp));
-        memcpy(tmp, buf1, sizeof(tmp));
-        for (i = 0; i < count - count1; ++i) {
-            buf1[i] = '0';
-        }
-        for (i = 0; i < count1; ++i) {
-            buf1[i + count - count1] = tmp[i];
-        }
-
-        memset(tmp, 0, sizeof(tmp));
-        memcpy(tmp, buf2, sizeof(tmp));
-        for (i = 0; i < count - count2; ++i) {
-            buf2[i] = '0';
-        }
-        for (i = 0; i < count2; ++i) {
-            buf2[i + count - count2] = tmp[i];
-        }
-
-        //
-        for (i = 0; i < count; ++i) {
-            if (buf1[i] < buf2[i]) {
-                retVal = COMPARE_SMALL;
-                return retVal;
-            } else if (buf1[i] > buf2[i]) {
-                retVal = COMPARE_LARGE;
-                return retVal;
-            }
+        if (sum1 > sum2) {
+            retVal = COMPARE_LARGE;
+            break;
+        } else if (sum1 < sum2) {
+            retVal = COMPARE_SMALL;
+            break;
         }
     }
 

@@ -5,58 +5,46 @@
 using namespace std;
 
 class Solution {
-/* Return the following:
- *  If version1 < version2, return -1.
- *  If version1 > version2, return 1.
- *  Otherwise, return 0.
- */
-#define COMPARE_SMALL (-1)
-#define COMPARE_LARGE (1)
-#define COMPARE_EQUAL (0)
+   private:
+    /* Return the following:
+     *  If version1 < version2, return -1.
+     *  If version1 > version2, return 1.
+     *  Otherwise, return 0.
+     */
+    int small = -1;
+    int large = 1;
+    int equal = 0;
+
    public:
     int compareVersion(string version1, string version2) {
-        int retVal = COMPARE_EQUAL;
+        int retVal = equal;
 
-        int len1 = version1.size();
-        int len2 = version2.size();
+        int version1Size = version1.size();
+        int version2Size = version2.size();
+
         int idx1 = 0;
         int idx2 = 0;
-        while ((idx1 < len1) || (idx2 < len2)) {
-            //
-            vector<char> l1;
-            while ((idx1 < len1) && (version1[idx1] != '.')) {
-                l1.push_back(version1[idx1]);
-                ++idx1;
+        while ((idx1 < version1Size) || (idx2 < version2Size)) {
+            int sum1 = 0;
+            while ((idx1 < version1Size) && (version1[idx1] != '.')) {
+                sum1 = 10 * sum1 + (version1[idx1] - '0');
+                idx1++;
             }
-            ++idx1;
+            idx1++;
 
-            vector<char> l2;
-            while ((idx2 < len2) && (version2[idx2] != '.')) {
-                l2.push_back(version2[idx2]);
-                ++idx2;
+            int sum2 = 0;
+            while ((idx2 < version2Size) && (version2[idx2] != '.')) {
+                sum2 = 10 * sum2 + (version2[idx2] - '0');
+                idx2++;
             }
-            ++idx2;
+            idx2++;
 
-            //
-            int count1 = l1.size();
-            int count2 = l2.size();
-            int count = max(count1, count2);
-            for (int i = 0; i < count - count1; ++i) {
-                l1.insert(l1.begin(), '0');
-            }
-            for (int i = 0; i < count - count2; ++i) {
-                l2.insert(l2.begin(), '0');
-            }
-
-            //
-            for (int i = 0; i < count; ++i) {
-                if (l1[i] < l2[i]) {
-                    retVal = COMPARE_SMALL;
-                    return retVal;
-                } else if (l1[i] > l2[i]) {
-                    retVal = COMPARE_LARGE;
-                    return retVal;
-                }
+            if (sum1 > sum2) {
+                retVal = large;
+                break;
+            } else if (sum1 < sum2) {
+                retVal = small;
+                break;
             }
         }
 
