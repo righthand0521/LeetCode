@@ -26,9 +26,16 @@ int main(int argc, char** argv) {
     struct testCaseType {
         int node[MAX_SIZE];
         int nodeSize;
-        int delete;
+        int deleteVal;
     } testCase[] = {{{4, 5, 1, 9}, 4, 5}, {{4, 5, 1, 9}, 4, 1}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: head = [4,5,1,9], node = 5
+     *  Output: [4,1,9]
+     *
+     *  Input: head = [4,5,1,9], node = 1
+     *  Output: [4,5,9]
+     */
 
     struct ListNode* pNode = NULL;
     struct ListNode* pHead = NULL;
@@ -39,11 +46,11 @@ int main(int argc, char** argv) {
         }
         printf("Input: head = [");
         printList(pHead);
-        printf("], node = %d\n", testCase[i].delete);
+        printf("], node = %d\n", testCase[i].deleteVal);
 
         pNode = pHead;
         while (pNode != NULL) {
-            if (pNode->val == testCase[i].delete) {
+            if (pNode->val == testCase[i].deleteVal) {
                 break;
             }
             pNode = pNode->next;

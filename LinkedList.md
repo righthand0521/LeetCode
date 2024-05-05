@@ -3261,23 +3261,29 @@ class Solution:
 
 ## [237. Delete Node in a Linked List](https://leetcode.com/problems/delete-node-in-a-linked-list/)
 
+- [Official](https://leetcode.com/problems/delete-node-in-a-linked-list/editorial/)
+- [Official](https://leetcode.cn/problems/delete-node-in-a-linked-list/solutions/1077517/shan-chu-lian-biao-zhong-de-jie-dian-by-x656s/)
+
 <details><summary>Description</summary>
 
 ```text
 Write a function to delete a node in a singly-linked list.
-You will not be given access to the head of the list, instead you will be given access to the node to be deleted directly.
+You will not be given access to the head of the list,
+instead you will be given access to the node to be deleted directly.
 
 It is guaranteed that the node to be deleted is not a tail node in the list.
 
 Example 1:
 Input: head = [4,5,1,9], node = 5
 Output: [4,1,9]
-Explanation: You are given the second node with value 5, the linked list should become 4 -> 1 -> 9 after calling your function.
+Explanation: You are given the second node with value 5,
+the linked list should become 4 -> 1 -> 9 after calling your function.
 
 Example 2:
 Input: head = [4,5,1,9], node = 1
 Output: [4,5,9]
-Explanation: You are given the third node with value 1, the linked list should become 4 -> 5 -> 9 after calling your function.
+Explanation: You are given the third node with value 1,
+the linked list should become 4 -> 5 -> 9 after calling your function.
 
 Constraints:
 The number of the nodes in the given list is in the range [2, 1000].
@@ -3311,57 +3317,49 @@ void deleteNode(struct ListNode* node) {
 
 </details>
 
-<details><summary>Mermaid</summary>
+<details><summary>C++</summary>
 
-```mermaid
-flowchart LR
-    subgraph Data
-        V1[4] --> V2[5] --> V3[1] --> V4[9] --> NULL[NULL]
-    end
-    pHead(pHead) --> V1[4]
-    node(node) -.-> V2[5]
+```c++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+   public:
+    void deleteNode(ListNode *node) {
+        if ((node == nullptr) || (node->next == nullptr)) {
+            return;
+        }
+
+        ListNode *p = node->next;
+        *node = *node->next;
+        delete p;
+    }
+};
 ```
 
-```mermaid
-flowchart LR
-    subgraph Data: 1. struct ListNode* p = node->next
-        V1[4] --> V2[5] --> V3[1] --> V4[9] --> NULL[NULL]
-    end
-    pHead(pHead) --> V1[4]
-    node(node) -.-> V2[5]
-    p(p) -.-> V3[1]
-```
+</details>
 
-```mermaid
-flowchart LR
-    subgraph Data: 2. *node = *node->next
-        V1[4] --> V2[1] --> V3[1] --> V4[9] --> NULL[NULL]
-        V2[1] --> V4[9]
-        V2[1] -.- V21{{5}}
-    end
-    pHead(pHead) --> V1[4]
-    node(node) -.-> V2[1]
-    p(p) -.-> V3[1]
-```
+<details><summary>Python3</summary>
 
-```mermaid
-flowchart LR
-    subgraph Data: 3. free p;
-        V1[4] --> V2[1] -.- V3[1] -.- V4[9] --> NULL[NULL]
-        V2[1] --> V4[9]
-    end
-    pHead(pHead) --> V1[4]
-    node(node) -.-> V2[1]
-    p(p) -.-> V3[1]
-```
-
-```mermaid
-flowchart LR
-    subgraph Data
-        V1[4] --> V2[1] --> V4[9] --> NULL[NULL]
-    end
-    pHead(pHead) --> V1[4]
-    node(node) -.-> V2[1]
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+class Solution:
+    def deleteNode(self, node):
+        """
+        :type node: ListNode
+        :rtype: void Do not return anything, modify node in-place instead.
+        """
+        node.val = node.next.val
+        node.next = node.next.next
 ```
 
 </details>
