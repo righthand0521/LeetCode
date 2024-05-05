@@ -34,6 +34,13 @@ int main(int argc, char** argv) {
         int triangleColSize[MAX_SIZE];
     } testCase[] = {{{{2}, {3, 4}, {6, 5, 7}, {4, 1, 8, 3}}, 4, {1, 2, 3, 4}}, {{{-10}}, 1, {1}}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: triangle = [[2],[3,4],[6,5,7],[4,1,8,3]]
+     *  Output: 11
+     *
+     *  Input: triangle = [[-10]]
+     *  Output: -10
+     */
 
     int** pTriangle = NULL;
     int answer = 0;

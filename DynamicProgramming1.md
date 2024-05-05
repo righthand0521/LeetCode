@@ -2137,6 +2137,64 @@ int minimumTotal(int** triangle, int triangleSize, int* triangleColSize) {
 
 </details>
 
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minimumTotal(vector<vector<int>>& triangle) {
+        int retVal = 0;
+
+        int triangleSize = triangle.size();
+        vector<vector<int>> dp(triangleSize, vector<int>(triangleSize, 0));
+        dp[0][0] = triangle[0][0];
+
+        for (int i = 1; i < triangleSize; ++i) {
+            dp[i][0] = dp[i - 1][0] + triangle[i][0];
+            for (int j = 1; j < i; ++j) {
+                dp[i][j] = min(dp[i - 1][j - 1], dp[i - 1][j]) + triangle[i][j];
+            }
+            dp[i][i] = dp[i - 1][i - 1] + triangle[i][i];
+        }
+
+        retVal = dp[triangleSize - 1][0];
+        for (int i = 1; i < triangleSize; i++) {
+            retVal = min(retVal, dp[triangleSize - 1][i]);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minimumTotal(self, triangle: List[List[int]]) -> int:
+        retVal = 0
+
+        triangleSize = len(triangle)
+        dp = [[0] * triangleSize for _ in range(triangleSize)]
+        dp[0][0] = triangle[0][0]
+
+        for i in range(1, triangleSize):
+            dp[i][0] = dp[i - 1][0] + triangle[i][0]
+            for j in range(1, i):
+                dp[i][j] = min(dp[i - 1][j - 1], dp[i - 1][j]) + triangle[i][j]
+            dp[i][i] = dp[i - 1][i - 1] + triangle[i][i]
+
+        retVal = dp[triangleSize - 1][0]
+        for i in range(1, triangleSize):
+            retVal = min(retVal, dp[triangleSize - 1][i])
+
+        return retVal
+```
+
+</details>
+
 ## [121. Best Time to Buy and Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/)
 
 - [Official](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock/solutions/136684/121-mai-mai-gu-piao-de-zui-jia-shi-ji-by-leetcode-/)
