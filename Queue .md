@@ -762,174 +762,229 @@ If 99% of all integer numbers from the stream are in the range [0, 100], how wou
 <details><summary>C</summary>
 
 ```c
-#define SORT_LINK_LIST      (0)     // Time Limit Exceeded
-#define SORT_ARRAY          (1)     // Time Limit Exceeded
+// https://leetcode.cn/problems/find-median-from-data-stream/solutions/1429457/by-goodgoodday-rcen/
+#ifndef HEAP_H
+#define HEAP_H
 
-#if (SORT_LINK_LIST)
-/**
- * Definition for singly-linked list.
- * struct ListNode {
- *     int val;
- *     struct ListNode *next;
- * };
- */
-void display(struct ListNode* pHead) {
-    struct ListNode* pCurrent = pHead;
-    while (pCurrent != NULL) {
-        printf("%d%s", pCurrent->val, (pCurrent->next==NULL)?"":",");
-        pCurrent = pCurrent->next;
-    }
-    printf("\n");
+typedef struct Heap {
+    int* array;
+    int capacity;
+    int len;
+} Heap;
+int HeapLen(Heap* hp) {
+    int retVal = hp->len;
+
+    return retVal;
 }
-struct ListNode* createNode(int value) {
-    struct ListNode* pNew = (struct ListNode*)malloc(sizeof(struct ListNode));
-    if (pNew == NULL) {
+bool HeapEmpty(Heap* hp) {
+    bool retVal = true;
+
+    if (HeapLen(hp) == 1) {
+        return retVal;
+    }
+    retVal = false;
+
+    return retVal;
+}
+bool HeapFull(Heap* hp) {
+    bool retVal = true;
+
+    if (hp->capacity == hp->len) {
+        return retVal;
+    }
+    retVal = false;
+
+    return retVal;
+}
+void HeapSwap(int* pLeft, int* pRight) {
+    int temp = *pLeft;
+    *pLeft = *pRight;
+    *pRight = temp;
+}
+int HeapGetTop(Heap* hp) {
+    int retVal = hp->array[1];
+
+    return retVal;
+}
+Heap* CreateHeap(int size) {
+    Heap* heap = NULL;
+
+    heap = (Heap*)malloc(sizeof(Heap));
+    if (heap == NULL) {
         perror("malloc");
-        return pNew;
+        return heap;
     }
-    pNew->val = value;
-    pNew->next = NULL;
 
-    return pNew;
+    int heapLen = size + 1;
+    heap->array = (int*)malloc(sizeof(int) * heapLen);
+    if (heap->array == NULL) {
+        perror("malloc");
+        free(heap);
+        heap = NULL;
+        return heap;
+    }
+    heap->capacity = heapLen;
+    heap->len = 1;
+
+    return heap;
 }
-void freeNode(struct ListNode* pHead) {
-    struct ListNode* pCurrent = pHead;
-    struct ListNode* pFree = NULL;
-    while (pCurrent != NULL) {
-        pFree = pCurrent;
-        pCurrent = pCurrent->next;
-        free(pFree);
-    }
-}
-struct ListNode* addValueToMiddle(struct ListNode* pHead, int value) {
-    struct ListNode* pNew = createNode(value);
-    if (pNew == NULL) {
-        return pHead;
-    }
+void HeapAdjustDown(Heap* hp, int parent, bool isMax) {
+    int child = 2 * parent;
+    int len = hp->len;
+    while (child < len) {
+        if (isMax == true) {
+            if ((child + 1 < len) && hp->array[child] < hp->array[child + 1]) {
+                child = child + 1;
+            }
 
-    if (pHead == NULL) {
-        pHead = pNew;
-        return pHead;
-    }
+            if (hp->array[child] > hp->array[parent]) {
+                HeapSwap(&hp->array[child], &hp->array[parent]);
+                parent = child;
+                child = parent << 1;
+            } else {
+                return;
+            }
+        } else {
+            if ((child + 1 < len) && hp->array[child] > hp->array[child + 1]) {
+                child = child + 1;
+            }
 
-    struct ListNode* pPrevious = NULL;
-    struct ListNode* pCurrent = pHead;
-    while (pCurrent != NULL) {
-        // from small to large
-        if (pCurrent->val > value) {
-            break;
+            if (hp->array[child] < hp->array[parent]) {
+                HeapSwap(&hp->array[child], &hp->array[parent]);
+                parent = child;
+                child = parent << 1;
+            } else {
+                return;
+            }
         }
-        pPrevious = pCurrent;
-        pCurrent = pCurrent->next;
     }
-    if (pPrevious == NULL) {
-        pNew->next = pHead;
-        pHead = pNew;
-        return pHead;
+}
+void HeapAdjustUp(Heap* hp, int child, bool isMax) {
+    int parent = child / 2;
+    while (child > 1) {
+        if (isMax == true) {
+            if (hp->array[child] > hp->array[parent]) {
+                HeapSwap(&hp->array[child], &hp->array[parent]);
+                child = parent;
+                parent = child / 2;
+            } else {
+                return;
+            }
+        } else {
+            if (hp->array[child] < hp->array[parent]) {
+                HeapSwap(&hp->array[child], &hp->array[parent]);
+                child = parent;
+                parent = child / 2;
+            } else {
+                return;
+            }
+        }
     }
-    pNew->next = pPrevious->next;
-    pPrevious->next = pNew;
-
-    return pHead;
 }
-#elif (SORT_ARRAY)
-int compareInteger(const void* n1, const void* n2) {
-    // ascending order
-    return (*(int*)n1 > *(int*)n2);
-}
-#endif
+void HeapDelete(Heap* hp, bool isMax) {
+    if (HeapEmpty(hp) == true) {
+        return;
+    }
 
+    hp->array[1] = hp->array[hp->len - 1];
+    hp->len--;
+    HeapAdjustDown(hp, 1, isMax);
+}
+void HeapInsert(Heap* hp, int dat, bool isMax) {
+    if (HeapFull(hp) == true) {
+        hp->capacity <<= 1;
+        hp->array = (int*)realloc(hp->array, hp->capacity * sizeof(int));
+    }
+    hp->array[hp->len++] = dat;
+    HeapAdjustUp(hp, hp->len - 1, isMax);
+}
+void heapFree(Heap* hp) {
+    free(hp->array);
+    hp->array = NULL;
+    free(hp);
+    hp = NULL;
+}
+
+#endif  // HEAP_H
 typedef struct {
-    int count;
-#if (SORT_LINK_LIST)
-    struct ListNode* pNums;
-#elif (SORT_ARRAY)
-    int pNums[5*10000];
-#endif
+    Heap* maxLHeap;
+    Heap* minRHeap;
 } MedianFinder;
 MedianFinder* medianFinderCreate() {
-    MedianFinder* pNew = (MedianFinder*)malloc(sizeof(MedianFinder));
-    if (pNew == NULL) {
-        perror("malloc");
-        return pNew;
-    }
-    pNew->count = 0;
-#if (SORT_LINK_LIST)
-    pNew->pNums = NULL;
-#elif (SORT_ARRAY)
-    int i;
-    for (i=0; i<(5*10000); ++i) {
-        pNew->pNums[i] = 0;
-    }
-#endif
+    MedianFinder* pRetVal = NULL;
 
-    return pNew;
+    pRetVal = (MedianFinder*)malloc(sizeof(MedianFinder));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    pRetVal->maxLHeap = CreateHeap(128);
+    pRetVal->minRHeap = CreateHeap(128);
+
+    return pRetVal;
 }
 void medianFinderAddNum(MedianFinder* obj, int num) {
-    obj->count += 1;
-#if (SORT_LINK_LIST)
-    obj->pNums = addValueToMiddle(obj->pNums, num);
-    display(obj->pNums);
-#elif (SORT_ARRAY)
-    obj->pNums[obj->count-1] = num;
-    qsort(obj->pNums, obj->count, sizeof(int), compareInteger);
-#endif
+    int maxLHeapSize = obj->maxLHeap->len;
+    int minRHeapSize = obj->minRHeap->len;
+
+    int moveValue;
+
+    if (maxLHeapSize <= minRHeapSize) {
+        if (HeapEmpty(obj->minRHeap) == false) {
+            if (num > obj->minRHeap->array[1]) {
+                moveValue = obj->minRHeap->array[1];
+                obj->minRHeap->array[1] = num;
+                HeapAdjustDown(obj->minRHeap, 1, false);
+                HeapInsert(obj->maxLHeap, moveValue, true);
+
+                return;
+            }
+        }
+        HeapInsert(obj->maxLHeap, num, true);
+
+        return;
+    }
+
+    if (HeapEmpty(obj->maxLHeap) == false) {
+        if (num < obj->maxLHeap->array[1]) {
+            moveValue = obj->maxLHeap->array[1];
+            obj->maxLHeap->array[1] = num;
+            HeapAdjustDown(obj->maxLHeap, 1, true);
+            HeapInsert(obj->minRHeap, moveValue, false);
+
+            return;
+        }
+    }
+    HeapInsert(obj->minRHeap, num, false);
 }
 double medianFinderFindMedian(MedianFinder* obj) {
     double retVal = 0;
 
-    if (obj->count == 0) {
-        return retVal;
-    }
-
-#if (SORT_LINK_LIST)
-    struct ListNode* pCurrent = obj->pNums;
-    int i;
-#elif (SORT_ARRAY)
-#endif
-    if (obj->count%2 == 0) {
-#if (SORT_LINK_LIST)
-        for (i=0; i<obj->count/2-1; ++i) {
-            pCurrent = pCurrent->next;
-        }
-        retVal = pCurrent->val + pCurrent->next->val;
-#elif (SORT_ARRAY)
-        retVal = obj->pNums[obj->count/2] + obj->pNums[(obj->count/2-1)];
-#endif
-        retVal /= 2;
-    }
-    else if (obj->count%2 == 1) {
-#if (SORT_LINK_LIST)
-        for (i=0; i<obj->count/2; ++i) {
-            pCurrent = pCurrent->next;
-        }
-        retVal = pCurrent->val;
-#elif (SORT_ARRAY)
-        retVal = obj->pNums[obj->count/2];
-#endif
+    int maxLHeapSize = obj->maxLHeap->len;
+    int minRHeapSize = obj->minRHeap->len;
+    if (maxLHeapSize == minRHeapSize) {
+        retVal = (double)(obj->minRHeap->array[1] + obj->maxLHeap->array[1]) / 2;
+    } else {
+        retVal = (double)(obj->maxLHeap->array[1]);
     }
 
     return retVal;
 }
 void medianFinderFree(MedianFinder* obj) {
-#if (SORT_LINK_LIST)
-    freeNode(obj->pNums);
-    obj->pNums = NULL;
-#elif (SORT_ARRAY)
-#endif
+    heapFree(obj->maxLHeap);
+    obj->maxLHeap = NULL;
+    heapFree(obj->minRHeap);
+    obj->minRHeap = NULL;
     free(obj);
     obj = NULL;
 }
-
-/**
+/*
  * Your MedianFinder struct will be instantiated and called as such:
  * MedianFinder* obj = medianFinderCreate();
  * medianFinderAddNum(obj, num);
-
  * double param_2 = medianFinderFindMedian(obj);
-
  * medianFinderFree(obj);
-*/
+ */
 ```
 
 </details>
@@ -938,30 +993,36 @@ void medianFinderFree(MedianFinder* obj) {
 
 ```c++
 class MedianFinder {
-public:
+   public:
     priority_queue<int> maxHeap;
     priority_queue<int, vector<int>, greater<int>> minHeap;
 
-    MedianFinder() {
-
-    }
-
+    MedianFinder() {}
     void addNum(int num) {
         maxHeap.push(num);
         minHeap.push(maxHeap.top());
         maxHeap.pop();
-        if (minHeap.size() > maxHeap.size()) {
+
+        int maxHeapSize = maxHeap.size();
+        int minHeapSize = minHeap.size();
+        if (minHeapSize > maxHeapSize) {
             maxHeap.push(minHeap.top());
             minHeap.pop();
         }
     }
-
     double findMedian() {
-        if (maxHeap.size() > minHeap.size()) return maxHeap.top();
-        return (maxHeap.top() + minHeap.top()) / 2.0;
+        double retVal = maxHeap.top();
+
+        int maxHeapSize = maxHeap.size();
+        int minHeapSize = minHeap.size();
+        if (maxHeapSize > minHeapSize) {
+            return retVal;
+        }
+        retVal = (maxHeap.top() + minHeap.top()) / 2.0;
+
+        return retVal;
     }
 };
-
 /**
  * Your MedianFinder object will be instantiated and called as such:
  * MedianFinder* obj = new MedianFinder();
@@ -975,41 +1036,31 @@ public:
 <details><summary>Python3</summary>
 
 ```python
-from sortedcontainers import SortedList
-
 class MedianFinder:
     def __init__(self):
-        # 1: MaxHeap and MinHeap
-        # 2: SortedList
-        self.method = 1
-
-        if self.method == 1:
-            print("MaxHeap and MinHeap")
-            self.minHeap = []
-            self.maxHeap = []
-        elif self.method == 2:
-            print("SortedList")
-            self.arr = SortedList()
+        self.minHeap = []
+        self.maxHeap = []
 
     def addNum(self, num: int) -> None:
-        if self.method == 1:
-            heappush(self.maxHeap, -num)
-            heappush(self.minHeap, -heappop(self.maxHeap))
-            if len(self.minHeap) > len(self.maxHeap):
-                heappush(self.maxHeap, -heappop(self.minHeap))
-        elif self.method == 2:
-            self.arr.add(num)
+        heappush(self.maxHeap, -num)
+        heappush(self.minHeap, -heappop(self.maxHeap))
+
+        maxHeapSize = len(self.maxHeap)
+        minHeapSize = len(self.minHeap)
+        if minHeapSize > maxHeapSize:
+            heappush(self.maxHeap, -heappop(self.minHeap))
 
     def findMedian(self) -> float:
-        if self.method == 1:
-            if len(self.maxHeap) > len(self.minHeap):
-                return -self.maxHeap[0]
-            return (-self.maxHeap[0] + self.minHeap[0]) / 2
-        elif self.method == 2:
-            n = len(self.arr)
-            if n % 2 == 1:
-                return self.arr[n//2]
-            return (self.arr[n//2] + self.arr[n//2-1]) / 2
+        retVal = -self.maxHeap[0]
+
+        maxHeapSize = len(self.maxHeap)
+        minHeapSize = len(self.minHeap)
+        if maxHeapSize > minHeapSize:
+            return retVal
+        retVal = (-self.maxHeap[0] + self.minHeap[0]) / 2
+
+        return retVal
+
 
 # Your MedianFinder object will be instantiated and called as such:
 # obj = MedianFinder()

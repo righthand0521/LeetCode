@@ -6,7 +6,6 @@ from functools import cache, lru_cache
 from bisect import bisect_left, bisect_right
 from itertools import accumulate
 from heapq import heapify, heappush, heappop
-from sortedcontainers import SortedList
 
 
 def logging_setting():
@@ -23,66 +22,76 @@ def logging_setting():
 
 class MedianFinder:
     def __init__(self):
-        # 1: MaxHeap and MinHeap
-        # 2: SortedList
-        self.method = 1
-
-        if self.method == 1:
-            print("MaxHeap and MinHeap")
-            self.minHeap = []
-            self.maxHeap = []
-        elif self.method == 2:
-            print("SortedList")
-            self.arr = SortedList()
+        self.minHeap = []
+        self.maxHeap = []
 
     def addNum(self, num: int) -> None:
-        if self.method == 1:
-            heappush(self.maxHeap, -num)
-            heappush(self.minHeap, -heappop(self.maxHeap))
-            if len(self.minHeap) > len(self.maxHeap):
-                heappush(self.maxHeap, -heappop(self.minHeap))
-        elif self.method == 2:
-            self.arr.add(num)
+        heappush(self.maxHeap, -num)
+        heappush(self.minHeap, -heappop(self.maxHeap))
+
+        maxHeapSize = len(self.maxHeap)
+        minHeapSize = len(self.minHeap)
+        if minHeapSize > maxHeapSize:
+            heappush(self.maxHeap, -heappop(self.minHeap))
 
     def findMedian(self) -> float:
-        if self.method == 1:
-            if len(self.maxHeap) > len(self.minHeap):
-                return -self.maxHeap[0]
-            return (-self.maxHeap[0] + self.minHeap[0]) / 2
-        elif self.method == 2:
-            n = len(self.arr)
-            if n % 2 == 1:
-                return self.arr[n//2]
-            return (self.arr[n//2] + self.arr[n//2-1]) / 2
+        retVal = -self.maxHeap[0]
+
+        maxHeapSize = len(self.maxHeap)
+        minHeapSize = len(self.minHeap)
+        if maxHeapSize > minHeapSize:
+            return retVal
+        retVal = (-self.maxHeap[0] + self.minHeap[0]) / 2
+
+        return retVal
+
 
 # Your MedianFinder object will be instantiated and called as such:
 # obj = MedianFinder()
 # obj.addNum(num)
 # param_2 = obj.findMedian()
 
-
 if __name__ == "__main__":
     logging_setting()
 
-    logging.info("sys.version: %s", sys.version)
-    print("")
     try:
-        print("Input")
-        print(
-            '["MedianFinder", "addNum", "addNum", "findMedian", "addNum", "findMedian"]')
-        print("[[], [1], [2], [], [3], []]")
+        logging.info("sys.version: %s", sys.version)
+        print()
 
-        obj = MedianFinder()
-        obj.addNum(1)
-        obj.addNum(2)
-        ret1 = obj.findMedian()
-        obj.addNum(3)
-        ret2 = obj.findMedian()
+        logging.info("Input")
+        for methods, num in zip([["MedianFinder", "addNum", "addNum", "findMedian", "addNum", "findMedian"]],
+                                [[None, 1, 2, None, 3, None]]):
+            # /* Example
+            #  *  Input
+            #  *  ["MedianFinder", "addNum", "addNum", "findMedian", "addNum", "findMedian"]
+            #  *  [[], [1], [2], [], [3], []]
+            #  *  Output
+            #  *  [null, null, null, 1.5, null, 2.0]
+            #  */
+            logging.info("%s", methods)
+            displayStr = []
+            for p in num:
+                if p == None:
+                    displayStr.append([])
+                else:
+                    displayStr.append(p)
+            logging.info("%s", displayStr)
 
-        print("Output")
-        print('[null, null, null, {:f}, null, {:f}]'.format(ret1, ret2))
+            displayStr = []
+            obj = MedianFinder()
+            for p, q in zip(methods, num):
+                if p == "MedianFinder":
+                    displayStr.append(None)
+                elif p == "addNum":
+                    obj.addNum(q)
+                    displayStr.append(None)
+                elif p == "findMedian":
+                    retVal = obj.findMedian()
+                    displayStr.append(retVal)
+            logging.info("Output")
+            logging.info("%s", displayStr)
 
-        print("")
+            print("")
     except KeyboardInterrupt as exception:
         logging.error("%s: %s", exception.__class__.__name__,
                       exception, exc_info=True)
