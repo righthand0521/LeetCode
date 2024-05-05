@@ -3045,7 +3045,6 @@ int rob(int* nums, int numsSize) {
 
 ## [221. Maximal Square](https://leetcode.com/problems/maximal-square/)
 
-- [Official](https://leetcode.com/problems/maximal-square/solutions/127442/maximal-square/)
 - [Official](https://leetcode.cn/problems/maximal-square/solutions/234964/zui-da-zheng-fang-xing-by-leetcode-solution/)
 
 <details><summary>Description</summary>
@@ -3086,7 +3085,8 @@ matrix[i][j] is '0' or '1'.
 int maximalSquare(char** matrix, int matrixSize, int* matrixColSize) {
     int retVal = 0;
 
-    if (matrixSize == 0) {
+    // m == matrix.length, n == matrix[i].length, 1 <= m, n <= 300
+    if ((matrixSize == 0) || (matrixColSize[0] == 0)) {
         return retVal;
     }
 
@@ -3113,6 +3113,81 @@ int maximalSquare(char** matrix, int matrixSize, int* matrixColSize) {
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maximalSquare(vector<vector<char>>& matrix) {
+        int retVal = 0;
+
+        int matrixSize = matrix.size();
+        int matrixColSize = matrix[0].size();
+
+        // m == matrix.length, n == matrix[i].length, 1 <= m, n <= 300
+        if ((matrixSize == 0) || (matrixColSize == 0)) {
+            return retVal;
+        }
+
+        vector<vector<int>> dp(matrixSize, vector<int>(matrixColSize, 0));
+        int maxSide = 0;
+        for (int i = 0; i < matrixSize; ++i) {
+            for (int j = 0; j < matrixColSize; ++j) {
+                if (matrix[i][j] != '1') {
+                    continue;
+                }
+
+                if (i == 0 || j == 0) {
+                    dp[i][j] = 1;
+                } else {
+                    dp[i][j] = min(min(dp[i - 1][j], dp[i][j - 1]), dp[i - 1][j - 1]) + 1;
+                }
+                maxSide = max(maxSide, dp[i][j]);
+            }
+        }
+        retVal = maxSide * maxSide;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maximalSquare(self, matrix: List[List[str]]) -> int:
+        retVal = 0
+
+        matrixSize = len(matrix)
+        matrixColSize = len(matrix[0])
+
+        # m == matrix.length, n == matrix[i].length, 1 <= m, n <= 300
+        if (matrixSize == 0) or (matrixColSize == 0):
+            return retVal
+
+        dp = [[0] * matrixColSize for _ in range(matrixSize)]
+        maxSide = 0
+        for i in range(matrixSize):
+            for j in range(matrixColSize):
+                if matrix[i][j] != '1':
+                    continue
+
+                if ((i == 0) or (j == 0)):
+                    dp[i][j] = 1
+                else:
+                    dp[i][j] = min(min(dp[i - 1][j], dp[i][j - 1]), dp[i - 1][j - 1]) + 1
+                maxSide = max(maxSide, dp[i][j])
+
+        retVal = maxSide * maxSide
+
+        return retVal
 ```
 
 </details>

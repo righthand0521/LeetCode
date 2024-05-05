@@ -6,7 +6,8 @@
 int maximalSquare(char** matrix, int matrixSize, int* matrixColSize) {
     int retVal = 0;
 
-    if (matrixSize == 0) {
+    // m == matrix.length, n == matrix[i].length, 1 <= m, n <= 300
+    if ((matrixSize == 0) || (matrixColSize[0] == 0)) {
         return retVal;
     }
 
@@ -47,6 +48,16 @@ int main(int argc, char** argv) {
         {{{'0', '1'}, {'1', '0'}}, 2, {2, 2}},
         {{{'0'}}, 1, {1}}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: matrix = [["1","0","1","0","0"],["1","0","1","1","1"],["1","1","1","1","1"],["1","0","0","1","0"]]
+     *  Output: 4
+     *
+     *  Input: matrix = [["0","1"],["1","0"]]
+     *  Output: 1
+     *
+     *  Input: matrix = [["0"]]
+     *  Output: 0
+     */
 
     char** pMatrix = NULL;
     int answer = 0;
