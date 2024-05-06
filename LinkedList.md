@@ -5901,3 +5901,221 @@ class Solution:
 ```
 
 </details>
+
+## [2487. Remove Nodes From Linked List](https://leetcode.com/problems/remove-nodes-from-linked-list/)  1454
+
+- [Official](https://leetcode.com/problems/remove-nodes-from-linked-list/editorial/)
+- [Official](https://leetcode.cn/problems/remove-nodes-from-linked-list/solutions/2587737/cong-lian-biao-zhong-yi-chu-jie-dian-by-z53sr/)
+
+<details><summary>Description</summary>
+
+```text
+You are given the head of a linked list.
+
+Remove every node which has a node with a greater value anywhere to the right side of it.
+
+Return the head of the modified linked list.
+
+Example 1:
+Input: head = [5,2,13,3,8]
+Output: [13,8]
+Explanation: The nodes that should be removed are 5, 2 and 3.
+- Node 13 is to the right of node 5.
+- Node 13 is to the right of node 2.
+- Node 8 is to the right of node 3.
+
+Example 2:
+Input: head = [1,1,1,1]
+Output: [1,1,1,1]
+Explanation: Every node has value 1, so no nodes are removed.
+
+Constraints:
+The number of the nodes in the given list is in the range [1, 10^5].
+1 <= Node.val <= 10^5
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Iterate on nodes in reversed order.
+2. When iterating in reversed order, save the maximum value that was passed before.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct ListNode* reverseList(struct ListNode* head) {
+    struct ListNode* pRetVal = NULL;
+
+    struct ListNode* pPrevious = NULL;
+    struct ListNode* pCurrent = head;
+    struct ListNode* pNext = NULL;
+    while (pCurrent != NULL) {
+        pNext = pCurrent->next;
+        pCurrent->next = pPrevious;
+        pPrevious = pCurrent;
+        pCurrent = pNext;
+    }
+    pRetVal = pPrevious;
+
+    return pRetVal;
+}
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+struct ListNode* removeNodes(struct ListNode* head) {
+    struct ListNode* pRetVal = head;
+
+    head = reverseList(head);
+
+    struct ListNode* pDeleted = NULL;
+    int maximum = 0;
+    struct ListNode* pPrevious = NULL;
+    struct ListNode* pCurrent = head;
+    while (pCurrent != NULL) {
+        maximum = fmax(maximum, pCurrent->val);
+        if (pCurrent->val >= maximum) {
+            pPrevious = pCurrent;
+            pCurrent = pCurrent->next;
+            continue;
+        }
+
+        if (pPrevious != NULL) {
+            pPrevious->next = pCurrent->next;
+        } else {
+            head = pCurrent->next;
+        }
+
+        pDeleted = pCurrent;
+        pCurrent = pCurrent->next;
+        free(pDeleted);
+        pDeleted = NULL;
+    }
+
+    pRetVal = reverseList(head);
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    ListNode* reverseList(ListNode* head) {
+        ListNode* pRetVal = nullptr;
+
+        ListNode* pPrevious = nullptr;
+        ListNode* pCurrent = head;
+        ListNode* pNext = nullptr;
+        while (pCurrent != nullptr) {
+            pNext = pCurrent->next;
+            pCurrent->next = pPrevious;
+            pPrevious = pCurrent;
+            pCurrent = pNext;
+        }
+        pRetVal = pPrevious;
+
+        return pRetVal;
+    }
+    ListNode* removeNodes(ListNode* head) {
+        ListNode* pRetVal = head;
+
+        head = reverseList(head);
+
+        int maximum = 0;
+        ListNode* pPrevious = nullptr;
+        ListNode* pCurrent = head;
+        while (pCurrent != nullptr) {
+            maximum = max(maximum, pCurrent->val);
+            if (pCurrent->val >= maximum) {
+                pPrevious = pCurrent;
+                pCurrent = pCurrent->next;
+                continue;
+            }
+
+            if (pPrevious != nullptr) {
+                pPrevious->next = pCurrent->next;
+            } else {
+                head = pCurrent->next;
+            }
+
+            ListNode* pDeleted = pCurrent;
+            pCurrent = pCurrent->next;
+            delete pDeleted;
+            pDeleted = nullptr;
+        }
+
+        pRetVal = reverseList(head);
+
+        return pRetVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        retVal = None
+
+        previous = None
+        current = head
+        next = None
+        while current != None:
+            next = current.next
+            current.next = previous
+            previous = current
+            current = next
+        retVal = previous
+
+        return retVal
+
+    def removeNodes(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        retVal = head
+
+        head = self.reverseList(head)
+
+        maximum = 0
+        previous = None
+        current = head
+        while current != None:
+            maximum = max(maximum, current.val)
+            if current.val >= maximum:
+                previous = current
+                current = current.next
+                continue
+
+            if previous != None:
+                previous.next = current.next
+            else:
+                head = current.next
+            deleted = current
+            current = current.next
+            deleted.next = None
+
+        retVal = self.reverseList(head)
+
+        return retVal
+```
+
+</details>
