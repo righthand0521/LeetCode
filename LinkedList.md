@@ -6119,3 +6119,167 @@ class Solution:
 ```
 
 </details>
+
+## [2816. Double a Number Represented as a Linked List](https://leetcode.com/problems/double-a-number-represented-as-a-linked-list/)  1393
+
+- [Official](https://leetcode.com/problems/double-a-number-represented-as-a-linked-list/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given the head of a non-empty linked list representing a non-negative integer without leading zeroes.
+
+Return the head of the linked list after doubling it.
+
+Example 1:
+Input: head = [1,8,9]
+Output: [3,7,8]
+Explanation: The figure above corresponds to the given linked list which represents the number 189.
+Hence, the returned linked list represents the number 189 * 2 = 378.
+
+Example 2:
+Input: head = [9,9,9]
+Output: [1,9,9,8]
+Explanation: The figure above corresponds to the given linked list which represents the number 999.
+Hence, the returned linked list reprersents the number 999 * 2 = 1998.
+
+Constraints:
+The number of nodes in the list is in the range [1, 10^4]
+0 <= Node.val <= 9
+The input is generated such that the list represents a number that does not have leading zeros,
+except the number 0 itself.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Traverse the linked list from the least significant digit to the most significant digit and
+   multiply each node's value by 2
+2. Handle any carry-over digits that may arise during the doubling process.
+3. If there is a carry-over digit on the most significant digit,
+   create a new node with that value and point it to the start of the given linked list and return it.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+struct ListNode* doubleIt(struct ListNode* head) {
+    struct ListNode* pRetVal = head;
+
+    int doubleValue;
+    struct ListNode* pPrevious = NULL;
+    struct ListNode* pCurrent = head;
+    while (pCurrent != NULL) {
+        doubleValue = pCurrent->val * 2;
+        if (doubleValue < 10) {
+            pCurrent->val = doubleValue;
+        } else if (pPrevious != NULL) {
+            pCurrent->val = doubleValue % 10;
+            pPrevious->val += 1;
+        } else {
+            head = (struct ListNode*)malloc(sizeof(struct ListNode));
+            if (head == NULL) {
+                perror("malloc");
+                return pRetVal;
+            }
+            head->val = 1;
+            head->next = pCurrent;
+            pCurrent->val = doubleValue % 10;
+        }
+        pPrevious = pCurrent;
+        pCurrent = pCurrent->next;
+    }
+    pRetVal = head;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+   public:
+    ListNode* doubleIt(ListNode* head) {
+        ListNode* pRetVal = head;
+
+        ListNode* pPrevious = nullptr;
+        ListNode* pCurrent = head;
+        while (pCurrent != nullptr) {
+            int doubleValue = pCurrent->val * 2;
+            if (doubleValue < 10) {
+                pCurrent->val = doubleValue;
+            } else if (pPrevious != nullptr) {
+                pCurrent->val = doubleValue % 10;
+                pPrevious->val += 1;
+            } else {
+                head = new ListNode(1, pCurrent);
+                pCurrent->val = doubleValue % 10;
+            }
+            pPrevious = pCurrent;
+            pCurrent = pCurrent->next;
+        }
+        pRetVal = head;
+
+        return pRetVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def doubleIt(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        retVal = head
+
+        previous = None
+        current = head
+        while current != None:
+            doubleValue = current.val * 2
+            if doubleValue < 10:
+                current.val = doubleValue
+            elif previous != None:
+                current.val = doubleValue % 10
+                previous.val += 1
+            else:
+                head = ListNode(1, current)
+                current.val = doubleValue % 10
+            previous = current
+            current = current.next
+        retVal = head
+
+        return retVal
+```
+
+</details>
