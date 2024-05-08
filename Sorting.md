@@ -664,6 +664,182 @@ int thirdMax(int* nums, int numsSize) {
 
 </details>
 
+## [506. Relative Ranks](https://leetcode.com/problems/relative-ranks/)
+
+- [Official](https://leetcode.com/problems/relative-ranks/editorial/)
+- [Official](https://leetcode.cn/problems/relative-ranks/solutions/1131693/xiang-dui-ming-ci-by-leetcode-solution-5sua/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array score of size n, where score[i] is the score of the ith athlete in a competition.
+All the scores are guaranteed to be unique.
+
+The athletes are placed based on their scores, where the 1st place athlete has the highest score,
+the 2nd place athlete has the 2nd highest score, and so on.
+The placement of each athlete determines their rank:
+- The 1st place athlete's rank is "Gold Medal".
+- The 2nd place athlete's rank is "Silver Medal".
+- The 3rd place athlete's rank is "Bronze Medal".
+- For the 4th place to the nth place athlete, their rank is their placement number
+  (i.e., the xth place athlete's rank is "x").
+
+Return an array answer of size n where answer[i] is the rank of the ith athlete.
+
+Example 1:
+Input: score = [5,4,3,2,1]
+Output: ["Gold Medal","Silver Medal","Bronze Medal","4","5"]
+Explanation: The placements are [1st, 2nd, 3rd, 4th, 5th].
+
+Example 2:
+Input: score = [10,3,8,9,4]
+Output: ["Gold Medal","5","Bronze Medal","Silver Medal","4"]
+Explanation: The placements are [1st, 5th, 3rd, 2nd, 4th].
+
+Constraints:
+n == score.length
+1 <= n <= 10^4
+0 <= score[i] <= 10^6
+All the values in score are unique.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareIntArray(const void *a1, const void *a2) {
+    int *p1 = (int *)a1;
+    int *p2 = (int *)a2;
+
+    // descending order
+    if (p1[1] == p2[1]) {
+        return (p1[1] < p2[1]);
+    }
+
+    return (p1[1] < p2[1]);
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+char **findRelativeRanks(int *score, int scoreSize, int *returnSize) {
+    char **pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    int sortScore[scoreSize][2];
+    memset(sortScore, 0, sizeof(sortScore));
+    int i;
+    for (i = 0; i < scoreSize; ++i) {
+        sortScore[i][0] = i;
+        sortScore[i][1] = score[i];
+    }
+    qsort(sortScore, scoreSize, sizeof(sortScore[0]), compareIntArray);
+
+#define MAX_RETURN_COL_SIZE (16)
+    pRetVal = (char **)malloc(scoreSize * sizeof(char *));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    for (i = 0; i < scoreSize; ++i) {
+        pRetVal[i] = (char *)malloc(MAX_RETURN_COL_SIZE * sizeof(char));
+        if (pRetVal[i] == NULL) {
+            perror("malloc");
+            for (int j = 0; j < i; ++j) {
+                free(pRetVal[j]);
+                pRetVal[j] = NULL;
+            }
+            free(pRetVal);
+            pRetVal = NULL;
+            return pRetVal;
+        }
+        memset(pRetVal[(*returnSize)], 0, (MAX_RETURN_COL_SIZE * sizeof(char)));
+    }
+    (*returnSize) = scoreSize;
+
+    for (i = 0; i < scoreSize; ++i) {
+        if (i == 0) {
+            snprintf(pRetVal[sortScore[i][0]], MAX_RETURN_COL_SIZE, "%s", "Gold Medal");
+        } else if (i == 1) {
+            snprintf(pRetVal[sortScore[i][0]], MAX_RETURN_COL_SIZE, "%s", "Silver Medal");
+        } else if (i == 2) {
+            snprintf(pRetVal[sortScore[i][0]], MAX_RETURN_COL_SIZE, "%s", "Bronze Medal");
+        } else {
+            snprintf(pRetVal[sortScore[i][0]], MAX_RETURN_COL_SIZE, "%d", i + 1);
+        }
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<string> findRelativeRanks(vector<int>& score) {
+        vector<string> retVal;
+
+        int scoreSize = score.size();
+        vector<pair<int, int>> sortScore;
+        for (int i = 0; i < scoreSize; ++i) {
+            sortScore.emplace_back(i, score[i]);
+        }
+        sort(sortScore.begin(), sortScore.end(), [&](auto x1, auto x2) {
+            // descending order
+            return x1.second > x2.second;
+        });
+
+        retVal.resize(scoreSize);
+        for (int i = 0; i < scoreSize; ++i) {
+            if (i == 0) {
+                retVal[sortScore[i].first] = "Gold Medal";
+            } else if (i == 1) {
+                retVal[sortScore[i].first] = "Silver Medal";
+            } else if (i == 2) {
+                retVal[sortScore[i].first] = "Bronze Medal";
+            } else {
+                retVal[sortScore[i].first] = to_string(i + 1);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def findRelativeRanks(self, score: List[int]) -> List[str]:
+        retVal = []
+
+        sortScore = sorted(enumerate(score), key=lambda x: x[1], reverse=True)
+
+        scoreSize = len(score)
+        retVal = [""] * scoreSize
+        for i in range(scoreSize):
+            if i == 0:
+                retVal[sortScore[i][0]] = "Gold Medal"
+            elif i == 1:
+                retVal[sortScore[i][0]] = "Silver Medal"
+            elif i == 2:
+                retVal[sortScore[i][0]] = "Bronze Medal"
+            else:
+                retVal[sortScore[i][0]] = str(i+1)
+
+        return retVal
+```
+
+</details>
+
 ## [658. Find K Closest Elements](https://leetcode.com/problems/find-k-closest-elements/)
 
 <details><summary>Description</summary>
