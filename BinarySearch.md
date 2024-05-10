@@ -2157,6 +2157,218 @@ class Solution:
 
 </details>
 
+## [786. K-th Smallest Prime Fraction](https://leetcode.com/problems/k-th-smallest-prime-fraction/)  2168
+
+- [Official](https://leetcode.com/problems/k-th-smallest-prime-fraction/editorial/)
+- [Official](https://leetcode.cn/problems/k-th-smallest-prime-fraction/solutions/1127103/di-k-ge-zui-xiao-de-su-shu-fen-shu-by-le-argw/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a sorted integer array arr containing 1 and prime numbers, where all the integers of arr are unique.
+You are also given an integer k.
+
+For every i and j where 0 <= i < j < arr.length, we consider the fraction arr[i] / arr[j].
+
+Return the kth smallest fraction considered.
+Return your answer as an array of integers of size 2, where answer[0] == arr[i] and answer[1] == arr[j].
+
+Example 1:
+Input: arr = [1,2,3,5], k = 3
+Output: [2,5]
+Explanation: The fractions to be considered in sorted order are:
+1/5, 1/3, 2/5, 1/2, 3/5, and 2/3.
+The third fraction is 2/5.
+
+Example 2:
+Input: arr = [1,7], k = 1
+Output: [1,7]
+
+Constraints:
+2 <= arr.length <= 1000
+1 <= arr[i] <= 3 * 10^4
+arr[0] == 1
+arr[i] is a prime number for i > 0.
+All the numbers of arr are unique and sorted in strictly increasing order.
+1 <= k <= arr.length * (arr.length - 1) / 2
+
+Follow up: Can you solve the problem with better than O(n2) complexity?
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *kthSmallestPrimeFraction(int *arr, int arrSize, int k, int *returnSize) {
+    int *pRetVal = NULL;
+
+    (*returnSize) = 2;
+    pRetVal = (int *)malloc((*returnSize) * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        (*returnSize) = 0;
+        return pRetVal;
+    }
+    memset(pRetVal, 0, ((*returnSize) * sizeof(int)));
+
+    int i, j;
+    double maxFraction, fraction;
+    int totalSmallerFractions, numeratorIdx, denominatorIdx;
+    double middle;
+    double left = 0;
+    double right = 1.0;
+    while (left < right) {
+        middle = (left + right) / 2;
+
+        maxFraction = 0.0;
+        totalSmallerFractions = 0;
+        numeratorIdx = 0;
+        denominatorIdx = 0;
+        j = 1;
+        for (i = 0; i < (arrSize - 1); ++i) {
+            while ((j < arrSize) && (arr[i] >= middle * arr[j])) {
+                j += 1;
+            }
+
+            totalSmallerFractions += (arrSize - j);
+
+            if (j == arrSize) {
+                break;
+            }
+
+            fraction = (double)(arr[i]) / arr[j];
+            if (fraction > maxFraction) {
+                numeratorIdx = i;
+                denominatorIdx = j;
+                maxFraction = fraction;
+            }
+        }
+
+        if (totalSmallerFractions == k) {
+            pRetVal[0] = arr[numeratorIdx];
+            pRetVal[1] = arr[denominatorIdx];
+            break;
+        } else if (totalSmallerFractions > k) {
+            right = middle;
+        } else {
+            left = middle;
+        }
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> kthSmallestPrimeFraction(vector<int>& arr, int k) {
+        vector<int> retVal;
+
+        int arrSize = arr.size();
+
+        double left = 0;
+        double right = 1.0;
+        while (left < right) {
+            double middle = (left + right) / 2;
+
+            double maxFraction = 0.0;
+            int totalSmallerFractions = 0;
+            int numeratorIdx = 0;
+            int denominatorIdx = 0;
+            int j = 1;
+            for (int i = 0; i < (arrSize - 1); ++i) {
+                while ((j < arrSize) && (arr[i] >= middle * arr[j])) {
+                    j += 1;
+                }
+
+                totalSmallerFractions += (arrSize - j);
+
+                if (j == arrSize) {
+                    break;
+                }
+
+                double fraction = static_cast<double>(arr[i]) / arr[j];
+                if (fraction > maxFraction) {
+                    numeratorIdx = i;
+                    denominatorIdx = j;
+                    maxFraction = fraction;
+                }
+            }
+
+            if (totalSmallerFractions == k) {
+                retVal.emplace_back(arr[numeratorIdx]);
+                retVal.emplace_back(arr[denominatorIdx]);
+                break;
+            } else if (totalSmallerFractions > k) {
+                right = middle;
+            } else {
+                left = middle;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def kthSmallestPrimeFraction(self, arr: List[int], k: int) -> List[int]:
+        retVal = []
+
+        arrSize = len(arr)
+
+        left = 0
+        right = 1.0
+        while left < right:
+            middle = (left + right) / 2
+
+            maxFraction = 0.0
+            totalSmallerFractions = 0
+            numeratorIdx = 0
+            denominatorIdx = 0
+            j = 1
+            for i in range(arrSize - 1):
+                while (j < arrSize) and (arr[i] >= middle * arr[j]):
+                    j += 1
+
+                totalSmallerFractions += (arrSize - j)
+
+                if j == arrSize:
+                    break
+
+                fraction = arr[i] / arr[j]
+                if fraction > maxFraction:
+                    numeratorIdx = i
+                    denominatorIdx = j
+                    maxFraction = fraction
+
+            if totalSmallerFractions == k:
+                retVal = [arr[numeratorIdx], arr[denominatorIdx]]
+                break
+            elif totalSmallerFractions > k:
+                right = middle
+            else:
+                left = middle
+
+        return retVal
+```
+
+</details>
+
 ## [852. Peak Index in a Mountain Array](https://leetcode.com/problems/peak-index-in-a-mountain-array/)  1181
 
 - [Official](https://leetcode.com/problems/peak-index-in-a-mountain-array/editorial/)
