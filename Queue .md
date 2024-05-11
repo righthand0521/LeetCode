@@ -1731,6 +1731,272 @@ class KthLargest:
 
 </details>
 
+## [857. Minimum Cost to Hire K Workers](https://leetcode.com/problems/minimum-cost-to-hire-k-workers/)  2259
+
+- [Official](https://leetcode.com/problems/minimum-cost-to-hire-k-workers/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-cost-to-hire-k-workers/solutions/1815034/gu-yong-k-ming-gong-ren-de-zui-di-cheng-rsz3t/)
+
+<details><summary>Description</summary>
+
+```text
+There are n workers.
+You are given two integer arrays quality and wage where quality[i] is the quality of the ith worker
+and wage[i] is the minimum wage expectation for the ith worker.
+
+We want to hire exactly k workers to form a paid group.
+To hire a group of k workers, we must pay them according to the following rules:
+1. Every worker in the paid group must be paid at least their minimum wage expectation.
+2. In the group, each worker's pay must be directly proportional to their quality.
+   This means if a worker’s quality is double that of another worker in the group,
+   then they must be paid twice as much as the other worker.
+
+Given the integer k, return the least amount of money needed to form a paid group satisfying the above conditions.
+Answers within 10-5 of the actual answer will be accepted.
+
+Example 1:
+Input: quality = [10,20,5], wage = [70,50,30], k = 2
+Output: 105.00000
+Explanation: We pay 70 to 0th worker and 35 to 2nd worker.
+
+Example 2:
+Input: quality = [3,1,10,10,1], wage = [4,8,2,2,7], k = 3
+Output: 30.66667
+Explanation: We pay 4 to 0th worker, 13.33333 to 2nd and 3rd workers separately.
+
+Constraints:
+n == quality.length == wage.length
+1 <= k <= n <= 10^4
+1 <= quality[i], wage[i] <= 10^4
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#include <float.h>
+
+// https://leetcode.cn/problems/minimum-cost-to-hire-k-workers/solutions/1817466/by-heshan-5-ygtm/
+#ifndef HEAP_H
+#define HEAP_H
+
+typedef struct heap {
+    int capacity;
+    int size;
+    int *elements;
+} priorityQueue;
+priorityQueue *createQueue(int maxsize) {
+    priorityQueue *pRetVal = NULL;
+
+    pRetVal = (priorityQueue *)malloc(sizeof(priorityQueue));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    pRetVal->capacity = maxsize + 1;
+    pRetVal->size = 0;
+    pRetVal->elements = (int *)malloc(maxsize * sizeof(int));
+    if (pRetVal->elements == NULL) {
+        perror("malloc");
+        free(pRetVal);
+        pRetVal = NULL;
+        return pRetVal;
+    }
+    memset(pRetVal->elements, 0, (maxsize * sizeof(int)));
+
+    return pRetVal;
+}
+void pushQuee(int val, priorityQueue *obj) {
+    int i;
+    for (i = obj->size + 1; ((i > 1) && (val > obj->elements[i / 2])); i /= 2) {
+        obj->elements[i] = obj->elements[i / 2];
+    }
+    obj->elements[i] = val;
+    obj->size++;
+}
+int popQuee(priorityQueue *obj) {
+    int retVal = obj->elements[1];
+
+    int last = obj->elements[obj->size];
+
+    obj->size--;
+    if (obj->size == 0) {
+        obj->elements[1] = 0;
+        return retVal;
+    }
+
+    int maxChild = 0;
+    int i;
+    for (i = 1; i * 2 <= obj->size; i = maxChild) {
+        maxChild = i * 2;
+        if ((maxChild != obj->size) && (obj->elements[maxChild] < obj->elements[maxChild + 1])) {
+            maxChild++;
+        }
+        if (last >= obj->elements[maxChild]) {
+            break;
+        }
+        obj->elements[i] = obj->elements[maxChild];
+    }
+    obj->elements[i] = last;
+
+    return retVal;
+}
+void freeQueue(priorityQueue *obj) {
+    free(obj->elements);
+    obj->elements = NULL;
+    free(obj);
+    obj = NULL;
+}
+
+#endif  // HEAP_H
+struct node {
+    double weight;
+    int quality;
+};
+int compareStruct(const void *a, const void *b) {
+    struct node c = *(struct node *)a;
+    struct node d = *(struct node *)b;
+
+    double tmp = c.weight - d.weight;
+    if (tmp < -1e-7) {
+        return -1;
+    } else if (tmp > 1e-7) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+double mincostToHireWorkers(int *quality, int qualitySize, int *wage, int wageSize, int k) {
+    double retVal = DBL_MAX;
+
+    int i;
+
+    //
+    int minWage = wage[0];
+    if (k == 1) {
+        for (i = 0; i < wageSize; ++i) {
+            if (wage[i] < minWage) {
+                minWage = wage[i];
+            }
+        }
+        retVal = 1.0 * minWage;
+
+        return retVal;
+    }
+
+    //
+    struct node member[qualitySize];
+    for (i = 0; i < qualitySize; ++i) {
+        member[i].quality = quality[i];
+        member[i].weight = 1.0 * wage[i] / quality[i];
+    }
+    qsort(member, qualitySize, sizeof(member[0]), compareStruct);
+
+    //
+    priorityQueue *pObj = createQueue(qualitySize + 1);
+    if (pObj == NULL) {
+        return retVal;
+    }
+
+    int totalQuality = 0;
+    for (i = 0; i < k - 1; i++) {
+        totalQuality += member[i].quality;
+        pushQuee(member[i].quality, pObj);
+    }
+
+    double tmp;
+    for (i = k - 1; i < qualitySize; ++i) {
+        totalQuality += member[i].quality;
+        pushQuee(member[i].quality, pObj);
+        tmp = member[i].weight * totalQuality;
+        totalQuality -= popQuee(pObj);
+        if (tmp - retVal < -1e-7) {
+            retVal = tmp;
+        }
+    }
+
+    //
+    freeQueue(pObj);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    double mincostToHireWorkers(vector<int>& quality, vector<int>& wage, int k) {
+        double retVal = numeric_limits<double>::max();
+
+        int qualitySize = quality.size();
+
+        vector<pair<double, int>> wageToQualityRatio;
+        for (int i = 0; i < qualitySize; i++) {
+            wageToQualityRatio.push_back({static_cast<double>(wage[i]) / quality[i], quality[i]});
+        }
+        sort(wageToQualityRatio.begin(), wageToQualityRatio.end());
+
+        int highestQualityWorkersSize;
+        double currentTotalQuality = 0;
+        priority_queue<int> highestQualityWorkers;
+        for (int i = 0; i < qualitySize; i++) {
+            highestQualityWorkers.push(wageToQualityRatio[i].second);
+            currentTotalQuality += wageToQualityRatio[i].second;
+
+            highestQualityWorkersSize = highestQualityWorkers.size();
+            if (highestQualityWorkersSize > k) {
+                currentTotalQuality -= highestQualityWorkers.top();
+                highestQualityWorkers.pop();
+            }
+
+            highestQualityWorkersSize = highestQualityWorkers.size();
+            if (highestQualityWorkersSize == k) {
+                retVal = min(retVal, currentTotalQuality * wageToQualityRatio[i].first);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def mincostToHireWorkers(self, quality: List[int], wage: List[int], k: int) -> float:
+        retVal = float("inf")
+
+        qualitySize = len(quality)
+
+        wage_to_quality_ratio = []
+        for i in range(qualitySize):
+            wage_to_quality_ratio.append((wage[i] / quality[i], quality[i]))
+        wage_to_quality_ratio.sort(key=lambda x: x[0])
+
+        highest_quality_workers = []
+        current_total_quality = 0
+        for i in range(qualitySize):
+            heappush(highest_quality_workers, -wage_to_quality_ratio[i][1])
+            current_total_quality += wage_to_quality_ratio[i][1]
+
+            if len(highest_quality_workers) > k:
+                current_total_quality += heappop(highest_quality_workers)
+
+            if len(highest_quality_workers) == k:
+                retVal = min(retVal, current_total_quality * wage_to_quality_ratio[i][0])
+
+        return retVal
+```
+
+</details>
+
 ## [933. Number of Recent Calls](https://leetcode.com/problems/number-of-recent-calls/)  1337
 
 - [Official](https://leetcode.cn/problems/number-of-recent-calls/solutions/1467662/zui-jin-de-qing-qiu-ci-shu-by-leetcode-s-ncm1/)
