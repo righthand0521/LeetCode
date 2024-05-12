@@ -8175,6 +8175,7 @@ class Solution:
 
 ## [2373. Largest Local Values in a Matrix](https://leetcode.com/problems/largest-local-values-in-a-matrix/)  1331
 
+- [Official](https://leetcode.com/problems/largest-local-values-in-a-matrix/editorial/)
 - [Official](https://leetcode.cn/problems/largest-local-values-in-a-matrix/solutions/2138032/ju-zhen-zhong-de-ju-bu-zui-da-zhi-by-lee-o703/)
 
 <details><summary>Description</summary>
@@ -8301,6 +8302,27 @@ class Solution {
         return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def largestLocal(self, grid: List[List[int]]) -> List[List[int]]:
+        retVal = None
+
+        rowSize = len(grid)
+        colSize = len(grid[0])
+        retVal = [[0 for _ in range(colSize-2)] for _ in range(rowSize-2)]
+        for row in range(rowSize-2):
+            for col in range(colSize-2):
+                for x in range(row, row+3):
+                    for y in range(col, col+3):
+                        retVal[row][col] = max(retVal[row][col], grid[x][y])
+
+        return retVal
 ```
 
 </details>
