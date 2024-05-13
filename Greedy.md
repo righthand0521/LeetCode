@@ -1872,6 +1872,151 @@ class Solution:
 
 </details>
 
+## [861. Score After Flipping Matrix](https://leetcode.com/problems/score-after-flipping-matrix/)  1818
+
+- [Official](https://leetcode.com/problems/score-after-flipping-matrix/editorial/)
+- [Official](https://leetcode.cn/problems/score-after-flipping-matrix/solutions/511825/fan-zhuan-ju-zhen-hou-de-de-fen-by-leetc-cxma/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an m x n binary matrix grid.
+
+A move consists of choosing any row or column and toggling each value in that row or column
+(i.e., changing all 0's to 1's, and all 1's to 0's).
+
+Every row of the matrix is interpreted as a binary number, and the score of the matrix is the sum of these numbers.
+
+Return the highest possible score after making any number of moves (including zero moves).
+
+Example 1:
+Input: grid = [[0,0,1,1],[1,0,1,0],[1,1,0,0]]
+Output: 39
+Explanation: 0b1111 + 0b1001 + 0b1111 = 15 + 9 + 15 = 39
+
+Example 2:
+Input: grid = [[0]]
+Output: 1
+
+Constraints:
+m == grid.length
+n == grid[i].length
+1 <= m, n <= 20
+grid[i][j] is either 0 or 1.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int matrixScore(int** grid, int gridSize, int* gridColSize) {
+    int retVal = 0;
+
+    // Set score to summation of first column
+    retVal = (1 << (gridColSize[0] - 1)) * gridSize;
+
+    int countSameBits, columnScore;
+    int row, col;
+    for (col = 1; col < gridColSize[0]; col++) {
+        countSameBits = 0;
+        for (row = 0; row < gridSize; row++) {
+            // Count elements matching first in row
+            if (grid[row][col] == grid[row][0]) {
+                countSameBits++;
+            }
+        }
+
+        // Calculate score based on the number of same bits in a column
+        countSameBits = fmax(countSameBits, gridSize - countSameBits);
+
+        // Calculate the score contribution for the current column
+        columnScore = (1 << (gridColSize[0] - col - 1)) * countSameBits;
+
+        // Add contribution to score
+        retVal += columnScore;
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int matrixScore(vector<vector<int>>& grid) {
+        int retVal = 0;
+
+        int gridSize = grid.size();
+        int gridColSize = grid[0].size();
+
+        // Set score to summation of first column
+        retVal = (1 << (gridColSize - 1)) * gridSize;
+
+        for (int col = 1; col < gridColSize; col++) {
+            int countSameBits = 0;
+            for (int row = 0; row < gridSize; row++) {
+                // Count elements matching first in row
+                if (grid[row][col] == grid[row][0]) {
+                    countSameBits++;
+                }
+            }
+
+            // Calculate score based on the number of same bits in a column
+            countSameBits = max(countSameBits, gridSize - countSameBits);
+
+            // Calculate the score contribution for the current column
+            int columnScore = (1 << (gridColSize - col - 1)) * countSameBits;
+
+            // Add contribution to score
+            retVal += columnScore;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def matrixScore(self, grid: List[List[int]]) -> int:
+        retVal = 0
+
+        gridSize = len(grid)
+        gridColSize = len(grid[0])
+
+        # Set score to summation of first column
+        retVal = (1 << (gridColSize - 1)) * gridSize
+
+        for col in range(1, gridColSize):
+            count_same_bits = 0
+            for row in range(gridSize):
+                # Count elements matching first in row
+                if grid[row][col] == grid[row][0]:
+                    count_same_bits += 1
+
+            # Calculate score based on the number of same bits in a column
+            count_same_bits = max(count_same_bits, gridSize - count_same_bits)
+
+            # Calculate the score contribution for the current column
+            column_score = (1 << (gridColSize - col - 1)) * count_same_bits
+
+            # Add contribution to score
+            retVal += column_score
+
+        return retVal
+```
+
+</details>
+
 ## [948. Bag of Tokens](https://leetcode.com/problems/bag-of-tokens/)  1762
 
 - [Official](https://leetcode.com/problems/bag-of-tokens/editorial/)
