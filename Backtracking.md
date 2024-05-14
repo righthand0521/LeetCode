@@ -2241,6 +2241,204 @@ int uniquePathsIII(int** grid, int gridSize, int* gridColSize) {
 
 </details>
 
+## [1219. Path with Maximum Gold](https://leetcode.com/problems/path-with-maximum-gold/)  1663
+
+- [Official](https://leetcode.com/problems/path-with-maximum-gold/editorial/)
+- [Official](https://leetcode.cn/problems/path-with-maximum-gold/solutions/1240253/huang-jin-kuang-gong-by-leetcode-solutio-f9gg/)
+
+<details><summary>Description</summary>
+
+```text
+In a gold mine grid of size m x n, each cell in this mine has an integer representing the amount of gold in that cell,
+0 if it is empty.
+
+Return the maximum amount of gold you can collect under the conditions:
+- Every time you are located in a cell you will collect all the gold in that cell.
+- From your position, you can walk one step to the left, right, up, or down.
+- You can't visit the same cell more than once.
+- Never visit a cell with 0 gold.
+- You can start and stop collecting gold from any position in the grid that has some gold.
+
+Example 1:
+Input: grid = [[0,6,0],[5,8,7],[0,9,0]]
+Output: 24
+Explanation:
+[[0,6,0],
+ [5,8,7],
+ [0,9,0]]
+Path to get the maximum gold, 9 -> 8 -> 7.
+
+Example 2:
+Input: grid = [[1,0,7],[2,0,6],[3,4,5],[0,3,0],[9,0,20]]
+Output: 28
+Explanation:
+[[1,0,7],
+ [2,0,6],
+ [3,4,5],
+ [0,3,0],
+ [9,0,20]]
+Path to get the maximum gold, 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7.
+
+Constraints:
+m == grid.length
+n == grid[i].length
+1 <= m, n <= 15
+0 <= grid[i][j] <= 100
+There are at most 25 cells containing gold.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use recursion to try all such paths and find the one with the maximum value.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+const int direction[4][2] = {{-1, 0}, {1, 0}, {0, 1}, {0, -1}};
+int backtrack(int** grid, int gridSize, int gridColSize, int row, int col) {
+    int retVal = 0;
+
+    // Base case: this cell is not in the matrix or has no gold
+    if ((row < 0) || (col < 0) || (row == gridSize) || (col == gridColSize) || (grid[row][col] == 0)) {
+        return retVal;
+    }
+
+    // Mark the cell as visited and save the value
+    int originalVal = grid[row][col];
+    grid[row][col] = 0;
+
+    // Backtrack in each of the four directions
+    int i;
+    for (i = 0; i < 4; ++i) {
+        retVal = fmax(retVal, backtrack(grid, gridSize, gridColSize, row + direction[i][0], col + direction[i][1]));
+    }
+
+    // Set the cell back to its original value
+    grid[row][col] = originalVal;
+
+    retVal += originalVal;
+
+    return retVal;
+}
+int getMaximumGold(int** grid, int gridSize, int* gridColSize) {
+    int retVal = 0;
+
+    // Search for the path with the maximum gold starting from each cell
+    int row, col;
+    for (row = 0; row < gridSize; ++row) {
+        for (col = 0; col < gridColSize[0]; ++col) {
+            retVal = fmax(retVal, backtrack(grid, gridSize, gridColSize[0], row, col));
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    vector<vector<int>> direction = {{-1, 0}, {1, 0}, {0, 1}, {0, -1}};
+    int backtrack(vector<vector<int>>& grid, int gridSize, int gridColSize, int row, int col) {
+        int retVal = 0;
+
+        // Base case: this cell is not in the matrix or has no gold
+        if ((row < 0) || (col < 0) || (row == gridSize) || (col == gridColSize) || (grid[row][col] == 0)) {
+            return retVal;
+        }
+
+        // Mark the cell as visited and save the value
+        int originalVal = grid[row][col];
+        grid[row][col] = 0;
+
+        // Backtrack in each of the four directions
+        for (int i = 0; i < 4; ++i) {
+            int x = row + direction[i][0];
+            int y = col + direction[i][1];
+            retVal = max(retVal, backtrack(grid, gridSize, gridColSize, x, y));
+        }
+
+        // Set the cell back to its original value
+        grid[row][col] = originalVal;
+
+        retVal += originalVal;
+
+        return retVal;
+    }
+
+   public:
+    int getMaximumGold(vector<vector<int>>& grid) {
+        int retVal = 0;
+
+        int gridSize = grid.size();
+        int gridColSize = grid[0].size();
+
+        // Search for the path with the maximum gold starting from each cell
+        for (int row = 0; row < gridSize; ++row) {
+            for (int col = 0; col < gridColSize; ++col) {
+                retVal = max(retVal, backtrack(grid, gridSize, gridColSize, row, col));
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def backtrack(self, grid: List[List[int]], gridSize: int, gridColSize: int, row: int, col: int):
+        retVal = 0
+
+        # Base case: this cell is not in the matrix or has no gold
+        if (row < 0) or (col < 0) or (row == gridSize) or (col == gridColSize) or (grid[row][col]) == 0:
+            return retVal
+
+        # Mark the cell as visited and save the value
+        original_val = grid[row][col]
+        grid[row][col] = 0
+
+        # Backtrack in each of the four directions
+        for i, j in [[0, 1], [0, -1], [1, 0], [-1, 0]]:
+            retVal = max(retVal, self.backtrack(grid, gridSize, gridColSize, row + i, col + j))
+
+        # Set the cell back to its original value
+        grid[row][col] = original_val
+
+        retVal += original_val
+
+        return retVal
+
+    def getMaximumGold(self, grid: List[List[int]]) -> int:
+        retVal = 0
+
+        gridSize = len(grid)
+        gridColSize = len(grid[0])
+
+        # Search for the path with the maximum gold starting from each cell
+        for row in range(gridSize):
+            for col in range(gridColSize):
+                retVal = max(retVal, self.backtrack(grid, gridSize, gridColSize, row, col))
+
+        return retVal
+```
+
+</details>
+
 ## [1239. Maximum Length of a Concatenated String with Unique Characters](https://leetcode.com/problems/maximum-length-of-a-concatenated-string-with-unique-characters/)  1719
 
 - [Official](https://leetcode.cn/problems/maximum-length-of-a-concatenated-string-with-unique-characters/solutions/834267/chuan-lian-zi-fu-chuan-de-zui-da-chang-d-g6gk/)
