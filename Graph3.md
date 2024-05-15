@@ -2857,3 +2857,368 @@ class Solution:
 ```
 
 </details>
+
+## [2812. Find the Safest Path in a Grid](https://leetcode.com/problems/find-the-safest-path-in-a-grid/)  2153
+
+- [Official](https://leetcode.com/problems/find-the-safest-path-in-a-grid/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed 2D matrix grid of size n x n, where (r, c) represents:
+- A cell containing a thief if grid[r][c] = 1
+- An empty cell if grid[r][c] = 0
+
+You are initially positioned at cell (0, 0).
+In one move, you can move to any adjacent cell in the grid, including cells containing thieves.
+
+The safeness factor of a path on the grid is defined as the minimum manhattan distance
+from any cell in the path to any thief in the grid.
+
+Return the maximum safeness factor of all paths leading to cell (n - 1, n - 1).
+
+An adjacent cell of cell (r, c), is one of the cells (r, c + 1), (r, c - 1), (r + 1, c) and (r - 1, c) if it exists.
+
+The Manhattan distance between two cells (a, b) and (x, y) is equal to |a - x| + |b - y|,
+where |val| denotes the absolute value of val.
+
+Example 1:
+Input: grid = [[1,0,0],[0,0,0],[0,0,1]]
+Output: 0
+Explanation: All paths from (0, 0) to (n - 1, n - 1) go through the thieves in cells (0, 0) and (n - 1, n - 1).
+
+Example 2:
+Input: grid = [[0,0,1],[0,0,0],[0,0,0]]
+Output: 2
+Explanation: The path depicted in the picture above has a safeness factor of 2 since:
+- The closest cell of the path to the thief at cell (0, 2) is cell (0, 0).
+  The distance between them is | 0 - 0 | + | 0 - 2 | = 2.
+It can be shown that there are no other paths with a higher safeness factor.
+
+Example 3:
+Input: grid = [[0,0,0,1],[0,0,0,0],[0,0,0,0],[1,0,0,0]]
+Output: 2
+Explanation: The path depicted in the picture above has a safeness factor of 2 since:
+- The closest cell of the path to the thief at cell (0, 3) is cell (1, 2).
+  The distance between them is | 0 - 1 | + | 3 - 2 | = 2.
+- The closest cell of the path to the thief at cell (3, 0) is cell (3, 2).
+  The distance between them is | 3 - 3 | + | 0 - 2 | = 2.
+It can be shown that there are no other paths with a higher safeness factor.
+
+Constraints:
+1 <= grid.length == n <= 400
+grid[i].length == n
+grid[i][j] is either 0 or 1.
+There is at least one thief in the grid.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Consider using both BFS and binary search together.
+2. Launch a BFS starting from all the cells containing thieves to calculate d[x][y]
+   which is the smallest Manhattan distance from (x, y) to the nearest grid that contains thieves.
+3. To check if the bottom-right cell of the grid can be reached **through a path of safeness factor v**,
+   eliminate all cells (x, y) such that grid[x][y] < v.
+   if (0, 0) and (n - 1, n - 1) are still connected,
+   there exists a path between (0, 0) and (n - 1, n - 1) of safeness factor v.
+4. Binary search over the final safeness factor v.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+const int direction[4][2] = {{-1, 0}, {1, 0}, {0, 1}, {0, -1}};
+bool enable(int** grid, int gridSize, int* gridColSize, int target) {
+    bool retVal = false;
+
+    if (grid[0][0] < target) {
+        return retVal;
+    }
+
+    int queueSize = gridSize * gridColSize[0];
+    int queue[queueSize][2];
+    memset(queue, 0, sizeof(queueSize));
+    int queueHead = 0;
+    int queueTail = 0;
+    queue[queueTail][0] = 0;
+    queue[queueTail][1] = 0;
+    queueTail++;
+
+    int pathSize = gridSize * gridColSize[0];
+    int path[pathSize];
+    memset(path, 0, sizeof(path));
+    path[0] = 1;
+
+    int diffX, diffY;
+    int currentX, currentY;
+    int i;
+    while (queueHead < queueTail) {
+        currentX = queue[queueHead][0];
+        currentY = queue[queueHead][1];
+        queueHead++;
+        if ((currentX == gridSize - 1) && (currentY == gridColSize[0] - 1)) {
+            retVal = true;
+            break;
+        }
+
+        for (i = 0; i < 4; i++) {
+            diffX = currentX + direction[i][0];
+            diffY = currentY + direction[i][1];
+            if ((diffX < 0) || (diffX >= gridSize) || (diffY < 0) || (diffY >= gridColSize[0]) ||
+                (grid[diffX][diffY] < target) || (path[diffX * gridColSize[0] + diffY] == 1)) {
+                continue;
+            }
+
+            path[diffX * gridColSize[0] + diffY] = 1;
+            queue[queueTail][0] = diffX;
+            queue[queueTail][1] = diffY;
+            queueTail++;
+        }
+    }
+
+    return retVal;
+}
+int maximumSafenessFactor(int** grid, int gridSize, int* gridColSize) {
+    int retVal = 0;
+
+    if ((grid[0][0] == 1) || (grid[gridSize - 1][gridColSize[0] - 1] == 1)) {
+        return retVal;
+    }
+
+    int i, j;
+
+    int multiSourceQueueSize = gridSize * gridColSize[0];
+    int multiSourceQueue[multiSourceQueueSize][2];
+    memset(multiSourceQueue, 0, sizeof(multiSourceQueue));
+    int multiSourceQueueHead = 0;
+    int multiSourceQueueTail = 0;
+    for (i = 0; i < gridSize; i++) {
+        for (j = 0; j < gridColSize[0]; j++) {
+            if (grid[i][j] == 1) {
+                grid[i][j] = 0;
+                multiSourceQueue[multiSourceQueueTail][0] = i;
+                multiSourceQueue[multiSourceQueueTail][1] = j;
+                multiSourceQueueTail++;
+            } else {
+                grid[i][j] = -1;
+            }
+        }
+    }
+
+    int diffX, diffY;
+    int currentX, currentY;
+    while (multiSourceQueueHead < multiSourceQueueTail) {
+        currentX = multiSourceQueue[multiSourceQueueHead][0];
+        currentY = multiSourceQueue[multiSourceQueueHead][1];
+        multiSourceQueueHead++;
+
+        for (i = 0; i < 4; i++) {
+            diffX = currentX + direction[i][0];
+            diffY = currentY + direction[i][1];
+            if ((diffX < 0) || (diffX >= gridSize) || (diffY < 0) || (diffY >= gridColSize[0]) ||
+                (grid[diffX][diffY] >= 0)) {
+                continue;
+            }
+            grid[diffX][diffY] = grid[currentX][currentY] + 1;
+            multiSourceQueue[multiSourceQueueTail][0] = diffX;
+            multiSourceQueue[multiSourceQueueTail][1] = diffY;
+            multiSourceQueueTail++;
+        }
+    }
+
+    int left = 0;
+    int right = fmin(gridSize, gridColSize[0]);
+    int middle;
+    while (left <= right) {
+        middle = (left + right) / 2;
+
+        if (enable(grid, gridSize, gridColSize, middle) == true) {
+            left = middle + 1;
+            retVal = middle;
+        } else {
+            right = middle - 1;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    vector<vector<int>> direction = {{-1, 0}, {1, 0}, {0, 1}, {0, -1}};
+    bool isValidCell(vector<vector<int>>& grid, int i, int j) {
+        bool retVal = false;
+
+        int gridSize = grid.size();
+        if ((i >= 0) && (i < gridSize) && (j >= 0) && (j < gridSize)) {
+            retVal = true;
+        }
+
+        return retVal;
+    }
+
+   public:
+    int maximumSafenessFactor(vector<vector<int>>& grid) {
+        int retVal = -1;
+
+        int gridSize = grid.size();
+
+        // Mark thieves as 0 and empty cells as -1, and push thieves to the queue
+        queue<pair<int, int>> multiSourceQueue;
+        for (int i = 0; i < gridSize; i++) {
+            for (int j = 0; j < gridSize; j++) {
+                if (grid[i][j] == 1) {
+                    multiSourceQueue.push({i, j});
+                    grid[i][j] = 0;
+                } else {
+                    grid[i][j] = -1;
+                }
+            }
+        }
+
+        // Calculate safeness factor for each cell using BFS
+        while (multiSourceQueue.empty() == false) {
+            int multiSourceQueueSize = multiSourceQueue.size();
+            while (multiSourceQueueSize-- > 0) {
+                auto curr = multiSourceQueue.front();
+                multiSourceQueue.pop();
+
+                // Check neighboring cells
+                for (auto& d : direction) {
+                    int di = curr.first + d[0];
+                    int dj = curr.second + d[1];
+                    int val = grid[curr.first][curr.second];
+
+                    // Check if the neighboring cell is valid and unvisited
+                    if ((isValidCell(grid, di, dj) == true) && (grid[di][dj] == -1)) {
+                        grid[di][dj] = val + 1;
+                        multiSourceQueue.push({di, dj});
+                    }
+                }
+            }
+        }
+
+        // Priority queue to prioritize cells with higher safeness factor, Push starting cell to the priority queue.
+        priority_queue<vector<int>> pq;
+        pq.push(vector<int>{grid[0][0], 0, 0});  // [maximum_safeness_till_now, x-coordinate, y-coordinate]
+        grid[0][0] = -1;                         // Mark the source cell as visited
+
+        // BFS to find the path with maximum safeness factor
+        while (pq.empty() == false) {
+            auto curr = pq.top();
+            pq.pop();
+
+            // If reached the destination, return safeness factor
+            if ((curr[1] == gridSize - 1) && (curr[2] == gridSize - 1)) {
+                retVal = curr[0];
+                break;
+            }
+
+            // Explore neighboring cells
+            for (auto& d : direction) {
+                int di = d[0] + curr[1];
+                int dj = d[1] + curr[2];
+                if (isValidCell(grid, di, dj) && grid[di][dj] != -1) {
+                    // Update safeness factor for the path and mark the cell as visited
+                    pq.push(vector<int>{min(curr[0], grid[di][dj]), di, dj});
+                    grid[di][dj] = -1;
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.direction = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+
+    def isValidCell(self, grid: List[List[int]], i: int, j: int) -> bool:
+        retVal = False
+
+        gridSize = len(grid)
+        if (0 <= i < gridSize) and (0 <= j < gridSize):
+            retVal = True
+
+        return retVal
+
+    def maximumSafenessFactor(self, grid: List[List[int]]) -> int:
+        retVal = -1
+
+        gridSize = len(grid)
+
+        # Mark thieves as 0 and empty cells as -1, and push thieves to the queue
+        multi_source_queue = deque()
+        for i in range(gridSize):
+            for j in range(gridSize):
+                if grid[i][j] == 1:
+                    # Push thief coordinates to the queue
+                    multi_source_queue.append((i, j))
+                    grid[i][j] = 0  # Mark thief cell with 0
+                else:
+                    grid[i][j] = -1  # Mark empty cell with -1
+
+        # Calculate safeness factor for each cell using BFS
+        while multi_source_queue:
+            size = len(multi_source_queue)
+            while size > 0:
+                # Check neighboring cells
+                curr = multi_source_queue.popleft()
+                for d in self.direction:
+                    di = curr[0] + d[0]
+                    dj = curr[1] + d[1]
+                    val = grid[curr[0]][curr[1]]
+
+                    # Check if the cell is valid and unvisited
+                    if self.isValidCell(grid, di, dj) and grid[di][dj] == -1:
+                        # Update safeness factor and push to the queue
+                        grid[di][dj] = val + 1
+                        multi_source_queue.append((di, dj))
+
+                size -= 1
+
+        # Priority queue to prioritize cells with higher safeness factor
+        # [maximum_safeness_till_now, x-coordinate, y-coordinate]
+        pq = [[-grid[0][0], 0, 0]]
+        grid[0][0] = -1  # Mark the source cell as visited
+
+        # BFS to find the path with maximum safeness factor
+        while pq:
+            retVal, i, j = heappop(pq)
+
+            # If reached the destination, return safeness factor
+            if (i == gridSize - 1) and (j == gridSize - 1):
+                return -retVal
+
+            # Check neighboring cells
+            for d in self.direction:
+                di = i + d[0]
+                dj = j + d[1]
+
+                # Check if the neighboring cell is valid and unvisited
+                if self.isValidCell(grid, di, dj) and grid[di][dj] != -1:
+                    heappush(pq, [-min(-retVal, grid[di][dj]), di, dj])
+                    grid[di][dj] = -1
+
+        return retVal
+```
+
+</details>
