@@ -2257,6 +2257,15 @@ Leaf nodes have a value of 0 or 1.
 Non-leaf nodes have a value of 2 or 3.
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. Traverse the tree using depth-first search in post-order.
+2. Can you use recursion to solve this easily?
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
@@ -2291,6 +2300,78 @@ bool evaluateTree(struct TreeNode* root) {
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   public:
+    bool evaluateTree(TreeNode* root) {
+        bool retVal = false;
+
+        if ((root->left == nullptr) && (root->right == nullptr)) {
+            if (root->val == 0) {
+                retVal = false;
+            } else if (root->val == 1) {
+                retVal = true;
+            }
+
+            return retVal;
+        }
+
+        if (root->val == 2) {
+            retVal = (evaluateTree(root->left) | evaluateTree(root->right));
+        } else if (root->val == 3) {
+            retVal = (evaluateTree(root->left) & evaluateTree(root->right));
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def evaluateTree(self, root: Optional[TreeNode]) -> bool:
+        retVal = False
+
+        if (root.left is None) and (root.right is None):
+            if root.val == 0:
+                retVal = False
+            elif root.val == 1:
+                retVal = True
+            return retVal
+
+        if root.val == 2:
+            retVal = self.evaluateTree(root.left) or self.evaluateTree(root.right)
+        elif root.val == 3:
+            retVal = self.evaluateTree(root.left) and self.evaluateTree(root.right)
+
+        return retVal
 ```
 
 </details>
