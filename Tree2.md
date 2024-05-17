@@ -642,6 +642,162 @@ class Solution:
 
 </details>
 
+## [1325. Delete Leaves With a Given Value](https://leetcode.com/problems/delete-leaves-with-a-given-value/)  1407
+
+- [Official](https://leetcode.com/problems/delete-leaves-with-a-given-value/editorial/)
+- [Official](https://leetcode.cn/problems/delete-leaves-with-a-given-value/solutions/101264/shan-chu-gei-ding-zhi-de-xie-zi-jie-dian-by-leet-2/)
+
+<details><summary>Description</summary>
+
+```text
+Given a binary tree root and an integer target, delete all the leaf nodes with value target.
+
+Note that once you delete a leaf node with value target,
+if its parent node becomes a leaf node and has the value target,
+it should also be deleted (you need to continue doing that until you cannot).
+
+Example 1:
+    1          1        1
+   / \        / \        \
+  2   3  ->  2   3  ->    3
+ /   / \          \        \
+2   2   4          4        4
+Input: root = [1,2,3,2,null,2,4], target = 2
+Output: [1,null,3,null,4]
+Explanation: Leaf nodes in green with value (target = 2) are removed (Picture in left).
+After removing, new nodes become leaf nodes with value (target = 2) (Picture in center).
+
+Example 2:
+    1          1
+   / \        /
+  3   3  ->  3
+ / \          \
+3   2          2
+Input: root = [1,3,3,3,2], target = 3
+Output: [1,3,null,null,2]
+
+Example 3:
+      1        1        1     1
+     /        /        /
+    2   ->   2   ->   2   ->
+   /        /
+  2        2
+ /
+2
+Input: root = [1,2,null,2,null,2], target = 2
+Output: [1]
+Explanation: Leaf nodes in green with value (target = 2) are removed at each step.
+
+Constraints:
+The number of nodes in the tree is in the range [1, 3000].
+1 <= Node.val, target <= 1000
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use the DFS to reconstruct the tree such that no leaf node is equal to the target.
+   If the leaf node is equal to the target, return an empty object instead.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+struct TreeNode* removeLeafNodes(struct TreeNode* root, int target) {
+    struct TreeNode* pRetVal = root;
+
+    if (pRetVal == NULL) {
+        return pRetVal;
+    }
+
+    pRetVal->left = removeLeafNodes(pRetVal->left, target);
+    pRetVal->right = removeLeafNodes(pRetVal->right, target);
+    if ((pRetVal->left == NULL) && (pRetVal->right == NULL) && (pRetVal->val == target)) {
+        free(pRetVal);
+        pRetVal = NULL;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   public:
+    TreeNode* removeLeafNodes(TreeNode* root, int target) {
+        TreeNode* pRetVal = root;
+
+        if (pRetVal == nullptr) {
+            return pRetVal;
+        }
+
+        pRetVal->left = removeLeafNodes(pRetVal->left, target);
+        pRetVal->right = removeLeafNodes(pRetVal->right, target);
+        if ((pRetVal->left == nullptr) && (pRetVal->right == nullptr) && (pRetVal->val == target)) {
+            // delete pRetVal;
+            pRetVal = nullptr;
+        }
+
+        return pRetVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def removeLeafNodes(self, root: Optional[TreeNode], target: int) -> Optional[TreeNode]:
+        retVal = root
+
+        if retVal is None:
+            return retVal
+
+        retVal.left = self.removeLeafNodes(retVal.left, target)
+        retVal.right = self.removeLeafNodes(retVal.right, target)
+        if (retVal.left is None) and (retVal.right is None) and (retVal.val == target):
+            retVal = None
+
+        return retVal
+```
+
+</details>
+
 ## [1339. Maximum Product of Splitted Binary Tree](https://leetcode.com/problems/maximum-product-of-splitted-binary-tree/)  1674
 
 <details><summary>Description</summary>
