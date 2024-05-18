@@ -4329,7 +4329,7 @@ class Solution:
 
 </details>
 
-## [199. Binary Tree Right Side View](https://leetcode.com/problems/binary-tree-right-side-view/description)
+## [199. Binary Tree Right Side View](https://leetcode.com/problems/binary-tree-right-side-view/)
 
 - [Official](https://leetcode.cn/problems/binary-tree-right-side-view/solutions/213494/er-cha-shu-de-you-shi-tu-by-leetcode-solution/)
 
@@ -6368,7 +6368,7 @@ class Codec {
 
 </details>
 
-## [450. Delete Node in a BST](https://leetcode.com/problems/delete-node-in-a-bst/description)
+## [450. Delete Node in a BST](https://leetcode.com/problems/delete-node-in-a-bst/)
 
 - [Official](https://leetcode.cn/problems/delete-node-in-a-bst/solutions/1529700/shan-chu-er-cha-sou-suo-shu-zhong-de-jie-n6vo/)
 
@@ -9962,7 +9962,7 @@ class Solution:
 
 </details>
 
-## [872. Leaf-Similar Trees](https://leetcode.com/problems/leaf-similar-trees/description/)  1287
+## [872. Leaf-Similar Trees](https://leetcode.com/problems/leaf-similar-trees/)  1287
 
 - [Official](https://leetcode.com/problems/leaf-similar-trees/editorial/)
 - [Official](https://leetcode.cn/problems/leaf-similar-trees/solutions/755642/xie-zi-xiang-si-de-shu-by-leetcode-solut-z0w6/)
@@ -10498,7 +10498,7 @@ class Solution:
 
 </details>
 
-## [938. Range Sum of BST](https://leetcode.com/problems/range-sum-of-bst/description/)  1335
+## [938. Range Sum of BST](https://leetcode.com/problems/range-sum-of-bst/)  1335
 
 - [Official](https://leetcode.cn/problems/range-sum-of-bst/solutions/746069/er-cha-sou-suo-shu-de-fan-wei-he-by-leet-rpq7/)
 
@@ -10791,6 +10791,167 @@ class Solution {
         return retVal;
     }
 };
+```
+
+</details>
+
+## [979. Distribute Coins in Binary Tree](https://leetcode.com/problems/distribute-coins-in-binary-tree/)  1709
+
+- [Official](https://leetcode.com/problems/distribute-coins-in-binary-tree/editorial/)
+- [Official](https://leetcode.cn/problems/distribute-coins-in-binary-tree/solutions/2339545/zai-er-cha-shu-zhong-fen-pei-ying-bi-by-e4poq/)
+
+<details><summary>Description</summary>
+
+```text
+You are given the root of a binary tree with n nodes where each node in the tree has node.val coins.
+There are n coins in total throughout the whole tree.
+
+In one move, we may choose two adjacent nodes and move one coin from one node to another.
+A move may be from parent to child, or from child to parent.
+
+Return the minimum number of moves required to make every node have exactly one coin.
+
+Example 1:
+  3
+ / \
+0   0
+Input: root = [3,0,0]
+Output: 2
+Explanation: From the root of the tree, we move one coin to its left child, and one coin to its right child.
+
+Example 2:
+  0
+ / \
+3   0
+Input: root = [0,3,0]
+Output: 3
+Explanation: From the left child of the root, we move two coins to the root [taking two moves].
+Then, we move one coin from the root of the tree to the right child.
+
+Constraints:
+The number of nodes in the tree is n.
+1 <= n <= 100
+0 <= Node.val <= n
+The sum of all Node.val is n.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int dfs(struct TreeNode* root, int* moves) {
+    int retVal = 0;
+
+    if (root == NULL) {
+        return retVal;
+    }
+    int leftMoves = dfs(root->left, moves);
+    int rightMoves = dfs(root->right, moves);
+    (*moves) += (abs(leftMoves) + abs(rightMoves));
+    retVal = (root->val - 1) + leftMoves + rightMoves;
+
+    return retVal;
+}
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+int distributeCoins(struct TreeNode* root) {
+    int retVal = 0;
+
+    dfs(root, &retVal);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   private:
+    int moves = 0;
+    int dfs(TreeNode* root) {
+        int retVal = 0;
+
+        if (root == nullptr) {
+            return retVal;
+        }
+        int leftMoves = dfs(root->left);
+        int rightMoves = dfs(root->right);
+        moves += (abs(leftMoves) + abs(rightMoves));
+        retVal = (root->val - 1) + leftMoves + rightMoves;
+
+        return retVal;
+    }
+
+   public:
+    int distributeCoins(TreeNode* root) {
+        int retVal = 0;
+
+        moves = 0;
+        dfs(root);
+        retVal = moves;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def __init__(self) -> None:
+        self.moves = 0
+
+    def dfs(self, root: Optional[TreeNode]) -> int:
+        retVal = 0
+
+        if root == None:
+            return retVal
+
+        left_coins = self.dfs(root.left)
+        right_coins = self.dfs(root.right)
+        self.moves += (abs(left_coins) + abs(right_coins))
+        retVal = (root.val - 1) + left_coins + right_coins
+
+        return retVal
+
+    def distributeCoins(self, root: Optional[TreeNode]) -> int:
+        retVal = 0
+
+        self.moves = 0
+        self.dfs(root)
+        retVal = self.moves
+
+        return retVal
 ```
 
 </details>
