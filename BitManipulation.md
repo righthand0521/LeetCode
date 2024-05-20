@@ -295,7 +295,6 @@ class Solution:
 
 ## [78. Subsets](https://leetcode.com/problems/subsets/)
 
-- [Official](https://leetcode.com/problems/subsets/solutions/464411/subsets/)
 - [Official](https://leetcode.cn/problems/subsets/solutions/420294/zi-ji-by-leetcode-solution/)
 
 <details><summary>Description</summary>
@@ -324,85 +323,59 @@ All the numbers of nums are unique.
 <details><summary>C</summary>
 
 ```c
-#define Approach_1_Cascading    (0)
 /**
  * Return an array of arrays of size *returnSize.
  * The sizes of the arrays are returned as *returnColumnSizes array.
  * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
  */
 int** subsets(int* nums, int numsSize, int* returnSize, int** returnColumnSizes) {
-    int** retVal = NULL;
+    int** pRetVal = NULL;
 
-    int i, j;
-
-    //
-    (*returnSize) = 1 << numsSize;
+    (*returnSize) = 0;
 
     //
-    (*returnColumnSizes) = (int*)malloc((*returnSize)*sizeof(int));
+    int mallocSize = 1 << numsSize;
+    pRetVal = (int**)malloc(mallocSize * sizeof(int*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    (*returnColumnSizes) = (int*)malloc(mallocSize * sizeof(int));
     if ((*returnColumnSizes) == NULL) {
         perror("malloc");
-        (*returnSize) = 0;
-        return retVal;
+        free(pRetVal);
+        pRetVal = NULL;
+        return pRetVal;
     }
-    memset((*returnColumnSizes), 0, ((*returnSize)*sizeof(int)));
+    memset((*returnColumnSizes), 0, (mallocSize * sizeof(int)));
+
     //
-    retVal = (int**)malloc((*returnSize)*sizeof(int*));
-    if (retVal == NULL) {
-        perror("malloc");
-        free((*returnColumnSizes));
-        (*returnColumnSizes) = NULL;
-        (*returnSize) = 0;
-        return retVal;
-    }
-    for (i=0; i<(*returnSize); ++i) {
-        retVal[i] = (int*)malloc(numsSize*sizeof(int));
-        if (retVal[i] == NULL) {
+    int i, j;
+    for (i = 0; i < mallocSize; ++i) {
+        pRetVal[i] = (int*)malloc(numsSize * sizeof(int));
+        if (pRetVal[i] == NULL) {
             perror("malloc");
-            for (j=0; j<i; ++j) {
-                free(retVal[j]);
-                retVal[j] = NULL;
+            for (j = 0; j < i; ++j) {
+                free(pRetVal[j]);
+                pRetVal[j] = NULL;
             }
             free((*returnColumnSizes));
             (*returnColumnSizes) = NULL;
             (*returnSize) = 0;
-            return retVal;
+            return pRetVal;
         }
-        memset(retVal[i], 0, (numsSize*sizeof(int)));
-    }
+        memset(pRetVal[i], 0, (numsSize * sizeof(int)));
 
-#if (Approach_1_Cascading)
-    printf("Approach 1: Cascading\n");
-
-    int count = 1;
-    int index = 1;
-    int k;
-    for (i=0; i<numsSize; ++i) {
-        for (j=0; j<count; ++j) {
-            for (k=0; k<(*returnColumnSizes)[j]; ++k) {
-                retVal[index][k] = retVal[j][k];
-            }
-            retVal[index][k] = nums[i];
-            (*returnColumnSizes)[index] = (*returnColumnSizes)[j] + 1;
-            ++index;
-        }
-        count = index;
-    }
-#else
-    printf("Approach 3: Lexicographic (Binary Sorted) Subsets\n");
-
-    //
-    for (i=0; i<(1<<numsSize); ++i) {
-        for (j=0; j<numsSize; ++j) {
-            if (i>>j & 1) {
-                retVal[i][(*returnColumnSizes)[i]] = nums[j];
+        for (j = 0; j < numsSize; ++j) {
+            if (i >> j & 1) {
+                pRetVal[i][(*returnColumnSizes)[i]] = nums[j];
                 (*returnColumnSizes)[i]++;
             }
         }
     }
-#endif
+    (*returnSize) = mallocSize;
 
-    return retVal;
+    return pRetVal;
 }
 ```
 
@@ -416,10 +389,10 @@ class Solution {
     vector<vector<int>> subsets(vector<int>& nums) {
         vector<vector<int>> retVal;
 
-        int n = nums.size();
-        for (int bitmask = 0; bitmask < (1 << n); ++bitmask) {
+        int numsSize = nums.size();
+        for (int bitmask = 0; bitmask < (1 << numsSize); ++bitmask) {
             vector<int> sequence;
-            for (int i = 0; i < n; ++i) {
+            for (int i = 0; i < numsSize; ++i) {
                 if (((bitmask >> i) & 1) == 1) {
                     sequence.push_back(nums[i]);
                 }
@@ -430,6 +403,26 @@ class Solution {
         return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def subsets(self, nums: List[int]) -> List[List[int]]:
+        retVal = []
+
+        numsSize = len(nums)
+        for bitmask in range((1 << numsSize)):
+            sequence = []
+            for i in range(numsSize):
+                if ((bitmask >> i) & 1) == 1:
+                    sequence.append(nums[i])
+            retVal.append(sequence)
+
+        return retVal
 ```
 
 </details>

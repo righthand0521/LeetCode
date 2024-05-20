@@ -2,86 +2,59 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define Approach_1_Cascading (0)
-#define Approach_3_Binary_Sorted (1)
 /**
  * Return an array of arrays of size *returnSize.
  * The sizes of the arrays are returned as *returnColumnSizes array.
  * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
  */
 int** subsets(int* nums, int numsSize, int* returnSize, int** returnColumnSizes) {
-    int** retVal = NULL;
+    int** pRetVal = NULL;
 
-    int i, j;
-
-    //
-    (*returnSize) = 1 << numsSize;
+    (*returnSize) = 0;
 
     //
-    (*returnColumnSizes) = (int*)malloc((*returnSize) * sizeof(int));
+    int mallocSize = 1 << numsSize;
+    pRetVal = (int**)malloc(mallocSize * sizeof(int*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    (*returnColumnSizes) = (int*)malloc(mallocSize * sizeof(int));
     if ((*returnColumnSizes) == NULL) {
         perror("malloc");
-        (*returnSize) = 0;
-        return retVal;
+        free(pRetVal);
+        pRetVal = NULL;
+        return pRetVal;
     }
-    memset((*returnColumnSizes), 0, ((*returnSize) * sizeof(int)));
+    memset((*returnColumnSizes), 0, (mallocSize * sizeof(int)));
+
     //
-    retVal = (int**)malloc((*returnSize) * sizeof(int*));
-    if (retVal == NULL) {
-        perror("malloc");
-        free((*returnColumnSizes));
-        (*returnColumnSizes) = NULL;
-        (*returnSize) = 0;
-        return retVal;
-    }
-    for (i = 0; i < (*returnSize); ++i) {
-        retVal[i] = (int*)malloc(numsSize * sizeof(int));
-        if (retVal[i] == NULL) {
+    int i, j;
+    for (i = 0; i < mallocSize; ++i) {
+        pRetVal[i] = (int*)malloc(numsSize * sizeof(int));
+        if (pRetVal[i] == NULL) {
             perror("malloc");
             for (j = 0; j < i; ++j) {
-                free(retVal[j]);
-                retVal[j] = NULL;
+                free(pRetVal[j]);
+                pRetVal[j] = NULL;
             }
             free((*returnColumnSizes));
             (*returnColumnSizes) = NULL;
             (*returnSize) = 0;
-            return retVal;
+            return pRetVal;
         }
-        memset(retVal[i], 0, (numsSize * sizeof(int)));
-    }
+        memset(pRetVal[i], 0, (numsSize * sizeof(int)));
 
-#if (Approach_1_Cascading)
-    printf("Approach 1: Cascading\n");
-
-    int count = 1;
-    int index = 1;
-    int k;
-    for (i = 0; i < numsSize; ++i) {
-        for (j = 0; j < count; ++j) {
-            for (k = 0; k < (*returnColumnSizes)[j]; ++k) {
-                retVal[index][k] = retVal[j][k];
-            }
-            retVal[index][k] = nums[i];
-            (*returnColumnSizes)[index] = (*returnColumnSizes)[j] + 1;
-            ++index;
-        }
-        count = index;
-    }
-#elif (Approach_3_Binary_Sorted)
-    printf("Approach 3: Lexicographic (Binary Sorted) Subsets\n");
-
-    //
-    for (i = 0; i < (1 << numsSize); ++i) {
         for (j = 0; j < numsSize; ++j) {
             if (i >> j & 1) {
-                retVal[i][(*returnColumnSizes)[i]] = nums[j];
+                pRetVal[i][(*returnColumnSizes)[i]] = nums[j];
                 (*returnColumnSizes)[i]++;
             }
         }
     }
-#endif
+    (*returnSize) = mallocSize;
 
-    return retVal;
+    return pRetVal;
 }
 
 int main(int argc, char** argv) {
@@ -93,6 +66,13 @@ int main(int argc, char** argv) {
         int* returnColumnSizes;
     } testCase[] = {{{1, 2, 3}, 3, 0, NULL}, {{0}, 1, 0, NULL}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: nums = [1,2,3]
+     *  Output: [[], [1], [2], [1, 2], [3], [1, 3], [2, 3], [1, 2, 3]]
+     *
+     *  Input: nums = [0]
+     *  Output: [[], [0]]
+     */
 
     int** pAnswer = NULL;
     int i, j, k;

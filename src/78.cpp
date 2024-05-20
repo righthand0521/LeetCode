@@ -9,10 +9,10 @@ class Solution {
     vector<vector<int>> subsets(vector<int>& nums) {
         vector<vector<int>> retVal;
 
-        int n = nums.size();
-        for (int bitmask = 0; bitmask < (1 << n); ++bitmask) {
+        int numsSize = nums.size();
+        for (int bitmask = 0; bitmask < (1 << numsSize); ++bitmask) {
             vector<int> sequence;
-            for (int i = 0; i < n; ++i) {
+            for (int i = 0; i < numsSize; ++i) {
                 if (((bitmask >> i) & 1) == 1) {
                     sequence.push_back(nums[i]);
                 }
@@ -30,6 +30,13 @@ int main(int argc, char** argv) {
     };
     vector<subject> testData{{{1, 2, 3}}, {{0}}};
     int numberOfTestCase = testData.size();
+    /* Example
+     *  Input: nums = [1,2,3]
+     *  Output: [[], [1], [2], [1, 2], [3], [1, 3], [2, 3], [1, 2, 3]]
+     *
+     *  Input: nums = [0]
+     *  Output: [[], [0]]
+     */
 
     Solution cSolution;
     vector<vector<int>> answer;
