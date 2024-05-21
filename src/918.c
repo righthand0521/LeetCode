@@ -42,6 +42,16 @@ int main(int argc, char** argv) {
         int numsSize;
     } testCase[] = {{{1, -2, 3, -2}, 4}, {{5, -3, 5}, 3}, {{-3, -2, -3}, 3}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: nums = [1,-2,3,-2]
+     *  Output: 3
+     *
+     *  Input: nums = [5,-3,5]
+     *  Output: 10
+     *
+     *  Input: nums = [-3,-2,-3]
+     *  Output: -2
+     */
 
     int answer = 0;
     int i, j;

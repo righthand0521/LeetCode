@@ -44,6 +44,16 @@ int main(int argc, char** argv) {
     };
     vector<subject> testData{{{1, -2, 3, -2}}, {{5, -3, 5}}, {{-3, -2, -3}}};
     int numberOfTestCase = testData.size();
+    /* Example
+     *  Input: nums = [1,-2,3,-2]
+     *  Output: 3
+     *
+     *  Input: nums = [5,-3,5]
+     *  Output: 10
+     *
+     *  Input: nums = [-3,-2,-3]
+     *  Output: -2
+     */
 
     Solution cSolution;
     int answer;

@@ -9322,7 +9322,7 @@ class Solution:
 
 ## [918. Maximum Sum Circular Subarray](https://leetcode.com/problems/maximum-sum-circular-subarray/)  1777
 
-- [Official](https://leetcode.com/problems/maximum-sum-circular-subarray/solutions/2868539/maximum-sum-circular-subarray/)
+- [Official](https://leetcode.com/problems/maximum-sum-circular-subarray/editorial/)
 
 <details><summary>Description</summary>
 
@@ -9355,6 +9355,33 @@ n == nums.length
 1 <= n <= 3 * 10^4
 -3 * 10^4 <= nums[i] <= 3 * 10^4
 ```
+
+<details><summary>Hint</summary>
+
+```text
+1. For those of you who are familiar with the Kadane's algorithm, think in terms of that.
+   For the newbies, Kadane's algorithm is used to finding the maximum sum subarray from a given array.
+   This problem is a twist on that idea and it is advisable to read up on
+   that algorithm first before starting this problem.
+   Unless you already have a great algorithm brewing up in your mind in which case, go right ahead!
+2. What is an alternate way of representing a circular array so that it appears to be a straight array?
+   Essentially, there are two cases of this problem that we need to take care of.
+   Let's look at the figure below to understand those two cases:
+   - case1
+     +-+----------------------------+-+
+     | | Max Subarray in the middle | |
+     +-+----------------------------+-+
+     0                                N-1
+   - case2
+     +-+--------------+--------------+-+
+     | | Max Subarray | split across | |
+     +-+--------------+--------------+-+
+     0              N-1                2N-1
+3. The first case can be handled by the good old Kadane's algorithm. However,
+   is there a smarter way of going about handling the second case as well?
+```
+
+</details>
 
 </details>
 
@@ -9432,6 +9459,38 @@ class Solution {
         return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxSubarraySumCircular(self, nums: List[int]) -> int:
+        retVal = 0
+
+        # /* Kadane’s Algorithm: https://en.wikipedia.org/wiki/Maximum_subarray_problem
+        #  *  1. Maximum Subarray is not Circular: maxSum
+        #  *  2. Maximum Subarray is Circular: sum - minSum
+        #  */
+        curMax = 0
+        sumMax = nums[0]
+        curMin = 0
+        sumMin = nums[0]
+        sumTotal = 0
+        for num in nums:
+            curMax = max(curMax, 0) + num
+            sumMax = max(sumMax, curMax)
+            curMin = min(curMin, 0) + num
+            sumMin = min(sumMin, curMin)
+            sumTotal += num
+        if sumTotal == sumMin:
+            retVal = sumMax
+        else:
+            retVal = max(sumMax, sumTotal - sumMin)
+
+        return retVal
 ```
 
 </details>
