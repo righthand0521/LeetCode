@@ -3,15 +3,20 @@
 #include <string.h>
 
 int isPalindrome(char* s, int** dp, int i, int j) {
-    if (dp[i][j]) {
-        return dp[i][j];
+    int retVal = dp[i][j];
+
+    if (dp[i][j] != 0) {
+        return retVal;
     }
 
     if (i >= j) {
-        return dp[i][j] = 1;
+        dp[i][j] = 1;
+    } else {
+        dp[i][j] = (s[i] == s[j] ? isPalindrome(s, dp, i + 1, j - 1) : -1);
     }
+    retVal = dp[i][j];
 
-    return dp[i][j] = (s[i] == s[j] ? isPalindrome(s, dp, i + 1, j - 1) : -1);
+    return retVal;
 }
 void dfs(char* s, int len, int idx, int** dp, char*** ret, int* retSize, int* retColSize, char** ans, int* ansSize) {
     int i, j;
@@ -77,10 +82,10 @@ char*** partition(char* s, int* returnSize, int** returnColumnSizes) {
 
     int i, j;
 
-    int len = strlen(s);
+    int sSize = strlen(s);
 
     // max return size
-    (*returnSize) = len * (1 << len);
+    (*returnSize) = sSize * (1 << sSize);
 
     // malloc returnColumnSizes
     (*returnColumnSizes) = (int*)malloc((*returnSize) * sizeof(int));
@@ -106,9 +111,9 @@ char*** partition(char* s, int* returnSize, int** returnColumnSizes) {
      *  f(i,j) = <
      *            | f(i+1, j−1) ∧ (s[i]=s[j]), otherwise
      */
-    int* dp[len];
-    for (i = 0; i < len; ++i) {
-        dp[i] = (int*)malloc(len * sizeof(int));
+    int* dp[sSize];
+    for (i = 0; i < sSize; ++i) {
+        dp[i] = (int*)malloc(sSize * sizeof(int));
         if (dp[i] == NULL) {
             perror("malloc");
             for (j = 0; j < i; ++j) {
@@ -120,24 +125,24 @@ char*** partition(char* s, int* returnSize, int** returnColumnSizes) {
             (*returnSize) = 0;
             return pRetVal;
         }
-        for (j = 0; j < len; ++j) {
+        for (j = 0; j < sSize; ++j) {
             dp[i][j] = 1;
         }
     }
-    for (i = len - 1; i >= 0; --i) {
-        for (j = i + 1; j < len; ++j) {
+    for (i = sSize - 1; i >= 0; --i) {
+        for (j = i + 1; j < sSize; ++j) {
             dp[i][j] = (s[i] == s[j]) && dp[i + 1][j - 1];
         }
     }
 
     //
     (*returnSize) = 0;
-    char* answer[len];
+    char* answer[sSize];
     int answerSize = 0;
-    dfs(s, len, 0, dp, pRetVal, returnSize, *returnColumnSizes, answer, &answerSize);
+    dfs(s, sSize, 0, dp, pRetVal, returnSize, *returnColumnSizes, answer, &answerSize);
 
     // free Dynamic Programming Preprocessing
-    for (i = 0; i < len; ++i) {
+    for (i = 0; i < sSize; ++i) {
         free(dp[i]);
         dp[i] = NULL;
     }
@@ -153,6 +158,13 @@ int main(int argc, char** argv) {
         int* returnColumnSizes;
     } testCase[] = {{"aab", 0, NULL}, {"a", 0, NULL}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: s = "aab"
+     *  Output: [["a","a","b"],["aa","b"]]
+     *
+     *  Input: s = "a"
+     *  Output: [["a"]]
+     */
 
     char*** pAnswer = NULL;
     int i, j, k;

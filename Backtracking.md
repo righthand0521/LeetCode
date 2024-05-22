@@ -1492,7 +1492,6 @@ public:
 
 ## [131. Palindrome Partitioning](https://leetcode.com/problems/palindrome-partitioning/)
 
-- [Official](https://leetcode.com/problems/palindrome-partitioning/solutions/857510/palindrome-partitioning/)
 - [Official](https://leetcode.cn/problems/palindrome-partitioning/solutions/639633/fen-ge-hui-wen-chuan-by-leetcode-solutio-6jkv/)
 
 <details><summary>Description</summary>
@@ -1520,15 +1519,20 @@ s contains only lowercase English letters.
 
 ```c
 int isPalindrome(char* s, int** dp, int i, int j) {
-    if (dp[i][j]) {
-        return dp[i][j];
+    int retVal = dp[i][j];
+
+    if (dp[i][j] != 0) {
+        return retVal;
     }
 
     if (i >= j) {
-        return dp[i][j] = 1;
+        dp[i][j] = 1;
+    } else {
+        dp[i][j] = (s[i] == s[j] ? isPalindrome(s, dp, i + 1, j - 1) : -1);
     }
+    retVal = dp[i][j];
 
-    return dp[i][j] = (s[i] == s[j] ? isPalindrome(s, dp, i + 1, j - 1) : -1);
+    return retVal;
 }
 void dfs(char* s, int len, int idx, int** dp, char*** ret, int* retSize, int* retColSize, char** ans, int* ansSize) {
     int i, j;
@@ -1594,10 +1598,10 @@ char*** partition(char* s, int* returnSize, int** returnColumnSizes) {
 
     int i, j;
 
-    int len = strlen(s);
+    int sSize = strlen(s);
 
     // max return size
-    (*returnSize) = len * (1 << len);
+    (*returnSize) = sSize * (1 << sSize);
 
     // malloc returnColumnSizes
     (*returnColumnSizes) = (int*)malloc((*returnSize) * sizeof(int));
@@ -1623,9 +1627,9 @@ char*** partition(char* s, int* returnSize, int** returnColumnSizes) {
      *  f(i,j) = <
      *            | f(i+1, j−1) ∧ (s[i]=s[j]), otherwise
      */
-    int* dp[len];
-    for (i = 0; i < len; ++i) {
-        dp[i] = (int*)malloc(len * sizeof(int));
+    int* dp[sSize];
+    for (i = 0; i < sSize; ++i) {
+        dp[i] = (int*)malloc(sSize * sizeof(int));
         if (dp[i] == NULL) {
             perror("malloc");
             for (j = 0; j < i; ++j) {
@@ -1637,24 +1641,24 @@ char*** partition(char* s, int* returnSize, int** returnColumnSizes) {
             (*returnSize) = 0;
             return pRetVal;
         }
-        for (j = 0; j < len; ++j) {
+        for (j = 0; j < sSize; ++j) {
             dp[i][j] = 1;
         }
     }
-    for (i = len - 1; i >= 0; --i) {
-        for (j = i + 1; j < len; ++j) {
+    for (i = sSize - 1; i >= 0; --i) {
+        for (j = i + 1; j < sSize; ++j) {
             dp[i][j] = (s[i] == s[j]) && dp[i + 1][j - 1];
         }
     }
 
     //
     (*returnSize) = 0;
-    char* answer[len];
+    char* answer[sSize];
     int answerSize = 0;
-    dfs(s, len, 0, dp, pRetVal, returnSize, *returnColumnSizes, answer, &answerSize);
+    dfs(s, sSize, 0, dp, pRetVal, returnSize, *returnColumnSizes, answer, &answerSize);
 
     // free Dynamic Programming Preprocessing
-    for (i = 0; i < len; ++i) {
+    for (i = 0; i < sSize; ++i) {
         free(dp[i]);
         dp[i] = NULL;
     }
@@ -1669,11 +1673,111 @@ char*** partition(char* s, int* returnSize, int** returnColumnSizes) {
 
 ```c++
 class Solution {
-public:
-    vector<vector<string>> partition(string s) {
+   private:
+    int isPalindrome(string &s, vector<vector<int>> &dp, int i, int j) {
+        int retVal = dp[i][j];
 
+        if (dp[i][j] != 0) {
+            return retVal;
+        }
+
+        if (i >= j) {
+            dp[i][j] = 1;
+        } else {
+            dp[i][j] = (s[i] == s[j] ? isPalindrome(s, dp, i + 1, j - 1) : -1);
+        }
+        retVal = dp[i][j];
+
+        return retVal;
+    }
+    void dfs(string &s, int idx, vector<vector<int>> &dp, vector<vector<string>> &retVal, vector<string> &answer) {
+        int sSize = s.size();
+
+        if (idx == sSize) {
+            retVal.push_back(answer);
+            return;
+        }
+
+        for (int j = idx; j < sSize; ++j) {
+            if (isPalindrome(s, dp, idx, j) == 1) {
+                answer.push_back(s.substr(idx, j - idx + 1));
+                dfs(s, j + 1, dp, retVal, answer);
+                answer.pop_back();
+            }
+        }
+    }
+
+   public:
+    vector<vector<string>> partition(string s) {
+        vector<vector<string>> retVal;
+
+        int sSize = s.size();
+
+        /* Dynamic Programming Preprocessing
+         *  f(i,j): s[i..j] is Palindrome or not
+         *            | True, i≥j
+         *  f(i,j) = <
+         *            | f(i+1, j−1) ∧ (s[i]=s[j]), otherwise
+         */
+        vector<vector<int>> dp(sSize, vector<int>(sSize, 1));
+        for (int i = sSize - 1; i >= 0; --i) {
+            for (int j = i + 1; j < sSize; ++j) {
+                dp[i][j] = (s[i] == s[j]) && dp[i + 1][j - 1];
+            }
+        }
+
+        vector<string> answer;
+        dfs(s, 0, dp, retVal, answer);
+
+        return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.ret = None
+        self.answer = None
+
+    def isPalindrome(self, s: str, i: int, j: int) -> int:
+        retVal = 1
+
+        if i >= j:
+            return retVal
+
+        if s[i] == s[j]:
+            retVal = self.isPalindrome(s, i + 1, j - 1)
+        else:
+            retVal = -1
+
+        return retVal
+
+    def dfs(self, s: str, idx: int) -> None:
+        sSize = len(s)
+        if idx == sSize:
+            self.ret.append(self.answer[:])
+            return
+
+        for j in range(idx, sSize):
+            if self.isPalindrome(s, idx, j) == 1:
+                self.answer.append(s[idx:j+1])
+                self.dfs(s, j + 1)
+                self.answer.pop()
+
+    def partition(self, s: str) -> List[List[str]]:
+        retVal = []
+
+        self.ret = list()
+        self.answer = list()
+        self.dfs(s, 0)
+        retVal = self.ret
+
+        return retVal
 ```
 
 </details>
