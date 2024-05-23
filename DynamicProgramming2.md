@@ -8363,47 +8363,49 @@ class Solution:
 
 </details>
 
-## 2556. [Disconnect Path in a Binary Matrix by at Most One Flip](https://leetcode.com/problems/disconnect-path-in-a-binary-matrix-by-at-most-one-flip/)  2368
+## [2597. The Number of Beautiful Subsets](https://leetcode.com/problems/the-number-of-beautiful-subsets/)  2023
+
+- [Official](https://leetcode.com/problems/the-number-of-beautiful-subsets/editorial/)
 
 <details><summary>Description</summary>
 
 ```text
-You are given a 0-indexed m x n binary matrix grid.
-You can move from a cell (row, col) to any of the cells (row + 1, col) or (row, col + 1) that has the value 1.
-The matrix is disconnected if there is no path from (0, 0) to (m - 1, n - 1).
+You are given an array nums of positive integers and a positive integer k.
 
-You can flip the value of at most one (possibly none) cell. You cannot flip the cells (0, 0) and (m - 1, n - 1).
+A subset of nums is beautiful if it does not contain two integers with an absolute difference equal to k.
 
-Return true if it is possible to make the matrix disconnect or false otherwise.
+Return the number of non-empty beautiful subsets of the array nums.
 
-Note that flipping a cell changes its value from 0 to 1 or from 1 to 0.
+A subset of nums is an array that can be obtained by deleting some (possibly none) elements from nums.
+Two subsets are different if and only if the chosen indices to delete are different.
 
 Example 1:
-Input: grid = [[1,1,1],[1,0,0],[1,1,1]]
-Output: true
-Explanation: We can change the cell shown in the diagram above.
-There is no path from (0, 0) to (2, 2) in the resulting grid.
+Input: nums = [2,4,6], k = 2
+Output: 4
+Explanation: The beautiful subsets of the array nums are: [2], [4], [6], [2, 6].
+It can be proved that there are only 4 beautiful subsets in the array [2,4,6].
 
 Example 2:
-Input: grid = [[1,1,1],[1,0,1],[1,1,1]]
-Output: false
-Explanation: It is not possible to change at most one cell such that there is not path from (0, 0) to (2, 2).
+Input: nums = [1], k = 1
+Output: 1
+Explanation: The beautiful subset of the array nums is [1].
+It can be proved that there is only 1 beautiful subset in the array [1].
 
 Constraints:
-m == grid.length
-n == grid[i].length
-1 <= m, n <= 1000
-1 <= m * n <= 10^5
-grid[i][j] is either 0 or 1.
-grid[0][0] == grid[m - 1][n - 1] == 1
+1 <= nums.length <= 20
+1 <= nums[i], k <= 1000
 ```
 
 <details><summary>Hint</summary>
 
 ```text
-1. We can consider the grid a graph with edges between adjacent cells.
-2. If you can find two non-intersecting paths from (0, 0) to (m - 1, n - 1) then the answer is false.
-   Otherwise, it is always true.
+1. Sort the array nums and create another array cnt of size nums[i].
+2. Use backtracking to generate all the beautiful subsets.
+   If cnt[nums[i] - k] is positive, then it is impossible to add nums[i] in the subset,
+   and we just move to the next index.
+   Otherwise, it is also possible to add nums[i] in the subset,
+   in this case, increase cnt[nums[i]], and move to the next index.
+3. Bonus: Can you solve the problem in O(n log n)?
 ```
 
 </details>
@@ -8413,9 +8415,156 @@ grid[0][0] == grid[m - 1][n - 1] == 1
 <details><summary>C</summary>
 
 ```c
-bool isPossibleToCutPath(int** grid, int gridSize, int* gridColSize){
+int beautifulSubsets(int *nums, int numsSize, int k) {
+    int retVal = 0;
 
+    if ((numsSize == 0) || (numsSize == 1)) {
+        retVal = numsSize;
+        return retVal;
+    }
+
+    int dp[numsSize];
+    memset(dp, 0, sizeof(dp));
+    dp[0] = 1;
+    if ((nums[1] - nums[0] == k) || (nums[0] - nums[1] == k)) {
+        dp[1] = 2;
+    } else {
+        dp[1] = 3;
+    }
+
+    int *pTemp = (int *)malloc(numsSize * sizeof(int));
+    if (pTemp == NULL) {
+        perror("malloc");
+        return retVal;
+    }
+    memset(pTemp, 0, (numsSize * sizeof(int)));
+
+    int t = 0;
+    int q = 0;
+    int i, j;
+    for (i = 2; i < numsSize; i++) {
+        for (j = 0; j < i; j++) {
+            if (nums[i] - nums[j] == k || nums[j] - nums[i] == k) {
+                t++;
+            } else {
+                pTemp[q] = nums[j];
+                q++;
+            }
+        }
+
+        if (t == 0) {
+            dp[i] = 2 * dp[i - 1] + 1;
+        } else {
+            dp[i] = dp[i - 1] + 1 + beautifulSubsets(pTemp, q, k);
+        }
+
+        t = 0;
+        q = 0;
+    }
+    retVal = dp[numsSize - 1];
+
+    free(pTemp);
+    pTemp = NULL;
+
+    return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int beautifulSubsets(vector<int>& nums, int k) {
+        int retVal = 1;
+
+        // Calculate frequencies based on remainder
+        map<int, map<int, int>> freqMap;
+        for (int& num : nums) {
+            freqMap[num % k][num]++;
+        }
+
+        // Iterate through each remainder group
+        for (auto& fr : freqMap) {
+            int prevNum = -k;
+            int prev1 = 1;
+            int prev2 = 1;
+            int curr = 1;
+
+            // Iterate through each number in the current remainder group
+            for (auto& [num, freq] : fr.second) {
+                // Count of subsets skipping the current number
+                int skip = prev1;
+
+                // Count of subsets including the current number
+                // Check if the current number and the previous number form a beautiful pair
+                int take;
+                if (num - prevNum == k) {
+                    take = ((1 << freq) - 1) * prev2;
+                } else {
+                    take = ((1 << freq) - 1) * prev1;
+                }
+
+                // Store the total count for the current number
+                curr = skip + take;
+                prev2 = prev1;
+                prev1 = curr;
+                prevNum = num;
+            }
+            retVal *= curr;
+        }
+        retVal = retVal - 1;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def beautifulSubsets(self, nums: List[int], k: int) -> int:
+        retVal = 1
+
+        # Calculate frequencies based on remainder
+        freq_map = defaultdict(dict)
+        for num in nums:
+            freq_map[num % k][num] = freq_map[num % k].get(num, 0) + 1
+
+        # Iterate through each remainder group
+        for fr in freq_map.values():
+            prev_num = -k
+            curr = 1
+            prev1 = 1
+            prev2 = 0
+
+            # Iterate through each number in the current remainder group
+            for num, freq in sorted(fr.items()):
+                # Count of subsets skipping the current number
+                skip = prev1
+
+                # Count of subsets including the current number
+                # Check if the current number and the previous number form a beautiful pair
+                if num - prev_num == k:
+                    take = ((1 << freq) - 1) * prev2
+                else:
+                    take = ((1 << freq) - 1) * prev1
+
+                # Store the total count for the current number
+                curr = skip + take
+                prev2, prev1 = prev1, curr
+                prev_num = num
+
+            retVal *= curr
+
+        retVal = retVal - 1
+
+        return retVal
 ```
 
 </details>
