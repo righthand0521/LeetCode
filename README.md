@@ -217,6 +217,13 @@
 
 </details>
 
+<details><summary>Word Break</summary>
+
+- [139. Word Break](https://leetcode.com/problems/word-break/)
+- [140. Word Break II](https://leetcode.com/problems/word-break-ii/)
+
+</details>
+
 ## Graph
 
 <details><summary>Topological Sort</summary>

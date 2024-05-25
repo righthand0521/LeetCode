@@ -2695,6 +2695,240 @@ class Solution:
 
 </details>
 
+## [140. Word Break II](https://leetcode.com/problems/word-break-ii/)
+
+- [Official](https://leetcode.com/problems/word-break-ii/editorial/)
+- [Official](https://leetcode.cn/problems/word-break-ii/solutions/468522/dan-ci-chai-fen-ii-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+Given a string s and a dictionary of strings wordDict,
+add spaces in s to construct a sentence where each word is a valid dictionary word.
+Return all such possible sentences in any order.
+
+Note that the same word in the dictionary may be reused multiple times in the segmentation.
+
+Example 1:
+Input: s = "catsanddog", wordDict = ["cat","cats","and","sand","dog"]
+Output: ["cats and dog","cat sand dog"]
+
+Example 2:
+Input: s = "pineapplepenapple", wordDict = ["apple","pen","applepen","pine","pineapple"]
+Output: ["pine apple pen apple","pineapple pen apple","pine applepen apple"]
+Explanation: Note that you are allowed to reuse a dictionary word.
+
+Example 3:
+Input: s = "catsandog", wordDict = ["cats","dog","sand","and","cat"]
+Output: []
+
+Constraints:
+1 <= s.length <= 20
+1 <= wordDict.length <= 1000
+1 <= wordDict[i].length <= 10
+s and wordDict[i] consist of only lowercase English letters.
+All the strings of wordDict are unique.
+Input is generated in a way that the length of the answer doesn't exceed 10^5.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// https://leetcode.cn/problems/word-break-ii/solutions/162132/dfs-guan-jian-shi-jian-zhi-cyu-yan-by-xingmian/
+#define MAX_WORDDICT_SIZE (100)  // 1 <= wordDict.length <= 1000
+void dfs(char* s, int pos, char** res, int* returnSize, char** wordDict, int wordDictSize, int* result, int idx,
+         int* fail) {
+    int i, j;
+
+    int length, p;
+    if (s[pos] == '\0') {
+        length = 0;
+        for (i = 0; i < idx; ++i) {
+            length += strlen(wordDict[result[i]]) + 1;
+        }
+        res[(*returnSize)] = (char*)malloc(length * sizeof(char));
+        if (res[(*returnSize)] == NULL) {
+            perror("malloc");
+            return;
+        }
+        memset(res[(*returnSize)], 0, (length * sizeof(char)));
+
+        p = 0;
+        for (i = 0; i < idx; i++) {
+            for (j = 0; j < strlen(wordDict[result[i]]); j++) {
+                res[(*returnSize)][p++] = wordDict[result[i]][j];
+            }
+            res[(*returnSize)][p++] = ' ';
+        }
+        res[(*returnSize)][length - 1] = '\0';
+        (*returnSize)++;
+
+        return;
+    }
+
+    if (fail[pos] == 1) {
+        return;
+    }
+
+    int len, sSize;
+    int fail_cnt = 0;
+    for (i = 0; i < wordDictSize; i++) {
+        if (pos == 0) {
+            memset(fail, 0, MAX_WORDDICT_SIZE * sizeof(int));
+        }
+
+        len = strlen(wordDict[i]);
+        if (fail[pos + len] == 1) {
+            fail_cnt++;
+            continue;
+        }
+
+        sSize = strlen(s);
+        if ((sSize - pos >= len) && (memcmp(s + pos, wordDict[i], len) == 0)) {
+            result[idx] = i;
+            dfs(s, pos + len, res, returnSize, wordDict, wordDictSize, result, idx + 1, fail);
+        } else {
+            fail_cnt++;
+        }
+    }
+
+    if (fail_cnt == wordDictSize) {
+        fail[pos] = 1;
+    }
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+char** wordBreak(char* s, char** wordDict, int wordDictSize, int* returnSize) {
+    char** pRetVal = NULL;
+
+    (*returnSize) = 0;
+    pRetVal = (char**)malloc(MAX_WORDDICT_SIZE * sizeof(char*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+
+    int sSize = strlen(s);
+    int* pResult = (int*)malloc(sSize * sizeof(int));
+    if (pResult == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pResult, -1, (sSize * sizeof(int)));
+    int* pFail = (int*)malloc(MAX_WORDDICT_SIZE * sizeof(int));
+    if (pFail == NULL) {
+        perror("malloc");
+        free(pResult);
+        pResult = NULL;
+        return pRetVal;
+    }
+    memset(pFail, 0, (MAX_WORDDICT_SIZE * sizeof(int)));
+
+    dfs(s, 0, pRetVal, returnSize, wordDict, wordDictSize, pResult, 0, pFail);
+
+    //
+    free(pResult);
+    pResult = NULL;
+    free(pFail);
+    pFail = NULL;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    void backtrack(string& s, unordered_set<string>& wordSet, string& currentSentence, vector<string>& results,
+                   int startIndex) {
+        int sSize = s.size();
+
+        // If we've reached the end of the string, add the current sentence to results
+        if (startIndex == sSize) {
+            results.push_back(currentSentence);
+            return;
+        }
+
+        // Iterate over possible end indices
+        for (int endIndex = startIndex + 1; endIndex <= sSize; ++endIndex) {
+            string word = s.substr(startIndex, endIndex - startIndex);
+            // If the word is in the set, proceed with backtracking
+            if (wordSet.find(word) != wordSet.end()) {
+                string originalSentence = currentSentence;
+                if (currentSentence.empty() == false) {
+                    currentSentence += " ";
+                }
+                currentSentence += word;
+
+                // Recursively call backtrack with the new end index
+                backtrack(s, wordSet, currentSentence, results, endIndex);
+
+                // Reset currentSentence to its original state
+                currentSentence = originalSentence;
+            }
+        }
+    }
+
+   public:
+    vector<string> wordBreak(string s, vector<string>& wordDict) {
+        vector<string> retVal;
+
+        // Convert wordDict to a set for O(1) lookups
+        unordered_set<string> wordSet(wordDict.begin(), wordDict.end());
+
+        // Start the backtracking process
+        string currentSentence;
+        backtrack(s, wordSet, currentSentence, retVal, 0);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def backtrack(self, s: str, word_set: set, current_sentence: List[str], results: List[str], start_index: int) -> None:
+        # If we've reached the end of the string, add the current sentence to results
+        if start_index == len(s):
+            results.append(" ".join(current_sentence))
+            return
+
+        # Iterate over possible end indices
+        for end_index in range(start_index + 1, len(s) + 1):
+            word = s[start_index:end_index]
+            # If the word is in the set, proceed with backtracking
+            if word in word_set:
+                current_sentence.append(word)
+                # Recursively call backtrack with the new end index
+                self.backtrack(s, word_set, current_sentence, results, end_index)
+                # Remove the last word to backtrack
+                current_sentence.pop()
+
+    def wordBreak(self, s: str, wordDict: List[str]) -> List[str]:
+        retVal = []
+
+        # Convert wordDict to a set for O(1) lookups
+        word_set = set(wordDict)
+
+        # Start the backtracking process
+        self.backtrack(s, word_set, [], retVal, 0)
+
+        return retVal
+```
+
+</details>
+
 ## [152. Maximum Product Subarray](https://leetcode.com/problems/maximum-product-subarray/)
 
 <details><summary>Description</summary>
