@@ -6661,6 +6661,205 @@ class Solution:
 
 </details>
 
+## [552. Student Attendance Record II](https://leetcode.com/problems/student-attendance-record-ii/)
+
+- [Official](https://leetcode.com/problems/student-attendance-record-ii/editorial/)
+- [Official](https://leetcode.cn/problems/student-attendance-record-ii/solutions/942386/xue-sheng-chu-qin-ji-lu-ii-by-leetcode-s-kdlm/)
+
+<details><summary>Description</summary>
+
+```text
+An attendance record for a student can be represented as a string where each character signifies
+whether the student was absent, late, or present on that day.
+The record only contains the following three characters:
+- 'A': Absent.
+- 'L': Late.
+- 'P': Present.
+
+Any student is eligible for an attendance award if they meet both of the following criteria:
+- The student was absent ('A') for strictly fewer than 2 days total.
+- The student was never late ('L') for 3 or more consecutive days.
+
+Given an integer n, return the number of possible attendance records of length n
+that make a student eligible for an attendance award.
+The answer may be very large, so return it modulo 10^9 + 7.
+
+Example 1:
+Input: n = 2
+Output: 8
+Explanation: There are 8 records with length 2 that are eligible for an award:
+"PP", "AP", "PA", "LP", "PL", "AL", "LA", "LL"
+Only "AA" is not eligible because there are 2 absences (there need to be fewer than 2).
+
+Example 2:
+Input: n = 1
+Output: 3
+
+Example 3:
+Input: n = 10101
+Output: 183236316
+
+Constraints:
+1 <= n <= 10^5
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MODULO (int)(1e9 + 7)
+int checkRecord(int n) {
+    int retVal = 0;
+
+    int dp[n + 1][2][3];
+    memset(dp, 0, sizeof(dp));
+    dp[0][0][0] = 1;  // Base case: there is 1 string of length 0 with zero 'A' and zero 'L'.
+
+    // Iterate on smaller sub-problems and use the current smaller sub-problem
+    // to generate results for bigger sub-problems.
+    int len, totalAbsences, consecutiveLates;
+    for (len = 0; len < n; ++len) {
+        for (totalAbsences = 0; totalAbsences <= 1; ++totalAbsences) {
+            for (consecutiveLates = 0; consecutiveLates <= 2; ++consecutiveLates) {
+                // Store the count when 'P' is chosen.
+                dp[len + 1][totalAbsences][0] =
+                    (dp[len + 1][totalAbsences][0] + dp[len][totalAbsences][consecutiveLates]) % MODULO;
+
+                // Store the count when 'A' is chosen.
+                if (totalAbsences < 1) {
+                    dp[len + 1][totalAbsences + 1][0] =
+                        (dp[len + 1][totalAbsences + 1][0] + dp[len][totalAbsences][consecutiveLates]) % MODULO;
+                }
+
+                // Store the count when 'L' is chosen.
+                if (consecutiveLates < 2) {
+                    dp[len + 1][totalAbsences][consecutiveLates + 1] =
+                        (dp[len + 1][totalAbsences][consecutiveLates + 1] + dp[len][totalAbsences][consecutiveLates]) %
+                        MODULO;
+                }
+            }
+        }
+    }
+
+    // Sum up the counts for all combinations of length 'n' with different absent and late counts.
+    for (totalAbsences = 0; totalAbsences <= 1; ++totalAbsences) {
+        for (consecutiveLates = 0; consecutiveLates <= 2; ++consecutiveLates) {
+            retVal = (retVal + dp[n][totalAbsences][consecutiveLates]) % MODULO;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+#define MODULO (int)(1e9 + 7)
+   public:
+    int checkRecord(int n) {
+        int retVal = 0;
+
+        vector<vector<vector<int>>> dp = vector<vector<vector<int>>>(n + 1, vector<vector<int>>(2, vector<int>(3, 0)));
+        // Base case: there is 1 string of length 0 with zero 'A' and zero 'L'.
+        dp[0][0][0] = 1;
+
+        // Iterate on smaller sub-problems and use the current smaller sub-problem
+        // to generate results for bigger sub-problems.
+        for (int len = 0; len < n; ++len) {
+            for (int totalAbsences = 0; totalAbsences <= 1; ++totalAbsences) {
+                for (int consecutiveLates = 0; consecutiveLates <= 2; ++consecutiveLates) {
+                    // Store the count when 'P' is chosen.
+                    dp[len + 1][totalAbsences][0] =
+                        (dp[len + 1][totalAbsences][0] + dp[len][totalAbsences][consecutiveLates]) % MODULO;
+
+                    // Store the count when 'A' is chosen.
+                    if (totalAbsences < 1) {
+                        dp[len + 1][totalAbsences + 1][0] =
+                            (dp[len + 1][totalAbsences + 1][0] + dp[len][totalAbsences][consecutiveLates]) % MODULO;
+                    }
+
+                    // Store the count when 'L' is chosen.
+                    if (consecutiveLates < 2) {
+                        dp[len + 1][totalAbsences][consecutiveLates + 1] =
+                            (dp[len + 1][totalAbsences][consecutiveLates + 1] +
+                             dp[len][totalAbsences][consecutiveLates]) %
+                            MODULO;
+                    }
+                }
+            }
+        }
+
+        // Sum up the counts for all combinations of length 'n' with different absent and late counts.
+        for (int totalAbsences = 0; totalAbsences <= 1; ++totalAbsences) {
+            for (int consecutiveLates = 0; consecutiveLates <= 2; ++consecutiveLates) {
+                retVal = (retVal + dp[n][totalAbsences][consecutiveLates]) % MODULO;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.MODULO = 10 ** 9 + 7
+
+    def checkRecord(self, n: int) -> int:
+        retVal = 0
+
+        dp = [[[0] * 3 for _ in range(2)] for _ in range(n + 1)]
+        # Base case: there is 1 string of length 0 with zero 'A' and zero 'L'.
+        dp[0][0][0] = 1
+
+        # Iterate on smaller sub-problems and use the current smaller sub-problem
+        # to generate results for bigger sub-problems.
+        for length in range(n):
+            for total_absences in range(2):
+                for consecutive_lates in range(3):
+                    # Store the count when 'P' is chosen.
+                    dp[length + 1][total_absences][0] = (
+                        dp[length + 1][total_absences][0] +
+                        dp[length][total_absences][consecutive_lates]
+                    ) % self.MODULO
+
+                    # Store the count when 'A' is chosen.
+                    if total_absences < 1:
+                        dp[length + 1][total_absences + 1][0] = (
+                            dp[length + 1][total_absences + 1][0] +
+                            dp[length][total_absences][consecutive_lates]
+                        ) % self.MODULO
+
+                    # Store the count when 'L' is chosen.
+                    if consecutive_lates < 2:
+                        dp[length + 1][total_absences][consecutive_lates + 1] = (
+                            dp[length + 1][total_absences][consecutive_lates + 1] +
+                            dp[length][total_absences][consecutive_lates]
+                        ) % self.MODULO
+
+        # Sum up the counts for all combinations of length 'n' with different absent and late counts.
+        for total_absences in range(2):
+            for consecutive_lates in range(3):
+                retVal = (
+                    retVal +
+                    dp[n][total_absences][consecutive_lates]
+                ) % self.MODULO
+
+        return retVal
+```
+
+</details>
+
 ## [576. Out of Boundary Paths](https://leetcode.com/problems/out-of-boundary-paths/)
 
 - [Official](https://leetcode.com/problems/out-of-boundary-paths/editorial/)
