@@ -2539,6 +2539,143 @@ bool detectCapitalUse(char* word) {
 
 </details>
 
+## [551. Student Attendance Record I](https://leetcode.com/problems/student-attendance-record-i/)
+
+- [Official](https://leetcode.cn/problems/student-attendance-record-i/solutions/939224/xue-sheng-chu-qin-ji-lu-i-by-leetcode-so-fcol/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string s representing an attendance record for a student
+where each character signifies whether the student was absent, late, or present on that day.
+The record only contains the following three characters:
+- 'A': Absent.
+- 'L': Late.
+- 'P': Present.
+
+The student is eligible for an attendance award if they meet both of the following criteria:
+- The student was absent ('A') for strictly fewer than 2 days total.
+- The student was never late ('L') for 3 or more consecutive days.
+
+Return true if the student is eligible for an attendance award, or false otherwise.
+
+Example 1:
+Input: s = "PPALLP"
+Output: true
+Explanation: The student has fewer than 2 absences and was never late 3 or more consecutive days.
+
+Example 2:
+Input: s = "PPALLL"
+Output: false
+Explanation: The student was late 3 consecutive days in the last 3 days, so is not eligible for the award.
+
+Constraints:
+1 <= s.length <= 1000
+s[i] is either 'A', 'L', or 'P'.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool checkRecord(char* s) {
+    bool retVal = true;
+
+    int sSize = strlen(s);
+    int late = 0;
+    int absent = 0;
+    int i;
+    for (i = 0; i < sSize; ++i) {
+        if (s[i] == 'A') {
+            late = 0;
+            absent++;
+            if (absent >= 2) {
+                retVal = false;
+                break;
+            }
+        } else if (s[i] == 'L') {
+            late++;
+            if (late >= 3) {
+                retVal = false;
+                break;
+            }
+        } else {
+            late = 0;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool checkRecord(string s) {
+        bool retVal = true;
+
+        int late = 0;
+        int absent = 0;
+        for (char c : s) {
+            if (c == 'A') {
+                late = 0;
+                absent++;
+                if (absent >= 2) {
+                    retVal = false;
+                    break;
+                }
+            } else if (c == 'L') {
+                late++;
+                if (late >= 3) {
+                    retVal = false;
+                    break;
+                }
+            } else {
+                late = 0;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def checkRecord(self, s: str) -> bool:
+        retVal = True
+
+        late = 0
+        absent = 0
+        for c in s:
+            if c == 'A':
+                late = 0
+                absent += 1
+                if absent >= 2:
+                    retVal = False
+                    break
+            elif c == 'L':
+                late += 1
+                if late >= 3:
+                    retVal = False
+                    break
+            else:
+                late = 0
+
+        return retVal
+```
+
+</details>
+
 ## [647. Palindromic Substrings](https://leetcode.com/problems/palindromic-substrings/)
 
 - [Official](https://leetcode.cn/problems/palindromic-substrings/solutions/379987/hui-wen-zi-chuan-by-leetcode-solution/)
