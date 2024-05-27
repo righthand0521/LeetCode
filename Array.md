@@ -5931,6 +5931,145 @@ class Solution:
 
 </details>
 
+## [1608. Special Array With X Elements Greater Than or Equal X](https://leetcode.com/problems/special-array-with-x-elements-greater-than-or-equal-x/)  1369
+
+- [Official](https://leetcode.com/problems/special-array-with-x-elements-greater-than-or-equal-x/editorial/)
+- [Official](https://leetcode.cn/problems/special-array-with-x-elements-greater-than-or-equal-x/solutions/1816575/te-shu-shu-zu-de-te-zheng-zhi-by-leetcod-9wfo/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an array nums of non-negative integers.
+nums is considered special if there exists a number x such that
+there are exactly x numbers in nums that are greater than or equal to x.
+
+Notice that x does not have to be an element in nums.
+
+Return x if the array is special, otherwise, return -1.
+It can be proven that if nums is special, the value for x is unique.
+
+Example 1:
+Input: nums = [3,5]
+Output: 2
+Explanation: There are 2 values (3 and 5) that are greater than or equal to 2.
+
+Example 2:
+Input: nums = [0,0]
+Output: -1
+Explanation: No numbers fit the criteria for x.
+If x = 0, there should be 0 numbers >= x, but there are 2.
+If x = 1, there should be 1 number >= x, but there are 0.
+If x = 2, there should be 2 numbers >= x, but there are 0.
+x cannot be greater since there are only 2 numbers in nums.
+
+Example 3:
+Input: nums = [0,4,3,0,4]
+Output: 3
+Explanation: There are 3 values that are greater than or equal to 3.
+
+Constraints:
+1 <= nums.length <= 100
+0 <= nums[i] <= 1000
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Count the number of elements greater than or equal to x for each x in the range [0, nums.length].
+2. If for any x, the condition satisfies, return that x. Otherwise, there is no answer.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int specialArray(int* nums, int numsSize) {
+    int retVal = -1;
+
+    int frequency[numsSize + 1];
+    memset(frequency, 0, sizeof(frequency));
+
+    int index;
+    int i;
+    for (i = 0; i < numsSize; ++i) {
+        index = fmin(numsSize, nums[i]);
+        frequency[index] += 1;
+    }
+
+    int greaterThanOrEqual = 0;
+    for (i = numsSize; i >= 0; --i) {
+        greaterThanOrEqual += frequency[i];
+        if (i == greaterThanOrEqual) {
+            retVal = i;
+            break;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int specialArray(vector<int>& nums) {
+        int retVal = -1;
+
+        int numsSize = nums.size();
+        vector<int> frequency(numsSize + 1, 0);
+        for (int num : nums) {
+            int index = min(numsSize, num);
+            frequency[index] += 1;
+        }
+
+        int greaterThanOrEqual = 0;
+        for (int i = numsSize; i >= 0; --i) {
+            greaterThanOrEqual += frequency[i];
+            if (i == greaterThanOrEqual) {
+                retVal = i;
+                break;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def specialArray(self, nums: List[int]) -> int:
+        retVal = -1
+
+        numsSize = len(nums)
+        frequency = [0] * (numsSize+1)
+        for num in nums:
+            index = min(numsSize, num)
+            frequency[index] += 1
+
+        greaterThanOrEqual = 0
+        for i in range(numsSize, 0, -1):
+            greaterThanOrEqual += frequency[i]
+            if i == greaterThanOrEqual:
+                retVal = i
+                break
+
+        return retVal
+```
+
+</details>
+
 ## [1662. Check If Two String Arrays are Equivalent](https://leetcode.com/problems/check-if-two-string-arrays-are-equivalent/)  1217
 
 - [Official](https://leetcode.com/problems/check-if-two-string-arrays-are-equivalent/editorial/)
