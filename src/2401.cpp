@@ -10,11 +10,12 @@ class Solution {
     int longestNiceSubarray(vector<int>& nums) {
         int retVal = 0;
 
+        int numsSize = nums.size();
+
         int niceCheck = 0;
-        int len = nums.size();
         int head = 0;
         int tail = 0;
-        while (tail < len) {
+        while (tail < numsSize) {
             while ((niceCheck & nums[tail]) != 0) {
                 niceCheck ^= nums[head];
                 head++;
@@ -35,6 +36,13 @@ int main(int argc, char** argv) {
     };
     vector<subject> testData{{{1, 3, 8, 48, 10}}, {{3, 1, 5, 11, 13}}};
     int numberOfTestCase = testData.size();
+    /* Example
+     *  Input: nums = [1,3,8,48,10]
+     *  Output: 3
+     *
+     *  Input: nums = [3,1,5,11,13]
+     *  Output: 1
+     */
 
     Solution cSolution;
     int answer;

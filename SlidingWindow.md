@@ -3076,6 +3076,15 @@ Constraints:
 1 <= nums[i] <= 10^9
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. What is the maximum possible length of a nice subarray?
+2. The length of the longest nice subarray cannot exceed 30. Why is that?
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
@@ -3112,11 +3121,12 @@ class Solution {
     int longestNiceSubarray(vector<int>& nums) {
         int retVal = 0;
 
+        int numsSize = nums.size();
+
         int niceCheck = 0;
-        int len = nums.size();
         int head = 0;
         int tail = 0;
-        while (tail < len) {
+        while (tail < numsSize) {
             while ((niceCheck & nums[tail]) != 0) {
                 niceCheck ^= nums[head];
                 head++;
@@ -3130,6 +3140,32 @@ class Solution {
         return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def longestNiceSubarray(self, nums: List[int]) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+
+        niceCheck = 0
+        head = 0
+        tail = 0
+        while (tail < numsSize):
+            while ((niceCheck & nums[tail]) != 0):
+                niceCheck ^= nums[head]
+                head += 1
+            retVal = max(retVal, tail - head + 1)
+
+            niceCheck |= nums[tail]
+            tail += 1
+
+        return retVal
 ```
 
 </details>
