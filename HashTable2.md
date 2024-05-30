@@ -1408,6 +1408,198 @@ class Solution:
 
 </details>
 
+## [1442. Count Triplets That Can Form Two Arrays of Equal XOR](https://leetcode.com/problems/count-triplets-that-can-form-two-arrays-of-equal-xor/)  1524
+
+- [Official](https://leetcode.com/problems/count-triplets-that-can-form-two-arrays-of-equal-xor/editorial/)
+- [Official](https://leetcode.cn/problems/count-triplets-that-can-form-two-arrays-of-equal-xor/solutions/579281/xing-cheng-liang-ge-yi-huo-xiang-deng-sh-jud0/)
+
+<details><summary>Description</summary>
+
+```text
+Given an array of integers arr.
+
+We want to select three indices i, j and k where (0 <= i < j <= k < arr.length).
+
+Let's define a and b as follows:
+- a = arr[i] ^ arr[i + 1] ^ ... ^ arr[j - 1]
+- b = arr[j] ^ arr[j + 1] ^ ... ^ arr[k]
+Note that ^ denotes the bitwise-xor operation.
+
+Return the number of triplets (i, j and k) Where a == b.
+
+Example 1:
+Input: arr = [2,3,1,6,7]
+Output: 4
+Explanation: The triplets are (0,1,2), (0,2,2), (2,3,4) and (2,4,4)
+
+Example 2:
+Input: arr = [1,1,1,1,1]
+Output: 10
+
+Constraints:
+1 <= arr.length <= 300
+1 <= arr[i] <= 10^8
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. We are searching for sub-array of length ≥ 2 and we need to split it to 2 non-empty arrays
+   so that the xor of the first array is equal to the xor of the second array.
+   This is equivalent to searching for sub-array with xor = 0.
+2. Keep the prefix xor of arr in another array, check the xor of all sub-arrays in O(n^2),
+   if the xor of sub-array of length x is 0 add x-1 to the answer.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+int getValue(struct hashTable* pObj, int x) {
+    int retVal = 0;
+
+    struct hashTable* pTmp = NULL;
+    HASH_FIND_INT(pObj, &x, pTmp);
+    if (pTmp != NULL) {
+        retVal = pTmp->value;
+    }
+
+    return retVal;
+}
+void addValue(struct hashTable** pObj, int x, int y) {
+    struct hashTable* pTmp = NULL;
+    HASH_FIND_INT(*pObj, &x, pTmp);
+    if (pTmp == NULL) {
+        pTmp = (struct hashTable*)malloc(sizeof(struct hashTable));
+        if (pTmp == NULL) {
+            return;
+        }
+        pTmp->key = x;
+        pTmp->value = y;
+        HASH_ADD_INT(*pObj, key, pTmp);
+    } else {
+        pTmp->value += y;
+    }
+}
+void freeAll(struct hashTable* pFree) {
+    struct hashTable* current;
+    struct hashTable* tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int countTriplets(int* arr, int arrSize) {
+    int retVal = 0;
+
+    // Maps to store counts and totals of XOR values encountered
+    struct hashTable* pCountHashTable = NULL;
+    addValue(&pCountHashTable, 0, 1);
+    struct hashTable* pTotalHashTable = NULL;
+
+    // Iterating through the array
+    int prefix = 0;
+    int i;
+    for (i = 0; i < arrSize; ++i) {
+        // Calculating XOR prefix
+        prefix ^= arr[i];
+
+        // Calculating contribution of current element to the result
+        retVal += getValue(pCountHashTable, prefix) * i - getValue(pTotalHashTable, prefix);
+
+        // Updating total count of current XOR value
+        addValue(&pTotalHashTable, prefix, i + 1);
+        addValue(&pCountHashTable, prefix, 1);
+    }
+
+    //
+    freeAll(pCountHashTable);
+    pCountHashTable = NULL;
+    freeAll(pTotalHashTable);
+    pTotalHashTable = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int countTriplets(vector<int>& arr) {
+        int retVal = 0;
+
+        int arrSize = arr.size();
+
+        // Maps to store counts and totals of XOR values encountered
+        unordered_map<int, int> countMap = {{0, 1}};
+        unordered_map<int, int> totalMap;
+
+        // Iterating through the array
+        int prefix = 0;
+        for (int i = 0; i < arrSize; ++i) {
+            // Calculating XOR prefix
+            prefix ^= arr[i];
+
+            // Calculating contribution of current element to the result
+            retVal += countMap[prefix] * i - totalMap[prefix];
+
+            // Updating total count of current XOR value
+            totalMap[prefix] += i + 1;
+            countMap[prefix] += 1;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def countTriplets(self, arr: List[int]) -> int:
+        retVal = 0
+
+        arrSize = len(arr)
+
+        # Dictionaries to store counts and totals of XOR values encountered
+        count_map = defaultdict(int)
+        count_map[0] = 1
+        total_map = defaultdict(int)
+
+        # Iterating through the array
+        prefix = 0
+        for i in range(arrSize):
+            # Calculating XOR prefix
+            prefix ^= arr[i]
+
+            # Calculating contribution of current element to the result
+            retVal += count_map[prefix] * i - total_map[prefix]
+
+            # Updating total count of current XOR value
+            total_map[prefix] += i + 1
+            count_map[prefix] += 1
+
+        return retVal
+```
+
+</details>
+
 ## [1496. Path Crossing](https://leetcode.com/problems/path-crossing/)  1508
 
 - [Official](https://leetcode.com/problems/path-crossing/editorial/)
