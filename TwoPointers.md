@@ -1465,6 +1465,14 @@ Constraints:
 s[i] is a printable ascii character.
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. The entire logic for reversing a string is based on using the opposite directional two-pointer approach!
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
