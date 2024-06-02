@@ -1206,7 +1206,6 @@ class Solution:
 
 ## [502. IPO](https://leetcode.com/problems/ipo/)
 
-- [Official](https://leetcode.com/problems/ipo/solutions/2959870/ipo/)
 - [Official](https://leetcode.cn/problems/ipo/solutions/984750/ipo-by-leetcode-solution-89zm/)
 
 <details><summary>Description</summary>
@@ -1257,8 +1256,64 @@ n == capital.length
 <details><summary>C</summary>
 
 ```c
-int findMaximizedCapital(int k, int w, int* profits, int profitsSize, int* capital, int capitalSize) {
+// https://leetcode.cn/problems/ipo/solutions/269573/liang-ge-shu-lie-fen-bie-pai-xu-by-ni8fun/
+typedef struct {
+    int profit;
+    int capital;
+} projectsNode_t;
+int compareStructCapital(const void* a, const void* b) {
+    projectsNode_t* p1 = (projectsNode_t*)a;
+    projectsNode_t* p2 = (projectsNode_t*)b;
 
+    // ascending order
+    return (p1->capital > p2->capital);
+}
+int compareStructProfit(const void* a, const void* b) {
+    projectsNode_t* p1 = (projectsNode_t*)a;
+    projectsNode_t* p2 = (projectsNode_t*)b;
+
+    // ascending order
+    return (p1->profit > p2->profit);
+}
+int findMaximizedCapital(int k, int w, int* profits, int profitsSize, int* capital, int capitalSize) {
+    int retVal = 0;
+
+    int idxProjects = 0;
+    projectsNode_t projects[profitsSize];
+    memset(projects, 0, sizeof(projects));
+    int i;
+    for (i = 0; i < profitsSize; i++) {
+        projects[i].profit = profits[i];
+        projects[i].capital = capital[i];
+    }
+    qsort(projects, profitsSize, sizeof(projectsNode_t), compareStructCapital);
+
+    int idxCopyProjects = 0;
+    projectsNode_t copyProjects[profitsSize];
+    memset(copyProjects, 0, sizeof(copyProjects));
+    bool inserted;
+    while (k > 0) {
+        inserted = false;
+        while ((idxProjects < profitsSize) && (projects[idxProjects].capital <= w)) {
+            inserted = true;
+            copyProjects[idxCopyProjects] = projects[idxProjects];
+            idxCopyProjects++;
+            idxProjects++;
+        }
+
+        if (idxCopyProjects > 0) {
+            if (inserted == true) {
+                qsort(copyProjects, idxCopyProjects, sizeof(projectsNode_t), compareStructProfit);
+            }
+            w += copyProjects[idxCopyProjects - 1].profit;
+            idxCopyProjects--;
+        }
+
+        k--;
+    }
+    retVal = w;
+
+    return retVal;
 }
 ```
 
@@ -1272,10 +1327,10 @@ class Solution {
     int findMaximizedCapital(int k, int w, vector<int>& profits, vector<int>& capital) {
         int retVal = w;
 
-        int n = profits.size();
+        int profitsSize = profits.size();
 
         vector<pair<int, int>> projects;
-        for (int i = 0; i < n; ++i) {
+        for (int i = 0; i < profitsSize; ++i) {
             projects.emplace_back(capital[i], profits[i]);
         }
         sort(projects.begin(), projects.end());
@@ -1283,7 +1338,7 @@ class Solution {
         priority_queue<int> priorityQueue;
         int ptr = 0;
         for (int i = 0; i < k; ++i) {
-            while ((ptr < n) && (projects[ptr].first <= retVal)) {
+            while ((ptr < profitsSize) && (projects[ptr].first <= retVal)) {
                 priorityQueue.push(projects[ptr++].second);
             }
 
@@ -1298,6 +1353,35 @@ class Solution {
         return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def findMaximizedCapital(self, k: int, w: int, profits: List[int], capital: List[int]) -> int:
+        retVal = 0
+
+        # https://leetcode.com/problems/ipo/solutions/3219987/day-54-c-priority-queue-easiest-beginner-friendly-sol
+        profitsSize = len(profits)
+        projects = [(capital[i], profits[i]) for i in range(profitsSize)]
+        projects.sort()
+
+        i = 0
+        maximizeCapital = []
+        while k > 0:
+            while (i < profitsSize) and (projects[i][0] <= w):
+                heappush(maximizeCapital, -projects[i][1])
+                i += 1
+            if not maximizeCapital:
+                break
+            w -= heappop(maximizeCapital)
+            k -= 1
+        retVal = w
+
+        return retVal
 ```
 
 </details>
