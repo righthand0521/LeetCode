@@ -4765,6 +4765,133 @@ class Solution:
 
 </details>
 
+## [2486. Append Characters to String to Make Subsequence](https://leetcode.com/problems/append-characters-to-string-to-make-subsequence/)  1362
+
+- [Official](https://leetcode.com/problems/append-characters-to-string-to-make-subsequence/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given two strings s and t consisting of only lowercase English letters.
+
+Return the minimum number of characters that need to be appended to the end of s so that t becomes a subsequence of s.
+
+A subsequence is a string that can be derived from another string by deleting some
+or no characters without changing the order of the remaining characters.
+
+Example 1:
+Input: s = "coaching", t = "coding"
+Output: 4
+Explanation: Append the characters "ding" to the end of s so that s = "coachingding".
+Now, t is a subsequence of s ("coachingding").
+It can be shown that appending any 3 characters to the end of s will never make t a subsequence.
+
+Example 2:
+Input: s = "abcde", t = "a"
+Output: 0
+Explanation: t is already a subsequence of s ("abcde").
+
+Example 3:
+Input: s = "z", t = "abcde"
+Output: 5
+Explanation: Append the characters "abcde" to the end of s so that s = "zabcde".
+Now, t is a subsequence of s ("zabcde").
+It can be shown that appending any 4 characters to the end of s will never make t a subsequence.
+
+Constraints:
+1 <= s.length, t.length <= 10^5
+s and t consist only of lowercase English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Find the longest prefix of t that is a subsequence of s.
+2. Use two variables to keep track of your location in s and t.
+   If the characters match, increment both variables. Otherwise, only increment the variable for s.
+3. The remaining characters in t must be appended to the end of s.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int appendCharacters(char* s, char* t) {
+    int retVal = 0;
+
+    int sSize = strlen(s);
+    int tSize = strlen(t);
+
+    int idxS = 0;
+    int idxT = 0;
+    while ((idxS < sSize) && (idxT < tSize)) {
+        if (s[idxS] == t[idxT]) {
+            idxT += 1;
+        }
+        idxS += 1;
+    }
+    retVal = tSize - idxT;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int appendCharacters(string s, string t) {
+        int retVal = 0;
+
+        int sSize = s.size();
+        int tSize = t.size();
+
+        int idxS = 0;
+        int idxT = 0;
+        while ((idxS < sSize) && (idxT < tSize)) {
+            if (s[idxS] == t[idxT]) {
+                idxT += 1;
+            }
+            idxS += 1;
+        }
+        retVal = tSize - idxT;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def appendCharacters(self, s: str, t: str) -> int:
+        retVal = 0
+
+        sSize = len(s)
+        tSize = len(t)
+
+        idxS = 0
+        idxT = 0
+        while (idxS < sSize) and (idxT < tSize):
+            if s[idxS] == t[idxT]:
+                idxT += 1
+            idxS += 1
+        retVal = tSize - idxT
+
+        return retVal
+```
+
+</details>
+
 ## [2551. Put Marbles in Bags](https://leetcode.com/problems/put-marbles-in-bags/)  2042
 
 - [Official](https://leetcode.com/problems/put-marbles-in-bags/editorial/)
