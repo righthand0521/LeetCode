@@ -3650,6 +3650,9 @@ class Solution:
 
 ## [409. Longest Palindrome](https://leetcode.com/problems/longest-palindrome/)
 
+- [Official](https://leetcode.com/problems/longest-palindrome/editorial/)
+- [Official](https://leetcode.cn/problems/longest-palindrome/solutions/156931/zui-chang-hui-wen-chuan-by-leetcode-solution/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -3681,28 +3684,74 @@ s consists of lowercase and/or uppercase English letters only.
 int longestPalindrome(char* s) {
     int retVal = 0;
 
-#define ASCII_SIZE  (128)
-    int asciiTable[ASCII_SIZE] = {0};
-
-    while (*s) {
-        ++asciiTable[(unsigned char)(*s)];
-        if (asciiTable[(unsigned char)(*s)] == 2) {
-            retVal += 2;
-            asciiTable[(unsigned char)(*s)] = 0;
-        }
-        ++s;
+#define MAX_FREQUENCY_SIZE (128)  // s consists of lowercase and/or uppercase English letters only.
+    int frequency[MAX_FREQUENCY_SIZE];
+    memset(frequency, 0, sizeof(frequency));
+    int sSize = strlen(s);
+    int idx;
+    int i;
+    for (i = 0; i < sSize; ++i) {
+        idx = s[i];
+        frequency[idx] += 1;
     }
 
-    int i;
-    for (i=0; i<ASCII_SIZE; ++i) {
-        if (asciiTable[i] == 1) {
+    int value;
+    for (i = 0; i < MAX_FREQUENCY_SIZE; ++i) {
+        value = frequency[i];
+        retVal += (value / 2 * 2);
+        if ((value % 2 == 1) && (retVal % 2 == 0)) {
             ++retVal;
-            break;
         }
     }
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int longestPalindrome(string s) {
+        int retVal = 0;
+
+        unordered_map<char, int> frequency;
+        for (char c : s) {
+            ++frequency[c];
+        }
+
+        for (auto p : frequency) {
+            int value = p.second;
+            retVal += (value / 2 * 2);
+            if ((value % 2 == 1) && (retVal % 2 == 0)) {
+                ++retVal;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def longestPalindrome(self, s: str) -> int:
+        retVal = 0
+
+        frequency = Counter(s)
+        for value in frequency.values():
+            retVal += (value // 2 * 2)
+            if (retVal % 2 == 0) and (value % 2 == 1):
+                retVal += 1
+
+        return retVal
 ```
 
 </details>
