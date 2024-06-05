@@ -2,6 +2,160 @@
 
 - [uthash](https://troydhanson.github.io/uthash/)
 
+## [1002. Find Common Characters](https://leetcode.com/problems/find-common-characters/)  1279
+
+- [Official](https://leetcode.com/problems/find-common-characters/editorial/)
+- [Official](https://leetcode.cn/problems/find-common-characters/solutions/445468/cha-zhao-chang-yong-zi-fu-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+Given a string array words, return an array of all characters
+that show up in all strings within the words (including duplicates).
+You may return the answer in any order.
+
+Example 1:
+Input: words = ["bella","label","roller"]
+Output: ["e","l","l"]
+
+Example 2:
+Input: words = ["cool","lock","cook"]
+Output: ["c","o"]
+
+Constraints:
+1 <= words.length <= 100
+1 <= words[i].length <= 100
+words[i] consists of lowercase English letters.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MAX_LETTERS (26)  // words[i] consists of lowercase English letters.
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+char** commonChars(char** words, int wordsSize, int* returnSize) {
+    char** pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    int i, j;
+
+    int minFrequency[MAX_LETTERS];
+    memset(minFrequency, 0, sizeof(minFrequency));
+    for (i = 0; i < MAX_LETTERS; ++i) {
+        minFrequency[i] = INT_MAX;
+    }
+    int frequency[MAX_LETTERS];
+    int wordSize, idx;
+    for (i = 0; i < wordsSize; ++i) {
+        memset(frequency, 0, sizeof(frequency));
+        wordSize = strlen(words[i]);
+        for (j = 0; j < wordSize; ++j) {
+            idx = words[i][j] - 'a';
+            frequency[idx] += 1;
+        }
+
+        for (j = 0; j < MAX_LETTERS; ++j) {
+            minFrequency[j] = fmin(minFrequency[j], frequency[j]);
+        }
+    }
+
+    for (i = 0; i < MAX_LETTERS; ++i) {
+        (*returnSize) += minFrequency[i];
+    }
+    pRetVal = (char**)malloc((*returnSize) * sizeof(char*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        (*returnSize) = 0;
+        return pRetVal;
+    }
+    (*returnSize) = 0;
+    for (i = 0; i < MAX_LETTERS; ++i) {
+        for (j = 0; j < minFrequency[i]; ++j) {
+            pRetVal[(*returnSize)] = (char*)malloc(2 * sizeof(char));
+            if (pRetVal[(*returnSize)] == NULL) {
+                perror("malloc");
+                return pRetVal;
+            }
+            memset(pRetVal[(*returnSize)], 0, (2 * sizeof(char)));
+            pRetVal[(*returnSize)][0] = i + 'a';
+            (*returnSize) += 1;
+        }
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int letters = 26;  // words[i] consists of lowercase English letters.
+
+   public:
+    vector<string> commonChars(vector<string>& words) {
+        vector<string> retVal;
+
+        vector<int> minFrequency(letters, numeric_limits<int>::max());
+        for (string word : words) {
+            vector<int> frequency(letters, 0);
+            for (char c : word) {
+                int idx = c - 'a';
+                frequency[idx] += 1;
+            }
+            for (int i = 0; i < letters; ++i) {
+                minFrequency[i] = min(minFrequency[i], frequency[i]);
+            }
+        }
+
+        for (int i = 0; i < letters; ++i) {
+            for (int j = 0; j < minFrequency[i]; ++j) {
+                retVal.emplace_back(1, i + 'a');
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.letters = 26  # words[i] consists of lowercase English letters.
+
+    def commonChars(self, words: List[str]) -> List[str]:
+        retVal = []
+
+        minFrequency = [float("inf")] * self.letters
+        for word in words:
+            frequency = [0] * self.letters
+            for c in word:
+                frequency[ord(c)-ord('a')] += 1
+            for i in range(self.letters):
+                minFrequency[i] = min(minFrequency[i], frequency[i])
+
+        for i in range(self.letters):
+            for _ in range(minFrequency[i]):
+                retVal.append(chr(i + ord('a')))
+
+        return retVal
+```
+
+</details>
+
 ## [1010. Pairs of Songs With Total Durations Divisible by 60](https://leetcode.com/problems/pairs-of-songs-with-total-durations-divisible-by-60/)  1377
 
 - [Official](https://leetcode.cn/problems/pairs-of-songs-with-total-durations-divisible-by-60/solutions/2258328/zong-chi-xu-shi-jian-ke-bei-60-zheng-chu-42cu/)
