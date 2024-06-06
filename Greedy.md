@@ -2340,6 +2340,198 @@ class Solution:
 
 </details>
 
+## [1296. Divide Array in Sets of K Consecutive Numbers](https://leetcode.com/problems/divide-array-in-sets-of-k-consecutive-numbers/)  1490
+
+- [Official](https://leetcode.cn/problems/divide-array-in-sets-of-k-consecutive-numbers/solutions/101809/hua-fen-shu-zu-wei-lian-xu-shu-zi-de-ji-he-by-le-2/)
+
+<details><summary>Description</summary>
+
+```text
+Given an array of integers nums and a positive integer k,
+check whether it is possible to divide this array into sets of k consecutive numbers.
+
+Return true if it is possible. Otherwise, return false.
+
+Example 1:
+Input: nums = [1,2,3,3,4,4,5,6], k = 4
+Output: true
+Explanation: Array can be divided into [1,2,3,4] and [3,4,5,6].
+
+Example 2:
+Input: nums = [3,2,1,2,3,4,3,4,5,9,10,11], k = 3
+Output: true
+Explanation: Array can be divided into [1,2,3] , [2,3,4] , [3,4,5] and [9,10,11].
+
+Example 3:
+Input: nums = [1,2,3,4], k = 3
+Output: false
+Explanation: Each array should be divided in subarrays of size 3.
+
+Constraints:
+1 <= k <= nums.length <= 10^5
+1 <= nums[i] <= 10^9
+
+Note: This question is the same as 846: https://leetcode.com/problems/hand-of-straights/
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. If the smallest number in the possible-to-split array is V,
+   then numbers V+1, V+2, ... V+k-1 must contain there as well.
+2. You can iteratively find k sets and remove them from array until it becomes empty.
+3. Failure to do so would mean that array is unsplittable.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+typedef struct Node {
+    int value;
+    int frequency;
+} Node;
+int compareInteger(const void *n1, const void *n2) {
+    // ascending order
+    return (*(int *)n1 > *(int *)n2);
+}
+bool isPossibleDivide(int *nums, int numsSize, int k) {
+    bool retVal = false;
+
+    if (numsSize % k != 0) {
+        return retVal;
+    }
+
+    qsort(nums, numsSize, sizeof(int), compareInteger);
+
+    int i, j;
+
+    Node *pCount = (Node *)malloc(numsSize * sizeof(Node));
+    if (pCount == NULL) {
+        perror("malloc");
+        return retVal;
+    }
+    memset(pCount, 0, sizeof(Node) * numsSize);
+    pCount[0].value = nums[0];
+    pCount[0].frequency = 1;
+    int cardSize = 0;
+    for (i = 1; i < numsSize; ++i) {
+        if (nums[i] != pCount[cardSize].value) {
+            cardSize++;
+        }
+        pCount[cardSize].value = nums[i];
+        pCount[cardSize].frequency++;
+    }
+
+    int num;
+    int pos = 0;
+    for (i = 0; i < numsSize; ++i) {
+        while ((pos < cardSize) && (pCount[pos].frequency == 0)) {
+            pos++;
+        }
+
+        if ((pCount[pos].value == nums[i]) && (pCount[pos].frequency > 0)) {
+            for (j = 0; j < k; ++j) {
+                num = nums[i] + j;
+                if ((pCount[pos + j].frequency > 0) && (pCount[pos + j].value == num)) {
+                    pCount[pos + j].frequency--;
+                } else {
+                    goto exit;
+                }
+            }
+        }
+    }
+    retVal = true;
+
+exit:
+    //
+    free(pCount);
+    pCount = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool isPossibleDivide(vector<int>& nums, int k) {
+        bool retVal = false;
+
+        int numsSize = nums.size();
+        if (numsSize % k != 0) {
+            return retVal;
+        }
+
+        sort(nums.begin(), nums.end());
+
+        unordered_map<int, int> count;
+        for (auto& num : nums) {
+            count[num]++;
+        }
+
+        for (auto& x : nums) {
+            if (count.count(x) == 0) {
+                continue;
+            }
+
+            for (int i = 0; i < k; i++) {
+                int num = x + i;
+                if (count.count(num) == 0) {
+                    return retVal;
+                }
+
+                count[num]--;
+                if (count[num] == 0) {
+                    count.erase(num);
+                }
+            }
+        }
+        retVal = true;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def isPossibleDivide(self, nums: List[int], k: int) -> bool:
+        retVal = False
+
+        handSize = len(nums)
+        if handSize % k > 0:
+            return retVal
+
+        nums.sort()
+
+        count = Counter(nums)
+        for x in nums:
+            if count[x] == 0:
+                continue
+
+            for num in range(x, x + k):
+                if count[num] == 0:
+                    return retVal
+                count[num] -= 1
+        retVal = True
+
+        return retVal
+```
+
+</details>
+
 ## [1402. Reducing Dishes](https://leetcode.com/problems/reducing-dishes/)  1679
 
 - [Official](https://leetcode.cn/problems/reducing-dishes/solutions/198214/zuo-cai-shun-xu-by-leetcode-solution/)

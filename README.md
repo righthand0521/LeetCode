@@ -274,6 +274,13 @@
 
 </details>
 
+<details><summary>Divide Array in Sets of K Consecutive Numbers</summary>
+
+- [846. Hand of Straights](https://leetcode.com/problems/hand-of-straights/)
+- [1296. Divide Array in Sets of K Consecutive Numbers](https://leetcode.com/problems/divide-array-in-sets-of-k-consecutive-numbers/)
+
+</details>
+
 ## Hash Table
 
 <details><summary>Merge Two 2D Arrays</summary>
