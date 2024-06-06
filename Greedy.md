@@ -1872,6 +1872,185 @@ class Solution:
 
 </details>
 
+## [846. Hand of Straights](https://leetcode.com/problems/hand-of-straights/)  1565
+
+- [Official](https://leetcode.com/problems/hand-of-straights/editorial/)
+- [Official](https://leetcode.cn/problems/hand-of-straights/solutions/1179042/yi-shou-shun-zi-by-leetcode-solution-4lwn/)
+
+<details><summary>Description</summary>
+
+```text
+Alice has some number of cards and she wants to rearrange the cards into groups so that each group is of size groupSize,
+and consists of groupSize consecutive cards.
+
+Given an integer array hand where hand[i] is the value written on the ith card and an integer groupSize,
+return true if she can rearrange the cards, or false otherwise.
+
+Example 1:
+Input: hand = [1,2,3,6,2,3,4,7,8], groupSize = 3
+Output: true
+Explanation: Alice's hand can be rearranged as [1,2,3],[2,3,4],[6,7,8]
+
+Example 2:
+Input: hand = [1,2,3,4,5], groupSize = 4
+Output: false
+Explanation: Alice's hand can not be rearranged into groups of 4.
+
+Constraints:
+1 <= hand.length <= 10^4
+0 <= hand[i] <= 10^9
+1 <= groupSize <= hand.length
+
+Note: This question is the same as 1296: https://leetcode.com/problems/divide-array-in-sets-of-k-consecutive-numbers/
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+typedef struct Node {
+    int value;
+    int frequency;
+} Node;
+int compareInteger(const void *n1, const void *n2) {
+    // ascending order
+    return (*(int *)n1 > *(int *)n2);
+}
+bool isNStraightHand(int *hand, int handSize, int groupSize) {
+    bool retVal = false;
+
+    if (handSize % groupSize != 0) {
+        return retVal;
+    }
+
+    qsort(hand, handSize, sizeof(int), compareInteger);
+
+    int i, j;
+
+    Node *pCount = (Node *)malloc(handSize * sizeof(Node));
+    if (pCount == NULL) {
+        perror("malloc");
+        return retVal;
+    }
+    memset(pCount, 0, sizeof(Node) * handSize);
+    pCount[0].value = hand[0];
+    pCount[0].frequency = 1;
+    int cardSize = 0;
+    for (i = 1; i < handSize; ++i) {
+        if (hand[i] != pCount[cardSize].value) {
+            cardSize++;
+        }
+        pCount[cardSize].value = hand[i];
+        pCount[cardSize].frequency++;
+    }
+
+    int num;
+    int pos = 0;
+    for (i = 0; i < handSize; ++i) {
+        while ((pos < cardSize) && (pCount[pos].frequency == 0)) {
+            pos++;
+        }
+
+        if ((pCount[pos].value == hand[i]) && (pCount[pos].frequency > 0)) {
+            for (j = 0; j < groupSize; ++j) {
+                num = hand[i] + j;
+                if ((pCount[pos + j].frequency > 0) && (pCount[pos + j].value == num)) {
+                    pCount[pos + j].frequency--;
+                } else {
+                    goto exit;
+                }
+            }
+        }
+    }
+    retVal = true;
+
+exit:
+    //
+    free(pCount);
+    pCount = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool isNStraightHand(vector<int>& hand, int groupSize) {
+        bool retVal = false;
+
+        int handSize = hand.size();
+        if (handSize % groupSize != 0) {
+            return retVal;
+        }
+
+        sort(hand.begin(), hand.end());
+
+        unordered_map<int, int> count;
+        for (auto& num : hand) {
+            count[num]++;
+        }
+
+        for (auto& x : hand) {
+            if (count.count(x) == 0) {
+                continue;
+            }
+
+            for (int i = 0; i < groupSize; i++) {
+                int num = x + i;
+                if (count.count(num) == 0) {
+                    return retVal;
+                }
+
+                count[num]--;
+                if (count[num] == 0) {
+                    count.erase(num);
+                }
+            }
+        }
+        retVal = true;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def isNStraightHand(self, hand: List[int], groupSize: int) -> bool:
+        retVal = False
+
+        handSize = len(hand)
+        if handSize % groupSize > 0:
+            return retVal
+
+        hand.sort()
+
+        count = Counter(hand)
+        for x in hand:
+            if count[x] == 0:
+                continue
+
+            for num in range(x, x + groupSize):
+                if count[num] == 0:
+                    return retVal
+                count[num] -= 1
+        retVal = True
+
+        return retVal
+```
+
+</details>
+
 ## [861. Score After Flipping Matrix](https://leetcode.com/problems/score-after-flipping-matrix/)  1818
 
 - [Official](https://leetcode.com/problems/score-after-flipping-matrix/editorial/)
