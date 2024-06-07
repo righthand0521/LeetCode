@@ -4739,6 +4739,267 @@ class Solution:
 
 </details>
 
+## [648. Replace Words](https://leetcode.com/problems/replace-words/)
+
+- [Official](https://leetcode.com/problems/replace-words/editorial/)
+- [Official](https://leetcode.cn/problems/replace-words/solutions/1649109/dan-ci-ti-huan-by-leetcode-solution-pl6v/)
+
+<details><summary>Description</summary>
+
+```text
+In English, we have a concept called root,
+which can be followed by some other word to form another longer word - let's call this word derivative.
+For example, when the root "help" is followed by the word "ful", we can form a derivative "helpful".
+
+Given a dictionary consisting of many roots and a sentence consisting of words separated by spaces,
+replace all the derivatives in the sentence with the root forming it.
+If a derivative can be replaced by more than one root, replace it with the root that has the shortest length.
+
+Return the sentence after the replacement.
+
+Example 1:
+Input: dictionary = ["cat","bat","rat"], sentence = "the cattle was rattled by the battery"
+Output: "the cat was rat by the bat"
+
+Example 2:
+Input: dictionary = ["a","b","c"], sentence = "aadsfasf absbs bbab cadsfafs"
+Output: "a a b c"
+
+Constraints:
+1 <= dictionary.length <= 1000
+1 <= dictionary[i].length <= 100
+dictionary[i] consists of only lower-case letters.
+1 <= sentence.length <= 10^6
+sentence consists of only lower-case letters and spaces.
+The number of words in sentence is in the range [1, 1000]
+The length of each word in sentence is in the range [1, 1000]
+Every two consecutive words in sentence will be separated by exactly one space.
+sentence does not have leading or trailing spaces.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MAX_BUF_SIZE (1024)
+#define MAX_LETTERS (26)  // dictionary[i] consists of only lower-case letters.
+typedef struct Trie {
+    bool isEnd;
+    struct Trie *children[MAX_LETTERS];
+} Trie;
+Trie *creatTrie() {
+    Trie *pRetVal = NULL;
+
+    pRetVal = (Trie *)malloc(sizeof(Trie));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+
+    int i;
+    for (i = 0; i < MAX_LETTERS; i++) {
+        pRetVal->children[i] = NULL;
+    }
+    pRetVal->isEnd = false;
+
+    return pRetVal;
+}
+void freeTrie(Trie *root) {
+    int i;
+    for (i = 0; i < MAX_LETTERS; i++) {
+        if (root->children[i] != NULL) {
+            freeTrie(root->children[i]);
+        }
+    }
+    free(root);
+    root = NULL;
+}
+void findRoot(const char *word, Trie *trie, char *pRetVal) {
+    int wordSize = strlen(word);
+    Trie *pCurrent = trie;
+
+    int idx = 0;
+    char c;
+    int i;
+    for (i = 0; i < wordSize; i++) {
+        if (pCurrent->isEnd == true) {
+            pRetVal[idx] = 0;
+            return;
+        }
+
+        c = word[i];
+        if (pCurrent->children[c - 'a'] == NULL) {
+            snprintf(pRetVal, MAX_BUF_SIZE, "%s", word);
+            return;
+        }
+        pRetVal[idx++] = c;
+        pCurrent = pCurrent->children[c - 'a'];
+    }
+    pRetVal[idx] = 0;
+}
+char *replaceWords(char **dictionary, int dictionarySize, char *sentence) {
+    char *pRetVal = NULL;
+
+    //
+    int sentenceSize = strlen(sentence);
+    pRetVal = (char *)malloc((sentenceSize + 4) * sizeof(char));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, ((sentenceSize + 1) * sizeof(char)));
+
+    //
+    Trie *pDictionaryTrie = creatTrie();
+    Trie *pCurrent;
+    char c;
+    int len;
+    int i, j;
+    for (i = 0; i < dictionarySize; i++) {
+        pCurrent = pDictionaryTrie;
+        len = strlen(dictionary[i]);
+        for (j = 0; j < len; j++) {
+            c = dictionary[i][j];
+            if (pCurrent->children[c - 'a'] == NULL) {
+                pCurrent->children[c - 'a'] = creatTrie();
+            }
+            pCurrent = pCurrent->children[c - 'a'];
+        }
+        pCurrent->isEnd = true;
+    }
+
+    //
+    int idx = 0;
+    char *pTmp = NULL;
+#define SEPARATED (" ")
+    char *pStr = strtok(sentence, SEPARATED);
+    while (pStr != NULL) {
+        pTmp = (char *)malloc(MAX_BUF_SIZE * sizeof(char));
+        if (pTmp == NULL) {
+            perror("malloc");
+            break;
+        }
+        memset(pTmp, 0, (MAX_BUF_SIZE * sizeof(char)));
+
+        findRoot(pStr, pDictionaryTrie, pTmp);
+        idx += sprintf(pRetVal + idx, "%s ", pTmp);
+
+        free(pTmp);
+        pTmp = NULL;
+
+        pStr = strtok(NULL, SEPARATED);
+    }
+    if (idx >= 1) {
+        pRetVal[idx - 1] = '\0';
+    }
+
+    //
+    freeTrie(pDictionaryTrie);
+    pDictionaryTrie = NULL;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<string> split(string &str, char ch) {
+        vector<string> retVal;
+
+        string s(str);
+        int sSize = s.size();
+
+        int pos = 0;
+        int start = 0;
+        while (pos < sSize) {
+            while ((pos < sSize) && (s[pos] == ch)) {
+                pos++;
+            }
+            start = pos;
+            while ((pos < sSize) && (s[pos] != ch)) {
+                pos++;
+            }
+
+            if (start < sSize) {
+                retVal.emplace_back(s.substr(start, pos - start));
+            }
+        }
+
+        return retVal;
+    }
+    string replaceWords(vector<string> &dictionary, string sentence) {
+        string retVal;
+
+        unordered_set<string> dictionarySet;
+        for (auto &root : dictionary) {
+            dictionarySet.emplace(root);
+        }
+
+        vector<string> words = split(sentence, ' ');
+        for (auto &word : words) {
+            int wordSize = word.size();
+            for (int i = 0; i < wordSize; i++) {
+                if (dictionarySet.count(word.substr(0, 1 + i)) != 0) {
+                    word = word.substr(0, 1 + i);
+                    break;
+                }
+            }
+        }
+
+        int wordsSize = words.size();
+        for (int i = 0; i < wordsSize - 1; i++) {
+            retVal.append(words[i]);
+            retVal.append(" ");
+        }
+        retVal.append(words.back());
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def shortest_root(self, word: str, dict_set: set) -> str:
+        retVal = word   # There is not a corresponding root in the dictionary
+
+        wordSize = len(word)
+        for i in range(wordSize):  # Find the shortest root of the word in the dictionary
+            root = word[0:i]
+            if root in dict_set:
+                retVal = root
+                break
+
+        return retVal
+
+    def replaceWords(self, dictionary: List[str], sentence: str) -> str:
+        retVal = None
+
+        dict_set = set(dictionary)
+
+        wordArray = sentence.split()
+        wordArraySize = len(wordArray)
+
+        # Replace each word in sentence with the corresponding shortest root
+        for word in range(wordArraySize):
+            wordArray[word] = self.shortest_root(wordArray[word], dict_set)
+        retVal = " ".join(wordArray)
+
+        return retVal
+```
+
+</details>
+
 ## [692. Top K Frequent Words](https://leetcode.com/problems/top-k-frequent-words/)
 
 - [Official](https://leetcode.cn/problems/top-k-frequent-words/solutions/785903/qian-kge-gao-pin-dan-ci-by-leetcode-solu-3qk0/)
