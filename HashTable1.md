@@ -4130,7 +4130,7 @@ class Solution:
 
 ## [523. Continuous Subarray Sum](https://leetcode.com/problems/continuous-subarray-sum/)
 
-- [Official](https://leetcode.com/problems/continuous-subarray-sum/solutions/2523150/continuous-subarray-sum/)
+- [Official](https://leetcode.com/problems/continuous-subarray-sum/editorial/)
 - [Official](https://leetcode.cn/problems/continuous-subarray-sum/solutions/807930/lian-xu-de-zi-shu-zu-he-by-leetcode-solu-rdzi/)
 
 <details><summary>Description</summary>
@@ -4170,140 +4170,119 @@ Constraints:
 <details><summary>C</summary>
 
 ```c
-// https://troydhanson.github.io/uthash/
-#define UTHASH      (1)
-
-#if (UTHASH)
-struct hashTable{
+struct hashTable {
     int key;
     int value;
     UT_hash_handle hh;
 };
-
-void freeAll(struct hashTable* pFree)
-{
+void freeAll(struct hashTable* pFree) {
     struct hashTable* current;
     struct hashTable* tmp;
-    HASH_ITER(hh, pFree, current, tmp)
-    {
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
         HASH_DEL(pFree, current);
         free(current);
     }
 }
-#else
-#define TIME_LIMIT_EXCEEDED     (0)
-#endif
-
-bool checkSubarraySum(int* nums, int numsSize, int k)
-{
+bool checkSubarraySum(int* nums, int numsSize, int k) {
     bool retVal = false;
 
-#if (UTHASH)
-    struct hashTable* map = NULL;
-
-    struct hashTable* first;
-    first = (struct hashTable*)malloc(sizeof(struct hashTable));
-    if (first == NULL)
-    {
-        perror("malloc");
-        freeAll(map);
-        return retVal;
+    struct hashTable* pMmodSeen = NULL;
+    struct hashTable* pTmp = NULL;
+    pTmp = (struct hashTable*)malloc(sizeof(struct hashTable));
+    if (pTmp == NULL) {
+        goto exit;
     }
-    first->key = nums[0] % k;
-    first->value = 0;
-    HASH_ADD_INT(map, key, first);
+    pTmp->key = 0;
+    pTmp->value = -1;
+    HASH_ADD_INT(pMmodSeen, key, pTmp);
 
-    struct hashTable* temp;
+    int prefixMod = 0;
     int i;
-    for(i=1; i<numsSize; ++i)
-    {
-        nums[i] = (nums[i] + nums[i-1]) % k;
-        if (nums[i] == 0)
-        {
-            retVal = true;
-            break;
-        }
+    for (i = 0; i < numsSize; i++) {
+        prefixMod = (prefixMod + nums[i]) % k;
 
-        HASH_FIND_INT( map, &nums[i], temp);
-        if (temp == NULL)
-        {
-            temp = (struct hashTable*)malloc(sizeof(struct hashTable));
-            if (temp == NULL)
-            {
-                perror("malloc");
-                break;
-            }
-            temp->key = nums[i];
-            temp->value = i;
-            HASH_ADD_INT(map, key, temp);
-        }
-        else if ((i - temp->value) > 1)
-        {
-            retVal = true;
-            break;
-        }
-    }
-
-    freeAll(map);
-#else
-    if (numsSize == 1)  // nums has a continuous subarray of size at least two
-    {
-        return retVal;
-    }
-    else if (k == 1)    // multiple of 1
-    {
-        retVal = true;
-        return retVal;
-    }
-
-    // use hash table to record sum of nums status
-    bool* pHashTable = (bool*)malloc(k * sizeof(bool));
-    if (pHashTable == NULL)
-    {
-        perror("malloc");
-        return retVal;
-    }
-    memset(pHashTable, 0, k*sizeof(bool));
-
-    int sum = 0;
-    int i;
-    for (i=0; i<numsSize; ++i)
-    {
-        // multiple of k in above HashTable is like stand still(0 is always a multiple of k)
-        if (nums[i] % k == 0)
-        {
-            // at least two
-            if ((i<(numsSize-1)) && ((nums[i+1]%k)==0))
-            {
+        pTmp = NULL;
+        HASH_FIND_INT(pMmodSeen, &prefixMod, pTmp);
+        if (pTmp != NULL) {  // ensures that the size of subarray is atleast 2
+            if (i - pTmp->value > 1) {
                 retVal = true;
                 break;
             }
-            continue;
+        } else {  // mark the value of prefixMod with the current index.
+            pTmp = (struct hashTable*)malloc(sizeof(struct hashTable));
+            if (pTmp == NULL) {
+                goto exit;
+            }
+            pTmp->key = prefixMod;
+            pTmp->value = i;
+            HASH_ADD_INT(pMmodSeen, key, pTmp);
         }
-
-        sum += nums[i];
-        if ((sum%k) == 0)
-        {
-            retVal = true;
-            break;
-        }
-        else if (pHashTable[sum%k] == true)
-        {
-            retVal = true;
-            break;
-        }
-        pHashTable[sum % k] = true;
     }
 
-#if (TIME_LIMIT_EXCEEDED)
-    free(pHashTable);
-    pHashTable = NULL;
-#endif
-
-#endif
+exit:
+    //
+    freeAll(pMmodSeen);
+    pMmodSeen = NULL;
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool checkSubarraySum(vector<int>& nums, int k) {
+        bool retVal = false;
+
+        int prefixMod = 0;
+        unordered_map<int, int> modSeen;
+        modSeen[0] = -1;
+
+        int numsSize = nums.size();
+        for (int i = 0; i < numsSize; i++) {
+            prefixMod = (prefixMod + nums[i]) % k;
+            if (modSeen.find(prefixMod) != modSeen.end()) {  // ensures that the size of subarray is atleast 2
+                if (i - modSeen[prefixMod] > 1) {
+                    retVal = true;
+                    break;
+                }
+            } else {  // mark the value of prefixMod with the current index.
+                modSeen[prefixMod] = i;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def checkSubarraySum(self, nums: List[int], k: int) -> bool:
+        retVal = False
+
+        numsSize = len(nums)
+        prefix_mod = 0
+        mod_seen = {0: -1}
+        for i in range(numsSize):
+            prefix_mod = (prefix_mod + nums[i]) % k
+            if prefix_mod in mod_seen:  # ensures that the size of subarray is at least 2
+                if i - mod_seen[prefix_mod] > 1:
+                    retVal = True
+                    break
+            else:   # mark the value of prefix_mod with the current index.
+                mod_seen[prefix_mod] = i
+
+        return retVal
 ```
 
 </details>

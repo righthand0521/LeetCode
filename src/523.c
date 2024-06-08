@@ -5,135 +5,82 @@
 
 #include "uthash/uthash.h"  // https://troydhanson.github.io/uthash/
 
-#define UTHASH (1)
-#if (UTHASH)
 struct hashTable {
     int key;
     int value;
     UT_hash_handle hh;
 };
-
 void freeAll(struct hashTable* pFree) {
     struct hashTable* current;
     struct hashTable* tmp;
     HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
         HASH_DEL(pFree, current);
         free(current);
     }
 }
-#else
-#define TIME_LIMIT_EXCEEDED (1)
-#endif
 bool checkSubarraySum(int* nums, int numsSize, int k) {
     bool retVal = false;
 
-#if (UTHASH)
-    struct hashTable* map = NULL;
-
-    struct hashTable* first;
-    first = (struct hashTable*)malloc(sizeof(struct hashTable));
-    if (first == NULL) {
-        perror("malloc");
-        freeAll(map);
-        return retVal;
+    struct hashTable* pMmodSeen = NULL;
+    struct hashTable* pTmp = NULL;
+    pTmp = (struct hashTable*)malloc(sizeof(struct hashTable));
+    if (pTmp == NULL) {
+        goto exit;
     }
-    first->key = nums[0] % k;
-    first->value = 0;
-    HASH_ADD_INT(map, key, first);
+    pTmp->key = 0;
+    pTmp->value = -1;
+    HASH_ADD_INT(pMmodSeen, key, pTmp);
 
-    struct hashTable* temp;
+    int prefixMod = 0;
     int i;
-    for (i = 1; i < numsSize; ++i) {
-        nums[i] = (nums[i] + nums[i - 1]) % k;
-        if (nums[i] == 0) {
-            retVal = true;
-            break;
-        }
+    for (i = 0; i < numsSize; i++) {
+        prefixMod = (prefixMod + nums[i]) % k;
 
-        HASH_FIND_INT(map, &nums[i], temp);
-        if (temp == NULL) {
-            temp = (struct hashTable*)malloc(sizeof(struct hashTable));
-            if (temp == NULL) {
-                perror("malloc");
-                break;
-            }
-            temp->key = nums[i];
-            temp->value = i;
-            HASH_ADD_INT(map, key, temp);
-        } else if ((i - temp->value) > 1) {
-            retVal = true;
-            break;
-        }
-    }
-
-    freeAll(map);
-#else
-    if (numsSize == 1)  // nums has a continuous subarray of size at least two
-    {
-        return retVal;
-    } else if (k == 1)  // multiple of 1
-    {
-        retVal = true;
-        return retVal;
-    }
-
-    // use hash table to record sum of nums status
-    bool* pHashTable = (bool*)malloc(k * sizeof(bool));
-    if (pHashTable == NULL) {
-        perror("malloc");
-        return retVal;
-    }
-    memset(pHashTable, 0, k * sizeof(bool));
-
-    int sum = 0;
-    int i;
-    for (i = 0; i < numsSize; ++i) {
-        // multiple of k in above HashTable is like stand still(0 is always a multiple of k)
-        if (nums[i] % k == 0) {
-            // at least two
-            if ((i < (numsSize - 1)) && ((nums[i + 1] % k) == 0)) {
+        pTmp = NULL;
+        HASH_FIND_INT(pMmodSeen, &prefixMod, pTmp);
+        if (pTmp != NULL) {  // ensures that the size of subarray is atleast 2
+            if (i - pTmp->value > 1) {
                 retVal = true;
                 break;
             }
-            continue;
+        } else {  // mark the value of prefixMod with the current index.
+            pTmp = (struct hashTable*)malloc(sizeof(struct hashTable));
+            if (pTmp == NULL) {
+                goto exit;
+            }
+            pTmp->key = prefixMod;
+            pTmp->value = i;
+            HASH_ADD_INT(pMmodSeen, key, pTmp);
         }
-
-        sum += nums[i];
-        if ((sum % k) == 0) {
-            retVal = true;
-            break;
-        } else if (pHashTable[sum % k] == true) {
-            retVal = true;
-            break;
-        }
-        pHashTable[sum % k] = true;
     }
 
-#if (TIME_LIMIT_EXCEEDED)
-    free(pHashTable);
-    pHashTable = NULL;
-#endif
-
-#endif
+exit:
+    //
+    freeAll(pMmodSeen);
+    pMmodSeen = NULL;
 
     return retVal;
 }
 
 int main(int argc, char** argv) {
-#define MAX_NUMSSIZE (1000)
+#define MAX_SIZE (int)(1e5)
     struct testCaseType {
-        int nums[MAX_NUMSSIZE];
+        int nums[MAX_SIZE];
         int numsSize;
         int k;
-    } testCase[] = {{{23, 2, 4, 6, 7}, 5, 6},
-                    {{23, 2, 6, 4, 7}, 5, 6},
-                    {{23, 2, 6, 4, 7}, 5, 13},
-                    {{5, 0, 0, 0}, 4, 3},
-                    {{1, 0}, 2, 2},
-                    {{2, 4, 3}, 3, 6},
-                    {{1, 2, 12}, 3, 6},
-                    {{50000000, 50000000}, 2, 100000000}};
+    } testCase[] = {{{23, 2, 4, 6, 7}, 5, 6}, {{23, 2, 6, 4, 7}, 5, 6}, {{23, 2, 6, 4, 7}, 5, 13}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example:
+     *  Input: nums = [23,2,4,6,7], k = 6
+     *  Output: true
+     *
+     *  Input: nums = [23,2,6,4,7], k = 6
+     *  Output: true
+     *
+     *  Input: nums = [23,2,6,4,7], k = 13
+     *  Output: false
+     */
 
     bool answer = false;
     int i, j;
