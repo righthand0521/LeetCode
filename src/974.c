@@ -21,13 +21,20 @@ int subarraysDivByK(int* nums, int numsSize, int k) {
 }
 
 int main(int argc, char** argv) {
-#define MAX_SIZE (30000)
+#define MAX_SIZE (3 * 10000)
     struct testCaseType {
         int nums[MAX_SIZE];
         int numsSize;
         int k;
     } testCase[] = {{{4, 5, 0, -2, -3, 1}, 6, 5}, {{5}, 1, 9}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: nums = [4,5,0,-2,-3,1], k = 5
+     *  Output: 7
+     *
+     *  Input: nums = [5], k = 9
+     *  Output: 0
+     */
 
     int answer;
     int i, j;

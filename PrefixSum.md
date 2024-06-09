@@ -405,7 +405,7 @@ class Solution:
 
 ## [974. Subarray Sums Divisible by K](https://leetcode.com/problems/subarray-sums-divisible-by-k/)  1675
 
-- [Official](https://leetcode.com/problems/subarray-sums-divisible-by-k/solutions/2913063/subarray-sums-divisible-by-k/)
+- [Official](https://leetcode.com/problems/subarray-sums-divisible-by-k/editorial/)
 - [Official](https://leetcode.cn/problems/subarray-sums-divisible-by-k/solutions/187947/he-ke-bei-k-zheng-chu-de-zi-shu-zu-by-leetcode-sol/)
 
 <details><summary>Description</summary>
@@ -465,8 +465,9 @@ class Solution {
     int subarraysDivByK(vector<int>& nums, int k) {
         int retVal = 0;
 
-        vector<int> modRecord(k);
+        vector<int> modRecord(k, 0);
         modRecord[0] = 1;
+
         int prefixSumMod = 0;
         for (int num : nums) {
             prefixSumMod = (prefixSumMod + num % k + k) % k;
@@ -477,6 +478,27 @@ class Solution {
         return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def subarraysDivByK(self, nums: List[int], k: int) -> int:
+        retVal = 0
+
+        modRecord = [0] * k
+        modRecord[0] = 1
+
+        prefixSumMod = 0
+        for num in nums:
+            prefixSumMod = (prefixSumMod + num % k + k) % k
+            retVal += modRecord[prefixSumMod]
+            modRecord[prefixSumMod] += 1
+
+        return retVal
 ```
 
 </details>
