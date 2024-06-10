@@ -1803,6 +1803,9 @@ class Solution:
 
 ## [1051. Height Checker](https://leetcode.com/problems/height-checker/)  1303
 
+- [Official](https://leetcode.com/problems/height-checker/editorial/)
+- [Official](https://leetcode.cn/problems/height-checker/solutions/1593917/gao-du-jian-cha-qi-by-leetcode-solution-jeb0/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -1845,41 +1848,23 @@ Constraints:
 1 <= heights[i] <= 100
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. Build the correct order of heights by sorting another array, then compare the two arrays.
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
 
 ```c
-// https://en.wikipedia.org/wiki/Counting_sort
-#define COUNTING_SORT 1
-#define QUICK_SORT 1
-#if (COUNTING_SORT)
-void countingSort(int* oriArr, int* sortArr, int n, int maxValue) {
-    int* countArr = (int*)malloc(maxValue * sizeof(int));
-    if (countArr == NULL) {
-        perror("malloc");
-        return;
-    }
-    memset(countArr, 0, maxValue * sizeof(int));
-
-    int i;
-    for (i = 0; i < n; ++i) {
-        ++countArr[oriArr[i]];
-    }
-    for (i = 1; i < maxValue; ++i) {
-        countArr[i] += countArr[i - 1];
-    }
-    for (i = n; i > 0; --i) {
-        sortArr[--countArr[oriArr[i - 1]]] = oriArr[i - 1];
-    }
-
-    free(countArr);
-}
 int compareInteger(const void* n1, const void* n2) {
     // ascending order
     return (*(int*)n1 > *(int*)n2);
 }
-#endif
 int heightChecker(int* heights, int heightsSize) {
     int retVal = 0;
 
@@ -1889,13 +1874,8 @@ int heightChecker(int* heights, int heightsSize) {
         return retVal;
     }
     memset(expected, 0, heightsSize * sizeof(int));
-#if (COUNTING_SORT)
-#define MAX_VALUE 101
-    countingSort(heights, expected, heightsSize, MAX_VALUE);
-#elif (QUICK_SORT)
     memcpy(expected, heights, heightsSize * sizeof(int));
     qsort(expected, heightsSize, sizeof(int), compareInteger);
-#endif
 
     int i;
     for (i = 0; i < heightsSize; ++i) {
@@ -1904,12 +1884,53 @@ int heightChecker(int* heights, int heightsSize) {
         }
     }
 
-    if (expected != NULL) {
-        free(expected);
-    }
+    free(expected);
+    expected = NULL;
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int heightChecker(vector<int>& heights) {
+        int retVal = 0;
+
+        vector<int> expected(heights);
+        sort(expected.begin(), expected.end());
+
+        int heightsSize = heights.size();
+        for (int i = 0; i < heightsSize; ++i) {
+            if (heights[i] != expected[i]) {
+                ++retVal;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def heightChecker(self, heights: List[int]) -> int:
+        retVal = 0
+
+        expected = sorted(heights)
+        for x, y in zip(heights, expected):
+            if x != y:
+                retVal += 1
+
+        return retVal
 ```
 
 </details>

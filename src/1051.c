@@ -2,36 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-// https://en.wikipedia.org/wiki/Counting_sort
-#define COUNTING_SORT 1
-#define QUICK_SORT 1
-#if (COUNTING_SORT)
-void countingSort(int* oriArr, int* sortArr, int n, int maxValue) {
-    int* countArr = (int*)malloc(maxValue * sizeof(int));
-    if (countArr == NULL) {
-        perror("malloc");
-        return;
-    }
-    memset(countArr, 0, maxValue * sizeof(int));
-
-    int i;
-    for (i = 0; i < n; ++i) {
-        ++countArr[oriArr[i]];
-    }
-    for (i = 1; i < maxValue; ++i) {
-        countArr[i] += countArr[i - 1];
-    }
-    for (i = n; i > 0; --i) {
-        sortArr[--countArr[oriArr[i - 1]]] = oriArr[i - 1];
-    }
-
-    free(countArr);
-}
 int compareInteger(const void* n1, const void* n2) {
     // ascending order
     return (*(int*)n1 > *(int*)n2);
 }
-#endif
 int heightChecker(int* heights, int heightsSize) {
     int retVal = 0;
 
@@ -41,13 +15,8 @@ int heightChecker(int* heights, int heightsSize) {
         return retVal;
     }
     memset(expected, 0, heightsSize * sizeof(int));
-#if (COUNTING_SORT)
-#define MAX_VALUE 101
-    countingSort(heights, expected, heightsSize, MAX_VALUE);
-#elif (QUICK_SORT)
     memcpy(expected, heights, heightsSize * sizeof(int));
     qsort(expected, heightsSize, sizeof(int), compareInteger);
-#endif
 
     int i;
     for (i = 0; i < heightsSize; ++i) {
@@ -56,9 +25,8 @@ int heightChecker(int* heights, int heightsSize) {
         }
     }
 
-    if (expected != NULL) {
-        free(expected);
-    }
+    free(expected);
+    expected = NULL;
 
     return retVal;
 }
@@ -70,6 +38,16 @@ int main(int argc, char** argv) {
         int heightsSize;
     } testCase[] = {{{1, 1, 4, 2, 1, 3}, 6}, {{5, 1, 2, 3, 4}, 5}, {{1, 2, 3, 4, 5}, 5}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: heights = [1,1,4,2,1,3]
+     *  Output: 3
+     *
+     *  Input: heights = [5,1,2,3,4]
+     *  Output: 5
+     *
+     *  Input: heights = [1,2,3,4,5]
+     *  Output: 0
+     */
 
     int answer;
     int i, j;
