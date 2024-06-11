@@ -1935,6 +1935,160 @@ class Solution:
 
 </details>
 
+## [1122. Relative Sort Array](https://leetcode.com/problems/relative-sort-array/)  1188
+
+- [Official](https://leetcode.com/problems/relative-sort-array/editorial/)
+- [Official](https://leetcode.cn/problems/relative-sort-array/solutions/483863/shu-zu-de-xiang-dui-pai-xu-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+Given two arrays arr1 and arr2, the elements of arr2 are distinct, and all elements in arr2 are also in arr1.
+
+Sort the elements of arr1 such that the relative ordering of items in arr1 are the same as in arr2.
+Elements that do not appear in arr2 should be placed at the end of arr1 in ascending order.
+
+Example 1:
+Input: arr1 = [2,3,1,3,2,4,6,7,9,2,19], arr2 = [2,1,4,3,9,6]
+Output: [2,2,2,1,4,3,3,9,6,7,19]
+
+Example 2:
+Input: arr1 = [28,6,22,8,44,17], arr2 = [22,28,8,6]
+Output: [22,28,8,6,17,44]
+
+Constraints:
+1 <= arr1.length, arr2.length <= 1000
+0 <= arr1[i], arr2[i] <= 1000
+All the elements of arr2 are distinct.
+Each arr2[i] is in arr1.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Using a hashmap, we can map the values of arr2 to their position in arr2.
+2. After, we can use a custom sorting function.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* relativeSortArray(int* arr1, int arr1Size, int* arr2, int arr2Size, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    pRetVal = (int*)malloc(arr1Size * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (arr1Size * sizeof(int)));
+
+    int i, j;
+
+    int upper = arr1[0];
+    for (i = 0; i < arr1Size; ++i) {
+        upper = fmax(upper, arr1[i]);
+    }
+
+    int frequency[upper + 1];
+    memset(frequency, 0, sizeof(frequency));
+    for (i = 0; i < arr1Size; ++i) {
+        frequency[arr1[i]] += 1;
+    }
+
+    for (i = 0; i < arr2Size; ++i) {
+        for (j = 0; j < frequency[arr2[i]]; ++j) {
+            pRetVal[*(returnSize)] = arr2[i];
+            *(returnSize) += 1;
+        }
+        frequency[arr2[i]] = 0;
+    }
+    for (i = 0; i < upper + 1; ++i) {
+        if (frequency[i] != 0) {
+            for (j = 0; j < frequency[i]; ++j) {
+                pRetVal[*(returnSize)] = i;
+                *(returnSize) += 1;
+            }
+        }
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> relativeSortArray(vector<int>& arr1, vector<int>& arr2) {
+        vector<int> retVal;
+
+        int upper = *max_element(arr1.begin(), arr1.end());
+        vector<int> frequency(upper + 1, 0);
+        for (int x : arr1) {
+            frequency[x] += 1;
+        }
+
+        for (int x : arr2) {
+            for (int i = 0; i < frequency[x]; ++i) {
+                retVal.emplace_back(x);
+            }
+            frequency[x] = 0;
+        }
+        for (int x = 0; x < upper + 1; ++x) {
+            if (frequency[x] != 0) {
+                for (int i = 0; i < frequency[x]; ++i) {
+                    retVal.emplace_back(x);
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def relativeSortArray(self, arr1: List[int], arr2: List[int]) -> List[int]:
+        retVal = []
+
+        upper = max(arr1)
+        frequency = [0] * (upper + 1)
+        for x in arr1:
+            frequency[x] += 1
+
+        for x in arr2:
+            for _ in range(frequency[x]):
+                retVal.append(x)
+            frequency[x] = 0
+
+        for x in range(upper + 1):
+            if frequency[x] > 0:
+                for _ in range(frequency[x]):
+                    retVal.append(x)
+
+        return retVal
+```
+
+</details>
+
 ## [1365. How Many Numbers Are Smaller Than the Current Number](https://leetcode.com/problems/how-many-numbers-are-smaller-than-the-current-number/)  1152
 
 - [Official](https://leetcode.cn/problems/how-many-numbers-are-smaller-than-the-current-number/solutions/122909/you-duo-shao-xiao-yu-dang-qian-shu-zi-de-shu-zi--2/)
