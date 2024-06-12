@@ -155,6 +155,131 @@ class Solution:
 
 </details>
 
+## [75. Sort Colors](https://leetcode.com/problems/sort-colors/)
+
+- [Official](https://leetcode.cn/problems/sort-colors/solutions/437968/yan-se-fen-lei-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+Given an array nums with n objects colored red, white, or blue,
+sort them in-place so that objects of the same color are adjacent, with the colors in the order red, white, and blue.
+
+We will use the integers 0, 1, and 2 to represent the color red, white, and blue, respectively.
+
+You must solve this problem without using the library's sort function.
+
+Example 1:
+Input: nums = [2,0,2,1,1,0]
+Output: [0,0,1,1,2,2]
+
+Example 2:
+Input: nums = [2,0,1]
+Output: [0,1,2]
+
+Constraints:
+n == nums.length
+1 <= n <= 300
+nums[i] is either 0, 1, or 2.
+
+Follow up: Could you come up with a one-pass algorithm using only constant extra space?
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. A rather straight forward solution is a two-pass algorithm using counting sort.
+2. Iterate the array counting number of 0's, 1's, and 2's.
+3. Overwrite array with the total number of 0's, then 1's and followed by 2's.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+void swap(int* n1, int* n2) {
+    int tmp = (*n1);
+    (*n1) = (*n2);
+    (*n2) = tmp;
+}
+void sortColors(int* nums, int numsSize) {
+    int ptr = 0;
+    int i;
+    for (i = 0; i < numsSize; ++i) {
+        if (nums[i] == 0) {
+            swap(&nums[i], &nums[ptr]);
+            ptr++;
+        }
+    }
+    for (i = ptr; i < numsSize; ++i) {
+        if (nums[i] == 1) {
+            swap(&nums[i], &nums[ptr]);
+            ptr++;
+        }
+    }
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    void swap(int* n1, int* n2) {
+        int tmp = (*n1);
+        (*n1) = (*n2);
+        (*n2) = tmp;
+    }
+
+   public:
+    void sortColors(vector<int>& nums) {
+        int numsSize = nums.size();
+        int ptr = 0;
+        for (int i = 0; i < numsSize; ++i) {
+            if (nums[i] == 0) {
+                swap(&nums[i], &nums[ptr]);
+                ptr++;
+            }
+        }
+        for (int i = ptr; i < numsSize; ++i) {
+            if (nums[i] == 1) {
+                swap(&nums[i], &nums[ptr]);
+                ptr++;
+            }
+        }
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def sortColors(self, nums: List[int]) -> None:
+        """
+        Do not return anything, modify nums in-place instead.
+        """
+        numsSize = len(nums)
+        ptr = 0
+        for i in range(numsSize):
+            if nums[i] == 0:
+                nums[i], nums[ptr] = nums[ptr], nums[i]
+                ptr += 1
+        for i in range(ptr, numsSize):
+            if nums[i] == 1:
+                nums[i], nums[ptr] = nums[ptr], nums[i]
+                ptr += 1
+```
+
+</details>
+
 ## [88. Merge Sorted Array](https://leetcode.com/problems/merge-sorted-array/)
 
 - [Official](https://leetcode.cn/problems/merge-sorted-array/solutions/666608/he-bing-liang-ge-you-xu-shu-zu-by-leetco-rrb0/)
