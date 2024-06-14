@@ -1704,6 +1704,114 @@ class Solution {
 
 </details>
 
+## [945. Minimum Increment to Make Array Unique](https://leetcode.com/problems/minimum-increment-to-make-array-unique/)  1448
+
+- [Official](https://leetcode.com/problems/minimum-increment-to-make-array-unique/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-increment-to-make-array-unique/solutions/162346/shi-shu-zu-wei-yi-de-zui-xiao-zeng-liang-by-leet-2/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array nums.
+In one move, you can pick an index i where 0 <= i < nums.length and increment nums[i] by 1.
+
+Return the minimum number of moves to make every value in nums unique.
+
+The test cases are generated so that the answer fits in a 32-bit integer.
+
+Example 1:
+Input: nums = [1,2,2]
+Output: 1
+Explanation: After 1 move, the array could be [1, 2, 3].
+
+Example 2:
+Input: nums = [3,2,1,2,1,7]
+Output: 6
+Explanation: After 6 moves, the array could be [3, 4, 1, 2, 5, 7].
+It can be shown with 5 or less moves that it is impossible for the array to have all unique values.
+
+Constraints:
+1 <= nums.length <= 10^5
+0 <= nums[i] <= 10^5
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareInteger(const void* n1, const void* n2) {
+    // ascending order
+    return (*(int*)n1 > *(int*)n2);
+}
+int minIncrementForUnique(int* nums, int numsSize) {
+    int retVal = 0;
+
+    qsort(nums, numsSize, sizeof(int), compareInteger);
+
+    int increment;
+    int i;
+    for (i = 1; i < numsSize; ++i) {
+        if (nums[i] <= nums[i - 1]) {
+            increment = nums[i - 1] + 1 - nums[i];
+            retVal += increment;
+            nums[i] = nums[i - 1] + 1;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minIncrementForUnique(vector<int>& nums) {
+        int retVal = 0;
+
+        sort(nums.begin(), nums.end());
+
+        int numsSize = nums.size();
+        for (int i = 1; i < numsSize; ++i) {
+            if (nums[i] <= nums[i - 1]) {
+                int increment = nums[i - 1] + 1 - nums[i];
+                retVal += increment;
+                nums[i] = nums[i - 1] + 1;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minIncrementForUnique(self, nums: List[int]) -> int:
+        retVal = 0
+
+        nums.sort()
+
+        numsSize = len(nums)
+        for i in range(1, numsSize):
+            if nums[i] <= nums[i - 1]:
+                increment = nums[i - 1] + 1 - nums[i]
+                retVal += increment
+                nums[i] = nums[i - 1] + 1
+
+        return retVal
+```
+
+</details>
+
 ## [976. Largest Perimeter Triangle](https://leetcode.com/problems/largest-perimeter-triangle/)  1340
 
 <details><summary>Description</summary>
