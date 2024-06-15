@@ -9,6 +9,9 @@ int imax = std::numeric_limits<int>::max();
 
 float fmin = std::numeric_limits<float>::min();
 float fmax = std::numeric_limits<float>::max();
+
+cout.setf(ios::fixed);
+cout.precision(5);
 #else
 #include <float.h>
 #include <limits.h>

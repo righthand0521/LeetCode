@@ -8423,6 +8423,219 @@ class Solution:
 
 </details>
 
+## [637. Average of Levels in Binary Tree](https://leetcode.com/problems/average-of-levels-in-binary-tree/)
+
+- [Official](https://leetcode.cn/problems/average-of-levels-in-binary-tree/solutions/410522/er-cha-shu-de-ceng-ping-jun-zhi-by-leetcode-soluti/)
+
+<details><summary>Description</summary>
+
+```text
+Given the root of a binary tree, return the average value of the nodes on each level in the form of an array.
+Answers within 10^-5 of the actual answer will be accepted.
+
+Example 1:
+  3
+ / \
+9   20
+   /  \
+ 15    7
+Input: root = [3,9,20,null,null,15,7]
+Output: [3.00000,14.50000,11.00000]
+Explanation: The average value of nodes on level 0 is 3, on level 1 is 14.5, and on level 2 is 11.
+Hence return [3, 14.5, 11].
+
+Example 2:
+     3
+    / \
+   9   20
+  / \
+15   7
+Input: root = [3,9,20,15,7]
+Output: [3.00000,14.50000,11.00000]
+
+Constraints:
+The number of nodes in the tree is in the range [1, 10^4].
+-2^31 <= Node.val <= 2^31 - 1
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int treeHeight(struct TreeNode* pRoot) {
+    int retVal = 0;
+
+    if (pRoot == NULL) {
+        return retVal;
+    }
+
+    int leftHeight = treeHeight(pRoot->left);
+    int rightHeight = treeHeight(pRoot->right);
+    if (leftHeight > rightHeight) {
+        retVal = leftHeight + 1;
+    } else {
+        retVal = rightHeight + 1;
+    }
+
+    return retVal;
+}
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+double* averageOfLevels(struct TreeNode* root, int* returnSize) {
+    double* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    if (root == NULL) {
+        return pRetVal;
+    }
+    int treeLevel = treeHeight(root);
+    pRetVal = (double*)malloc(treeLevel * sizeof(double));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, treeLevel * sizeof(double));
+
+    int bfsQueueHead = 0;
+    int bfsQueueTail = 0;
+    int bfsQueueSize = 10001;  // 1 << treeLevel
+    struct TreeNode* bfsQueue[bfsQueueSize];
+    memset(bfsQueue, 0, sizeof(bfsQueue));
+    bfsQueue[bfsQueueTail] = root;
+    bfsQueueTail++;
+
+    int i;
+    struct TreeNode* pNode;
+    int currentLevelSize;
+    double sum;
+    while (bfsQueueHead < bfsQueueTail) {
+        sum = 0;
+        currentLevelSize = bfsQueueTail - bfsQueueHead;
+        for (i = 0; i < currentLevelSize; ++i) {
+            pNode = bfsQueue[bfsQueueHead];
+            bfsQueueHead++;
+            sum += pNode->val;
+
+            if (pNode->left != NULL) {
+                bfsQueue[bfsQueueTail] = pNode->left;
+                bfsQueueTail++;
+            }
+            if (pNode->right != NULL) {
+                bfsQueue[bfsQueueTail] = pNode->right;
+                bfsQueueTail++;
+            }
+        }
+
+        pRetVal[(*returnSize)] = sum / currentLevelSize;
+        (*returnSize) += 1;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   public:
+    vector<double> averageOfLevels(TreeNode* root) {
+        vector<double> retVal;
+
+        if (root == nullptr) {
+            return retVal;
+        }
+
+        queue<TreeNode*> bfsQueue;
+        bfsQueue.push(root);
+        while (bfsQueue.empty() == false) {
+            double sum = 0;
+            int currentLevelSize = bfsQueue.size();
+            for (int i = 1; i <= currentLevelSize; ++i) {
+                auto node = bfsQueue.front();
+                bfsQueue.pop();
+                sum += node->val;
+
+                if (node->left != nullptr) {
+                    bfsQueue.push(node->left);
+                }
+                if (node->right != nullptr) {
+                    bfsQueue.push(node->right);
+                }
+            }
+
+            retVal.emplace_back(sum / currentLevelSize);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def averageOfLevels(self, root: Optional[TreeNode]) -> List[float]:
+        retVal = []
+
+        if root == None:
+            return retVal
+
+        queue = deque([])
+        queue.append(root)
+        while queue:
+            levelVal = []
+            queueSize = len(queue)
+            for _ in range(queueSize):
+                node = queue.popleft()
+                levelVal.append(node.val)
+                if node.left != None:
+                    queue.append(node.left)
+                if node.right != None:
+                    queue.append(node.right)
+
+            levelValSize = len(levelVal)
+            average = sum(levelVal) / levelValSize
+            retVal.append(average)
+
+        return retVal
+```
+
+</details>
+
 ## [652. Find Duplicate Subtrees](https://leetcode.com/problems/find-duplicate-subtrees/)
 
 - [Official](https://leetcode.cn/problems/find-duplicate-subtrees/solutions/1798953/xun-zhao-zhong-fu-de-zi-shu-by-leetcode-zoncw/)
