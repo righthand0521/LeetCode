@@ -386,6 +386,121 @@ class Solution:
 
 </details>
 
+## [330. Patching Array](https://leetcode.com/problems/patching-array/)
+
+- [Official](https://leetcode.cn/problems/patching-array/solutions/538939/an-yao-qiu-bu-qi-shu-zu-by-leetcode-solu-klp1/)
+
+<details><summary>Description</summary>
+
+```text
+Given a sorted integer array nums and an integer n,
+add/patch elements to the array such that any number in the range [1, n]
+inclusive can be formed by the sum of some elements in the array.
+
+Return the minimum number of patches required.
+
+Example 1:
+Input: nums = [1,3], n = 6
+Output: 1
+Explanation:
+Combinations of nums are [1], [3], [1,3], which form possible sums of: 1, 3, 4.
+Now if we add/patch 2 to nums, the combinations are: [1], [2], [3], [1,3], [2,3], [1,2,3].
+Possible sums are 1, 2, 3, 4, 5, 6, which now covers the range [1, 6].
+So we only need 1 patch.
+
+Example 2:
+Input: nums = [1,5,10], n = 20
+Output: 2
+Explanation: The two patches can be [2, 4].
+
+Example 3:
+Input: nums = [1,2,2], n = 5
+Output: 0
+
+Constraints:
+1 <= nums.length <= 1000
+1 <= nums[i] <= 10^4
+nums is sorted in ascending order.
+1 <= n <= 2^31 - 1
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int minPatches(int* nums, int numsSize, int n) {
+    int retVal = 0;
+
+    int index = 0;
+    long x = 1;
+    while (x <= n) {
+        if ((index < numsSize) && (nums[index] <= x)) {
+            x += nums[index];
+            index += 1;
+        } else {
+            x <<= 1;
+            retVal += 1;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minPatches(vector<int>& nums, int n) {
+        int retVal = 0;
+
+        int numsSize = nums.size();
+        int index = 0;
+        long x = 1;
+        while (x <= n) {
+            if ((index < numsSize) && (nums[index] <= x)) {
+                x += nums[index];
+                index += 1;
+            } else {
+                x <<= 1;
+                retVal += 1;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minPatches(self, nums: List[int], n: int) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+        index = 0
+        x = 1
+        while x <= n:
+            if (index < numsSize) and (nums[index] <= x):
+                x += nums[index]
+                index += 1
+            else:
+                x <<= 1
+                retVal += 1
+
+        return retVal
+```
+
+</details>
+
 ## [334. Increasing Triplet Subsequence](https://leetcode.com/problems/increasing-triplet-subsequence/)
 
 - [Official](https://leetcode.cn/problems/increasing-triplet-subsequence/solutions/1204375/di-zeng-de-san-yuan-zi-xu-lie-by-leetcod-dp2r/)
