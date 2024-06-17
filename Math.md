@@ -2472,6 +2472,111 @@ int** outerTrees(int** trees, int treesSize, int* treesColSize, int* returnSize,
 
 </details>
 
+## [633. Sum of Square Numbers](https://leetcode.com/problems/sum-of-square-numbers/)
+
+- [Official](https://leetcode.com/problems/sum-of-square-numbers/editorial/)
+- [Official](https://leetcode.cn/problems/sum-of-square-numbers/solutions/747079/ping-fang-shu-zhi-he-by-leetcode-solutio-8ydl/)
+
+<details><summary>Description</summary>
+
+```text
+Given a non-negative integer c, decide whether there're two integers a and b such that a^2 + b^2 = c.
+
+Example 1:
+Input: c = 5
+Output: true
+Explanation: 1 * 1 + 2 * 2 = 5
+
+Example 2:
+Input: c = 3
+Output: false
+
+Constraints:
+0 <= c <= 2^31 - 1
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool judgeSquareSum(int c) {
+    bool retVal = false;
+
+    long sum;
+    long left = 0;
+    long right = (int)sqrt(c);
+    while (left <= right) {
+        sum = (left * left) + (right * right);
+        if (sum == c) {
+            retVal = true;
+            break;
+        } else if (sum > c) {
+            right--;
+        } else {
+            left++;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool judgeSquareSum(int c) {
+        bool retVal = false;
+
+        long left = 0;
+        long right = (int)sqrt(c);
+        while (left <= right) {
+            long sum = (left * left) + (right * right);
+            if (sum == c) {
+                retVal = true;
+                break;
+            } else if (sum > c) {
+                right--;
+            } else {
+                left++;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def judgeSquareSum(self, c: int) -> bool:
+        retVal = False
+
+        left = 0
+        right = int(sqrt(c))
+        while left <= right:
+            sum = (left * left) + (right * right)
+            if sum == c:
+                retVal = True
+                break
+            elif sum > c:
+                right -= 1
+            else:
+                left += 1
+
+        return retVal
+```
+
+</details>
+
 ## [775. Global and Local Inversions](https://leetcode.com/problems/global-and-local-inversions/)  1516
 
 <details><summary>Description</summary>
