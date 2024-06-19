@@ -3378,6 +3378,210 @@ class Solution:
 
 </details>
 
+## [1482. Minimum Number of Days to Make m Bouquets](https://leetcode.com/problems/minimum-number-of-days-to-make-m-bouquets/)  1945
+
+- [Official](https://leetcode.com/problems/minimum-number-of-days-to-make-m-bouquets/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-number-of-days-to-make-m-bouquets/solutions/764671/zhi-zuo-m-shu-hua-suo-xu-de-zui-shao-tia-mxci/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array bloomDay, an integer m and an integer k.
+
+You want to make m bouquets. To make a bouquet, you need to use k adjacent flowers from the garden.
+
+The garden consists of n flowers,
+the ith flower will bloom in the bloomDay[i] and then can be used in exactly one bouquet.
+
+Return the minimum number of days you need to wait to be able to make m bouquets from the garden.
+If it is impossible to make m bouquets return -1.
+
+Example 1:
+Input: bloomDay = [1,10,3,10,2], m = 3, k = 1
+Output: 3
+Explanation: Let us see what happened in the first three days.
+x means flower bloomed and _ means flower did not bloom in the garden.
+We need 3 bouquets each should contain 1 flower.
+After day 1: [x, _, _, _, _]   // we can only make one bouquet.
+After day 2: [x, _, _, _, x]   // we can only make two bouquets.
+After day 3: [x, _, x, _, x]   // we can make 3 bouquets. The answer is 3.
+
+Example 2:
+Input: bloomDay = [1,10,3,10,2], m = 3, k = 2
+Output: -1
+Explanation: We need 3 bouquets each has 2 flowers, that means we need 6 flowers.
+We only have 5 flowers so it is impossible to get the needed bouquets and we return -1.
+
+Example 3:
+Input: bloomDay = [7,7,7,7,12,7,7], m = 2, k = 3
+Output: 12
+Explanation: We need 2 bouquets each should have 3 flowers.
+Here is the garden after the 7 and 12 days:
+After day 7: [x, x, x, x, _, x, x]
+We can make one bouquet of the first three flowers that bloomed.
+We cannot make another bouquet from the last three flowers that bloomed because they are not adjacent.
+After day 12: [x, x, x, x, x, x, x]
+It is obvious that we can make two bouquets in different ways.
+
+Constraints:
+bloomDay.length == n
+1 <= n <= 10^5
+1 <= bloomDay[i] <= 10^9
+1 <= m <= 10^6
+1 <= k <= n
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. If we can make m or more bouquets at day x, then we can still make m or more bouquets at any day y > x.
+2. We can check easily if we can make enough bouquets at day x if we can get group adjacent flowers at day x.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int minDays(int* bloomDay, int bloomDaySize, int m, int k) {
+    int retVal = -1;
+
+    long flowers = (long)m * (long)k;
+    if (flowers > bloomDaySize) {
+        return retVal;
+    }
+
+    int left = 0;
+    int right = bloomDay[0];
+    int i;
+    for (i = 1; i < bloomDaySize; ++i) {
+        right = fmax(right, bloomDay[i]);
+    }
+
+    int bouquets, count;
+    int middle;
+    while (left <= right) {
+        middle = (left + right) / 2;
+
+        bouquets = 0;
+        count = 0;
+        for (i = 0; i < bloomDaySize; ++i) {
+            if (bloomDay[i] <= middle) {
+                count += 1;
+            } else {
+                count = 0;
+            }
+
+            if (count == k) {
+                bouquets += 1;
+                count = 0;
+            }
+        }
+
+        if (bouquets >= m) {
+            retVal = middle;
+            right = middle - 1;
+        } else {
+            left = middle + 1;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minDays(vector<int>& bloomDay, int m, int k) {
+        int retVal = -1;
+
+        int bloomDaySize = bloomDay.size();
+        long flowers = (long)m * (long)k;
+        if (flowers > bloomDaySize) {
+            return retVal;
+        }
+
+        int left = 0;
+        int right = *max_element(bloomDay.begin(), bloomDay.end());
+        while (left <= right) {
+            int middle = (left + right) / 2;
+
+            int bouquets = 0;
+            int count = 0;
+            for (int day : bloomDay) {
+                if (day <= middle) {
+                    count += 1;
+                } else {
+                    count = 0;
+                }
+
+                if (count == k) {
+                    bouquets += 1;
+                    count = 0;
+                }
+            }
+
+            if (bouquets >= m) {
+                retVal = middle;
+                right = middle - 1;
+            } else {
+                left = middle + 1;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minDays(self, bloomDay: List[int], m: int, k: int) -> int:
+        retVal = -1
+
+        bloomDaySize = len(bloomDay)
+        if m * k > bloomDaySize:
+            return retVal
+
+        left = 0
+        right = max(bloomDay)
+        while left <= right:
+            middle = (left + right) // 2
+
+            bouquets = 0
+            count = 0
+            for day in bloomDay:
+                if day <= middle:
+                    count += 1
+                else:
+                    count = 0
+
+                if count == k:
+                    bouquets += 1
+                    count = 0
+
+            if bouquets >= m:
+                retVal = middle
+                right = middle - 1
+            else:
+                left = middle + 1
+
+        return retVal
+```
+
+</details>
+
 ## [1539. Kth Missing Positive Number](https://leetcode.com/problems/kth-missing-positive-number/)  1295
 
 - [Official](https://leetcode.cn/problems/kth-missing-positive-number/solutions/391243/di-k-ge-que-shi-de-zheng-zheng-shu-by-leetcode-sol)
