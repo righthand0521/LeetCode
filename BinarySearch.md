@@ -3722,6 +3722,230 @@ class Solution {
 
 </details>
 
+## [1552. Magnetic Force Between Two Balls](https://leetcode.com/problems/magnetic-force-between-two-balls/)  1919
+
+- [Official](https://leetcode.com/problems/magnetic-force-between-two-balls/editorial/)
+- [Official](https://leetcode.cn/problems/magnetic-force-between-two-balls/solutions/403701/liang-qiu-zhi-jian-de-ci-li-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+In the universe Earth C-137,
+Rick discovered a special form of magnetic force between two balls if they are put in his new invented basket.
+Rick has n empty baskets, the ith basket is at position[i],
+Morty has m balls and needs to distribute the balls into the baskets
+such that the minimum magnetic force between any two balls is maximum.
+
+Rick stated that magnetic force between two different balls at positions x and y is |x - y|.
+
+Given the integer array position and the integer m. Return the required force.
+
+Example 1:
+Input: position = [1,2,3,4,7], m = 3
+Output: 3
+Explanation: Distributing the 3 balls into baskets 1, 4 and 7 will make the magnetic force between ball pairs [3, 3, 6].
+The minimum magnetic force is 3. We cannot achieve a larger minimum magnetic force than 3.
+
+Example 2:
+Input: position = [5,4,3,2,1,1000000000], m = 2
+Output: 999999999
+Explanation: We can use baskets 1 and 1000000000.
+
+Constraints:
+n == position.length
+2 <= n <= 10^5
+1 <= position[i] <= 10^9
+All integers in position are distinct.
+2 <= m <= position.length
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. If you can place balls such that the answer is x then you can do it for y where y < x.
+2. Similarly if you cannot place balls such that the answer is x then you can do it for y where y > x.
+3. Binary search on the answer and greedily see if it is possible.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// Check if we can place 'm' balls at 'position' with each ball having at least 'x' gap.
+bool canPlaceBalls(int x, int* position, int positionSize, int m) {
+    bool retVal = false;
+
+    // Place the first ball at the first position.
+    int prevBallPos = position[0];
+    int ballsPlaced = 1;
+
+    // Iterate on each 'position' and place a ball there if we can place it.
+    int currPos;
+    int i;
+    for (i = 1; i < positionSize && ballsPlaced < m; ++i) {
+        currPos = position[i];
+
+        // Check if we can place the ball at the current position.
+        if (currPos - prevBallPos >= x) {
+            ballsPlaced += 1;
+            prevBallPos = currPos;
+        }
+    }
+    // If all 'm' balls are placed, return 'true'.
+    if (ballsPlaced == m) {
+        retVal = true;
+    }
+
+    return retVal;
+}
+int compareInteger(const void* n1, const void* n2) {
+    // ascending order
+    return (*(int*)n1 > *(int*)n2);
+}
+int maxDistance(int* position, int positionSize, int m) {
+    int retVal = 0;
+
+    qsort(position, positionSize, sizeof(int), compareInteger);
+
+    // Initial search space.
+    int middle;
+    int low = 1;
+    int high = ceil(position[positionSize - 1] / (m - 1.0));
+    while (low <= high) {
+        middle = low + (high - low) / 2;
+
+        // If we can place all balls having a gap at least 'mid',
+        if (canPlaceBalls(middle, position, positionSize, m)) {
+            retVal = middle;   // then 'mid' can be our answer,
+            low = middle + 1;  // and discard the left half search space.
+        } else {
+            high = middle - 1;  // Discard the right half search space.
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    // Check if we can place 'm' balls at 'position' with each ball having at least 'x' gap.
+    bool canPlaceBalls(int x, vector<int>& position, int m) {
+        bool retVal = false;
+
+        int positionSize = position.size();
+
+        // Place the first ball at the first position.
+        int prevBallPos = position[0];
+        int ballsPlaced = 1;
+
+        // Iterate on each 'position' and place a ball there if we can place it.
+        for (int i = 1; i < positionSize && ballsPlaced < m; ++i) {
+            int currPos = position[i];
+
+            // Check if we can place the ball at the current position.
+            if (currPos - prevBallPos >= x) {
+                ballsPlaced += 1;
+                prevBallPos = currPos;
+            }
+        }
+        // If all 'm' balls are placed, return 'true'.
+        if (ballsPlaced == m) {
+            retVal = true;
+        }
+
+        return retVal;
+    }
+    int maxDistance(vector<int>& position, int m) {
+        int retVal = 0;
+
+        int positionSize = position.size();
+
+        sort(position.begin(), position.end());
+
+        // Initial search space.
+        int low = 1;
+        int high = ceil(position[positionSize - 1] / (m - 1.0));
+        while (low <= high) {
+            int middle = low + (high - low) / 2;
+
+            // If we can place all balls having a gap at least 'mid',
+            if (canPlaceBalls(middle, position, m)) {
+                retVal = middle;   // then 'mid' can be our answer,
+                low = middle + 1;  // and discard the left half search space.
+            } else {
+                high = middle - 1;  // Discard the right half search space.
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    # Check if we can place 'm' balls at 'position' with each ball having at least 'x' gap.
+    def canPlaceBalls(self, x: int, position: List[int],  m: int) -> bool:
+        retVal = False
+
+        positionSize = len(position)
+
+        # Place the first ball at the first position.
+        prev_ball_pos = position[0]
+        balls_placed = 1
+
+        # Iterate on each 'position' and place a ball there if we can place it.
+        for i in range(1, positionSize):
+
+            # Check if we can place the ball at the current position.
+            curr_pos = position[i]
+            if curr_pos - prev_ball_pos >= x:
+                balls_placed += 1
+                prev_ball_pos = curr_pos
+
+            # If all 'm' balls are placed, return 'True'.
+            if balls_placed == m:
+                retVal = True
+                break
+
+        return retVal
+
+    def maxDistance(self, position: List[int], m: int) -> int:
+        retVal = 0
+
+        position.sort()
+
+        # Initial search space.
+        low = 1
+        high = int(position[-1] / (m - 1.0)) + 1
+        while low <= high:
+            middle = low + (high - low) // 2
+
+            # If we can place all balls having a gap at least 'mid',
+            if self.canPlaceBalls(middle, position, m):
+                retVal = middle    # then 'mid' can be our answer,
+                low = middle + 1   # and discard the left half search space.
+            else:
+                high = middle - 1  # Discard the right half search space.
+
+        return retVal
+```
+
+</details>
+
 ## [1802. Maximum Value at a Given Index in a Bounded Array](https://leetcode.com/problems/maximum-value-at-a-given-index-in-a-bounded-array/)  1929
 
 - [Official](https://leetcode.com/problems/maximum-value-at-a-given-index-in-a-bounded-array/editorial/)
