@@ -2098,6 +2098,157 @@ class Solution:
 
 </details>
 
+## [1248. Count Number of Nice Subarrays](https://leetcode.com/problems/count-number-of-nice-subarrays/)  1623
+
+- [Official](https://leetcode.com/problems/count-number-of-nice-subarrays/editorial/)
+- [Official](https://leetcode.cn/problems/count-number-of-nice-subarrays/solutions/211268/tong-ji-you-mei-zi-shu-zu-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+Given an array of integers nums and an integer k. A continuous subarray is called nice if there are k odd numbers on it.
+
+Return the number of nice sub-arrays.
+
+Example 1:
+Input: nums = [1,1,2,1,1], k = 3
+Output: 2
+Explanation: The only sub-arrays with 3 odd numbers are [1,1,2,1] and [1,2,1,1].
+
+Example 2:
+Input: nums = [2,4,6], k = 1
+Output: 0
+Explanation: There are no odd numbers in the array.
+
+Example 3:
+Input: nums = [2,2,2,1,2,2,1,2,2,2], k = 2
+Output: 16
+
+Constraints:
+1 <= nums.length <= 50000
+1 <= nums[i] <= 10^5
+1 <= k <= nums.length
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. After replacing each even by zero and every odd by one can we use prefix sum to find answer ?
+2. Can we use two pointers to count number of sub-arrays ?
+3. Can we store indices of odd numbers and for each k indices count number of sub-arrays contains them ?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int numberOfSubarrays(int* nums, int numsSize, int k) {
+    int retVal = 0;
+
+    int initialGap = 0;
+    int qsize = 0;
+    int start = 0;
+    for (int end = 0; end < numsSize; ++end) {
+        // If current element is odd, increment qsize by 1.
+        if (nums[end] % 2 == 1) {
+            qsize += 1;
+        }
+
+        if (qsize == k) {
+            initialGap = 0;
+
+            // Calculate the number of even elements in the beginning of subarray.
+            while (qsize == k) {
+                qsize -= nums[start] % 2;
+                initialGap += 1;
+                start += 1;
+            }
+        }
+
+        retVal += initialGap;
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int numberOfSubarrays(vector<int>& nums, int k) {
+        int retVal = 0;
+
+        int numsSize = nums.size();
+
+        int initialGap = 0;
+        int qsize = 0;
+        int start = 0;
+        for (int end = 0; end < numsSize; ++end) {
+            // If current element is odd, increment qsize by 1.
+            if (nums[end] % 2 == 1) {
+                qsize += 1;
+            }
+
+            if (qsize == k) {
+                initialGap = 0;
+
+                // Calculate the number of even elements in the beginning of subarray.
+                while (qsize == k) {
+                    qsize -= nums[start] % 2;
+                    initialGap += 1;
+                    start += 1;
+                }
+            }
+
+            retVal += initialGap;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def numberOfSubarrays(self, nums: List[int], k: int) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+
+        initialGap = 0
+        qsize = 0
+        start = 0
+        for end in range(numsSize):
+            # If current element is odd, increment qsize by 1.
+            if nums[end] % 2 == 1:
+                qsize += 1
+
+            if qsize == k:
+                initialGap = 0
+
+                while qsize == k:   # Calculate the number of even elements in the beginning of subarray.
+                    qsize -= nums[start] % 2
+                    initialGap += 1
+                    start += 1
+
+            retVal += initialGap
+
+        return retVal
+```
+
+</details>
+
 ## [1343. Number of Sub-arrays of Size K and Average Greater than or Equal to Threshold](https://leetcode.com/problems/number-of-sub-arrays-of-size-k-and-average-greater-than-or-equal-to-threshold/)  1317
 
 <details><summary>Description</summary>
