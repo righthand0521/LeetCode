@@ -2834,6 +2834,204 @@ class Solution:
 
 </details>
 
+## [1438. Longest Continuous Subarray With Absolute Diff Less Than or Equal to Limit](https://leetcode.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/)  1672
+
+- [Official](https://leetcode.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/editorial/)
+- [Official](https://leetcode.cn/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/solutions/612688/jue-dui-chai-bu-chao-guo-xian-zhi-de-zui-5bki/)
+
+<details><summary>Description</summary>
+
+```text
+Given an array of integers nums and an integer limit, return the size of the longest non-empty subarray
+such that the absolute difference between any two elements of this subarray is less than or equal to limit.
+
+Example 1:
+Input: nums = [8,2,4,7], limit = 4
+Output: 2
+Explanation: All subarrays are:
+[8] with maximum absolute diff |8-8| = 0 <= 4.
+[8,2] with maximum absolute diff |8-2| = 6 > 4.
+[8,2,4] with maximum absolute diff |8-2| = 6 > 4.
+[8,2,4,7] with maximum absolute diff |8-2| = 6 > 4.
+[2] with maximum absolute diff |2-2| = 0 <= 4.
+[2,4] with maximum absolute diff |2-4| = 2 <= 4.
+[2,4,7] with maximum absolute diff |2-7| = 5 > 4.
+[4] with maximum absolute diff |4-4| = 0 <= 4.
+[4,7] with maximum absolute diff |4-7| = 3 <= 4.
+[7] with maximum absolute diff |7-7| = 0 <= 4.
+Therefore, the size of the longest subarray is 2.
+
+Example 2:
+Input: nums = [10,1,2,4,7,2], limit = 5
+Output: 4
+Explanation: The subarray [2,4,7,2] is the longest since the maximum absolute diff is |2-7| = 5 <= 5.
+
+Example 3:
+Input: nums = [4,2,2,2,4,4,2,2], limit = 0
+Output: 3
+
+Constraints:
+1 <= nums.length <= 10^5
+1 <= nums[i] <= 10^9
+0 <= limit <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use a sliding window approach keeping the maximum and minimum value
+   using a data structure like a multiset from STL in C++.
+2. More specifically, use the two pointer technique, moving the right pointer as far as possible to the right
+   until the subarray is not valid (maxValue - minValue > limit), then moving the left pointer
+   until the subarray is valid again (maxValue - minValue <= limit). Keep repeating this process.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int longestSubarray(int* nums, int numsSize, int limit) {
+    int retVal = 0;
+
+    int maxDequeLeft = 0;
+    int maxDequeRight = 0;
+    int maxDeque[numsSize];
+    memset(maxDeque, 0, sizeof(maxDeque));
+
+    int minDequeLeft = 0;
+    int minDequeRight = 0;
+    int minDeque[numsSize];
+    memset(minDeque, 0, sizeof(minDeque));
+
+    int left = 0;
+    int right = 0;
+    for (right = 0; right < numsSize; right++) {
+        // Maintain the maxDeque in decreasing order
+        while ((maxDequeLeft < maxDequeRight) && (maxDeque[maxDequeRight - 1] < nums[right])) {
+            maxDequeRight--;
+        }
+        maxDeque[maxDequeRight++] = nums[right];
+
+        // Maintain the minDeque in increasing order
+        while ((minDequeLeft < minDequeRight) && (minDeque[minDequeRight - 1] > nums[right])) {
+            minDequeRight--;
+        }
+        minDeque[minDequeRight++] = nums[right];
+
+        // Check if the current window exceeds the limit
+        while ((maxDequeLeft < maxDequeRight) && (minDequeLeft < minDequeRight) &&
+               (maxDeque[maxDequeLeft] - minDeque[minDequeLeft] > limit)) {
+            // Remove the elements that are out of the current window
+            if (maxDeque[maxDequeLeft] == nums[left]) {
+                maxDequeLeft++;
+            }
+            if (minDeque[minDequeLeft] == nums[left]) {
+                minDequeLeft++;
+            }
+
+            left++;
+        }
+        retVal = fmax(retVal, right - left + 1);
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int longestSubarray(vector<int>& nums, int limit) {
+        int retVal = 0;
+
+        deque<int> maxDeque;
+        deque<int> minDeque;
+        int numsSize = nums.size();
+        int left = 0;
+        int right = 0;
+        for (right = 0; right < numsSize; ++right) {
+            // Maintain the maxDeque in decreasing order
+            while ((maxDeque.empty() == false) && (maxDeque.back() < nums[right])) {
+                maxDeque.pop_back();
+            }
+            maxDeque.push_back(nums[right]);
+
+            // Maintain the minDeque in increasing order
+            while ((minDeque.empty() == false) && (minDeque.back() > nums[right])) {
+                minDeque.pop_back();
+            }
+            minDeque.push_back(nums[right]);
+
+            // Check if the current window exceeds the limit
+            while (maxDeque.front() - minDeque.front() > limit) {
+                // Remove the elements that are out of the current window
+                if (maxDeque.front() == nums[left]) {
+                    maxDeque.pop_front();
+                }
+                if (minDeque.front() == nums[left]) {
+                    minDeque.pop_front();
+                }
+
+                ++left;
+            }
+
+            retVal = max(retVal, right - left + 1);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def longestSubarray(self, nums: List[int], limit: int) -> int:
+        retVal = 0
+
+        maxDeque = deque()
+        minDeque = deque()
+        numsSize = len(nums)
+        left = 0
+        right = 0
+        for right in range(numsSize):
+            # Maintain the maxDeque in decreasing order
+            while (maxDeque) and (maxDeque[-1] < nums[right]):
+                maxDeque.pop()
+            maxDeque.append(nums[right])
+
+            # Maintain the minDeque in increasing order
+            while (minDeque) and (minDeque[-1] > nums[right]):
+                minDeque.pop()
+            minDeque.append(nums[right])
+
+            # Check if the current window exceeds the limit
+            while maxDeque[0] - minDeque[0] > limit:
+                # Remove the elements that are out of the current window
+                if maxDeque[0] == nums[left]:
+                    maxDeque.popleft()
+                if minDeque[0] == nums[left]:
+                    minDeque.popleft()
+
+                left += 1
+
+            retVal = max(retVal, right - left + 1)
+
+        return retVal
+```
+
+</details>
+
 ## [1675. Minimize Deviation in Array](https://leetcode.com/problems/minimize-deviation-in-array/)  2533
 
 <details><summary>Description</summary>
