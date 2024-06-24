@@ -2140,6 +2140,141 @@ class Solution:
 
 </details>
 
+## [995. Minimum Number of K Consecutive Bit Flips](https://leetcode.com/problems/minimum-number-of-k-consecutive-bit-flips/)  1835
+
+- [Official](https://leetcode.com/problems/minimum-number-of-k-consecutive-bit-flips/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-number-of-k-consecutive-bit-flips/solutions/607416/k-lian-xu-wei-de-zui-xiao-fan-zhuan-ci-s-bikk/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a binary array nums and an integer k.
+
+A k-bit flip is choosing a subarray of length k from nums and
+simultaneously changing every 0 in the subarray to 1, and every 1 in the subarray to 0.
+
+Return the minimum number of k-bit flips required so that there is no 0 in the array. If it is not possible, return -1.
+
+A subarray is a contiguous part of an array.
+
+Example 1:
+Input: nums = [0,1,0], k = 1
+Output: 2
+Explanation: Flip nums[0], then flip nums[2].
+
+Example 2:
+Input: nums = [1,1,0], k = 2
+Output: -1
+Explanation: No matter how we flip subarrays of size 2, we cannot make the array become [1,1,1].
+
+Example 3:
+Input: nums = [0,0,0,1,0,1,1,0], k = 3
+Output: 3
+Explanation:
+Flip nums[0],nums[1],nums[2]: nums becomes [1,1,1,1,0,1,1,0]
+Flip nums[4],nums[5],nums[6]: nums becomes [1,1,1,1,1,0,0,0]
+Flip nums[5],nums[6],nums[7]: nums becomes [1,1,1,1,1,1,1,1]
+
+
+Constraints:
+1 <= nums.length <= 10^5
+1 <= k <= nums.length
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int minKBitFlips(int* nums, int numsSize, int k) {
+    int retVal = 0;
+
+    int revCnt = 0;
+    int i;
+    for (i = 0; i < numsSize; ++i) {
+        if ((i >= k) && (nums[i - k] > 1)) {
+            revCnt ^= 1;
+            nums[i - k] -= 2;
+        }
+
+        if (nums[i] == revCnt) {
+            if (i + k > numsSize) {
+                retVal = -1;
+                break;
+            }
+            ++retVal;
+            revCnt ^= 1;
+            nums[i] += 2;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minKBitFlips(vector<int>& nums, int k) {
+        int retVal = 0;
+
+        int numsSize = nums.size();
+        int revCnt = 0;
+        for (int i = 0; i < numsSize; ++i) {
+            if ((i >= k) && (nums[i - k] > 1)) {
+                revCnt ^= 1;
+                nums[i - k] -= 2;
+            }
+
+            if (nums[i] == revCnt) {
+                if (i + k > numsSize) {
+                    retVal = -1;
+                    break;
+                }
+                ++retVal;
+                revCnt ^= 1;
+                nums[i] += 2;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minKBitFlips(self, nums: List[int], k: int) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+        revCnt = 0
+        for i in range(numsSize):
+            if (i >= k) and (nums[i - k] > 1):
+                revCnt ^= 1
+                nums[i - k] -= 2
+
+            if nums[i] == revCnt:
+                if i + k > numsSize:
+                    retVal = -1
+                    break
+                retVal += 1
+                revCnt ^= 1
+                nums[i] += 2
+
+        return retVal
+```
+
+</details>
+
 ## [1318. Minimum Flips to Make a OR b Equal to c](https://leetcode.com/problems/minimum-flips-to-make-a-or-b-equal-to-c/)  1382
 
 - [Official](https://leetcode.com/problems/minimum-flips-to-make-a-or-b-equal-to-c/editorial/)
