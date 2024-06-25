@@ -85,6 +85,13 @@
 
 </details>
 
+<details><summary>Greater Sum Tree</summary>
+
+- [538. Convert BST to Greater Tree](https://leetcode.com/problems/convert-bst-to-greater-tree/)
+- [1038. Binary Search Tree to Greater Sum Tree](https://leetcode.com/problems/binary-search-tree-to-greater-sum-tree/)
+
+</details>
+
 ## Bit Manipulation
 
 <details><summary>Single Number</summary>
