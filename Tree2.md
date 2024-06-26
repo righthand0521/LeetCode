@@ -1246,6 +1246,242 @@ class Solution:
 
 </details>
 
+## [1382. Balance a Binary Search Tree](https://leetcode.com/problems/balance-a-binary-search-tree/)  1540
+
+- [Official](https://leetcode.com/problems/balance-a-binary-search-tree/editorial/)
+- [Official](https://leetcode.cn/problems/balance-a-binary-search-tree/solutions/241897/jiang-er-cha-sou-suo-shu-bian-ping-heng-by-leetcod/)
+
+<details><summary>Description</summary>
+
+```text
+Given the root of a binary search tree, return a balanced binary search tree with the same node values.
+If there is more than one answer, return any of them.
+
+A binary search tree is balanced if the depth of the two subtrees of every node never differs by more than 1.
+
+Example 1:
+1           2           3
+ \         / \         / \
+  2       1   3       1   4
+   \  ->       \  ->   \
+    3           4       2
+     \
+      4
+Input: root = [1,null,2,null,3,null,4,null,null]
+Output: [2,1,3,null,null,null,4]
+Explanation: This is not the only correct answer, [3,1,4,null,2] is also correct.
+
+Example 2:
+  2
+ / \
+1   3
+Input: root = [2,1,3]
+Output: [2,1,3]
+
+Constraints:
+The number of nodes in the tree is in the range [1, 10^4].
+1 <= Node.val <= 10^5
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Convert the tree to a sorted array using an in-order traversal.
+2. Construct a new balanced tree from the sorted array recursively.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+void inorderTraversal(struct TreeNode* root, int* inorder, int* inorderSize) {
+    if (root == NULL) {
+        return;
+    }
+
+    inorderTraversal(root->left, inorder, inorderSize);
+    inorder[(*inorderSize)] = root->val;
+    (*inorderSize) += 1;
+    inorderTraversal(root->right, inorder, inorderSize);
+}
+struct TreeNode* createBalancedBST(int* inorder, int start, int end) {
+    struct TreeNode* pRetVal = NULL;
+
+    // Base case: if the start index is greater than the end index, return NULL
+    if (start > end) {
+        return pRetVal;
+    }
+
+    // Find the middle element of the current range
+    int mid = start + (end - start) / 2;
+    // Recursively construct the left and right subtrees
+    struct TreeNode* leftSubtree = createBalancedBST(inorder, start, mid - 1);
+    struct TreeNode* rightSubtree = createBalancedBST(inorder, mid + 1, end);
+    // Create a new node with the middle element and attach the subtrees
+    pRetVal = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    pRetVal->val = inorder[mid];
+    pRetVal->left = leftSubtree;
+    pRetVal->right = rightSubtree;
+
+    return pRetVal;
+}
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+struct TreeNode* balanceBST(struct TreeNode* root) {
+    struct TreeNode* pRetVal = root;
+
+    if (pRetVal == NULL) {
+        return pRetVal;
+    }
+
+#define MAX_TREE_NODE (int)(1e4)  // The number of nodes in the tree is in the range [1, 10^4].
+    // Create a vector to store the inorder traversal of the BST
+    int inorder[MAX_TREE_NODE];
+    memset(inorder, 0, sizeof(inorder));
+    int inorderSize = 0;
+    inorderTraversal(root, inorder, &inorderSize);
+
+    // Construct and return the balanced BST
+    pRetVal = createBalancedBST(inorder, 0, inorderSize - 1);
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   private:
+    void inorderTraversal(TreeNode* root, vector<int>& inorder) {
+        if (root == nullptr) {
+            return;
+        }
+
+        inorderTraversal(root->left, inorder);
+        inorder.push_back(root->val);
+        inorderTraversal(root->right, inorder);
+    }
+    TreeNode* createBalancedBST(const vector<int>& inorder, int start, int end) {
+        TreeNode* pRetVal = nullptr;
+
+        // Base case: if the start index is greater than the end index, return nullptr
+        if (start > end) {
+            return pRetVal;
+        }
+
+        // Find the middle element of the current range
+        int mid = start + (end - start) / 2;
+        // Recursively construct the left and right subtrees
+        TreeNode* leftSubtree = createBalancedBST(inorder, start, mid - 1);
+        TreeNode* rightSubtree = createBalancedBST(inorder, mid + 1, end);
+        // Create a new node with the middle element and attach the subtrees
+        pRetVal = new TreeNode(inorder[mid], leftSubtree, rightSubtree);
+
+        return pRetVal;
+    }
+
+   public:
+    TreeNode* balanceBST(TreeNode* root) {
+        TreeNode* pRetVal = root;
+
+        if (pRetVal == nullptr) {
+            return pRetVal;
+        }
+
+        // Create a vector to store the inorder traversal of the BST
+        vector<int> inorder;
+        inorderTraversal(root, inorder);
+        int inorderSize = inorder.size();
+
+        // Construct and return the balanced BST
+        pRetVal = createBalancedBST(inorder, 0, inorderSize - 1);
+
+        return pRetVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def inorderTraversal(self, root: TreeNode, inorder: list) -> None:
+        if root is None:
+            return
+
+        self.inorderTraversal(root.left, inorder)
+        inorder.append(root.val)
+        self.inorderTraversal(root.right, inorder)
+
+    def create_balanced_bst(self, inorder: list, start: int, end: int) -> TreeNode:
+        retVal = None
+
+        # Base case: if the start index is greater than the end index, return None
+        if start > end:
+            return retVal
+
+        # Find the middle element of the current range
+        mid = start + (end - start) // 2
+        # Recursively construct the left and right subtrees
+        left_subtree = self.create_balanced_bst(inorder, start, mid - 1)
+        right_subtree = self.create_balanced_bst(inorder, mid + 1, end)
+        # Create a new node with the middle element and attach the subtrees
+        retVal = TreeNode(inorder[mid], left_subtree, right_subtree)
+
+        return retVal
+
+    def balanceBST(self, root: TreeNode) -> TreeNode:
+        retVal = root
+
+        if retVal is None:
+            return retVal
+
+        inorder = []
+        self.inorderTraversal(root, inorder)
+        inorderSize = len(inorder)
+
+        retVal = self.create_balanced_bst(inorder, 0, inorderSize - 1)
+
+        return retVal
+```
+
+</details>
+
 ## [1457. Pseudo-Palindromic Paths in a Binary Tree](https://leetcode.com/problems/pseudo-palindromic-paths-in-a-binary-tree/)  1405
 
 - [Official](https://leetcode.com/problems/pseudo-palindromic-paths-in-a-binary-tree/editorial/)
