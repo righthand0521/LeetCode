@@ -6411,6 +6411,123 @@ class Solution:
 
 </details>
 
+## [1791. Find Center of Star Graph](https://leetcode.com/problems/find-center-of-star-graph/)  1286
+
+- [Official](https://leetcode.com/problems/find-center-of-star-graph/editorial/)
+- [Official](https://leetcode.cn/problems/find-center-of-star-graph/solutions/1264727/zhao-chu-xing-xing-tu-de-zhong-xin-jie-d-1xzm/)
+
+<details><summary>Description</summary>
+
+```text
+There is an undirected star graph consisting of n nodes labeled from 1 to n.
+A star graph is a graph where there is one center node and exactly n - 1 edges
+that connect the center node with every other node.
+
+You are given a 2D integer array edges where each edges[i] = [ui, vi] indicates
+that there is an edge between the nodes ui and vi.
+Return the center of the given star graph.
+
+Example 1:
+Input: edges = [[1,2],[2,3],[4,2]]
+Output: 2
+Explanation: As shown in the figure above, node 2 is connected to every other node, so 2 is the center.
+
+Example 2:
+Input: edges = [[1,2],[5,1],[1,3],[1,4]]
+Output: 1
+
+Constraints:
+3 <= n <= 10^5
+edges.length == n - 1
+edges[i].length == 2
+1 <= ui, vi <= n
+ui != vi
+The given edges represent a valid star graph.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int findCenter(int **edges, int edgesSize, int *edgesColSize) {
+    int retVal = 0;
+
+    int degreeCount[edgesSize + 2];
+    memset(degreeCount, 0, sizeof(degreeCount));
+
+    int i;
+    for (i = 0; i < edgesSize; ++i) {
+        degreeCount[edges[i][0]] += 1;
+        degreeCount[edges[i][1]] += 1;
+    }
+
+    for (i = 1; i <= edgesSize + 1; ++i) {
+        if (degreeCount[i] == edgesSize) {
+            retVal = i;
+            break;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int findCenter(vector<vector<int>>& edges) {
+        int retVal = 0;
+
+        int edgesSize = edges.size();
+
+        vector<int> degreeCount(edgesSize + 2, 0);
+        for (auto edge : edges) {
+            degreeCount[edge[0]] += 1;
+            degreeCount[edge[1]] += 1;
+        }
+
+        for (int i = 1; i <= edgesSize + 1; ++i) {
+            if (degreeCount[i] == edgesSize) {
+                retVal = i;
+                break;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def findCenter(self, edges: List[List[int]]) -> int:
+        retVal = 0
+
+        degreeCount = defaultdict(int)
+        for u, v in edges:
+            degreeCount[u] += 1
+            degreeCount[v] += 1
+
+        edgesSize = len(edges)
+        for key in degreeCount:
+            if degreeCount[key] == edgesSize:
+                retVal = key
+                break
+
+        return retVal
+```
+
+</details>
+
 ## [1857. Largest Color Value in a Directed Graph](https://leetcode.com/problems/largest-color-value-in-a-directed-graph/)  2312
 
 - [Official](https://leetcode.cn/problems/largest-color-value-in-a-directed-graph/solutions/766070/you-xiang-tu-zhong-zui-da-yan-se-zhi-by-dmtaa/)
