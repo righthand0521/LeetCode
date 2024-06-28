@@ -1059,6 +1059,150 @@ class Solution {
 
 </details>
 
+## [2285. Maximum Total Importance of Roads](https://leetcode.com/problems/maximum-total-importance-of-roads/)  1496
+
+- [Official](https://leetcode.com/problems/maximum-total-importance-of-roads/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer n denoting the number of cities in a country. The cities are numbered from 0 to n - 1.
+
+You are also given a 2D integer array roads where roads[i] = [ai, bi]
+denotes that there exists a bidirectional road connecting cities ai and bi.
+
+You need to assign each city with an integer value from 1 to n, where each value can only be used once.
+The importance of a road is then defined as the sum of the values of the two cities it connects.
+
+Return the maximum total importance of all roads possible after assigning the values optimally.
+
+Example 1:
+Input: n = 5, roads = [[0,1],[1,2],[2,3],[0,2],[1,3],[2,4]]
+Output: 43
+Explanation: The figure above shows the country and the assigned values of [2,4,5,3,1].
+- The road (0,1) has an importance of 2 + 4 = 6.
+- The road (1,2) has an importance of 4 + 5 = 9.
+- The road (2,3) has an importance of 5 + 3 = 8.
+- The road (0,2) has an importance of 2 + 5 = 7.
+- The road (1,3) has an importance of 4 + 3 = 7.
+- The road (2,4) has an importance of 5 + 1 = 6.
+The total importance of all roads is 6 + 9 + 8 + 7 + 7 + 6 = 43.
+It can be shown that we cannot obtain a greater total importance than 43.
+
+Example 2:
+Input: n = 5, roads = [[0,3],[2,4],[1,3]]
+Output: 20
+Explanation: The figure above shows the country and the assigned values of [4,3,2,5,1].
+- The road (0,3) has an importance of 4 + 5 = 9.
+- The road (2,4) has an importance of 2 + 1 = 3.
+- The road (1,3) has an importance of 3 + 5 = 8.
+The total importance of all roads is 9 + 3 + 8 = 20.
+It can be shown that we cannot obtain a greater total importance than 20.
+
+Constraints:
+2 <= n <= 5 * 10^4
+1 <= roads.length <= 5 * 10^4
+roads[i].length == 2
+0 <= ai, bi <= n - 1
+ai != bi
+There are no duplicate roads.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Consider what each city contributes to the total importance of all roads.
+2. Based on that, how can you sort the cities
+   such that assigning them values in that order will yield the maximum total importance?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareInteger(const void* n1, const void* n2) {
+    // ascending order
+    return (*(int*)n1 > *(int*)n2);
+}
+long long maximumImportance(int n, int** roads, int roadsSize, int* roadsColSize) {
+    long long retVal = 0;
+
+    int degree[n];
+    memset(degree, 0, sizeof(degree));
+
+    int i;
+    for (i = 0; i < roadsSize; ++i) {
+        degree[roads[i][0]] += 1;
+        degree[roads[i][1]] += 1;
+    }
+    qsort(degree, n, sizeof(int), compareInteger);
+
+    long long value = 1;
+    for (i = 0; i < n; ++i) {
+        retVal += (value * degree[i]);
+        value += 1;
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    long long maximumImportance(int n, vector<vector<int>>& roads) {
+        long long retVal = 0;
+
+        vector<int> degree(n, 0);
+        for (auto road : roads) {
+            degree[road[0]] += 1;
+            degree[road[1]] += 1;
+        }
+        sort(degree.begin(), degree.end());
+
+        long long value = 1;
+        for (int d : degree) {
+            retVal += (value * d);
+            value += 1;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maximumImportance(self, n: int, roads: List[List[int]]) -> int:
+        retVal = 0
+
+        degree = [0] * n
+        for edge in roads:
+            degree[edge[0]] += 1
+            degree[edge[1]] += 1
+        degree.sort()
+
+        value = 1
+        for d in degree:
+            retVal += (value * d)
+            value += 1
+
+        return retVal
+```
+
+</details>
+
 ## [2316. Count Unreachable Pairs of Nodes in an Undirected Graph](https://leetcode.com/problems/count-unreachable-pairs-of-nodes-in-an-undirected-graph/)  1604
 
 <details><summary>Description</summary>
