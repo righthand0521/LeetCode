@@ -870,6 +870,354 @@ class Solution:
 
 </details>
 
+## [2192. All Ancestors of a Node in a Directed Acyclic Graph](https://leetcode.com/problems/all-ancestors-of-a-node-in-a-directed-acyclic-graph/)  1787
+
+- [Official](https://leetcode.com/problems/all-ancestors-of-a-node-in-a-directed-acyclic-graph/editorial/)
+- [Official](https://leetcode.cn/problems/all-ancestors-of-a-node-in-a-directed-acyclic-graph/solutions/1364674/you-xiang-wu-huan-tu-zhong-yi-ge-jie-dia-6ed5/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a positive integer n representing the number of nodes of a Directed Acyclic Graph (DAG).
+The nodes are numbered from 0 to n - 1 (inclusive).
+
+You are also given a 2D integer array edges, where edges[i] = [fromi, toi] denotes
+that there is a unidirectional edge from fromi to toi in the graph.
+
+Return a list answer, where answer[i] is the list of ancestors of the ith node, sorted in ascending order.
+
+A node u is an ancestor of another node v if u can reach v via a set of edges.
+
+Example 1:
+Input: n = 8, edgeList = [[0,3],[0,4],[1,3],[2,4],[2,7],[3,5],[3,6],[3,7],[4,6]]
+Output: [[],[],[],[0,1],[0,2],[0,1,3],[0,1,2,3,4],[0,1,2,3]]
+Explanation:
+The above diagram represents the input graph.
+- Nodes 0, 1, and 2 do not have any ancestors.
+- Node 3 has two ancestors 0 and 1.
+- Node 4 has two ancestors 0 and 2.
+- Node 5 has three ancestors 0, 1, and 3.
+- Node 6 has five ancestors 0, 1, 2, 3, and 4.
+- Node 7 has four ancestors 0, 1, 2, and 3.
+
+Example 2:
+Input: n = 5, edgeList = [[0,1],[0,2],[0,3],[0,4],[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]]
+Output: [[],[0],[0,1],[0,1,2],[0,1,2,3]]
+Explanation:
+The above diagram represents the input graph.
+- Node 0 does not have any ancestor.
+- Node 1 has one ancestor 0.
+- Node 2 has two ancestors 0 and 1.
+- Node 3 has three ancestors 0, 1, and 2.
+- Node 4 has four ancestors 0, 1, 2, and 3.
+
+Constraints:
+1 <= n <= 1000
+0 <= edges.length <= min(2000, n * (n - 1) / 2)
+edges[i].length == 2
+0 <= fromi, toi <= n - 1
+fromi != toi
+There are no duplicate edges.
+The graph is directed and acyclic.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Consider how reversing each edge of the graph can help us.
+2. How can performing BFS/DFS on the reversed graph help us find the ancestors of every node?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    UT_hash_handle hh;
+};
+struct hashTable *hashFindItem(struct hashTable **obj, int key) {
+    struct hashTable *pRetVal = NULL;
+
+    HASH_FIND_INT(*obj, &key, pRetVal);
+
+    return pRetVal;
+}
+bool hashAddItem(struct hashTable **obj, int key) {
+    bool retVal = false;
+
+    if (hashFindItem(obj, key)) {
+        return retVal;
+    }
+    struct hashTable *pEntry = (struct hashTable *)malloc(sizeof(struct hashTable));
+    if (pEntry == NULL) {
+        perror("malloc");
+        return retVal;
+    }
+    pEntry->key = key;
+    HASH_ADD_INT(*obj, key, pEntry);
+    retVal = true;
+
+    return retVal;
+}
+void freeAll(struct hashTable **pFree) {
+    struct hashTable *current = NULL;
+    struct hashTable *tmp = NULL;
+    HASH_ITER(hh, (*pFree), current, tmp) {
+        // printf("%d\n", (*pFree)->key);
+        HASH_DEL((*pFree), current);
+        free(current);
+    }
+}
+struct ListNode *creatListNode(int val) {
+    struct ListNode *pRetVal = NULL;
+
+    pRetVal = (struct ListNode *)malloc(sizeof(struct ListNode));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    pRetVal->val = val;
+    pRetVal->next = NULL;
+
+    return pRetVal;
+}
+int compareInteger(const void *n1, const void *n2) {
+    // ascending order
+    return (*(int *)n1 > *(int *)n2);
+}
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int **getAncestors(int n, int **edges, int edgesSize, int *edgesColSize, int *returnSize, int **returnColumnSizes) {
+    int **pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    //
+    pRetVal = (int **)malloc(n * sizeof(int *));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    (*returnColumnSizes) = (int *)malloc(n * sizeof(int));
+    if ((*returnColumnSizes) == NULL) {
+        perror("malloc");
+        free(pRetVal);
+        pRetVal = NULL;
+        return pRetVal;
+    }
+    memset((*returnColumnSizes), 0, (n * sizeof(int)));
+
+    //
+    int i;
+
+    //
+    struct hashTable *ancestorsSetList[n];
+    struct ListNode *adjacencyList[n];
+    int indegree[n];
+    for (i = 0; i < n; i++) {
+        ancestorsSetList[i] = NULL;
+        adjacencyList[i] = NULL;
+        indegree[i] = 0;
+    }
+    struct ListNode *pNode;
+    int from, to;
+    for (i = 0; i < edgesSize; i++) {
+        from = edges[i][0];
+        to = edges[i][1];
+
+        pNode = creatListNode(to);
+        if (pNode == NULL) {
+            continue;
+        }
+        pNode->next = adjacencyList[from];
+        adjacencyList[from] = pNode;
+        indegree[to] += 1;
+    }
+
+    //
+    int nodesWithZeroIndegree[n];
+    int nodesWithZeroIndegreeHead = 0;
+    int nodesWithZeroIndegreeTail = 0;
+    for (i = 0; i < n; ++i) {
+        if (indegree[i] == 0) {
+            nodesWithZeroIndegree[nodesWithZeroIndegreeTail++] = i;
+        }
+    }
+    struct hashTable *pEntry;
+    int currentNode, key, value;
+    while (nodesWithZeroIndegreeHead != nodesWithZeroIndegreeTail) {
+        currentNode = nodesWithZeroIndegree[nodesWithZeroIndegreeHead++];
+        for (pNode = adjacencyList[currentNode]; pNode; pNode = pNode->next) {
+            value = pNode->val;
+            hashAddItem(&ancestorsSetList[value], currentNode);
+
+            for (pEntry = ancestorsSetList[currentNode]; pEntry != NULL; pEntry = pEntry->hh.next) {
+                key = pEntry->key;
+                hashAddItem(&ancestorsSetList[value], key);
+            }
+
+            indegree[value] -= 1;
+            if (indegree[value] == 0) {
+                nodesWithZeroIndegree[nodesWithZeroIndegreeTail++] = value;
+            }
+        }
+    }
+
+    //
+    int idx;
+    int ancestorsSetListCount;
+    for (i = 0; i < n; ++i) {
+        ancestorsSetListCount = HASH_COUNT(ancestorsSetList[i]);
+
+        (*returnColumnSizes)[i] = ancestorsSetListCount;
+        pRetVal[i] = (int *)malloc(ancestorsSetListCount * sizeof(int));
+        if (pRetVal[i] == NULL) {
+            perror("malloc");
+            continue;
+        }
+        memset(pRetVal[i], 0, (ancestorsSetListCount * sizeof(int)));
+        (*returnSize) += 1;
+        idx = 0;
+        for (pEntry = ancestorsSetList[i]; pEntry != NULL; pEntry = pEntry->hh.next) {
+            pRetVal[i][idx++] = pEntry->key;
+        }
+        qsort(pRetVal[i], ancestorsSetListCount, sizeof(int), compareInteger);
+
+        freeAll(&ancestorsSetList[i]);
+        ancestorsSetList[i] = NULL;
+        while (adjacencyList[i] != NULL) {
+            pNode = adjacencyList[i];
+            adjacencyList[i] = adjacencyList[i]->next;
+            free(pNode);
+            pNode = NULL;
+        }
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<vector<int>> getAncestors(int n, vector<vector<int>>& edges) {
+        vector<vector<int>> retVal(n);
+
+        vector<vector<int>> adjacencyList(n);
+        for (int i = 0; i < n; i++) {
+            adjacencyList[i] = {};
+        }
+
+        vector<int> indegree(n, 0);
+        for (auto& edge : edges) {
+            int from = edge[0];
+            int to = edge[1];
+            adjacencyList[from].push_back(to);
+            indegree[to]++;
+        }
+        int indegreeSize = indegree.size();
+
+        queue<int> nodesWithZeroIndegree;
+        for (int i = 0; i < indegreeSize; i++) {
+            if (indegree[i] == 0) {
+                nodesWithZeroIndegree.push(i);
+            }
+        }
+
+        vector<int> topologicalOrder;
+        while (nodesWithZeroIndegree.empty() == false) {
+            int currentNode = nodesWithZeroIndegree.front();
+            nodesWithZeroIndegree.pop();
+            topologicalOrder.push_back(currentNode);
+            // Reduce indegree of neighboring nodes and add them to the queue if they have no more incoming edges
+            for (int neighbor : adjacencyList[currentNode]) {
+                indegree[neighbor]--;
+                if (indegree[neighbor] == 0) {
+                    nodesWithZeroIndegree.push(neighbor);
+                }
+            }
+        }
+
+        vector<set<int>> ancestorsSetList(n);
+        // Fill the set list with ancestors using the topological order
+        for (int node : topologicalOrder) {
+            for (int neighbor : adjacencyList[node]) {
+                // Add immediate parent, and other ancestors
+                ancestorsSetList[neighbor].insert(node);
+                ancestorsSetList[neighbor].insert(ancestorsSetList[node].begin(), ancestorsSetList[node].end());
+            }
+        }
+        // Convert sets to lists and sort them
+        int retValSize = retVal.size();
+        for (int i = 0; i < retValSize; i++) {
+            retVal[i].assign(ancestorsSetList[i].begin(), ancestorsSetList[i].end());
+            sort(retVal[i].begin(), retVal[i].end());
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def getAncestors(self, n: int, edges: List[List[int]]) -> List[List[int]]:
+        retVal = [list()]
+
+        adjacencyList = [[] for _ in range(n)]
+        indegree = [0 for _ in range(n)]
+        for edge in edges:
+            fromNode = edge[0]
+            toNode = edge[1]
+            adjacencyList[fromNode].append(toNode)
+            indegree[toNode] += 1
+
+        nodesWithZeroIndegree = [i for i in range(n) if indegree[i] == 0]
+
+        topologicalOrder = []
+        while nodesWithZeroIndegree:
+            currentNode = nodesWithZeroIndegree.pop(0)
+            topologicalOrder.append(currentNode)
+            # Reduce indegree of neighboring nodes and add them to the queue if they have no more incoming edges
+            for neighbor in adjacencyList[currentNode]:
+                indegree[neighbor] -= 1
+                if indegree[neighbor] == 0:
+                    nodesWithZeroIndegree.append(neighbor)
+
+        # Initialize the result list and set list for storing ancestors
+        retVal = [[] for _ in range(n)]
+        ancestorsSetList = [set() for _ in range(n)]
+        # Fill the set list with ancestors using the topological order
+        for node in topologicalOrder:
+            for neighbor in adjacencyList[node]:
+                # Add immediate parent, and other ancestors.
+                ancestorsSetList[neighbor].add(node)
+                ancestorsSetList[neighbor].update(ancestorsSetList[node])
+        # Convert sets to lists and sort them
+        for i in range(n):
+            retVal[i].extend(ancestorsSetList[i])
+            retVal[i].sort()
+
+        return retVal
+```
+
+</details>
+
 ## [2246. Longest Path With Different Adjacent Characters](https://leetcode.com/problems/longest-path-with-different-adjacent-characters/)  2126
 
 - [Official](https://leetcode.com/problems/longest-path-with-different-adjacent-characters/solutions/2889382/longest-path-with-different-adjacent-characters/)
