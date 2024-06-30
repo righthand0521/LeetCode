@@ -5,6 +5,263 @@
 - [Topological sorting](https://en.wikipedia.org/wiki/Topological_sorting)
 - [Union Find](https://en.wikipedia.org/wiki/Disjoint-set_data_structure)
 
+## [130. Surrounded Regions](https://leetcode.com/problems/surrounded-regions/)
+
+- [Official](https://leetcode.cn/problems/surrounded-regions/solutions/369110/bei-wei-rao-de-qu-yu-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an m x n matrix board containing letters 'X' and 'O', capture regions that are surrounded:
+- Connect: A cell is connected to adjacent cells horizontally or vertically.
+- Region: To form a region connect every 'O' cell.
+- Surround: The region is surrounded with 'X' cells if you can connect the region with 'X' cells
+  and none of the region cells are on the edge of the board.
+A surrounded region is captured by replacing all 'O's with 'X's in the input matrix board.
+
+Example 1:
+Input: board = [["X","X","X","X"],["X","O","O","X"],["X","X","O","X"],["X","O","X","X"]]
+Output: [["X","X","X","X"],["X","X","X","X"],["X","X","X","X"],["X","O","X","X"]]
+Explanation:
+In the above diagram, the bottom region is not captured because it is on the edge of the board and cannot be surrounded.
+
+Example 2:
+Input: board = [["X"]]
+Output: [["X"]]
+
+Constraints:
+m == board.length
+n == board[i].length
+1 <= m, n <= 200
+board[i][j] is 'X' or 'O'.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+const int dx[4] = {1, -1, 0, 0};
+const int dy[4] = {0, 0, 1, -1};
+void solve(char** board, int boardSize, int* boardColSize) {
+    if (boardSize == 0) {
+        return;
+    }
+    int rowSize = boardSize;
+    int colSize = boardColSize[0];
+
+    //
+    int i, j;
+    int bfsQueueHead = 0;
+    int bfsQueueTail = 0;
+    int bfsQueueSize = rowSize * colSize;
+    int** bfsQueue = (int**)malloc(bfsQueueSize * sizeof(int*));
+    if (bfsQueue == NULL) {
+        perror("malloc");
+        return;
+    }
+    for (i = 0; i < bfsQueueSize; i++) {
+        bfsQueue[i] = (int*)malloc(2 * sizeof(int));
+        if (bfsQueue[i] == NULL) {
+            perror("malloc");
+            for (j = 0; j < i; j++) {
+                free(bfsQueue[j]);
+                bfsQueue[j] = NULL;
+            }
+            free(bfsQueue);
+            bfsQueue = NULL;
+            return;
+        }
+        memset(bfsQueue[i], 0, (2 * sizeof(int)));
+    }
+
+    //
+    for (i = 0; i < rowSize; i++) {
+        if (board[i][0] == 'O') {
+            board[i][0] = 'A';
+            bfsQueue[bfsQueueTail][0] = i;
+            bfsQueue[bfsQueueTail][1] = 0;
+            bfsQueueTail++;
+        }
+        if (board[i][colSize - 1] == 'O') {
+            board[i][colSize - 1] = 'A';
+            bfsQueue[bfsQueueTail][0] = i;
+            bfsQueue[bfsQueueTail][1] = colSize - 1;
+            bfsQueueTail++;
+        }
+    }
+    for (i = 1; i < colSize - 1; i++) {
+        if (board[0][i] == 'O') {
+            board[0][i] = 'A';
+            bfsQueue[bfsQueueTail][0] = 0;
+            bfsQueue[bfsQueueTail][1] = i;
+            bfsQueueTail++;
+        }
+        if (board[rowSize - 1][i] == 'O') {
+            board[rowSize - 1][i] = 'A';
+            bfsQueue[bfsQueueTail][0] = rowSize - 1;
+            bfsQueue[bfsQueueTail][1] = i;
+            bfsQueueTail++;
+        }
+    }
+
+    //
+    int row, col, x, y;
+    while (bfsQueueHead < bfsQueueTail) {
+        row = bfsQueue[bfsQueueHead][0];
+        col = bfsQueue[bfsQueueHead][1];
+        bfsQueueHead++;
+        for (i = 0; i < 4; i++) {
+            x = row + dx[i];
+            y = col + dy[i];
+            if ((x < 0) || (y < 0) || (x >= rowSize) || (y >= colSize) || (board[x][y] != 'O')) {
+                continue;
+            }
+            board[x][y] = 'A';
+            bfsQueue[bfsQueueTail][0] = x;
+            bfsQueue[bfsQueueTail][1] = y;
+            bfsQueueTail++;
+        }
+    }
+
+    //
+    for (i = 0; i < rowSize; i++) {
+        for (j = 0; j < colSize; j++) {
+            if (board[i][j] == 'A') {
+                board[i][j] = 'O';
+            } else if (board[i][j] == 'O') {
+                board[i][j] = 'X';
+            }
+        }
+    }
+
+    //
+    for (i = 0; i < bfsQueueSize; i++) {
+        free(bfsQueue[i]);
+        bfsQueue[i] = NULL;
+    }
+    free(bfsQueue);
+    bfsQueue = NULL;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    const int dx[4] = {1, -1, 0, 0};
+    const int dy[4] = {0, 0, 1, -1};
+
+   public:
+    void solve(vector<vector<char>>& board) {
+        int boardSize = board.size();
+        if (boardSize == 0) {
+            return;
+        }
+        int boardColSize = board[0].size();
+
+        queue<pair<int, int>> bfsQueue;
+        for (int i = 0; i < boardSize; i++) {
+            if (board[i][0] == 'O') {
+                bfsQueue.emplace(i, 0);
+                board[i][0] = 'A';
+            }
+            if (board[i][boardColSize - 1] == 'O') {
+                bfsQueue.emplace(i, boardColSize - 1);
+                board[i][boardColSize - 1] = 'A';
+            }
+        }
+        for (int i = 1; i < boardColSize - 1; i++) {
+            if (board[0][i] == 'O') {
+                bfsQueue.emplace(0, i);
+                board[0][i] = 'A';
+            }
+            if (board[boardSize - 1][i] == 'O') {
+                bfsQueue.emplace(boardSize - 1, i);
+                board[boardSize - 1][i] = 'A';
+            }
+        }
+
+        while (bfsQueue.empty() == false) {
+            int row = bfsQueue.front().first;
+            int col = bfsQueue.front().second;
+            bfsQueue.pop();
+            for (int i = 0; i < 4; i++) {
+                int x = row + dx[i];
+                int y = col + dy[i];
+                if ((x < 0) || (y < 0) || (x >= boardSize) || (y >= boardColSize) || (board[x][y] != 'O')) {
+                    continue;
+                }
+                bfsQueue.emplace(x, y);
+                board[x][y] = 'A';
+            }
+        }
+
+        for (int i = 0; i < boardSize; i++) {
+            for (int j = 0; j < boardColSize; j++) {
+                if (board[i][j] == 'A') {
+                    board[i][j] = 'O';
+                } else if (board[i][j] == 'O') {
+                    board[i][j] = 'X';
+                }
+            }
+        }
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def solve(self, board: List[List[str]]) -> None:
+        """
+        Do not return anything, modify board in-place instead.
+        """
+        if board is None:
+            return
+
+        boardSize = len(board)
+        boardColSize = len(board[0])
+
+        bfsQueue = deque()
+        for i in range(boardSize):
+            if board[i][0] == "O":
+                bfsQueue.append((i, 0))
+                board[i][0] = "A"
+            if board[i][boardColSize - 1] == "O":
+                bfsQueue.append((i, boardColSize - 1))
+                board[i][boardColSize - 1] = "A"
+        for i in range(boardColSize - 1):
+            if board[0][i] == "O":
+                bfsQueue.append((0, i))
+                board[0][i] = "A"
+            if board[boardSize - 1][i] == "O":
+                bfsQueue.append((boardSize - 1, i))
+                board[boardSize - 1][i] = "A"
+
+        while bfsQueue:
+            row, col = bfsQueue.popleft()
+            for x, y in [(row - 1, col), (row + 1, col), (row, col - 1), (row, col + 1)]:
+                if (0 <= x < boardSize) and (0 <= y < boardColSize) and (board[x][y] == "O"):
+                    bfsQueue.append((x, y))
+                    board[x][y] = "A"
+
+        for i in range(boardSize):
+            for j in range(boardColSize):
+                if board[i][j] == "A":
+                    board[i][j] = "O"
+                elif board[i][j] == "O":
+                    board[i][j] = "X"
+```
+
+</details>
+
 ## [133. Clone Graph](https://leetcode.com/problems/clone-graph/)
 
 - [Official](https://leetcode.cn/problems/clone-graph/solutions/370663/ke-long-tu-by-leetcode-solution/)
