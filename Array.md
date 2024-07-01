@@ -5665,6 +5665,117 @@ class Solution:
 
 </details>
 
+## [1550. Three Consecutive Odds](https://leetcode.com/problems/three-consecutive-odds/)  1221
+
+- [Official](https://leetcode.com/problems/three-consecutive-odds/editorial/)
+- [Official](https://leetcode.cn/problems/three-consecutive-odds/solutions/382537/cun-zai-lian-xu-san-ge-qi-shu-de-shu-zu-by-leetcod/)
+
+<details><summary>Description</summary>
+
+```text
+Given an integer array arr, return true if there are three consecutive odd numbers in the array. Otherwise, return false.
+
+Example 1:
+Input: arr = [2,6,4,1]
+Output: false
+Explanation: There are no three consecutive odds.
+
+Example 2:
+Input: arr = [1,2,34,3,4,5,7,23,12]
+Output: true
+Explanation: [5,7,23] are three consecutive odds.
+
+Constraints:
+1 <= arr.length <= 1000
+1 <= arr[i] <= 1000
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Check every three consecutive numbers in the array for parity.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool threeConsecutiveOdds(int* arr, int arrSize) {
+    bool retVal = false;
+
+    int consecutiveOdds = 0;
+    int i;
+    for (i = 0; i < arrSize; ++i) {
+        if (arr[i] % 2 == 0) {
+            consecutiveOdds = 0;
+        } else {
+            consecutiveOdds += 1;
+            if (consecutiveOdds == 3) {
+                retVal = true;
+                break;
+            }
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool threeConsecutiveOdds(vector<int>& arr) {
+        bool retVal = false;
+
+        int consecutiveOdds = 0;
+        for (int num : arr) {
+            if (num % 2 == 0) {
+                consecutiveOdds = 0;
+            } else {
+                consecutiveOdds += 1;
+                if (consecutiveOdds == 3) {
+                    retVal = true;
+                    break;
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def threeConsecutiveOdds(self, arr: List[int]) -> bool:
+        retVal = False
+
+        consecutiveOdds = 0
+        for num in arr:
+            if num % 2 == 0:
+                consecutiveOdds = 0
+            else:
+                consecutiveOdds += 1
+                if consecutiveOdds == 3:
+                    retVal = True
+                    break
+
+        return retVal
+```
+
+</details>
+
 ## [1572. Matrix Diagonal Sum](https://leetcode.com/problems/matrix-diagonal-sum/)  1280
 
 - [Official](https://leetcode.com/problems/matrix-diagonal-sum/editorial/)
