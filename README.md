@@ -344,6 +344,13 @@
 
 </details>
 
+<details><summary>Intersection of Two Arrays</summary>
+
+- [349. Intersection of Two Arrays](https://leetcode.com/problems/intersection-of-two-arrays/)
+- [350. Intersection of Two Arrays II](https://leetcode.com/problems/intersection-of-two-arrays-ii/)
+
+</details>
+
 ## Linked List
 
 <details><summary>Reverse Linked List</summary>

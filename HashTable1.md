@@ -3046,6 +3046,8 @@ class Solution:
 
 ## [350. Intersection of Two Arrays II](https://leetcode.com/problems/intersection-of-two-arrays-ii/)
 
+- [Official](https://leetcode.cn/problems/intersection-of-two-arrays-ii/solutions/327356/liang-ge-shu-zu-de-jiao-ji-ii-by-leetcode-solution/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -3078,73 +3080,86 @@ Follow up:
 <details><summary>C</summary>
 
 ```c
-#define HASH_TABLE (1)
-#define SORTING (1)
-#if (HASH_TABLE)
-#elif (SORTING)
-int compareInteger(const void* n1, const void* n2) {
-    // ascending order
-    return (*(int*)n1 > *(int*)n2);
-}
-#endif
 /**
  * Note: The returned array must be malloced, assume caller calls free().
  */
 int* intersect(int* nums1, int nums1Size, int* nums2, int nums2Size, int* returnSize) {
     int* pRetVal = NULL;
 
-    (*returnSize) = (nums1Size > nums2Size) ? nums1Size : nums2Size;
-    pRetVal = (int*)malloc((*returnSize) * sizeof(int));
+    (*returnSize) = 0;
+
+    int maxSize = (nums1Size > nums2Size) ? nums1Size : nums2Size;
+    pRetVal = (int*)malloc(maxSize * sizeof(int));
     if (pRetVal == NULL) {
         perror("malloc");
-        (*returnSize) = 0;
         return pRetVal;
     }
-    memset(pRetVal, -1, ((*returnSize) * sizeof(int)));
+    memset(pRetVal, 0, (maxSize * sizeof(int)));
 
-#if (HASH_TABLE)
-    printf("HASH_TABLE\n");
-
-#define MAX_RECORD (1001)
+#define MAX_RECORD (1001)  // 0 <= nums1[i], nums2[i] <= 1000
     int RECORD[MAX_RECORD];
     memset(RECORD, 0, sizeof(RECORD));
-
     int i;
     for (i = 0; i < nums1Size; ++i) {
         RECORD[nums1[i]]++;
     }
-
-    (*returnSize) = 0;
     for (i = 0; i < nums2Size; ++i) {
         if (RECORD[nums2[i]] != 0) {
             pRetVal[(*returnSize)++] = nums2[i];
             RECORD[nums2[i]]--;
         }
     }
-#elif (SORTING)
-    printf("SORTING\n");
-
-    qsort(nums1, nums1Size, sizeof(int), compareInteger);
-    qsort(nums2, nums2Size, sizeof(int), compareInteger);
-
-    (*returnSize) = 0;
-    int idx1 = 0;
-    int idx2 = 0;
-    while ((idx1 < nums1Size) && (idx2 < nums2Size)) {
-        if (nums1[idx1] == nums2[idx2]) {
-            pRetVal[(*returnSize)++] = nums1[idx1];
-            idx1++;
-            idx2++;
-        } else if (nums1[idx1] > nums2[idx2]) {
-            idx2++;
-        } else if (nums1[idx1] < nums2[idx2]) {
-            idx1++;
-        }
-    }
-#endif
 
     return pRetVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> intersect(vector<int>& nums1, vector<int>& nums2) {
+        vector<int> retVal;
+
+        unordered_map<int, int> hashTable;
+        for (int num : nums1) {
+            hashTable[num] += 1;
+        }
+
+        for (int num : nums2) {
+            if (hashTable[num] != 0) {
+                retVal.push_back(num);
+                hashTable[num] -= 1;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def intersect(self, nums1: List[int], nums2: List[int]) -> List[int]:
+        retVal = []
+
+        hashTable = defaultdict(int)
+        for num in nums1:
+            hashTable[num] += 1
+
+        for num in nums2:
+            if hashTable[num] != 0:
+                retVal.append(num)
+                hashTable[num] -= 1
+
+        return retVal
 ```
 
 </details>

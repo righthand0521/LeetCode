@@ -2,70 +2,35 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define HASH_TABLE (1)
-#define SORTING (1)
-#if (HASH_TABLE)
-#elif (SORTING)
-int compareInteger(const void* n1, const void* n2) {
-    // ascending order
-    return (*(int*)n1 > *(int*)n2);
-}
-#endif
 /**
  * Note: The returned array must be malloced, assume caller calls free().
  */
 int* intersect(int* nums1, int nums1Size, int* nums2, int nums2Size, int* returnSize) {
     int* pRetVal = NULL;
 
-    (*returnSize) = (nums1Size > nums2Size) ? nums1Size : nums2Size;
-    pRetVal = (int*)malloc((*returnSize) * sizeof(int));
+    (*returnSize) = 0;
+
+    int maxSize = (nums1Size > nums2Size) ? nums1Size : nums2Size;
+    pRetVal = (int*)malloc(maxSize * sizeof(int));
     if (pRetVal == NULL) {
         perror("malloc");
-        (*returnSize) = 0;
         return pRetVal;
     }
-    memset(pRetVal, -1, ((*returnSize) * sizeof(int)));
+    memset(pRetVal, 0, (maxSize * sizeof(int)));
 
-#if (HASH_TABLE)
-    printf("HASH_TABLE\n");
-
-#define MAX_RECORD (1001)
+#define MAX_RECORD (1001)  // 0 <= nums1[i], nums2[i] <= 1000
     int RECORD[MAX_RECORD];
     memset(RECORD, 0, sizeof(RECORD));
-
     int i;
     for (i = 0; i < nums1Size; ++i) {
         RECORD[nums1[i]]++;
     }
-
-    (*returnSize) = 0;
     for (i = 0; i < nums2Size; ++i) {
         if (RECORD[nums2[i]] != 0) {
             pRetVal[(*returnSize)++] = nums2[i];
             RECORD[nums2[i]]--;
         }
     }
-#elif (SORTING)
-    printf("SORTING\n");
-
-    qsort(nums1, nums1Size, sizeof(int), compareInteger);
-    qsort(nums2, nums2Size, sizeof(int), compareInteger);
-
-    (*returnSize) = 0;
-    int idx1 = 0;
-    int idx2 = 0;
-    while ((idx1 < nums1Size) && (idx2 < nums2Size)) {
-        if (nums1[idx1] == nums2[idx2]) {
-            pRetVal[(*returnSize)++] = nums1[idx1];
-            idx1++;
-            idx2++;
-        } else if (nums1[idx1] > nums2[idx2]) {
-            idx2++;
-        } else if (nums1[idx1] < nums2[idx2]) {
-            idx1++;
-        }
-    }
-#endif
 
     return pRetVal;
 }
@@ -80,6 +45,13 @@ int main(int argc, char** argv) {
         int returnSize;
     } testCase[] = {{{1, 2, 2, 1}, 4, {2, 2}, 2, 0}, {{4, 9, 5}, 3, {9, 4, 9, 8, 4}, 5, 0}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: nums1 = [1,2,2,1], nums2 = [2,2]
+     *  Output: [2,2]
+     *
+     *  Input: nums1 = [4,9,5], nums2 = [9,4,9,8,4]
+     *  Output: [4,9]
+     */
 
     int* pAnswer = NULL;
     int i, j;
