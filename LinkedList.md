@@ -5902,6 +5902,194 @@ class Solution:
 
 </details>
 
+## [2181. Merge Nodes in Between Zeros](https://leetcode.com/problems/merge-nodes-in-between-zeros/)  1333
+
+- [Official](https://leetcode.com/problems/merge-nodes-in-between-zeros/editorial/)
+- [Official](https://leetcode.cn/problems/merge-nodes-in-between-zeros/solutions/1301107/he-bing-ling-zhi-jian-de-jie-dian-by-lee-zo9b/)
+
+<details><summary>Description</summary>
+
+```text
+You are given the head of a linked list, which contains a series of integers separated by 0's.
+The beginning and end of the linked list will have Node.val == 0.
+
+For every two consecutive 0's, merge all the nodes lying in between them into a single node
+whose value is the sum of all the merged nodes.
+The modified list should not contain any 0's.
+
+Return the head of the modified linked list.
+
+Example 1:
+Input: head = [0,3,1,0,4,5,2,0]
+Output: [4,11]
+Explanation:
+The above figure represents the given linked list. The modified list contains
+- The sum of the nodes marked in green: 3 + 1 = 4.
+- The sum of the nodes marked in red: 4 + 5 + 2 = 11.
+
+Example 2:
+Input: head = [0,1,0,3,0,2,2,0]
+Output: [1,3,4]
+Explanation:
+The above figure represents the given linked list. The modified list contains
+- The sum of the nodes marked in green: 1 = 1.
+- The sum of the nodes marked in red: 3 = 3.
+- The sum of the nodes marked in yellow: 2 + 2 = 4.
+
+Constraints:
+The number of nodes in the list is in the range [3, 2 * 10^5].
+0 <= Node.val <= 1000
+There are no two consecutive nodes with Node.val == 0.
+The beginning and end of the linked list have Node.val == 0.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. How can you use two pointers to modify the original list into the new list?
+2. Have a pointer traverse the entire linked list,
+   while another pointer looks at a node that is currently being modified.
+3. Keep on summing the values of the nodes between the traversal pointer and
+   the modifying pointer until the former comes across a ‘0’.
+   In that case, the modifying pointer is incremented to modify the next node.
+4. Do not forget to have the next pointer of the final node of the modified list point to null.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+struct ListNode* mergeNodes(struct ListNode* head) {
+    struct ListNode* pRetVal = head;
+
+    int sum = 0;
+    struct ListNode* pFree = NULL;
+    struct ListNode* pPrevious = head;
+    struct ListNode* pCurrent = head->next;
+    while (pCurrent != NULL) {
+        if (pCurrent->val != 0) {
+            sum += pCurrent->val;
+            pPrevious->next = pCurrent->next;
+            pFree = pCurrent;
+            free(pFree);
+            pFree = NULL;
+        } else {
+            pCurrent->val = sum;
+            sum = 0;
+            pPrevious = pCurrent;
+        }
+
+        pCurrent = pPrevious->next;
+    }
+    pRetVal = head->next;
+    pFree = head;
+    free(pFree);
+    pFree = NULL;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+   public:
+    ListNode *mergeNodes(ListNode *head) {
+        ListNode *pRetVal = head;
+
+        int sum = 0;
+        ListNode *pFree = nullptr;
+        ListNode *pPrevious = head;
+        ListNode *pCurrent = head->next;
+        while (pCurrent != nullptr) {
+            if (pCurrent->val != 0) {
+                sum += pCurrent->val;
+                pPrevious->next = pCurrent->next;
+                pFree = pCurrent;
+                delete pFree;
+                pFree = nullptr;
+            } else {
+                pCurrent->val = sum;
+                sum = 0;
+                pPrevious = pCurrent;
+            }
+
+            pCurrent = pPrevious->next;
+        }
+        pRetVal = head->next;
+        pFree = head;
+        delete pFree;
+        pFree = nullptr;
+
+        return pRetVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def mergeNodes(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        retVal = head
+
+        modify = head.next
+        nextSum = modify
+        while nextSum:
+            sum = 0
+
+            # Find the sum of all nodes until you encounter a 0.
+            while nextSum.val != 0:
+                sum += nextSum.val
+                nextSum = nextSum.next
+
+            # Assign the sum to the current node's value.
+            modify.val = sum
+
+            # Move nextSum to the first non-zero value of the next block.
+            nextSum = nextSum.next
+
+            # Move modify also to this node.
+            modify.next = nextSum
+            modify = modify.next
+
+        retVal = head.next
+
+        return retVal
+```
+
+</details>
+
 ## [2487. Remove Nodes From Linked List](https://leetcode.com/problems/remove-nodes-from-linked-list/)  1454
 
 - [Official](https://leetcode.com/problems/remove-nodes-from-linked-list/editorial/)
