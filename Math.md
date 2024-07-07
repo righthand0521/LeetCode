@@ -3586,6 +3586,114 @@ public:
 
 </details>
 
+## [1518. Water Bottles](https://leetcode.com/problems/water-bottles/)  1245
+
+- [Official](https://leetcode.com/problems/water-bottles/editorial/)
+- [Official](https://leetcode.cn/problems/water-bottles/solutions/339339/huan-jiu-wen-ti-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+There are numBottles water bottles that are initially full of water.
+You can exchange numExchange empty water bottles from the market with one full water bottle.
+
+The operation of drinking a full water bottle turns it into an empty bottle.
+
+Given the two integers numBottles and numExchange, return the maximum number of water bottles you can drink.
+
+Example 1:
+Input: numBottles = 9, numExchange = 3
+Output: 13
+Explanation: You can exchange 3 empty bottles to get 1 full water bottle.
+Number of water bottles you can drink: 9 + 3 + 1 = 13.
+
+Example 2:
+Input: numBottles = 15, numExchange = 4
+Output: 19
+Explanation: You can exchange 4 empty bottles to get 1 full water bottle.
+Number of water bottles you can drink: 15 + 3 + 1 = 19.
+
+Constraints:
+1 <= numBottles <= 100
+2 <= numExchange <= 100
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Simulate the process until there are not enough empty bottles for even one full bottle of water.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int numWaterBottles(int numBottles, int numExchange) {
+    int retVal = 0;
+
+    int times;
+    int consumedBottles = 0;
+    while (numBottles >= numExchange) {
+        times = numBottles / numExchange;
+        consumedBottles += (numExchange * times);
+        numBottles -= (numExchange * times);
+        numBottles += times;
+    }
+    retVal = consumedBottles + numBottles;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int numWaterBottles(int numBottles, int numExchange) {
+        int retVal = 0;
+
+        int consumedBottles = 0;
+        while (numBottles >= numExchange) {
+            int times = numBottles / numExchange;
+            consumedBottles += (numExchange * times);
+            numBottles -= (numExchange * times);
+            numBottles += times;
+        }
+        retVal = consumedBottles + numBottles;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def numWaterBottles(self, numBottles: int, numExchange: int) -> int:
+        retVal = 0
+
+        consumedBottles = 0
+        while numBottles >= numExchange:
+            times = numBottles // numExchange
+            consumedBottles += (numExchange * times)
+            numBottles -= (numExchange * times)
+            numBottles += times
+        retVal = consumedBottles + numBottles
+
+        return retVal
+```
+
+</details>
+
 ## [1523. Count Odd Numbers in an Interval Range](https://leetcode.com/problems/count-odd-numbers-in-an-interval-range/)  1209
 
 - [Official](https://leetcode.com/problems/count-odd-numbers-in-an-interval-range/editorial/)
