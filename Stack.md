@@ -4404,6 +4404,7 @@ class Solution:
 
 ## [1598. Crawler Log Folder](https://leetcode.com/problems/crawler-log-folder/)  1297
 
+- [Official](https://leetcode.com/problems/crawler-log-folder/editorial/)
 - [Official](https://leetcode.cn/problems/crawler-log-folder/solutions/1811170/wen-jian-jia-cao-zuo-ri-zhi-sou-ji-qi-by-6unr/)
 
 <details><summary>Description</summary>
