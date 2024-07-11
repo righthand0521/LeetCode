@@ -3932,6 +3932,163 @@ class Solution:
 
 </details>
 
+## [1190. Reverse Substrings Between Each Pair of Parentheses](https://leetcode.com/problems/reverse-substrings-between-each-pair-of-parentheses/)  1485
+
+- [Official](https://leetcode.com/problems/reverse-substrings-between-each-pair-of-parentheses/editorial/)
+- [Official](https://leetcode.cn/problems/reverse-substrings-between-each-pair-of-parentheses/solutions/795515/fan-zhuan-mei-dui-gua-hao-jian-de-zi-chu-gwpv/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string s that consists of lower case English letters and brackets.
+
+Reverse the strings in each pair of matching parentheses, starting from the innermost one.
+
+Your result should not contain any brackets.
+
+Example 1:
+Input: s = "(abcd)"
+Output: "dcba"
+
+Example 2:
+Input: s = "(u(love)i)"
+Output: "iloveu"
+Explanation: The substring "love" is reversed first, then the whole string is reversed.
+
+Example 3:
+Input: s = "(ed(et(oc))el)"
+Output: "leetcode"
+Explanation: First, we reverse the substring "oc", then "etco", and finally, the whole string.
+
+Constraints:
+1 <= s.length <= 2000
+s only contains lower case English characters and parentheses.
+It is guaranteed that all parentheses are balanced.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Find all brackets in the string.
+2. Does the order of the reverse matter ?
+3. The order does not matter.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+char* reverseParentheses(char* s) {
+    char* pRetVal = NULL;
+
+    int sSize = strlen(s);
+
+    int returnSize = sSize + 1;
+    pRetVal = (char*)malloc(returnSize * sizeof(char));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (returnSize * sizeof(char)));
+
+    int pRetValTop = -1;
+    int reverseStackTop;
+    char reverseStack[returnSize];
+    int i, j;
+    for (i = 0; i < sSize; ++i) {
+        if (s[i] == ')') {
+            reverseStackTop = -1;
+            memset(reverseStack, 0, sizeof(reverseStack));
+
+            while ((pRetValTop > -1) && (pRetVal[pRetValTop] != '(')) {
+                reverseStackTop++;
+                reverseStack[reverseStackTop] = pRetVal[pRetValTop];
+                pRetVal[pRetValTop] = '\0';
+                pRetValTop--;
+            }
+
+            if (pRetValTop > -1) {
+                pRetVal[pRetValTop] = '\0';
+                pRetValTop--;
+            }
+
+            for (j = 0; j <= reverseStackTop; ++j) {
+                pRetValTop++;
+                pRetVal[pRetValTop] = reverseStack[j];
+            }
+        } else {
+            pRetValTop++;
+            pRetVal[pRetValTop] = s[i];
+        }
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    string reverseParentheses(string s) {
+        string retVal = "";
+
+        vector<char> stack;
+        for (char c : s) {
+            if (c == ')') {
+                vector<char> reverseStack;
+                while (stack[stack.size() - 1] != '(') {
+                    reverseStack.emplace_back(stack[stack.size() - 1]);
+                    stack.erase(stack.end() - 1);
+                }
+                stack.erase(stack.end() - 1);
+                stack.insert(stack.end(), reverseStack.begin(), reverseStack.end());
+            } else {
+                stack.emplace_back(c);
+            }
+        }
+        for (char c : stack) {
+            retVal += c;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def reverseParentheses(self, s: str) -> str:
+        retVal = None
+
+        stack = []
+        for c in s:
+            if c == ")":
+                reverseStack = []
+                while (stack[-1] != "("):
+                    reverseStack.append(stack[-1])
+                    stack.pop()
+                stack.pop()
+                stack += reverseStack
+            else:
+                stack.append(c)
+        retVal = "".join(stack)
+
+        return retVal
+```
+
+</details>
+
 ## [1249. Minimum Remove to Make Valid Parentheses](https://leetcode.com/problems/minimum-remove-to-make-valid-parentheses/)  1657
 
 - [Official](https://leetcode.cn/problems/minimum-remove-to-make-valid-parentheses/solutions/99460/yi-chu-wu-xiao-gua-hao-by-leetcode/)
