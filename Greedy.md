@@ -3607,6 +3607,179 @@ class Solution:
 
 </details>
 
+## [1717. Maximum Score From Removing Substrings](https://leetcode.com/problems/maximum-score-from-removing-substrings/)  1867
+
+- [Official](https://leetcode.com/problems/maximum-score-from-removing-substrings/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string s and two integers x and y. You can perform two types of operations any number of times.
+- Remove substring "ab" and gain x points.
+  - For example, when removing "ab" from "cabxbae" it becomes "cxbae".
+- Remove substring "ba" and gain y points.
+  - For example, when removing "ba" from "cabxbae" it becomes "cabxe".
+
+Return the maximum points you can gain after applying the above operations on s.
+
+Example 1:
+Input: s = "cdbcbbaaabab", x = 4, y = 5
+Output: 19
+Explanation:
+- Remove the "ba" underlined in "cdbcbbaaabab". Now, s = "cdbcbbaaab" and 5 points are added to the score.
+- Remove the "ab" underlined in "cdbcbbaaab". Now, s = "cdbcbbaa" and 4 points are added to the score.
+- Remove the "ba" underlined in "cdbcbbaa". Now, s = "cdbcba" and 5 points are added to the score.
+- Remove the "ba" underlined in "cdbcba". Now, s = "cdbc" and 5 points are added to the score.
+Total score = 5 + 4 + 5 + 5 = 19.
+
+Example 2:
+Input: s = "aabbaaxybbaabb", x = 5, y = 4
+Output: 20
+
+Constraints:
+1 <= s.length <= 10^5
+1 <= x, y <= 10^4
+s consists of lowercase English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Note that it is always more optimal to take one type of substring before another
+2. You can use a stack to handle erasures
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int maximumGain(char* s, int x, int y) {
+    int retVal = 0;
+
+    int sSize = strlen(s);
+
+    // Ensure "ab" always has more points than "ba"
+    int left = 0;
+    int right = sSize - 1;
+    int temp;
+    if (x < y) {
+        temp = x;
+        x = y;
+        y = temp;
+        while (left < right) {
+            temp = s[left];
+            s[left++] = s[right];
+            s[right--] = temp;
+        }
+    }
+
+    int aCount = 0;
+    int bCount = 0;
+    int i;
+    for (i = 0; i < sSize; ++i) {
+        if (s[i] == 'a') {
+            ++aCount;
+        } else if (s[i] == 'b') {
+            if (aCount > 0) {
+                --aCount;
+                retVal += x;
+            } else {
+                ++bCount;
+            }
+        } else {
+            retVal += fmin(bCount, aCount) * y;
+            aCount = 0;
+            bCount = 0;
+        }
+    }
+    retVal += fmin(bCount, aCount) * y;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maximumGain(string s, int x, int y) {
+        int retVal = 0;
+
+        // Ensure "ab" always has more points than "ba"
+        if (x < y) {
+            int temp = x;
+            x = y;
+            y = temp;
+            reverse(s.begin(), s.end());
+        }
+
+        int aCount = 0;
+        int bCount = 0;
+        for (auto c : s) {
+            if (c == 'a') {
+                ++aCount;
+            } else if (c == 'b') {
+                if (aCount > 0) {
+                    --aCount;
+                    retVal += x;
+                } else {
+                    ++bCount;
+                }
+            } else {
+                retVal += min(bCount, aCount) * y;
+                aCount = 0;
+                bCount = 0;
+            }
+        }
+        retVal += min(bCount, aCount) * y;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maximumGain(self, s: str, x: int, y: int) -> int:
+        retVal = 0
+
+        # Ensure "ab" always has higher points than "ba"
+        if x < y:
+            s = s[::-1]
+            x, y = y, x
+
+        aCount = 0
+        bCount = 0
+        for c in s:
+            if c == "a":
+                aCount += 1
+            elif c == "b":
+                if aCount > 0:
+                    aCount -= 1
+                    retVal += x
+                else:
+                    bCount += 1
+            else:
+                retVal += min(bCount, aCount) * y
+                aCount = 0
+                bCount = 0
+        retVal += min(bCount, aCount) * y
+
+        return retVal
+```
+
+</details>
+
 ## [1727. Largest Submatrix With Rearrangements](https://leetcode.com/problems/largest-submatrix-with-rearrangements/)  1926
 
 - [Official](https://leetcode.com/problems/largest-submatrix-with-rearrangements/editorial/)
