@@ -5257,3 +5257,269 @@ class Solution:
 ```
 
 </details>
+
+## [2751. Robot Collisions](https://leetcode.com/problems/robot-collisions/)  2091
+
+- [Official](https://leetcode.com/problems/robot-collisions/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+There are n 1-indexed robots, each having a position on a line, health, and movement direction.
+
+You are given 0-indexed integer arrays positions, healths,
+and a string directions (directions[i] is either 'L' for left or 'R' for right).
+All integers in positions are unique.
+
+All robots start moving on the line simultaneously at the same speed in their given directions.
+If two robots ever share the same position while moving, they will collide.
+
+If two robots collide, the robot with lower health is removed from the line,
+and the health of the other robot decreases by one.
+The surviving robot continues in the same direction it was going.
+If both robots have the same health, they are both removed from the line.
+
+Your task is to determine the health of the robots that survive the collisions,
+in the same order that the robots were given,
+i.e. final heath of robot 1 (if survived), final health of robot 2 (if survived), and so on.
+If there are no survivors, return an empty array.
+
+Return an array containing the health of the remaining robots (in the order they were given in the input),
+after no further collisions can occur.
+
+Note: The positions may be unsorted.
+
+Example 1:
+Input: positions = [5,4,3,2,1], healths = [2,17,9,15,10], directions = "RRRRR"
+Output: [2,17,9,15,10]
+Explanation: No collision occurs in this example, since all robots are moving in the same direction.
+So, the health of the robots in order from the first robot is returned, [2, 17, 9, 15, 10].
+
+Example 2:
+Input: positions = [3,5,2,6], healths = [10,10,15,12], directions = "RLRL"
+Output: [14]
+Explanation: There are 2 collisions in this example.
+Firstly, robot 1 and robot 2 will collide, and since both have the same health, they will be removed from the line.
+Next, robot 3 and robot 4 will collide and since robot 4's health is smaller,
+it gets removed, and robot 3's health becomes 15 - 1 = 14.
+Only robot 3 remains, so we return [14].
+
+Example 3:
+Input: positions = [1,2,5,6], healths = [10,10,11,11], directions = "RLRL"
+Output: []
+Explanation: Robot 1 and robot 2 will collide and since both have the same health, they are both removed.
+Robot 3 and 4 will collide and since both have the same health, they are both removed. So, we return an empty array, [].
+
+Constraints:
+1 <= positions.length == healths.length == directions.length == n <= 10^5
+1 <= positions[i], healths[i] <= 10^9
+directions[i] == 'L' or directions[i] == 'R'
+All values in positions are distinct
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Process the robots in the order of their positions to ensure that we process the collisions correctly.
+2. To optimize the solution, use a stack to keep track of the surviving robots as we iterate through the positions.
+3. Instead of simulating each collision,
+   check the current robot against the top of the stack (if it exists) to determine if a collision occurs.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareIntArray(const void* a1, const void* a2) {
+    int* p1 = (int*)a1;
+    int* p2 = (int*)a2;
+
+    // ascending order
+    return (p1[1] > p2[1]);
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* survivedRobotsHealths(int* positions, int positionsSize, int* healths, int healthsSize, char* directions,
+                           int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+    pRetVal = (int*)malloc(positionsSize * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (positionsSize * sizeof(int)));
+
+    int i;
+
+    // Sort indices based on their positions
+    int indices[positionsSize][2];
+    for (i = 0; i < positionsSize; ++i) {
+        indices[i][0] = i;
+        indices[i][1] = positions[i];
+    }
+    qsort(indices, positionsSize, sizeof(indices[0]), compareIntArray);
+
+    int stackTop = -1;
+    int stack[positionsSize];
+    memset(stack, 0, sizeof(stack));
+    int currentIndex, topIndex;
+    for (i = 0; i < positionsSize; ++i) {
+        currentIndex = indices[i][0];
+
+        if (directions[currentIndex] == 'R') {
+            stackTop++;
+            stack[stackTop] = currentIndex;
+            continue;
+        }
+
+        while ((stackTop > -1) && (healths[currentIndex] > 0)) {
+            // Pop the top robot from the stack for collision check
+            topIndex = stack[stackTop];
+            stackTop--;
+
+            if (healths[topIndex] > healths[currentIndex]) {
+                // Top robot survives, current robot is destroyed
+                healths[topIndex] -= 1;
+                healths[currentIndex] = 0;
+                stackTop++;
+                stack[stackTop] = topIndex;
+            } else if (healths[topIndex] < healths[currentIndex]) {
+                // Current robot survives, top robot is destroyed
+                healths[currentIndex] -= 1;
+                healths[topIndex] = 0;
+            } else {
+                // Both robots are destroyed
+                healths[currentIndex] = 0;
+                healths[topIndex] = 0;
+            }
+        }
+    }
+
+    // Collect surviving robots
+    for (i = 0; i < positionsSize; ++i) {
+        if (healths[i] > 0) {
+            pRetVal[(*returnSize)++] = healths[i];
+        }
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> survivedRobotsHealths(vector<int>& positions, vector<int>& healths, string directions) {
+        vector<int> retVal;
+
+        int positionsSize = positions.size();
+
+        // Sort indices based on their positions
+        vector<int> indices(positionsSize);
+        for (int index = 0; index < positionsSize; ++index) {
+            indices[index] = index;
+        }
+        sort(indices.begin(), indices.end(), [&](int lhs, int rhs) {
+            // ascending order
+            return positions[lhs] < positions[rhs];
+        });
+
+        stack<int> stack;
+        for (int currentIndex : indices) {
+            if (directions[currentIndex] == 'R') {
+                stack.push(currentIndex);
+                continue;
+            }
+
+            while (!stack.empty() && healths[currentIndex] > 0) {
+                // Pop the top robot from the stack for collision check
+                int topIndex = stack.top();
+                stack.pop();
+
+                if (healths[topIndex] > healths[currentIndex]) {
+                    // Top robot survives, current robot is destroyed
+                    healths[topIndex] -= 1;
+                    healths[currentIndex] = 0;
+                    stack.push(topIndex);
+                } else if (healths[topIndex] < healths[currentIndex]) {
+                    // Current robot survives, top robot is destroyed
+                    healths[currentIndex] -= 1;
+                    healths[topIndex] = 0;
+                } else {
+                    // Both robots are destroyed
+                    healths[currentIndex] = 0;
+                    healths[topIndex] = 0;
+                }
+            }
+        }
+
+        // Collect surviving robots
+        for (int index = 0; index < positionsSize; ++index) {
+            if (healths[index] > 0) {
+                retVal.emplace_back(healths[index]);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def survivedRobotsHealths(self, positions: List[int], healths: List[int], directions: str) -> List[int]:
+        retVal = []
+
+        positionsSize = len(positions)
+
+        # Sort indices based on their positions
+        indices = list(range(positionsSize))
+        indices.sort(key=lambda x: positions[x])
+
+        stack = deque()
+        for currentIndex in indices:
+            if directions[currentIndex] == "R":
+                stack.append(currentIndex)
+                continue
+
+            while stack and healths[currentIndex] > 0:
+                # Pop the top robot from the stack for collision check
+                topIndex = stack.pop()
+
+                if healths[topIndex] > healths[currentIndex]:
+                    # Top robot survives, current robot is destroyed
+                    healths[topIndex] -= 1
+                    healths[currentIndex] = 0
+                    stack.append(topIndex)
+                elif healths[topIndex] < healths[currentIndex]:
+                    # Current robot survives, top robot is destroyed
+                    healths[currentIndex] -= 1
+                    healths[topIndex] = 0
+                else:
+                    # Both robots are destroyed
+                    healths[currentIndex] = 0
+                    healths[topIndex] = 0
+
+        # Collect surviving robots
+        for index in range(positionsSize):
+            if healths[index] > 0:
+                retVal.append(healths[index])
+
+        return retVal
+```
+
+</details>
