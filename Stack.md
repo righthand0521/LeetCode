@@ -2314,6 +2314,302 @@ int* nextGreaterElement(int* nums1, int nums1Size, int* nums2, int nums2Size, in
 
 </details>
 
+## [726. Number of Atoms](https://leetcode.com/problems/number-of-atoms/)
+
+- [Official](https://leetcode.com/problems/number-of-atoms/editorial/)
+- [Official](https://leetcode.cn/problems/number-of-atoms/solutions/858790/yuan-zi-de-shu-liang-by-leetcode-solutio-54lv/)
+
+<details><summary>Description</summary>
+
+```text
+Given a string formula representing a chemical formula, return the count of each atom.
+
+The atomic element always starts with an uppercase character, then zero or more lowercase letters,
+representing the name.
+
+One or more digits representing that element's count may follow if the count is greater than 1.
+If the count is 1, no digits will follow.
+- For example, "H2O" and "H2O2" are possible, but "H1O2" is impossible.
+
+Two formulas are concatenated together to produce another formula.
+- For example, "H2O2He3Mg4" is also a formula.
+
+A formula placed in parentheses, and a count (optionally added) is also a formula.
+- For example, "(H2O2)" and "(H2O2)3" are formulas.
+
+Return the count of all elements as a string in the following form: the first name (in sorted order),
+followed by its count (if that count is more than 1), followed by the second name (in sorted order),
+followed by its count (if that count is more than 1), and so on.
+
+The test cases are generated so that all the values in the output fit in a 32-bit integer.
+
+Example 1:
+Input: formula = "H2O"
+Output: "H2O"
+Explanation: The count of elements are {'H': 2, 'O': 1}.
+
+Example 2:
+Input: formula = "Mg(OH)2"
+Output: "H2MgO2"
+Explanation: The count of elements are {'H': 2, 'Mg': 1, 'O': 2}.
+
+Example 3:
+Input: formula = "K4(ON(SO3)2)2"
+Output: "K4N2O14S4"
+Explanation: The count of elements are {'K': 4, 'N': 2, 'O': 14, 'S': 4}.
+
+Constraints:
+1 <= formula.length <= 1000
+formula consists of English letters, digits, '(', and ')'.
+formula is always valid.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. To parse formula[i:], when we see a `'('`, we will parse recursively
+   whatever is inside the brackets (up to the correct closing ending bracket) and add it to our count,
+   multiplying by the following multiplicity if there is one.
+   Otherwise, we should see an uppercase character:
+   we will parse the rest of the letters to get the name, and add that (plus the multiplicity if there is one.)
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// https://leetcode.cn/problems/number-of-atoms/solutions/95872/c-jian-dan-de-cong-you-xiang-zuo-bian-li-fen-qing-/
+char* countOfAtoms(char* formula) {
+    char* pRetVal = NULL;
+
+    int returnSize = 1001;  // 1 <= formula.length <= 1000
+    pRetVal = (char*)malloc(returnSize * sizeof(char));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (returnSize * sizeof(char)));
+
+    int formulaSize = strlen(formula);
+    int i, j;
+
+#define LETTERS_SIZE (26)  // formula consists of English letters, digits, '(', and')'.
+    int store[LETTERS_SIZE][LETTERS_SIZE + 1];
+    memset(store, 0, sizeof(store));
+
+    int stack[formulaSize + 1];
+    memset(stack, 0, sizeof(stack));
+
+    int digit = 1;
+    int top = 0;
+    int numTemp = 0;
+    int coefficient = 1;
+    for (i = formulaSize - 1; i >= 0;) {
+        if (isdigit(formula[i])) {
+            digit = 1;
+            numTemp += ((formula[i] - '0') * digit);
+            while (isdigit(formula[--i])) {
+                digit *= 10;
+                numTemp += ((formula[i] - '0') * digit);
+            }
+            coefficient *= numTemp;
+            stack[top++] = numTemp;
+        }
+
+        if (formula[i] == ')') {
+            numTemp = 0;
+        } else if (formula[i] == '(') {
+            if (top > 0) {
+                coefficient /= stack[--top];
+            }
+        } else if (isupper(formula[i])) {
+            store[formula[i] - 'A'][0] += 1 * coefficient;
+            if (numTemp != 0) {
+                coefficient /= stack[--top];
+                numTemp = 0;
+            }
+        } else if (islower(formula[i])) {
+            store[formula[i - 1] - 'A'][formula[i] - 'a' + 1] += (1 * coefficient);
+            if (numTemp != 0) {
+                coefficient /= stack[--top];
+                numTemp = 0;
+            }
+            i--;
+        }
+
+        i--;
+    }
+
+    int tail = 0;
+    for (i = 0; i < LETTERS_SIZE; i++) {
+        if (store[i][0] == 1) {
+            tail += sprintf(pRetVal + tail, "%c", i + 'A');
+        } else if (store[i][0] > 1) {
+            tail += sprintf(pRetVal + tail, "%c%d", i + 'A', store[i][0]);
+        }
+
+        for (j = 1; j <= LETTERS_SIZE; j++) {
+            if (store[i][j] == 1) {
+                tail += sprintf(pRetVal + tail, "%c%c", i + 'A', j - 1 + 'a');
+            } else if (store[i][j] > 1) {
+                tail += sprintf(pRetVal + tail, "%c%c%d", i + 'A', j - 1 + 'a', store[i][j]);
+            }
+        }
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    string countOfAtoms(string formula) {
+        string retVal = "";
+
+        int formulaSize = formula.size();
+
+        stack<unordered_map<string, int>> stack;
+        stack.push(unordered_map<string, int>());
+
+        int index = 0;
+        while (index < formulaSize) {
+            if (formula[index] == '(') {
+                // If left parenthesis, insert a new hashmap to the stack.
+                // It will keep track of the atoms and their counts in the nested formula
+                stack.push(unordered_map<string, int>());
+                index++;
+            } else if (formula[index] == ')') {
+                // If right parenthesis, pop the top element from the stack.
+                // Multiply the count with the multiplicity of the nested formula
+                unordered_map<string, int> currMap = stack.top();
+                stack.pop();
+
+                index++;
+                string multiplier;
+                while ((index < formulaSize) && (isdigit(formula[index]))) {
+                    multiplier += formula[index];
+                    index++;
+                }
+                if (multiplier.empty() == false) {
+                    int mult = stoi(multiplier);
+                    for (auto& [atom, count] : currMap) {
+                        currMap[atom] = count * mult;
+                    }
+                }
+
+                for (auto& [atom, count] : currMap) {
+                    stack.top()[atom] += count;
+                }
+            } else {
+                // Otherwise, it must be a UPPERCASE LETTER.
+                // Extract the complete atom with frequency, and update the most recent hashmap
+                string currAtom;
+                currAtom += formula[index];
+                index++;
+                while ((index < formulaSize) && (islower(formula[index]))) {
+                    currAtom += formula[index];
+                    index++;
+                }
+
+                string currCount;
+                while ((index < formulaSize) && (isdigit(formula[index]))) {
+                    currCount += formula[index];
+                    index++;
+                }
+
+                int count = currCount.empty() ? 1 : stoi(currCount);
+                stack.top()[currAtom] += count;
+            }
+        }
+
+        map<string, int> finalMap(stack.top().begin(), stack.top().end());
+        string ans;
+        for (auto& [atom, count] : finalMap) {
+            retVal += atom;
+            if (count > 1) {
+                retVal += to_string(count);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def countOfAtoms(self, formula: str) -> str:
+        retVal = ""
+
+        formulaSize = len(formula)
+
+        stack = [defaultdict(int)]
+        index = 0
+        while index < formulaSize:
+            if formula[index] == "(":
+                # If left parenthesis, insert a new hashmap to the stack.
+                # It will keep track of the atoms and their counts in the nested formula
+                stack.append(defaultdict(int))
+                index += 1
+            elif formula[index] == ")":
+                # If right parenthesis, pop the top element from the stack.
+                # Multiply the count with the multiplicity of the nested formula
+                currMap = stack.pop()
+
+                index += 1
+                multiplier = ""
+                while (index < formulaSize) and (formula[index].isdigit()):
+                    multiplier += formula[index]
+                    index += 1
+                if multiplier:
+                    multiplier = int(multiplier)
+                    for atom in currMap:
+                        currMap[atom] *= multiplier
+
+                for atom in currMap:
+                    stack[-1][atom] += currMap[atom]
+            else:
+                # Otherwise, it must be a UPPERCASE LETTER. Extract the complete
+                # atom with frequency, and update the most recent hashmap
+                currAtom = formula[index]
+                index += 1
+                while (index < formulaSize) and (formula[index].islower()):
+                    currAtom += formula[index]
+                    index += 1
+
+                currCount = ""
+                while (index < formulaSize) and (formula[index].isdigit()):
+                    currCount += formula[index]
+                    index += 1
+
+                if currCount == "":
+                    stack[-1][currAtom] += 1
+                else:
+                    stack[-1][currAtom] += int(currCount)
+
+        finalMap = dict(sorted(stack[0].items()))
+        for atom in finalMap:
+            retVal += atom
+            if finalMap[atom] > 1:
+                retVal += str(finalMap[atom])
+
+        return retVal
+```
+
+</details>
+
 ## [735. Asteroid Collision](https://leetcode.com/problems/asteroid-collision/)
 
 - [Official](https://leetcode.com/problems/asteroid-collision/editorial/)
