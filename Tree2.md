@@ -2333,6 +2333,9 @@ class Solution:
 
 ## [2196. Create Binary Tree From Descriptions](https://leetcode.com/problems/create-binary-tree-from-descriptions/)  1643
 
+- [Official](https://leetcode.com/problems/create-binary-tree-from-descriptions/editorial/)
+- [Official](https://leetcode.cn/problems/create-binary-tree-from-descriptions/solutions/1365049/gen-ju-miao-shu-chuang-jian-er-cha-shu-b-sqrk/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -2572,6 +2575,45 @@ class Solution {
         return pRetVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def createBinaryTree(self, descriptions: List[List[int]]) -> Optional[TreeNode]:
+        retVal = None
+
+        treeHashTable = defaultdict(TreeNode)
+        childHashTable = defaultdict(int)
+        for parent, child, isLeft in descriptions:
+            if parent not in treeHashTable:
+                treeHashTable[parent] = TreeNode(parent)
+
+            if child not in treeHashTable:
+                treeHashTable[child] = TreeNode(child)
+
+            if isLeft == 1:
+                treeHashTable[parent].left = treeHashTable[child]
+            else:
+                treeHashTable[parent].right = treeHashTable[child]
+
+            childHashTable[child] += 1
+
+        for key, value in treeHashTable.items():
+            if key not in childHashTable:
+                retVal = value
+                break
+
+        return retVal
 ```
 
 </details>
