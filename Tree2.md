@@ -2331,6 +2331,325 @@ class Solution:
 
 </details>
 
+## [2096. Step-By-Step Directions From a Binary Tree Node to Another](https://leetcode.com/problems/step-by-step-directions-from-a-binary-tree-node-to-another/)  1804
+
+- [Official](https://leetcode.com/problems/step-by-step-directions-from-a-binary-tree-node-to-another/editorial/)
+- [Official](https://leetcode.cn/problems/step-by-step-directions-from-a-binary-tree-node-to-another/solutions/1140772/cong-er-cha-shu-yi-ge-jie-dian-dao-ling-hsoh1/)
+
+<details><summary>Description</summary>
+
+```text
+You are given the root of a binary tree with n nodes. Each node is uniquely assigned a value from 1 to n.
+You are also given an integer startValue representing the value of the start node s,
+and a different integer destValue representing the value of the destination node t.
+
+Find the shortest path starting from node s and ending at node t.
+Generate step-by-step directions of such path as a string consisting of only the uppercase letters 'L', 'R', and 'U'.
+Each letter indicates a specific direction:
+- 'L' means to go from a node to its left child node.
+- 'R' means to go from a node to its right child node.
+- 'U' means to go from a node to its parent node.
+
+Return the step-by-step directions of the shortest path from node s to node t.
+
+Example 1:
+Input: root = [5,1,2,3,null,6,4], startValue = 3, destValue = 6
+Output: "UURL"
+Explanation: The shortest path is: 3 → 1 → 5 → 2 → 6.
+
+Example 2:
+Input: root = [2,1], startValue = 2, destValue = 1
+Output: "L"
+Explanation: The shortest path is: 2 → 1.
+
+Constraints:
+The number of nodes in the tree is n.
+2 <= n <= 10^5
+1 <= Node.val <= n
+All the values in the tree are unique.
+1 <= startValue, destValue <= n
+startValue != destValue
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. The shortest path between any two nodes in a tree must pass through their Lowest Common Ancestor (LCA).
+   The path will travel upwards from node s to the LCA and then downwards from the LCA to node t.
+2. Find the path strings from root → s, and root → t. Can you use these two strings to prepare the final answer?
+3. Remove the longest common prefix of the two path strings to get the path LCA → s, and LCA → t.
+   Each step in the path of LCA → s should be reversed as 'U'.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool findPath(struct TreeNode* node, int target, char* path, int* pathSize) {
+    bool retVal = false;
+
+    if (node == NULL) {
+        return retVal;
+    }
+
+    if (node->val == target) {
+        retVal = true;
+        return retVal;
+    }
+
+    // Try left subtree
+    path[(*pathSize)] = 'L';
+    (*pathSize) += 1;
+    if (findPath(node->left, target, path, pathSize)) {
+        retVal = true;
+        return retVal;
+    }
+
+    // Remove last character
+    path[(*pathSize)] = '\0';
+    (*pathSize) -= 1;
+
+    // Try right subtree
+    path[(*pathSize)] = 'R';
+    (*pathSize) += 1;
+    if (findPath(node->right, target, path, pathSize)) {
+        return true;
+    }
+
+    // Remove last character
+    path[(*pathSize)] = '\0';
+    (*pathSize) -= 1;
+
+    return retVal;
+}
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+char* getDirections(struct TreeNode* root, int startValue, int destValue) {
+    char* pRetVal = NULL;
+
+    // Find paths from root to start and destination nodes
+    int maxSize = (1e5);  // The number of nodes in the tree is n. 2 <= n <= 10 ^ 5
+    char* pPath = (char*)malloc(maxSize * sizeof(char));
+    if (pPath == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    //
+    int startPathSize = 0;
+    memset(pPath, 0, (maxSize * sizeof(char)));
+    findPath(root, startValue, pPath, &startPathSize);
+    char startPath[startPathSize + 1];
+    memset(startPath, 0, sizeof(startPath));
+    snprintf(startPath, sizeof(startPath), "%s", pPath);
+    //
+    int destPathSize = 0;
+    memset(pPath, 0, (maxSize * sizeof(char)));
+    findPath(root, destValue, pPath, &destPathSize);
+    char destPath[destPathSize + 1];
+    memset(destPath, 0, sizeof(destPath));
+    snprintf(destPath, sizeof(destPath), "%s", pPath);
+    //
+    free(pPath);
+    pPath = NULL;
+
+    //
+    int returnSize = startPathSize + destPathSize + 1;
+    pRetVal = (char*)malloc(returnSize * sizeof(char));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (returnSize * sizeof(char)));
+
+    // Find the length of the common path
+    int commonPathLength = 0;
+    while ((commonPathLength < startPathSize) && (commonPathLength < destPathSize) &&
+           (startPath[commonPathLength] == destPath[commonPathLength])) {
+        commonPathLength++;
+    }
+
+    // Add "U" for each step to go up from start to common ancestor
+    returnSize = 0;
+    int i;
+    for (i = 0; i < startPathSize - commonPathLength; i++) {
+        pRetVal[returnSize++] = 'U';
+    }
+    // Add directions from common ancestor to destination
+    for (i = commonPathLength; i < destPathSize; i++) {
+        pRetVal[returnSize++] = destPath[i];
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   private:
+    bool findPath(TreeNode* node, int target, string& path) {
+        bool retVal = false;
+
+        if (node == nullptr) {
+            return retVal;
+        }
+
+        if (node->val == target) {
+            retVal = true;
+            return retVal;
+        }
+
+        // Try left subtree
+        path += "L";
+        if (findPath(node->left, target, path)) {
+            retVal = true;
+            return retVal;
+        }
+
+        // Remove last character
+        path.pop_back();
+
+        // Try right subtree
+        path += "R";
+        if (findPath(node->right, target, path)) {
+            return true;
+        }
+
+        // Remove last character
+        path.pop_back();
+
+        return retVal;
+    }
+
+   public:
+    string getDirections(TreeNode* root, int startValue, int destValue) {
+        string retVal = "";
+
+        // Find paths from root to start and destination nodes
+        string startPath;
+        findPath(root, startValue, startPath);
+        int startPathSize = startPath.length();
+        string destPath;
+        findPath(root, destValue, destPath);
+        int destPathSize = destPath.length();
+
+        // Find the length of the common path
+        int commonPathLength = 0;
+        while ((commonPathLength < startPathSize) && (commonPathLength < destPathSize) &&
+               (startPath[commonPathLength] == destPath[commonPathLength])) {
+            commonPathLength++;
+        }
+
+        // Add "U" for each step to go up from start to common ancestor
+        for (int i = 0; i < startPathSize - commonPathLength; i++) {
+            retVal += "U";
+        }
+
+        // Add directions from common ancestor to destination
+        for (int i = commonPathLength; i < destPathSize; i++) {
+            retVal += destPath[i];
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def findPath(self, node: TreeNode, target: int, path: List[str]) -> bool:
+        retVal = False
+
+        if node is None:
+            return retVal
+
+        if node.val == target:
+            retVal = True
+            return retVal
+
+        # Try left subtree
+        path.append("L")
+        if self.findPath(node.left, target, path):
+            retVal = True
+            return retVal
+
+        # Remove last character
+        path.pop()
+
+        # Try right subtree
+        path.append("R")
+        if self.findPath(node.right, target, path):
+            retVal = True
+            return retVal
+
+        # Remove last character
+        path.pop()
+
+        return retVal
+
+    def getDirections(self, root: Optional[TreeNode], startValue: int, destValue: int) -> str:
+        retVal = ""
+
+        # Find paths from root to start and destination nodes
+        startPath = []
+        self.findPath(root, startValue, startPath)
+        startPathSize = len(startPath)
+        destPath = []
+        self.findPath(root, destValue, destPath)
+        destPathSize = len(destPath)
+
+        # Find the length of the common path
+        commonPathLength = 0
+        while ((commonPathLength < startPathSize) and (commonPathLength < destPathSize)
+               and (startPath[commonPathLength] == destPath[commonPathLength])):
+            commonPathLength += 1
+
+        directions = []
+        # Add "U" for each step to go up from start to common ancestor
+        directions.extend("U" * (startPathSize - commonPathLength))
+        # Add directions from common ancestor to destination
+        directions.extend(destPath[commonPathLength:])
+
+        retVal = "".join(directions)
+
+        return retVal
+```
+
+</details>
+
 ## [2196. Create Binary Tree From Descriptions](https://leetcode.com/problems/create-binary-tree-from-descriptions/)  1643
 
 - [Official](https://leetcode.com/problems/create-binary-tree-from-descriptions/editorial/)
