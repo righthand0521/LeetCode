@@ -336,6 +336,264 @@ class Solution:
 
 </details>
 
+## [1110. Delete Nodes And Return Forest](https://leetcode.com/problems/delete-nodes-and-return-forest/)  1511
+
+- [Official](https://leetcode.com/problems/delete-nodes-and-return-forest/editorial/)
+- [Official](https://leetcode.cn/problems/delete-nodes-and-return-forest/solutions/2286145/shan-dian-cheng-lin-by-leetcode-solution-gy95/)
+
+<details><summary>Description</summary>
+
+```text
+Given the root of a binary tree, each node in the tree has a distinct value.
+
+After deleting all nodes with a value in to_delete, we are left with a forest (a disjoint union of trees).
+
+Return the roots of the trees in the remaining forest. You may return the result in any order.
+
+Example 1:
+Input: root = [1,2,3,4,5,6,7], to_delete = [3,5]
+Output: [[1,2,null,4],[6],[7]]
+
+Example 2:
+Input: root = [1,2,4,null,3], to_delete = [3]
+Output: [[1,2,4]]
+
+Constraints:
+The number of nodes in the given tree is at most 1000.
+Each node has a distinct value between 1 and 1000.
+to_delete.length <= 1000
+to_delete contains distinct values between 1 and 1000.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+struct TreeNode** delNodes(struct TreeNode* root, int* to_delete, int to_deleteSize, int* returnSize) {
+    struct TreeNode** pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    //
+    if (root == NULL) {
+        return pRetVal;
+    }
+
+    //
+    int maxReturnSize = 1000 + 1;  // The number of nodes in the given tree is at most 1000.
+    pRetVal = (struct TreeNode**)malloc(maxReturnSize * sizeof(struct TreeNode*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+
+    //
+    int toDeleteSetSize = 1000 + 1;  // to_delete contains distinct values between 1 and 1000.
+    int toDeleteSet[toDeleteSetSize];
+    memset(toDeleteSet, 0, sizeof(toDeleteSet));
+    int i;
+    for (i = 0; i < to_deleteSize; ++i) {
+        toDeleteSet[to_delete[i]] = 1;
+    }
+
+    //
+    int nodesQueueSize = 1000 + 1;  // The number of nodes in the given tree is at most 1000.
+    int nodesQueueHead = 0;
+    int nodesQueueTail = 0;
+    struct TreeNode* nodesQueue[nodesQueueSize];
+    memset(nodesQueue, 0, sizeof(nodesQueue));
+    nodesQueue[nodesQueueTail++] = root;
+
+    //
+    struct TreeNode* currentNode;
+    while (nodesQueueHead < nodesQueueTail) {
+        currentNode = nodesQueue[nodesQueueHead++];
+
+        if (currentNode->left != NULL) {
+            nodesQueue[nodesQueueTail++] = currentNode->left;
+            // Disconnect the left child if it needs to be deleted
+            if (toDeleteSet[currentNode->left->val] == 1) {
+                currentNode->left = NULL;
+            }
+        }
+
+        if (currentNode->right != NULL) {
+            nodesQueue[nodesQueueTail++] = currentNode->right;
+            // Disconnect the right child if it needs to be deleted
+            if (toDeleteSet[currentNode->right->val] == 1) {
+                currentNode->right = NULL;
+            }
+        }
+
+        // If the current node needs to be deleted, add its non-null children to the forest
+        if (toDeleteSet[currentNode->val] == 1) {
+            if (currentNode->left != NULL) {
+                pRetVal[(*returnSize)] = currentNode->left;
+                (*returnSize) += 1;
+            }
+            if (currentNode->right != NULL) {
+                pRetVal[(*returnSize)] = currentNode->right;
+                (*returnSize) += 1;
+            }
+
+            if (currentNode != root) {
+                free(currentNode);
+                currentNode = NULL;
+            }
+        }
+    }
+
+    // Ensure the root is added to the forest if it is not to be deleted
+    if (toDeleteSet[root->val] != 1) {
+        pRetVal[(*returnSize)] = root;
+        (*returnSize) += 1;
+    } else {
+        free(root);
+        root = NULL;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   public:
+    vector<TreeNode*> delNodes(TreeNode* root, vector<int>& to_delete) {
+        vector<TreeNode*> retVal;
+
+        if (root == nullptr) {
+            return retVal;
+        }
+
+        unordered_set<int> toDeleteSet(to_delete.begin(), to_delete.end());
+        queue<TreeNode*> nodesQueue;
+        nodesQueue.push(root);
+        while (nodesQueue.empty() == false) {
+            TreeNode* currentNode = nodesQueue.front();
+            nodesQueue.pop();
+
+            if (currentNode->left) {
+                nodesQueue.push(currentNode->left);
+                // Disconnect the left child if it needs to be deleted
+                if (toDeleteSet.find(currentNode->left->val) != toDeleteSet.end()) {
+                    currentNode->left = nullptr;
+                }
+            }
+
+            if (currentNode->right) {
+                nodesQueue.push(currentNode->right);
+                // Disconnect the right child if it needs to be deleted
+                if (toDeleteSet.find(currentNode->right->val) != toDeleteSet.end()) {
+                    currentNode->right = nullptr;
+                }
+            }
+
+            // If the current node needs to be deleted, add its non-null children to the forest
+            if (toDeleteSet.find(currentNode->val) != toDeleteSet.end()) {
+                if (currentNode->left) {
+                    retVal.push_back(currentNode->left);
+                }
+                if (currentNode->right) {
+                    retVal.push_back(currentNode->right);
+                }
+
+                if (currentNode != root) {
+                    delete currentNode;
+                }
+            }
+        }
+
+        // Ensure the root is added to the forest if it is not to be deleted
+        if (toDeleteSet.find(root->val) == toDeleteSet.end()) {
+            retVal.push_back(root);
+        } else {
+            delete root;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def delNodes(self, root: Optional[TreeNode], to_delete: List[int]) -> List[TreeNode]:
+        retVal = []
+
+        if not root:
+            return retVal
+
+        toDeleteSet = set(to_delete)
+        nodesQueue = deque([root])
+        while nodesQueue:
+            currentNode = nodesQueue.popleft()
+
+            if currentNode.left:
+                nodesQueue.append(currentNode.left)
+                # Disconnect the left child if it needs to be deleted
+                if currentNode.left.val in toDeleteSet:
+                    currentNode.left = None
+
+            if currentNode.right:
+                nodesQueue.append(currentNode.right)
+                # Disconnect the right child if it needs to be deleted
+                if currentNode.right.val in toDeleteSet:
+                    currentNode.right = None
+
+            # If the current node needs to be deleted, add its non-null children to the forest
+            if currentNode.val in toDeleteSet:
+                if currentNode.left:
+                    retVal.append(currentNode.left)
+                if currentNode.right:
+                    retVal.append(currentNode.right)
+
+        # Ensure the root is added to the forest if it is not to be deleted
+        if root.val not in toDeleteSet:
+            retVal.append(root)
+
+        return retVal
+```
+
+</details>
+
 ## [1145. Binary Tree Coloring Game](https://leetcode.com/problems/binary-tree-coloring-game/)  1741
 
 - [Official](https://leetcode.cn/problems/binary-tree-coloring-game/solutions/2087907/er-cha-shu-zhao-se-you-xi-by-leetcode-so-ruys/)
