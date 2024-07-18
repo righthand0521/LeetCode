@@ -2100,6 +2100,260 @@ class Solution:
 
 </details>
 
+## [1530. Number of Good Leaf Nodes Pairs](https://leetcode.com/problems/number-of-good-leaf-nodes-pairs/)  1745
+
+- [Official](https://leetcode.com/problems/number-of-good-leaf-nodes-pairs/editorial/)
+- [Official](https://leetcode.cn/problems/number-of-good-leaf-nodes-pairs/solutions/357905/hao-xie-zi-jie-dian-dui-de-shu-liang-by-leetcode-s/)
+
+<details><summary>Description</summary>
+
+```text
+You are given the root of a binary tree and an integer distance.
+A pair of two different leaf nodes of a binary tree is said to be good
+if the length of the shortest path between them is less than or equal to distance.
+
+Return the number of good leaf node pairs in the tree.
+
+Example 1:
+Input: root = [1,2,3,null,4], distance = 3
+Output: 1
+Explanation: The leaf nodes of the tree are 3 and 4 and the length of the shortest path between them is 3.
+This is the only good pair.
+
+Example 2:
+Input: root = [1,2,3,4,5,6,7], distance = 3
+Output: 2
+Explanation: The good pairs are [4,5] and [6,7] with shortest path = 2.
+The pair [4,6] is not good because the length of ther shortest path between them is 4.
+
+Example 3:
+Input: root = [7,1,4,6,null,5,3,null,null,null,null,null,2], distance = 3
+Output: 1
+Explanation: The only good pair is [2,5].
+
+Constraints:
+The number of nodes in the tree is in the range [1, 2^10].
+1 <= Node.val <= 100
+1 <= distance <= 10
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Start DFS from each leaf node. stop the DFS when the number of steps done > distance.
+2. If you reach another leaf node within distance steps, add 1 to the answer.
+3. Note that all pairs will be counted twice so divide the answer by 2.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// https://leetcode.cn/problems/number-of-good-leaf-nodes-pairs/solutions/2526545/po-su-de-si-lu-ji-zhi-de-bao-li-by-xun-j-iod9/
+void lookChild(struct TreeNode* root, int subtree[], int* subtreeIndex, int deep) {
+    if (root == NULL) {
+        return;
+    } else if ((root->left == NULL) && (root->right == NULL)) {
+        subtree[(*subtreeIndex)++] = deep;
+        return;
+    }
+
+    lookChild(root->left, subtree, subtreeIndex, deep + 1);
+    lookChild(root->right, subtree, subtreeIndex, deep + 1);
+}
+void dfs(struct TreeNode* root, int distance, int* ans) {
+    if (root == NULL) {
+        return;
+    } else if ((root->left == NULL) && (root->right == NULL)) {
+        return;
+    }
+
+    int maxNodes = 1024;  // The number of nodes in the tree is in the range [1, 2^10].
+
+    int leftIndex = 0;
+    int left[maxNodes];
+    memset(left, 0, sizeof(left));
+    lookChild(root->left, left, &leftIndex, 1);
+
+    int rightIndex = 0;
+    int right[maxNodes];
+    memset(right, 0, sizeof(right));
+    lookChild(root->right, right, &rightIndex, 1);
+
+    int i, j;
+    for (i = 0; i < leftIndex; i++) {
+        for (j = 0; j < rightIndex; j++) {
+            if (left[i] + right[j] <= distance) {
+                (*ans)++;
+            }
+        }
+    }
+    dfs(root->left, distance, ans);
+    dfs(root->right, distance, ans);
+}
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+int countPairs(struct TreeNode* root, int distance) {
+    int retVal = 0;
+
+    dfs(root, distance, &retVal);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   private:
+    void traverseTree(TreeNode* currNode, TreeNode* prevNode, unordered_map<TreeNode*, vector<TreeNode*>>& graph,
+                      unordered_set<TreeNode*>& leafNodes) {
+        if (currNode == nullptr) {
+            return;
+        }
+
+        if ((currNode->left == nullptr) && (currNode->right == nullptr)) {
+            leafNodes.insert(currNode);
+        }
+        if (prevNode != nullptr) {
+            graph[prevNode].push_back(currNode);
+            graph[currNode].push_back(prevNode);
+        }
+        traverseTree(currNode->left, currNode, graph, leafNodes);
+        traverseTree(currNode->right, currNode, graph, leafNodes);
+    }
+
+   public:
+    int countPairs(TreeNode* root, int distance) {
+        int retVal = 0;
+
+        unordered_map<TreeNode*, vector<TreeNode*>> graph;
+        unordered_set<TreeNode*> leafNodes;
+        traverseTree(root, nullptr, graph, leafNodes);
+
+        for (auto leaf : leafNodes) {
+            queue<TreeNode*> bfsQueue;
+            bfsQueue.push(leaf);
+
+            unordered_set<TreeNode*> seen;
+            seen.insert(leaf);
+
+            // Go through all nodes that are within the given distance of the current leaf node
+            for (int i = 0; i <= distance; i++) {
+                int bfsQueueSize = bfsQueue.size();
+                for (int j = 0; j < bfsQueueSize; j++) {
+                    TreeNode* currNode = bfsQueue.front();
+                    bfsQueue.pop();
+                    if ((leafNodes.count(currNode) != 0) && (currNode != leaf)) {
+                        retVal++;
+                    }
+                    if (graph.count(currNode) != 0) {
+                        for (auto neighbor : graph[currNode]) {
+                            if (seen.count(neighbor) == 0) {
+                                bfsQueue.push(neighbor);
+                                seen.insert(neighbor);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        retVal /= 2;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def traverseTree(self, currNode: TreeNode, prevNode: TreeNode, graph: dict, leafNodes: set) -> None:
+        if currNode is None:
+            return
+
+        if (currNode.left is None) and (currNode.right is None):
+            leafNodes.add(currNode)
+
+        if prevNode is not None:
+            if prevNode not in graph:
+                graph[prevNode] = []
+            graph[prevNode].append(currNode)
+
+            if currNode not in graph:
+                graph[currNode] = []
+            graph[currNode].append(prevNode)
+
+        self.traverseTree(currNode.left, currNode, graph, leafNodes)
+        self.traverseTree(currNode.right, currNode, graph, leafNodes)
+
+    def countPairs(self, root: TreeNode, distance: int) -> int:
+        retVal = 0
+
+        graph = {}
+        leafNodes = set()
+        self.traverseTree(root, None, graph, leafNodes)
+
+        for leaf in leafNodes:
+            bfsQueue = []
+            bfsQueue.append(leaf)
+            seen = set()
+            seen.add(leaf)
+
+            for _ in range(distance + 1):
+                # Clear all nodes in the queue (distance i away from leaf node)
+                # Add the nodes' neighbors (distance i+1 away from leaf node)
+                bfsQueueSize = len(bfsQueue)
+                for _ in range(bfsQueueSize):
+                    currNode = bfsQueue.pop(0)
+                    if (currNode in leafNodes) and (currNode != leaf):
+                        retVal += 1
+                    if currNode in graph:
+                        for neighbor in graph.get(currNode):
+                            if neighbor not in seen:
+                                bfsQueue.append(neighbor)
+                                seen.add(neighbor)
+
+        retVal //= 2
+
+        return retVal
+```
+
+</details>
+
 ## [1569. Number of Ways to Reorder Array to Get Same BST](https://leetcode.com/problems/number-of-ways-to-reorder-array-to-get-same-bst/)  2288
 
 - [Official](https://leetcode.com/problems/number-of-ways-to-reorder-array-to-get-same-bst/editorial/)
