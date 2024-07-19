@@ -4931,6 +4931,177 @@ class Solution:
 
 </details>
 
+## [1380. Lucky Numbers in a Matrix](https://leetcode.com/problems/lucky-numbers-in-a-matrix/)  1207
+
+- [Official](https://leetcode.com/problems/lucky-numbers-in-a-matrix/editorial/)
+- [Official](https://leetcode.cn/problems/lucky-numbers-in-a-matrix/solutions/241888/ju-zhen-zhong-de-xing-yun-shu-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+Given an m x n matrix of distinct numbers, return all lucky numbers in the matrix in any order.
+
+A lucky number is an element of the matrix such that it is the minimum element in its row and maximum in its column.
+
+Example 1:
+Input: matrix = [[3,7,8],[9,11,13],[15,16,17]]
+Output: [15]
+Explanation: 15 is the only lucky number since it is the minimum in its row and the maximum in its column.
+
+Example 2:
+Input: matrix = [[1,10,4,2],[9,3,8,7],[15,16,17,12]]
+Output: [12]
+Explanation: 12 is the only lucky number since it is the minimum in its row and the maximum in its column.
+
+Example 3:
+Input: matrix = [[7,8],[1,2]]
+Output: [7]
+Explanation: 7 is the only lucky number since it is the minimum in its row and the maximum in its column.
+
+Constraints:
+m == mat.length
+n == mat[i].length
+1 <= n, m <= 50
+1 <= matrix[i][j] <= 10^5.
+All elements in the matrix are distinct.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Find out and save the minimum of each row and maximum of each column in two lists.
+2. Then scan through the whole matrix to identify the elements that satisfy the criteria.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* luckyNumbers(int** matrix, int matrixSize, int* matrixColSize, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    pRetVal = (int*)malloc(matrixSize * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (matrixSize * sizeof(int)));
+
+    int rowSize = matrixSize;
+    int colSize;
+    int value;
+    int luckyIndex, luckyValue;
+    int row, col, x;
+    for (row = 0; row < rowSize; ++row) {
+        luckyIndex = 0;
+        luckyValue = matrix[row][luckyIndex];
+
+        colSize = matrixColSize[row];
+        for (col = 0; col < colSize; ++col) {
+            value = matrix[row][col];
+            if (value < luckyValue) {
+                luckyIndex = col;
+                luckyValue = value;
+            }
+        }
+
+        for (x = 0; x < rowSize; ++x) {
+            if (matrix[x][luckyIndex] > luckyValue) {
+                luckyIndex = -1;
+                break;
+            }
+        }
+
+        if (luckyIndex != -1) {
+            pRetVal[(*returnSize)] = luckyValue;
+            (*returnSize) += 1;
+        }
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> luckyNumbers(vector<vector<int>>& matrix) {
+        vector<int> retVal;
+
+        int rowSize = matrix.size();
+        for (int row = 0; row < rowSize; ++row) {
+            int luckyIndex = 0;
+            int luckyValue = matrix[row][luckyIndex];
+
+            int colSize = matrix[row].size();
+            for (int col = 0; col < colSize; ++col) {
+                int value = matrix[row][col];
+                if (value < luckyValue) {
+                    luckyIndex = col;
+                    luckyValue = value;
+                }
+            }
+
+            for (int x = 0; x < rowSize; ++x) {
+                if (matrix[x][luckyIndex] > luckyValue) {
+                    luckyIndex = -1;
+                    break;
+                }
+            }
+
+            if (luckyIndex != -1) {
+                retVal.emplace_back(luckyValue);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def luckyNumbers(self, matrix: List[List[int]]) -> List[int]:
+        retVal = []
+
+        for rowEntry in matrix:
+            luckyIndex = 0
+            luckyValue = rowEntry[luckyIndex]
+            for key, value in enumerate(rowEntry):
+                if value < luckyValue:
+                    luckyIndex = key
+                    luckyValue = value
+
+            for rowEntry in matrix:
+                value = rowEntry[luckyIndex]
+                if value > luckyValue:
+                    luckyIndex = -1
+                    break
+
+            if luckyIndex != -1:
+                retVal.append(luckyValue)
+
+        return retVal
+```
+
+</details>
+
 ## [1431. Kids With the Greatest Number of Candies](https://leetcode.com/problems/kids-with-the-greatest-number-of-candies/)  1176
 
 - [Official](https://leetcode.cn/problems/kids-with-the-greatest-number-of-candies/solutions/269245/yong-you-zui-duo-tang-guo-de-hai-zi-by-leetcode-so/)
