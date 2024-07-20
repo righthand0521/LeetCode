@@ -3336,6 +3336,203 @@ class Solution:
 
 </details>
 
+## [1605. Find Valid Matrix Given Row and Column Sums](https://leetcode.com/problems/find-valid-matrix-given-row-and-column-sums/)  1867
+
+- [Official](https://leetcode.com/problems/find-valid-matrix-given-row-and-column-sums/editorial/)
+- [Official](https://leetcode.cn/problems/find-valid-matrix-given-row-and-column-sums/solutions/2165784/gei-ding-xing-he-lie-de-he-qiu-ke-xing-j-u8dj/)
+
+<details><summary>Description</summary>
+
+```text
+You are given two arrays rowSum and colSum of non-negative integers
+where rowSum[i] is the sum of the elements in the ith row
+and colSum[j] is the sum of the elements of the jth column of a 2D matrix.
+In other words, you do not know the elements of the matrix, but you do know the sums of each row and column.
+
+Find any matrix of non-negative integers of size rowSum.length x colSum.length
+that satisfies the rowSum and colSum requirements.
+
+Return a 2D array representing any matrix that fulfills the requirements.
+It's guaranteed that at least one matrix that fulfills the requirements exists.
+
+Example 1:
+Input: rowSum = [3,8], colSum = [4,7]
+Output: [[3,0], [1,7]]
+Explanation:
+0th row: 3 + 0 = 3 == rowSum[0]
+1st row: 1 + 7 = 8 == rowSum[1]
+0th column: 3 + 1 = 4 == colSum[0]
+1st column: 0 + 7 = 7 == colSum[1]
+The row and column sums match, and all matrix elements are non-negative.
+Another possible matrix is: [[1,2], [3,5]]
+
+Example 2:
+Input: rowSum = [5,7,10], colSum = [8,6,8]
+Output: [[0,5,0], [6,1,0], [2,0,8]]
+
+Constraints:
+1 <= rowSum.length, colSum.length <= 500
+0 <= rowSum[i], colSum[i] <= 10^8
+sum(rowSum) == sum(colSum)
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Find the smallest rowSum or colSum, and let it be x.
+   Place that number in the grid, and subtract x from rowSum and colSum.
+   Continue until all the sums are satisfied.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int** restoreMatrix(int* rowSum, int rowSumSize, int* colSum, int colSumSize, int* returnSize,
+                    int** returnColumnSizes) {
+    int** pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    //
+    (*returnColumnSizes) = (int*)malloc(rowSumSize * sizeof(int));
+    if ((*returnColumnSizes) == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    //
+    pRetVal = (int**)malloc(rowSumSize * sizeof(int*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        free((*returnColumnSizes));
+        (*returnColumnSizes) = NULL;
+        return pRetVal;
+    }
+    for ((*returnSize) = 0; (*returnSize) < rowSumSize; ++(*returnSize)) {
+        pRetVal[(*returnSize)] = (int*)malloc(colSumSize * sizeof(int));
+        if (pRetVal[(*returnSize)] == NULL) {
+            perror("malloc");
+            free((*returnColumnSizes));
+            (*returnColumnSizes) = NULL;
+            for (int i = 0; i < (*returnSize); ++i) {
+                free(pRetVal[i]);
+                pRetVal[i] = NULL;
+            }
+            free(pRetVal);
+            pRetVal = NULL;
+            (*returnSize) = 0;
+            return pRetVal;
+        }
+        memset(pRetVal[(*returnSize)], 0, (colSumSize * sizeof(int)));
+        (*returnColumnSizes)[(*returnSize)] = colSumSize;
+    }
+
+    /* rowSum = [5,7,10], colSum = [8,6,8]
+     *       8 6 8       3 6 8       0 6 8       0 2 8      0 0 8      0 0 0
+     *   --+-------  --+-------  --+-------  --+-------  --+-------  --+-------
+     *   5 | 0 0 0   0 | 5 0 0   0 | 5 0 0   0 | 5 0 0   0 | 5 0 0   0 | 5 0 0
+     *   7 | 0 0 0   7 | 0 0 0   4 | 3 0 0   0 | 3 4 0   0 | 3 4 0   0 | 3 4 0
+     *  10 | 0 0 0  10 | 0 0 0  10 | 0 0 0  10 | 0 0 0   8 | 0 2 0   0 | 0 2 8
+     */
+    int x = 0;
+    int y = 0;
+    while ((x < rowSumSize) && (y < colSumSize)) {
+        pRetVal[x][y] = fmin(rowSum[x], colSum[y]);
+        rowSum[x] -= pRetVal[x][y];
+        colSum[y] -= pRetVal[x][y];
+        if (rowSum[x] == 0) {
+            x++;
+        } else {
+            y++;
+        }
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<vector<int>> restoreMatrix(vector<int>& rowSum, vector<int>& colSum) {
+        vector<vector<int>> retVal;
+
+        int rowSumSize = rowSum.size();
+        int colSumSize = colSum.size();
+        retVal.resize(rowSumSize, vector<int>(colSumSize, 0));
+
+        /* rowSum = [5,7,10], colSum = [8,6,8]
+         *       8 6 8       3 6 8       0 6 8       0 2 8      0 0 8      0 0 0
+         *   --+-------  --+-------  --+-------  --+-------  --+-------  --+-------
+         *   5 | 0 0 0   0 | 5 0 0   0 | 5 0 0   0 | 5 0 0   0 | 5 0 0   0 | 5 0 0
+         *   7 | 0 0 0   7 | 0 0 0   4 | 3 0 0   0 | 3 4 0   0 | 3 4 0   0 | 3 4 0
+         *  10 | 0 0 0  10 | 0 0 0  10 | 0 0 0  10 | 0 0 0   8 | 0 2 0   0 | 0 2 8
+         */
+        int x = 0;
+        int y = 0;
+        while ((x < rowSumSize) && (y < colSumSize)) {
+            retVal[x][y] = min(rowSum[x], colSum[y]);
+            rowSum[x] -= retVal[x][y];
+            colSum[y] -= retVal[x][y];
+            if (rowSum[x] == 0) {
+                x++;
+            } else {
+                y++;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def restoreMatrix(self, rowSum: List[int], colSum: List[int]) -> List[List[int]]:
+        retVal = []
+
+        rowSumSize = len(rowSum)
+        colSumSize = len(colSum)
+        retVal = [[0 for _ in range(colSumSize)] for _ in range(rowSumSize)]
+
+        # rowSum = [5,7,10], colSum = [8,6,8]
+        #      8 6 8       3 6 8       0 6 8       0 2 8      0 0 8      0 0 0
+        #  --+-------  --+-------  --+-------  --+------  --+------- --+-------
+        #  5 | 0 0 0   0 | 5 0 0   0 | 5 0 0   0 | 5 0 0  0 | 5 0 0  0 | 5 0 0
+        #  7 | 0 0 0   7 | 0 0 0   4 | 3 0 0   0 | 3 4 0  0 | 3 4 0  0 | 3 4 0
+        # 10 | 0 0 0  10 | 0 0 0  10 | 0 0 0  10 | 0 0 0  8 | 0 2 0  0 | 0 2 8
+        x = 0
+        y = 0
+        while (x < rowSumSize) and (y < colSumSize):
+            retVal[x][y] = min(rowSum[x], colSum[y])
+            rowSum[x] -= retVal[x][y]
+            colSum[y] -= retVal[x][y]
+            if rowSum[x] == 0:
+                x += 1
+            else:
+                y += 1
+
+        return retVal
+```
+
+</details>
+
 ## [1642. Furthest Building You Can Reach](https://leetcode.com/problems/furthest-building-you-can-reach/)  1962
 
 <details><summary>Description</summary>
