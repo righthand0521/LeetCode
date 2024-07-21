@@ -2179,6 +2179,339 @@ class Solution:
 
 </details>
 
+## [2392. Build a Matrix With Conditions](https://leetcode.com/problems/build-a-matrix-with-conditions/)  1960
+
+- [Official](https://leetcode.com/problems/build-a-matrix-with-conditions/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a positive integer k. You are also given:
+- a 2D integer array rowConditions of size n where rowConditions[i] = [abovei, belowi], and
+- a 2D integer array colConditions of size m where colConditions[i] = [lefti, righti].
+
+The two arrays contain integers from 1 to k.
+
+You have to build a k x k matrix that contains each of the numbers from 1 to k exactly once.
+The remaining cells should have the value 0.
+
+The matrix should also satisfy the following conditions:
+- The number abovei should appear in a row that is strictly above the row
+  at which the number belowi appears for all i from 0 to n - 1.
+- The number lefti should appear in a column that is strictly left of the column
+  at which the number righti appears for all i from 0 to m - 1.
+
+Return any matrix that satisfies the conditions. If no answer exists, return an empty matrix.
+
+Example 1:
+Input: k = 3, rowConditions = [[1,2],[3,2]], colConditions = [[2,1],[3,2]]
+Output: [[3,0,0],[0,0,1],[0,2,0]]
+Explanation: The diagram above shows a valid example of a matrix that satisfies all the conditions.
+The row conditions are the following:
+- Number 1 is in row 1, and number 2 is in row 2, so 1 is above 2 in the matrix.
+- Number 3 is in row 0, and number 2 is in row 2, so 3 is above 2 in the matrix.
+The column conditions are the following:
+- Number 2 is in column 1, and number 1 is in column 2, so 2 is left of 1 in the matrix.
+- Number 3 is in column 0, and number 2 is in column 1, so 3 is left of 2 in the matrix.
+Note that there may be multiple correct answers.
+
+Example 2:
+Input: k = 3, rowConditions = [[1,2],[2,3],[3,1],[2,3]], colConditions = [[2,1]]
+Output: []
+Explanation: From the first two conditions,
+3 has to be below 1 but the third conditions needs 3 to be above 1 to be satisfied.
+No matrix can satisfy all the conditions, so we return the empty matrix.
+
+Constraints:
+2 <= k <= 400
+1 <= rowConditions.length, colConditions.length <= 10^4
+rowConditions[i].length == colConditions[i].length == 2
+1 <= abovei, belowi, lefti, righti <= k
+abovei != belowi
+lefti != righti
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Can you think of the problem in terms of graphs?
+2. What algorithm allows you to find the order of nodes in a graph?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// https://leetcode.cn/problems/build-a-matrix-with-conditions/solutions/2544099/gei-ding-tiao-jian-xia-gou-zao-ju-zhen-t-kra5/
+struct LinkedNode {
+    int dest;
+    struct LinkedNode *next;
+};
+struct BinodeQueue {
+    int *arr;
+    int arrHead;
+    int arrSize;
+};
+static void queuePush(struct BinodeQueue *queue, int x) {
+    queue->arr[queue->arrHead + queue->arrSize] = x;
+    queue->arrSize++;
+}
+static void queuePop(struct BinodeQueue *queue) {
+    queue->arrHead++;
+    queue->arrSize--;
+}
+static int topology(int **conditions, int conditionsSize, int k, struct LinkedNode *list, int *sites) {
+    int retVal = 0;
+
+    int i;
+
+    int degreeSize = k + 1;
+    int degree[degreeSize];
+    memset(degree, 0, sizeof(degree));
+
+    struct LinkedNode *head[k + 1];
+    memset(head, 0, sizeof(head));
+
+    int arr[k];
+    memset(arr, 0, sizeof(arr));
+    struct BinodeQueue degreeQueue;
+    degreeQueue.arr = arr;
+    degreeQueue.arrHead = 0;
+    degreeQueue.arrSize = 0;
+
+    for (i = 0; conditionsSize > i; ++i) {
+        degree[conditions[i][1]]++;
+
+        list[retVal].dest = conditions[i][1];
+        list[retVal].next = head[conditions[i][0]];
+
+        head[conditions[i][0]] = &list[retVal];
+
+        retVal++;
+    }
+
+    for (i = 1; i < degreeSize; ++i) {
+        if (degree[i] == 0) {
+            queuePush(&degreeQueue, i);
+        }
+    }
+
+    retVal = 0;
+    struct LinkedNode *node = NULL;
+    while (0 < degreeQueue.arrSize) {
+        i = degreeQueue.arr[degreeQueue.arrHead];
+        sites[i] = retVal;
+        retVal++;
+        queuePop(&degreeQueue);
+
+        for (node = head[i]; node != NULL; node = node->next) {
+            degree[node->dest]--;
+            if (degree[node->dest] == 0) {
+                queuePush(&degreeQueue, node->dest);
+            }
+        }
+    }
+
+    return retVal;
+}
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int **buildMatrix(int k, int **rowConditions, int rowConditionsSize, int *rowConditionsColSize, int **colConditions,
+                  int colConditionsSize, int *colConditionsColSize, int *returnSize, int **returnColumnSizes) {
+    int **pRetVal = NULL;
+
+    //
+    (*returnSize) = 0;
+    (*returnColumnSizes) = NULL;
+
+    //
+    int buffSize = fmax(rowConditionsSize, colConditionsSize);
+    struct LinkedNode list[buffSize];
+    int sitesSize = k + 1;
+    int sites[2][sitesSize];
+    int ret = 0;
+    ret = topology(rowConditions, rowConditionsSize, k, list, &sites[0][0]);
+    if (ret != k) {
+        return pRetVal;
+    }
+    ret = topology(colConditions, colConditionsSize, k, list, &sites[1][0]);
+    if (ret != k) {
+        return pRetVal;
+    }
+
+    //
+    pRetVal = (int **)malloc(k * sizeof(int *));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    (*returnColumnSizes) = (int *)malloc(k * sizeof(int));
+    if ((*returnColumnSizes) == NULL) {
+        perror("malloc");
+        free(pRetVal);
+        pRetVal = NULL;
+        return pRetVal;
+    }
+    //
+    int i, j;
+    for (i = 0; i < k; ++i) {
+        pRetVal[i] = (int *)calloc(k, sizeof(int));
+        if (pRetVal[i] == NULL) {
+            perror("calloc");
+            for (j = 0; j < i; ++j) {
+                free(pRetVal[j]);
+                pRetVal[j] = NULL;
+            }
+            free(pRetVal);
+            pRetVal = NULL;
+            free((*returnColumnSizes));
+            (*returnColumnSizes) = NULL;
+            (*returnSize) = 0;
+            return pRetVal;
+        }
+        (*returnColumnSizes)[i] = k;
+        (*returnSize) += 1;
+    }
+    for (i = 1; i < sitesSize; ++i) {
+        pRetVal[sites[0][i]][sites[1][i]] = i;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    // Code to find the topologically sorted sequence using Kahn's algorithm.
+    vector<int> topoSort(vector<vector<int>>& edges, int n) {
+        vector<int> retVal;
+
+        // Create an adjacency list to store the edges.
+        vector<vector<int>> adjacency(n + 1);
+        vector<int> degree(n + 1);
+        for (auto edge : edges) {
+            adjacency[edge[0]].emplace_back(edge[1]);
+            degree[edge[1]]++;
+        }
+
+        // Push all integers with in-degree 0 in the queue.
+        queue<int> degreeQueue;
+        for (int i = 1; i <= n; i++) {
+            if (degree[i] == 0) {
+                degreeQueue.push(i);
+            }
+        }
+        while (degreeQueue.empty() == false) {
+            int order = degreeQueue.front();
+            degreeQueue.pop();
+            retVal.emplace_back(order);
+            for (auto neighbor : adjacency[order]) {
+                degree[neighbor]--;
+                if (degree[neighbor] == 0) {
+                    degreeQueue.push(neighbor);
+                }
+            }
+            n--;
+        }
+
+        // If we have not visited all integers, return empty array.
+        if (n != 0) {
+            retVal.clear();
+        }
+
+        return retVal;
+    }
+
+   public:
+    vector<vector<int>> buildMatrix(int k, vector<vector<int>>& rowConditions, vector<vector<int>>& colConditions) {
+        vector<vector<int>> retVal(k, vector<int>(k, 0));
+
+        // Store the topologically sorted sequences.
+        vector<int> orderRows = topoSort(rowConditions, k);
+        vector<int> orderColumns = topoSort(colConditions, k);
+
+        // If no topological sort exists, return empty array.
+        if ((orderRows.empty() == true) or (orderColumns.empty() == true)) {
+            retVal.clear();
+            return retVal;
+        }
+
+        for (int i = 0; i < k; i++) {
+            for (int j = 0; j < k; j++) {
+                if (orderRows[i] == orderColumns[j]) {
+                    retVal[i][j] = orderRows[i];
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def topoSort(self, edges: List[List[int]], n: int) -> List[int]:
+        retVal = []
+
+        adjacency = [[] for _ in range(n + 1)]
+        degree = [0] * (n + 1)
+        for edge in edges:
+            adjacency[edge[0]].append(edge[1])
+            degree[edge[1]] += 1
+
+        degreeQueue = deque()
+        for i in range(1, n + 1):
+            if degree[i] == 0:
+                degreeQueue.append(i)
+        while degreeQueue:
+            order = degreeQueue.popleft()
+            retVal.append(order)
+            for neighbor in adjacency[order]:
+                degree[neighbor] -= 1
+                if degree[neighbor] == 0:
+                    degreeQueue.append(neighbor)
+            n -= 1
+
+        if n != 0:
+            retVal = []
+
+        return retVal
+
+    def buildMatrix(self, k: int, rowConditions: List[List[int]], colConditions: List[List[int]]) -> List[List[int]]:
+        retVal = []
+
+        orderRows = self.topoSort(rowConditions, k)
+        orderColumns = self.topoSort(colConditions, k)
+        if (not orderRows) or (not orderColumns):
+            return retVal
+
+        retVal = [[0] * k for _ in range(k)]
+        for i in range(k):
+            for j in range(k):
+                if orderRows[i] == orderColumns[j]:
+                    retVal[i][j] = orderRows[i]
+
+        return retVal
+```
+
+</details>
+
 ## [2421. Number of Good Paths](https://leetcode.com/problems/number-of-good-paths/)  2444
 
 - [Official](https://leetcode.com/problems/number-of-good-paths/solutions/2892908/number-of-good-paths/)
