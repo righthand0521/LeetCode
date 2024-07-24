@@ -48,7 +48,7 @@ static inline int compareIntArray(const void *a1, const void *a2) {
  * Note: The returned array must be malloced, assume caller calls free().
  */
 int *frequencySort(int *nums, int numsSize, int *returnSize) {
-    int *pRetVal = 0;
+    int *pRetVal = NULL;
 
     //
     (*returnSize) = 0;
