@@ -2,9 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MERGE_SORT (1)
-#define QUICK_SORT (1)  // Time Limit Exceeded
-#if (MERGE_SORT)
 void merge(int* nums, int left, int middle, int right) {
     // copy left subarray
     int leftIdx = 0;
@@ -50,62 +47,24 @@ void mergeSort(int* nums, int left, int right) {
     mergeSort(nums, middle + 1, right);
     merge(nums, left, middle, right);
 }
-#elif (QUICK_SORT)
-void quickSort(int* nums, int left, int right) {
-    if (left >= right) {
-        return;
-    }
-
-    int temp;
-    int pivot = left;
-    int leftIdx = left;
-    int rightIdx = right;
-    while (leftIdx < rightIdx) {
-        while ((nums[leftIdx] <= nums[pivot]) && (leftIdx < right)) {
-            leftIdx++;
-        }
-
-        while (nums[rightIdx] > nums[pivot]) {
-            rightIdx--;
-        }
-
-        if (leftIdx < rightIdx) {
-            temp = nums[leftIdx];
-            nums[leftIdx] = nums[rightIdx];
-            nums[rightIdx] = temp;
-        }
-    }
-    temp = nums[pivot];
-    nums[pivot] = nums[rightIdx];
-    nums[rightIdx] = temp;
-
-    quickSort(nums, left, rightIdx - 1);
-    quickSort(nums, rightIdx + 1, right);
-}
-#endif
 /**
  * Note: The returned array must be malloced, assume caller calls free().
  */
 int* sortArray(int* nums, int numsSize, int* returnSize) {
     int* pRetVal = NULL;
 
-    (*returnSize) = numsSize;
-    pRetVal = (int*)malloc((*returnSize) * sizeof(int));
+    (*returnSize) = 0;
+
+    pRetVal = (int*)malloc(numsSize * sizeof(int));
     if (pRetVal == NULL) {
         perror("malloc");
-        (*returnSize) = 0;
         return pRetVal;
     }
-    memset(pRetVal, 0, ((*returnSize) * sizeof(int)));
-    memcpy(pRetVal, nums, ((*returnSize) * sizeof(int)));
+    memset(pRetVal, 0, (numsSize * sizeof(int)));
+    memcpy(pRetVal, nums, (numsSize * sizeof(int)));
+    (*returnSize) = numsSize;
 
-#if (MERGE_SORT)
-    printf("MERGE_SORT\n");
     mergeSort(pRetVal, 0, numsSize - 1);
-#elif (QUICK_SORT)
-    printf("QUICK_SORT\n");
-    quickSort(pRetVal, 0, numsSize - 1);
-#endif
 
     return pRetVal;
 }

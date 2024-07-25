@@ -1530,9 +1530,6 @@ Constraints:
 <details><summary>C</summary>
 
 ```c
-#define MERGE_SORT (1)
-#define QUICK_SORT (1)  // Time Limit Exceeded
-#if (MERGE_SORT)
 void merge(int* nums, int left, int middle, int right) {
     // copy left subarray
     int leftIdx = 0;
@@ -1578,62 +1575,24 @@ void mergeSort(int* nums, int left, int right) {
     mergeSort(nums, middle + 1, right);
     merge(nums, left, middle, right);
 }
-#elif (QUICK_SORT)
-void quickSort(int* nums, int left, int right) {
-    if (left >= right) {
-        return;
-    }
-
-    int temp;
-    int pivot = left;
-    int leftIdx = left;
-    int rightIdx = right;
-    while (leftIdx < rightIdx) {
-        while ((nums[leftIdx] <= nums[pivot]) && (leftIdx < right)) {
-            leftIdx++;
-        }
-
-        while (nums[rightIdx] > nums[pivot]) {
-            rightIdx--;
-        }
-
-        if (leftIdx < rightIdx) {
-            temp = nums[leftIdx];
-            nums[leftIdx] = nums[rightIdx];
-            nums[rightIdx] = temp;
-        }
-    }
-    temp = nums[pivot];
-    nums[pivot] = nums[rightIdx];
-    nums[rightIdx] = temp;
-
-    quickSort(nums, left, rightIdx - 1);
-    quickSort(nums, rightIdx + 1, right);
-}
-#endif
 /**
  * Note: The returned array must be malloced, assume caller calls free().
  */
 int* sortArray(int* nums, int numsSize, int* returnSize) {
     int* pRetVal = NULL;
 
-    (*returnSize) = numsSize;
-    pRetVal = (int*)malloc((*returnSize) * sizeof(int));
+    (*returnSize) = 0;
+
+    pRetVal = (int*)malloc(numsSize * sizeof(int));
     if (pRetVal == NULL) {
         perror("malloc");
-        (*returnSize) = 0;
         return pRetVal;
     }
-    memset(pRetVal, 0, ((*returnSize) * sizeof(int)));
-    memcpy(pRetVal, nums, ((*returnSize) * sizeof(int)));
+    memset(pRetVal, 0, (numsSize * sizeof(int)));
+    memcpy(pRetVal, nums, (numsSize * sizeof(int)));
+    (*returnSize) = numsSize;
 
-#if (MERGE_SORT)
-    printf("MERGE_SORT\n");
     mergeSort(pRetVal, 0, numsSize - 1);
-#elif (QUICK_SORT)
-    printf("QUICK_SORT\n");
-    quickSort(pRetVal, 0, numsSize - 1);
-#endif
 
     return pRetVal;
 }
@@ -1700,6 +1659,40 @@ class Solution {
         return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def mergeSort(self, nums: List[int], left: int, right: int) -> None:
+        if left == right:
+            return
+
+        middle = (left + right) // 2
+        self.mergeSort(nums, left, middle)
+        self.mergeSort(nums, middle + 1, right)
+
+        tmp = []
+        i = left
+        j = middle + 1
+        while (i <= middle) or (j <= right):
+            if (i > middle) or ((j <= right) and (nums[j] < nums[i])):
+                tmp.append(nums[j])
+                j += 1
+            else:
+                tmp.append(nums[i])
+                i += 1
+        nums[left: right + 1] = tmp
+
+    def sortArray(self, nums: List[int]) -> List[int]:
+        retVal = nums
+
+        self.mergeSort(retVal, 0, len(retVal) - 1)
+
+        return retVal
 ```
 
 </details>
