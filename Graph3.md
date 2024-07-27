@@ -4047,3 +4047,268 @@ class Solution:
 ```
 
 </details>
+
+## [2976. Minimum Cost to Convert String I](https://leetcode.com/problems/minimum-cost-to-convert-string-i/)  1882
+
+- [Official](https://leetcode.com/problems/minimum-cost-to-convert-string-i/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given two 0-indexed strings source and target, both of length n and consisting of lowercase English letters.
+You are also given two 0-indexed character arrays original and changed, and an integer array cost,
+where cost[i] represents the cost of changing the character original[i] to the character changed[i].
+
+You start with the string source.
+In one operation, you can pick a character x from the string and change it to the character y at a cost of z
+if there exists any index j such that cost[j] == z, original[j] == x, and changed[j] == y.
+
+Return the minimum cost to convert the string source to the string target using any number of operations.
+If it is impossible to convert source to target, return -1.
+
+Note that there may exist indices i, j such that original[j] == original[i] and changed[j] == changed[i].
+
+Example 1:
+Input: source = "abcd", target = "acbe",
+original = ["a","b","c","c","e","d"], changed = ["b","c","b","e","b","e"], cost = [2,5,5,1,2,20]
+Output: 28
+Explanation: To convert the string "abcd" to string "acbe":
+- Change value at index 1 from 'b' to 'c' at a cost of 5.
+- Change value at index 2 from 'c' to 'e' at a cost of 1.
+- Change value at index 2 from 'e' to 'b' at a cost of 2.
+- Change value at index 3 from 'd' to 'e' at a cost of 20.
+The total cost incurred is 5 + 1 + 2 + 20 = 28.
+It can be shown that this is the minimum possible cost.
+
+Example 2:
+Input: source = "aaaa", target = "bbbb", original = ["a","c"], changed = ["c","b"], cost = [1,2]
+Output: 12
+Explanation: To change the character 'a' to 'b' change the character 'a' to 'c' at a cost of 1,
+followed by changing the character 'c' to 'b' at a cost of 2, for a total cost of 1 + 2 = 3.
+To change all occurrences of 'a' to 'b', a total cost of 3 * 4 = 12 is incurred.
+
+Example 3:
+Input: source = "abcd", target = "abce", original = ["a"], changed = ["e"], cost = [10000]
+Output: -1
+Explanation: It is impossible to convert source to target
+because the value at index 3 cannot be changed from 'd' to 'e'.
+
+Constraints:
+1 <= source.length == target.length <= 10^5
+source, target consist of lowercase English letters.
+1 <= cost.length == original.length == changed.length <= 2000
+original[i], changed[i] are lowercase English letters.
+1 <= cost[i] <= 10^6
+original[i] != changed[i]
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Construct a graph with each letter as a node, and construct an edge (a, b) with weight c
+   if we can change from character a to letter b with cost c.
+   (Keep the one with the smallest cost in case there are multiple edges between a and b).
+2. Calculate the shortest path for each pair of characters (source[i], target[i]).
+   The sum of cost over all i in the range [0, source.length - 1].
+   If there is no path between source[i] and target[i], the answer is -1.
+3. Any shortest path algorithms will work since we only have 26 nodes.
+   Since we only have at most 26 * 26 pairs, we can save the result to avoid re-calculation.
+4. We can also use Floyd Warshall's algorithm to precompute all the results.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// source, target consist of lowercase English letters. original[i], changed[i] are lowercase English letters.
+#define MAX_LETTERS (26)
+long long minimumCost(char* source, char* target, char* original, int originalSize, char* changed, int changedSize,
+                      int* cost, int costSize) {
+    long long retVal = 0;
+
+    int i, j, k;
+
+    long long distance[MAX_LETTERS][MAX_LETTERS];
+    for (i = 0; i < MAX_LETTERS; i++) {
+        for (j = 0; j < MAX_LETTERS; j++) {
+            distance[i][j] = INT_MAX;
+        }
+        distance[i][i] = 0;
+    }
+    int originalIdx, changedIdx;
+    for (i = 0; i < originalSize; i++) {
+        originalIdx = original[i] - 'a';
+        changedIdx = changed[i] - 'a';
+        distance[originalIdx][changedIdx] = fmin(cost[i], distance[originalIdx][changedIdx]);
+    }
+    for (k = 0; k < MAX_LETTERS; k++) {
+        for (i = 0; i < MAX_LETTERS; i++) {
+            for (j = 0; j < MAX_LETTERS; j++) {
+                distance[i][j] = fmin(distance[i][j], distance[i][k] + distance[k][j]);
+            }
+        }
+    }
+
+    int sourceIdx, targetIdx;
+    int sourceSize = strlen(source);
+    for (i = 0; i < sourceSize; i++) {
+        if (source[i] == target[i]) {
+            continue;
+        }
+
+        sourceIdx = source[i] - 'a';
+        targetIdx = target[i] - 'a';
+        if (distance[sourceIdx][targetIdx] >= INT_MAX) {
+            retVal = -1;  // If it is impossible to convert source to target, return -1.
+            return retVal;
+        }
+        retVal += (distance[sourceIdx][targetIdx]);
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    // source, target consist of lowercase English letters.
+    // original[i], changed[i] are lowercase English letters.
+    int letters = 26;
+
+    vector<long long> dijkstra(int startChar, const vector<vector<pair<int, int>>>& adjacencyList) {
+        vector<long long> retVal(letters, -1);
+
+        // Priority queue to store characters with their conversion cost, sorted by cost
+        priority_queue<pair<long long, int>, vector<pair<long long, int>>, greater<pair<long long, int>>> priorityQueue;
+        priorityQueue.push({0, startChar});
+        while (priorityQueue.empty() == false) {
+            auto [currentCost, currentChar] = priorityQueue.top();
+            priorityQueue.pop();
+
+            if ((retVal[currentChar] != -1) && (retVal[currentChar] < currentCost)) {
+                continue;
+            }
+
+            // Explore all possible conversions from the current character
+            for (auto& [targetChar, conversionCost] : adjacencyList[currentChar]) {
+                long long newTotalCost = currentCost + conversionCost;
+
+                // If we found a cheaper conversion, update its cost
+                if ((retVal[targetChar] == -1) || (newTotalCost < retVal[targetChar])) {
+                    retVal[targetChar] = newTotalCost;
+                    priorityQueue.push({newTotalCost, targetChar});
+                }
+            }
+        }
+
+        return retVal;
+    }
+
+   public:
+    long long minimumCost(string source, string target, vector<char>& original, vector<char>& changed,
+                          vector<int>& cost) {
+        long long retVal = 0;
+
+        vector<vector<pair<int, int>>> adjacencyList(letters);
+        int originalSize = original.size();
+        for (int i = 0; i < originalSize; i++) {
+            adjacencyList[original[i] - 'a'].push_back({changed[i] - 'a', cost[i]});
+        }
+
+        vector<vector<long long>> minConversionCosts(26, vector<long long>(letters));
+        for (int i = 0; i < letters; i++) {
+            minConversionCosts[i] = dijkstra(i, adjacencyList);
+        }
+
+        int sourceSize = source.length();
+        for (int i = 0; i < sourceSize; i++) {
+            if (source[i] != target[i]) {
+                long long charConversionCost = minConversionCosts[source[i] - 'a'][target[i] - 'a'];
+                if (charConversionCost == -1) {
+                    retVal = -1;  // If it is impossible to convert source to target, return -1.
+                    return retVal;
+                }
+                retVal += charConversionCost;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        # source, target consist of lowercase English letters.
+        # original[i], changed[i] are lowercase English letters.
+        self.letters = 26
+
+    def dijkstra(self, startChar: int, adjacencyList: List[List[tuple]]) -> List[int]:
+        retVal = [float("inf")] * self.letters
+
+        # Priority queue to store characters with their conversion cost, sorted by cost
+        priorityQueue = [(0, startChar)]
+        while priorityQueue:
+            currentCost, currentChar = heappop(priorityQueue)
+
+            if retVal[currentChar] != float("inf"):
+                continue
+            retVal[currentChar] = currentCost
+
+            # Explore all possible conversions from the current character
+            for targetChar, conversionCost in adjacencyList[currentChar]:
+                newTotalCost = currentCost + conversionCost
+
+                # If we found a cheaper conversion, update its cost
+                if retVal[targetChar] == float("inf"):
+                    heappush(priorityQueue, (newTotalCost, targetChar))
+
+        return retVal
+
+    def minimumCost(self, source: str, target: str, original: List[str], changed: List[str], cost: List[int]) -> int:
+        retVal = 0
+
+        adjacencyList = [[] for _ in range(self.letters)]
+        originalSize = len(original)
+        for i in range(originalSize):
+            originalIdx = ord(original[i]) - ord("a")
+            changedIdx = ord(changed[i]) - ord("a")
+            adjacencyList[originalIdx].append((changedIdx, cost[i]))
+
+        # Calculate shortest paths for all possible character conversions
+        minConversionCosts = []
+        for i in range(self.letters):
+            minCost = self.dijkstra(i, adjacencyList)
+            minConversionCosts.append(minCost)
+
+        # Calculate the total cost of converting source to target
+        for s, t in zip(source, target):
+            if s == t:
+                continue
+
+            sIdx = ord(s) - ord("a")
+            tIdx = ord(t) - ord("a")
+            charConversionCost = minConversionCosts[sIdx][tIdx]
+            if charConversionCost == float("inf"):
+                # If it is impossible to convert source to target, return -1.
+                retVal = -1
+                return retVal
+            retVal += charConversionCost
+
+        return retVal
+```
+
+</details>
