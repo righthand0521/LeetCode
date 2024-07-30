@@ -5,13 +5,9 @@
 using namespace std;
 
 class Solution {
-#define DYNAMIC_PROGRAMMING (1)
    public:
     int minimumDeletions(string s) {
         int retVal = 0;
-
-#if (DYNAMIC_PROGRAMMING)
-        cout << "DYNAMIC_PROGRAMMING\n";
 
         /* 926. Flip String to Monotone Increasing
          *  https://leetcode.com/problems/flip-string-to-monotone-increasing/
@@ -28,40 +24,6 @@ class Solution {
                 ++num;
             }
         }
-#else
-        /* https://leetcode.cn/problems/minimum-deletions-to-make-string-balanced/solutions/2149746/qian-hou-zhui-fen-jie-yi-zhang-tu-miao-d-dor2/
-         *  Input: s = "aababbab"
-         *  | (a)   (a)   b   (a)  b   b  (a)  b   ===> 4
-         *     a  |  a    b    a   b   b   a   b   =a=> 4 - 1 = 3
-         *     a     a  | b    a   b   b   a   b   =a=> 3 - 1 = 2
-         *     a     a    b |  a   b   b   a   b   =b=> 2 + 1 = 3
-         *     a     a    b    a | b   b   a   b   =a=> 3 - 1 = 2   => min
-         *     a     a    b    a   b | b   a   b   =b=> 2 + 1 = 3
-         *     a     a    b    a   b   b | a   b   =b=> 3 + 1 = 4
-         *     a     a    b    a   b   b   a | b   =a=> 4 - 1 = 3
-         *     a     a    b    a   b   b   a   b | =a=> 3 + 1 = 4
-         */
-        int sSize = s.size();
-
-        int aCount = 0;
-        for (int i = 0; i < sSize; ++i) {
-            if (s[i] == 'a') {
-                ++aCount;
-            }
-        }
-        retVal = aCount;
-
-        int bCount = 0;
-        for (int i = 0; i < sSize; ++i) {
-            if (s[i] == 'a') {
-                --aCount;
-            } else {
-                ++bCount;
-            }
-
-            retVal = min(retVal, bCount + aCount);
-        }
-#endif
 
         return retVal;
     }
