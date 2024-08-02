@@ -3371,6 +3371,264 @@ class Solution:
 
 </details>
 
+## [2134. Minimum Swaps to Group All 1's Together II](https://leetcode.com/problems/minimum-swaps-to-group-all-1s-together-ii/)  1748
+
+- [Official](https://leetcode.com/problems/minimum-swaps-to-group-all-1s-together-ii/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-swaps-to-group-all-1s-together-ii/solutions/1202043/zui-shao-jiao-huan-ci-shu-lai-zu-he-suo-iaghf/)
+
+<details><summary>Description</summary>
+
+```text
+A swap is defined as taking two distinct positions in an array and swapping the values in them.
+
+A circular array is defined as an array where we consider the first element and the last element to be adjacent.
+
+Given a binary circular array nums,
+return the minimum number of swaps required to group all 1's present in the array together at any location.
+
+Example 1:
+Input: nums = [0,1,0,1,1,0,0]
+Output: 1
+Explanation: Here are a few of the ways to group all the 1's together:
+[0,0,1,1,1,0,0] using 1 swap.
+[0,1,1,1,0,0,0] using 1 swap.
+[1,1,0,0,0,0,1] using 2 swaps (using the circular property of the array).
+There is no way to group all 1's together with 0 swaps.
+Thus, the minimum number of swaps required is 1.
+
+Example 2:
+Input: nums = [0,1,1,1,0,0,1,1,0]
+Output: 2
+Explanation: Here are a few of the ways to group all the 1's together:
+[1,1,1,0,0,0,0,1,1] using 2 swaps (using the circular property of the array).
+[1,1,1,1,1,0,0,0,0] using 2 swaps.
+There is no way to group all 1's together with 0 or 1 swaps.
+Thus, the minimum number of swaps required is 2.
+
+Example 3:
+Input: nums = [1,1,0,0,1]
+Output: 0
+Explanation: All the 1's are already grouped together due to the circular property of the array.
+Thus, the minimum number of swaps required is 0.
+
+Constraints:
+1 <= nums.length <= 10^5
+nums[i] is either 0 or 1.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Notice that the number of 1’s to be grouped together is fixed. It is the number of 1's the whole array has.
+2. Call this number total. We should then check for every subarray of size total (possibly wrapped around),
+   how many swaps are required to have the subarray be all 1’s.
+3. The number of swaps required is the number of 0’s in the subarray.
+4. To eliminate the circular property of the array, we can append the original array to itself.
+   Then, we check each subarray of length total.
+5. How do we avoid recounting the number of 0’s in the subarray each time? The Sliding Window technique can help.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// Helper function to calculate the minimum swaps required to group all value together
+int minSwapsHelper(int* nums, int numsSize, int value) {
+    int retVal = 0;
+
+    // Count the total number of value in the array
+    int totalValCount = 0;
+    int i;
+    for (i = numsSize - 1; i >= 0; i--) {
+        if (nums[i] == value) {
+            totalValCount++;
+        }
+    }
+    // If there is no value or the array is full of value, no swaps are needed
+    if ((totalValCount == 0) || (totalValCount == numsSize)) {
+        return retVal;
+    }
+
+    int start = 0;
+    int end = 0;
+    int maxValInWindow = 0;
+    int currentValInWindow = 0;
+
+    // Initial window setup: count the number of value in the first window of size `totalValCount`
+    while (end < totalValCount) {
+        if (nums[end++] == value) {
+            currentValInWindow++;
+        }
+    }
+    maxValInWindow = fmax(maxValInWindow, currentValInWindow);
+
+    // Slide the window across the array to find the maximum number of value in any window
+    while (end < numsSize) {
+        if (nums[start++] == value) {
+            currentValInWindow--;
+        }
+
+        if (nums[end++] == value) {
+            currentValInWindow++;
+        }
+
+        maxValInWindow = fmax(maxValInWindow, currentValInWindow);
+    }
+
+    // Minimum swaps are the total value minus the maximum found in any window
+    retVal = totalValCount - maxValInWindow;
+
+    return retVal;
+}
+int minSwaps(int* nums, int numsSize) {
+    int retVal = 0;
+
+    // Calculate the minimum swaps needed to group all 1s or all 0s together
+    int op0 = minSwapsHelper(nums, numsSize, 0);  // Grouping all 0s together
+    int op1 = minSwapsHelper(nums, numsSize, 1);  // Grouping all 1s together
+    retVal = fmin(op0, op1);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    // Helper function to calculate the minimum swaps required to group all value together
+    int minSwapsHelper(vector<int>& nums, int value) {
+        int retVal = 0;
+
+        int numsSize = nums.size();
+
+        // Count the total number of value in the array
+        int totalValCount = 0;
+        for (int i = numsSize - 1; i >= 0; i--) {
+            if (nums[i] == value) {
+                totalValCount++;
+            }
+        }
+        // If there is no value or the array is full of value, no swaps are needed
+        if ((totalValCount == 0) || (totalValCount == numsSize)) {
+            return retVal;
+        }
+
+        int start = 0;
+        int end = 0;
+        int maxValInWindow = 0;
+        int currentValInWindow = 0;
+
+        // Initial window setup: count the number of value in the first window of size `totalValCount`
+        while (end < totalValCount) {
+            if (nums[end++] == value) {
+                currentValInWindow++;
+            }
+        }
+        maxValInWindow = max(maxValInWindow, currentValInWindow);
+
+        // Slide the window across the array to find the maximum number of value in any window
+        while (end < numsSize) {
+            if (nums[start++] == value) {
+                currentValInWindow--;
+            }
+
+            if (nums[end++] == value) {
+                currentValInWindow++;
+            }
+
+            maxValInWindow = max(maxValInWindow, currentValInWindow);
+        }
+
+        // Minimum swaps are the total value minus the maximum found in any window
+        retVal = totalValCount - maxValInWindow;
+
+        return retVal;
+    }
+
+   public:
+    int minSwaps(vector<int>& nums) {
+        int retVal = 0;
+
+        // Calculate the minimum swaps needed to group all 1s or all 0s together
+        int op0 = minSwapsHelper(nums, 0);  // Grouping all 0s together
+        int op1 = minSwapsHelper(nums, 1);  // Grouping all 1s together
+        retVal = min(op0, op1);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    # Helper function to calculate the minimum swaps required to group all value together
+    def minSwapsHelper(self, nums: List[int], value: int) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+
+        # Count the total number of value in the array
+        totalValCount = 0
+        for i in range(numsSize - 1, -1, -1):
+            if nums[i] == value:
+                totalValCount += 1
+        # If there is no value or the array is full of value, no swaps are needed
+        if (totalValCount == 0) or (totalValCount == numsSize):
+            return retVal
+
+        start = 0
+        end = 0
+        currentValInWindow = 0
+        maxValInWindow = 0
+
+        # Initial window setup: count the number of value in the first window of size `totalValCount`
+        while end < totalValCount:
+            if nums[end] == value:
+                currentValInWindow += 1
+            end += 1
+        maxValInWindow = max(maxValInWindow, currentValInWindow)
+
+        # Slide the window across the array to find the maximum number of value in any window
+        while end < numsSize:
+            if nums[start] == value:
+                currentValInWindow -= 1
+            start += 1
+
+            if nums[end] == value:
+                currentValInWindow += 1
+            end += 1
+
+            maxValInWindow = max(maxValInWindow, currentValInWindow)
+
+        # Minimum swaps are the total value minus the maximum found in any window
+        retVal = totalValCount - maxValInWindow
+
+        return retVal
+
+    def minSwaps(self, nums: List[int]) -> int:
+        retVal = 0
+
+        # Calculate the minimum swaps needed to group all 1s or all 0s together
+        op0 = self.minSwapsHelper(nums, 0)  # Grouping all 0s together
+        op1 = self.minSwapsHelper(nums, 1)  # Grouping all 1s together
+        retVal = min(op0, op1)
+
+        return retVal
+```
+
+</details>
+
 ## [2401. Longest Nice Subarray](https://leetcode.com/problems/longest-nice-subarray/)  1749
 
 <details><summary>Description</summary>
