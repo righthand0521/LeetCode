@@ -1754,6 +1754,166 @@ class Solution:
 
 </details>
 
+## [1460. Make Two Arrays Equal by Reversing Subarrays](https://leetcode.com/problems/make-two-arrays-equal-by-reversing-subarrays/)  1151
+
+- [Official](https://leetcode.com/problems/make-two-arrays-equal-by-reversing-subarrays/editorial/)
+- [Official](https://leetcode.cn/problems/make-two-arrays-equal-by-reversing-subarrays/solutions/1769118/tong-guo-fan-zhuan-zi-shu-zu-shi-liang-g-dueo/)
+
+<details><summary>Description</summary>
+
+```text
+You are given two integer arrays of equal length target and arr.
+In one step, you can select any non-empty subarray of arr and reverse it.
+You are allowed to make any number of steps.
+
+Return true if you can make arr equal to target or false otherwise.
+
+Example 1:
+Input: target = [1,2,3,4], arr = [2,4,1,3]
+Output: true
+Explanation: You can follow the next steps to convert arr to target:
+1- Reverse subarray [2,4,1], arr becomes [1,4,2,3]
+2- Reverse subarray [4,2], arr becomes [1,2,4,3]
+3- Reverse subarray [4,3], arr becomes [1,2,3,4]
+There are multiple ways to convert arr to target, this is not the only way to do so.
+
+Example 2:
+Input: target = [7], arr = [7]
+Output: true
+Explanation: arr is equal to target without any reverses.
+
+Example 3:
+Input: target = [3,7,9], arr = [3,7,11]
+Output: false
+Explanation: arr does not have value 9 and it can never be converted to target.
+
+Constraints:
+target.length == arr.length
+1 <= target.length <= 1000
+1 <= target[i] <= 1000
+1 <= arr[i] <= 1000
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Each element of target should have a corresponding element in arr,
+   and if it doesn't have a corresponding element, return false.
+2. To solve it easiely you can sort the two arrays and check if they are equal.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void addValue(struct hashTable** pObj, int key, int value) {
+    struct hashTable* pTmp = NULL;
+    HASH_FIND_INT(*pObj, &key, pTmp);
+    if (pTmp == NULL) {
+        pTmp = (struct hashTable*)malloc(sizeof(struct hashTable));
+        if (pTmp == NULL) {
+            perror("malloc");
+            return;
+        }
+        pTmp->key = key;
+        pTmp->value = 1;
+        HASH_ADD_INT(*pObj, key, pTmp);
+    } else {
+        pTmp->value += value;
+    }
+}
+bool canBeEqual(int* target, int targetSize, int* arr, int arrSize) {
+    bool retVal = true;
+
+    struct hashTable* pCountHashTable = NULL;
+    int i;
+    for (i = 0; i < targetSize; ++i) {
+        addValue(&pCountHashTable, target[i], 1);
+    }
+    for (i = 0; i < arrSize; ++i) {
+        addValue(&pCountHashTable, arr[i], -1);
+    }
+
+    struct hashTable* pCurrent = NULL;
+    struct hashTable* pTmp = NULL;
+    HASH_ITER(hh, pCountHashTable, pCurrent, pTmp) {
+        if (pCountHashTable->value != 0) {
+            retVal = false;
+        }
+        HASH_DEL(pCountHashTable, pCurrent);
+        free(pCurrent);
+        pCurrent = NULL;
+    }
+    pTmp = NULL;
+    pCountHashTable = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool canBeEqual(vector<int>& target, vector<int>& arr) {
+        bool retVal = true;
+
+        unordered_map<int, int> hashTable;
+        for (int value : target) {
+            hashTable[value] += 1;
+        }
+        for (int value : arr) {
+            hashTable[value] -= 1;
+        }
+
+        for (auto& value : hashTable) {
+            if (value.second != 0) {
+                retVal = false;
+                break;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def canBeEqual(self, target: List[int], arr: List[int]) -> bool:
+        retVal = True
+
+        hashTable = defaultdict(int)
+        for value in target:
+            hashTable[value] += 1
+        for value in arr:
+            hashTable[value] -= 1
+
+        for value in hashTable.values():
+            if value != 0:
+                retVal = False
+                break
+
+        return retVal
+```
+
+</details>
+
 ## [1496. Path Crossing](https://leetcode.com/problems/path-crossing/)  1508
 
 - [Official](https://leetcode.com/problems/path-crossing/editorial/)
