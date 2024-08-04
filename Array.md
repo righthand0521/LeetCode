@@ -5684,6 +5684,155 @@ class Solution:
 
 </details>
 
+## [1508. Range Sum of Sorted Subarray Sums](https://leetcode.com/problems/range-sum-of-sorted-subarray-sums/)  1402
+
+- [Official](https://leetcode.com/problems/range-sum-of-sorted-subarray-sums/editorial/)
+- [Official](https://leetcode.cn/problems/range-sum-of-sorted-subarray-sums/solutions/371273/zi-shu-zu-he-pai-xu-hou-de-qu-jian-he-by-leetcode-/)
+
+<details><summary>Description</summary>
+
+```text
+You are given the array nums consisting of n positive integers.
+You computed the sum of all non-empty continuous subarrays from the array and then sorted them in non-decreasing order,
+creating a new array of n * (n + 1) / 2 numbers.
+
+Return the sum of the numbers from index left to index right (indexed from 1), inclusive, in the new array.
+Since the answer can be a huge number return it modulo 109 + 7.
+
+Example 1:
+Input: nums = [1,2,3,4], n = 4, left = 1, right = 5
+Output: 13
+Explanation: All subarray sums are 1, 3, 6, 10, 2, 5, 9, 3, 7, 4.
+After sorting them in non-decreasing order we have the new array [1, 2, 3, 3, 4, 5, 6, 7, 9, 10].
+The sum of the numbers from index le = 1 to ri = 5 is 1 + 2 + 3 + 3 + 4 = 13.
+
+Example 2:
+Input: nums = [1,2,3,4], n = 4, left = 3, right = 4
+Output: 6
+Explanation: The given array is the same as example 1. We have the new array [1, 2, 3, 3, 4, 5, 6, 7, 9, 10].
+The sum of the numbers from index le = 3 to ri = 4 is 3 + 3 = 6.
+
+Example 3:
+Input: nums = [1,2,3,4], n = 4, left = 1, right = 10
+Output: 50
+
+Constraints:
+n == nums.length
+1 <= nums.length <= 1000
+1 <= nums[i] <= 100
+1 <= left <= right <= n * (n + 1) / 2
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Compute all sums and save it in array.
+2. Then just go from LEFT to RIGHT index and calculate answer modulo 1e9 + 7.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MODULO (int)(1e9 + 7)
+int compareInteger(const void* n1, const void* n2) {
+    // ascending order
+    return (*(int*)n1 > *(int*)n2);
+}
+int rangeSum(int* nums, int numsSize, int n, int left, int right) {
+    int retVal = 0;
+
+    int numsSumSize = n * (n + 1) / 2;
+    int numsSum[numsSumSize];
+    memset(numsSum, 0, sizeof(numsSum));
+    int numsSumIdx = 0;
+
+    int idx, start, sum;
+    for (start = 0; start < numsSize; ++start) {
+        sum = 0;
+        for (idx = start; idx < numsSize; ++idx) {
+            sum += nums[idx];
+            numsSum[numsSumIdx++] = sum;
+        }
+    }
+    qsort(numsSum, numsSumIdx, sizeof(int), compareInteger);
+
+    for (idx = left - 1; idx < right; ++idx) {
+        retVal += numsSum[idx];
+        retVal %= MODULO;
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+#define MODULO (int)(1e9 + 7)
+   public:
+    int rangeSum(vector<int>& nums, int n, int left, int right) {
+        int retVal = 0;
+
+        int numsSize = nums.size();
+
+        vector<int> numsSum;
+        for (int start = 0; start < numsSize; ++start) {
+            int sum = 0;
+            for (int idx = start; idx < numsSize; ++idx) {
+                sum += nums[idx];
+                numsSum.emplace_back(sum);
+            }
+        }
+        sort(numsSum.begin(), numsSum.end());
+
+        for (int idx = left - 1; idx < right; ++idx) {
+            retVal += numsSum[idx];
+            retVal %= MODULO;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self):
+        self.MODULO = 10 ** 9 + 7
+
+    def rangeSum(self, nums: List[int], n: int, left: int, right: int) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+
+        numsSum = []
+        for start in range(numsSize):
+            sum = 0
+            for idx in range(start, numsSize):
+                sum += nums[idx]
+                numsSum.append(sum)
+        numsSum.sort()
+
+        for idx in range(left-1, right):
+            retVal += numsSum[idx]
+            retVal %= self.MODULO
+
+        return retVal
+```
+
+</details>
+
 ## [1535. Find the Winner of an Array Game](https://leetcode.com/problems/find-the-winner-of-an-array-game/)  1433
 
 - [Official](https://leetcode.com/problems/find-the-winner-of-an-array-game/editorial/)
