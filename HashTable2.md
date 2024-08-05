@@ -3965,6 +3965,193 @@ int* twoOutOfThree(int* nums1, int nums1Size, int* nums2, int nums2Size, int* nu
 
 </details>
 
+## [2053. Kth Distinct String in an Array](https://leetcode.com/problems/kth-distinct-string-in-an-array/)  1350
+
+- [Official](https://leetcode.com/problems/kth-distinct-string-in-an-array/editorial/)
+- [Official](https://leetcode.cn/problems/kth-distinct-string-in-an-array/solutions/1077086/zha-zhu-zhi-jian-de-pan-zi-by-leetcode-s-r92u/)
+
+<details><summary>Description</summary>
+
+```text
+A distinct string is a string that is present only once in an array.
+
+Given an array of strings arr, and an integer k, return the kth distinct string present in arr.
+If there are fewer than k distinct strings, return an empty string "".
+
+Note that the strings are considered in the order in which they appear in the array.
+
+Example 1:
+Input: arr = ["d","b","c","b","c","a"], k = 2
+Output: "a"
+Explanation:
+The only distinct strings in arr are "d" and "a".
+"d" appears 1st, so it is the 1st distinct string.
+"a" appears 2nd, so it is the 2nd distinct string.
+Since k == 2, "a" is returned.
+
+Example 2:
+Input: arr = ["aaa","aa","a"], k = 1
+Output: "aaa"
+Explanation:
+All strings in arr are distinct, so the 1st string "aaa" is returned.
+
+Example 3:
+Input: arr = ["a","b","a"], k = 3
+Output: ""
+Explanation:
+The only distinct string is "b". Since there are fewer than 3 distinct strings, we return an empty string "".
+
+Constraints:
+1 <= k <= arr.length <= 1000
+1 <= arr[i].length <= 5
+arr[i] consists of lowercase English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Try 'mapping' the strings to check if they are unique or not.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MAX_LENGTH (8)  // 1 <= arr[i].length <= 5
+struct hashTable {
+    char key[MAX_LENGTH];
+    int count;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable* pFree) {
+    struct hashTable* current;
+    struct hashTable* tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%s: %d\n", pFree->key, pFree->count);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+char* kthDistinct(char** arr, int arrSize, int k) {
+    char* pRetVal = "";
+
+    struct hashTable* pHashTable = NULL;
+
+    char pStr[MAX_LENGTH];
+    struct hashTable* pTmp;
+    int i;
+    for (i = 0; i < arrSize; ++i) {
+        memset(pStr, 0, sizeof(pStr));
+        snprintf(pStr, sizeof(pStr), "%s", arr[i]);
+
+        pTmp = NULL;
+        HASH_FIND_STR(pHashTable, pStr, pTmp);
+        if (pTmp != NULL) {
+            pTmp->count++;
+            continue;
+        }
+
+        pTmp = (struct hashTable*)malloc(sizeof(struct hashTable));
+        if (pTmp == NULL) {
+            perror("malloc");
+            goto exit;
+        }
+        snprintf(pTmp->key, MAX_LENGTH, "%s", pStr);
+        pTmp->count = 1;
+        HASH_ADD_STR(pHashTable, key, pTmp);
+    }
+
+    for (i = 0; i < arrSize; ++i) {
+        memset(pStr, 0, sizeof(pStr));
+        snprintf(pStr, sizeof(pStr), "%s", arr[i]);
+
+        pTmp = NULL;
+        HASH_FIND_STR(pHashTable, pStr, pTmp);
+        if (pTmp == NULL) {
+            continue;
+        }
+
+        if (pTmp->count != 1) {
+            continue;
+        }
+
+        k--;
+        if (k == 0) {
+            pRetVal = arr[i];
+            break;
+        }
+    }
+
+exit:
+    //
+    freeAll(pHashTable);
+    pHashTable = NULL;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    string kthDistinct(vector<string>& arr, int k) {
+        string retVal = "";
+
+        unordered_map<string, int> hashTable;
+        for (string s : arr) {
+            hashTable[s] += 1;
+        }
+
+        for (string s : arr) {
+            if (hashTable[s] > 1) {
+                continue;
+            }
+
+            k--;
+            if (k == 0) {
+                retVal = s;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def kthDistinct(self, arr: List[str], k: int) -> str:
+        retVal = ""
+
+        hashTable = defaultdict(int)
+        for s in arr:
+            hashTable[s] += 1
+
+        for key, value in hashTable.items():
+            if value != 1:
+                continue
+
+            k -= 1
+            if k == 0:
+                retVal = key
+                break
+
+        return retVal
+```
+
+</details>
+
 ## [2131. Longest Palindrome by Concatenating Two Letter Words](https://leetcode.com/problems/longest-palindrome-by-concatenating-two-letter-words/)  1556
 
 - [Official](https://leetcode.com/problems/longest-palindrome-by-concatenating-two-letter-words/solutions/2715749/longest-palindrome-by-concatenating-two-letter-words/)
