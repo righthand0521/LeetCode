@@ -288,6 +288,13 @@
 
 </details>
 
+<details><summary>Minimum Number of Pushes to Type Word</summary>
+
+- [3014. Minimum Number of Pushes to Type Word I](https://leetcode.com/problems/minimum-number-of-pushes-to-type-word-i/)
+- [3016. Minimum Number of Pushes to Type Word II](https://leetcode.com/problems/minimum-number-of-pushes-to-type-word-ii/)
+
+</details>
+
 ## Hash Table
 
 <details><summary>Merge Two 2D Arrays</summary>
