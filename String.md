@@ -1809,6 +1809,225 @@ bool isOneEditDistance(char* s, char* t) {
 
 </details>
 
+## [273. Integer to English Words](https://leetcode.com/problems/integer-to-english-words/)
+
+- [Official](https://leetcode.com/problems/integer-to-english-words/editorial/)
+- [Official](https://leetcode.cn/problems/integer-to-english-words/solutions/1040791/zheng-shu-zhuan-huan-ying-wen-biao-shi-b-ivik/)
+
+<details><summary>Description</summary>
+
+```text
+Convert a non-negative integer num to its English words representation.
+
+Example 1:
+Input: num = 123
+Output: "One Hundred Twenty Three"
+
+Example 2:
+Input: num = 12345
+Output: "Twelve Thousand Three Hundred Forty Five"
+
+Example 3:
+Input: num = 1234567
+Output: "One Million Two Hundred Thirty Four Thousand Five Hundred Sixty Seven"
+
+Constraints:
+0 <= num <= 2^31 - 1
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Did you see a pattern in dividing the number into chunk of words? For example, 123 and 123000.
+2. Group the number by thousands (3 digits).
+   You can write a helper function that takes a number less than 1000 and convert just that chunk to words.
+3. There are many edge cases. What are some good test cases? Does your code work with input such as 0?
+   Or 1000010? (middle chunk is zero and should not be printed out)
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+char* numberToWords(int num) {
+    char* pRetVal = NULL;
+
+    int returnSize = 1000;
+    pRetVal = (char*)malloc(returnSize * sizeof(char));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (returnSize * sizeof(char)));
+
+    if (num == 0) {
+        snprintf(pRetVal, returnSize, "%s", "Zero");
+        return pRetVal;
+    }
+
+    char* ones[] = {"",         "One",     "Two",     "Three",     "Four",     "Five",    "Six",
+                    "Seven",    "Eight",   "Nine",    "Ten",       "Eleven",   "Twelve",  "Thirteen",
+                    "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"};
+    char* tens[] = {"", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"};
+    char* thousands[] = {"", "Thousand", "Million", "Billion"};
+
+    int groupResultIdx;
+    char groupResult[returnSize];
+    int part;
+    int groupIndex = 0;
+    while (num > 0) {
+        if (num % 1000 != 0) {
+            groupResultIdx = 0;
+            memset(groupResult, 0, sizeof(groupResult));
+            part = num % 1000;
+
+            if (part >= 100) {
+                groupResultIdx += snprintf(groupResult + groupResultIdx, sizeof(groupResult) - groupResultIdx - 1,
+                                           "%s Hundred ", ones[part / 100]);
+                part %= 100;
+            }
+
+            if (part >= 20) {
+                groupResultIdx += snprintf(groupResult + groupResultIdx, sizeof(groupResult) - groupResultIdx - 1,
+                                           "%s ", tens[part / 10]);
+                part %= 10;
+            }
+
+            if (part > 0) {
+                groupResultIdx +=
+                    snprintf(groupResult + groupResultIdx, sizeof(groupResult) - groupResultIdx - 1, "%s ", ones[part]);
+            }
+
+            groupResultIdx += snprintf(groupResult + groupResultIdx, sizeof(groupResult) - groupResultIdx - 1, "%s ",
+                                       thousands[groupIndex]);
+            groupResultIdx +=
+                snprintf(groupResult + groupResultIdx, sizeof(groupResult) - groupResultIdx - 1, "%s", pRetVal);
+            snprintf(pRetVal, returnSize, "%s", groupResult);
+        }
+
+        num /= 1000;
+        groupIndex += 1;
+    }
+
+    int i = strlen(pRetVal) - 1;
+    while (pRetVal[i] == ' ') {
+        pRetVal[i--] = '\0';
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    string numberToWords(int num) {
+        string retVal;
+
+        if (num == 0) {
+            retVal = "Zero";
+            return retVal;
+        }
+
+        vector<string> ones{"",         "One",     "Two",     "Three",     "Four",     "Five",    "Six",
+                            "Seven",    "Eight",   "Nine",    "Ten",       "Eleven",   "Twelve",  "Thirteen",
+                            "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"};
+        vector<string> tens{"", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"};
+        vector<string> thousands{"", "Thousand", "Million", "Billion"};
+
+        int groupIndex = 0;
+        while (num > 0) {
+            if (num % 1000 != 0) {
+                string groupResult = "";
+                int part = num % 1000;
+
+                if (part >= 100) {
+                    groupResult += ones[part / 100] + " Hundred ";
+                    part %= 100;
+                }
+
+                if (part >= 20) {
+                    groupResult += tens[part / 10] + " ";
+                    part %= 10;
+                }
+
+                if (part > 0) {
+                    groupResult += ones[part] + " ";
+                }
+
+                groupResult += thousands[groupIndex] + " ";
+                retVal = groupResult + retVal;
+            }
+
+            num /= 1000;
+            groupIndex += 1;
+        }
+
+        retVal = retVal.substr(0, retVal.find_last_not_of(" ") + 1);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def numberToWords(self, num: int) -> str:
+        retVal = ""
+
+        if num == 0:
+            retVal = "Zero"
+            return retVal
+
+        ones = ["", "One", "Two", "Three", "Four",
+                "Five", "Six", "Seven", "Eight", "Nine",
+                "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen",
+                "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"]
+        tens = ["", "", "Twenty", "Thirty", "Forty",
+                "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"]
+        thousands = ["", "Thousand", "Million", "Billion"]
+
+        groupIndex = 0
+        while num > 0:
+            if num % 1000 != 0:
+                groupResult = ""
+                part = num % 1000
+
+                if part >= 100:
+                    groupResult += ones[part // 100] + " Hundred "
+                    part %= 100
+
+                if part >= 20:
+                    groupResult += tens[part // 10] + " "
+                    part %= 10
+
+                if part > 0:
+                    groupResult += ones[part] + " "
+
+                groupResult += thousands[groupIndex] + " "
+                retVal = groupResult + retVal
+
+            num //= 1000
+            groupIndex += 1
+
+        retVal = retVal.strip()
+
+        return retVal
+```
+
+</details>
+
 ## [412. Fizz Buzz](https://leetcode.com/problems/fizz-buzz/)
 
 <details><summary>Description</summary>
