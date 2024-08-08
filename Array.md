@@ -3598,6 +3598,178 @@ class Solution:
 
 </details>
 
+## [885. Spiral Matrix III](https://leetcode.com/problems/spiral-matrix-iii/)  1678
+
+- [Official](https://leetcode.com/problems/spiral-matrix-iii/editorial/)
+- [Official](https://leetcode.cn/problems/spiral-matrix-iii/solutions/3546/luo-xuan-ju-zhen-iii-by-leetcode/)
+
+<details><summary>Description</summary>
+
+```text
+You start at the cell (rStart, cStart) of an rows x cols grid facing east.
+The northwest corner is at the first row and column in the grid, and the southeast corner is at the last row and column.
+
+You will walk in a clockwise spiral shape to visit every position in this grid.
+Whenever you move outside the grid's boundary,
+we continue our walk outside the grid (but may return to the grid boundary later.).
+Eventually, we reach all rows * cols spaces of the grid.
+
+Return an array of coordinates representing the positions of the grid in the order you visited them.
+
+Example 1:
+Input: rows = 1, cols = 4, rStart = 0, cStart = 0
+Output: [[0,0],[0,1],[0,2],[0,3]]
+
+Example 2:
+Input: rows = 5, cols = 6, rStart = 1, cStart = 4
+Output: [[1,4],[1,5],[2,5],[2,4],[2,3],[1,3],[0,3],[0,4],[0,5],[3,5],[3,4],[3,3],[3,2],[2,2],[1,2],[0,2],
+[4,5],[4,4],[4,3],[4,2],[4,1],[3,1],[2,1],[1,1],[0,1],[4,0],[3,0],[2,0],[1,0],[0,0]]
+
+Constraints:
+1 <= rows, cols <= 100
+0 <= rStart < rows
+0 <= cStart < cols
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int** spiralMatrixIII(int rows, int cols, int rStart, int cStart, int* returnSize, int** returnColumnSizes) {
+    int** pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    pRetVal = (int**)malloc(rows * cols * sizeof(int*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    (*returnColumnSizes) = (int*)malloc(rows * cols * sizeof(int));
+    if ((*returnColumnSizes) == NULL) {
+        perror("malloc");
+        free(pRetVal);
+        pRetVal = NULL;
+        return pRetVal;
+    }
+
+    // East, South, West, North
+    const int directions[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+
+    int idx = 0;
+    int retValSize = (*returnSize);
+    int i, j;
+    int step;
+    for (step = 1; retValSize < rows * cols;) {
+        for (i = 0; i < 2; ++i) {
+            for (j = 0; j < step; ++j) {
+                if ((rStart >= 0) && (rStart < rows) && (cStart >= 0) && (cStart < cols)) {
+                    pRetVal[(*returnSize)] = (int*)malloc(2 * sizeof(int));
+                    if (pRetVal[(*returnSize)] == NULL) {
+                        perror("malloc");
+                        for (i = 0; i < (*returnSize); ++i) {
+                            free(pRetVal[i]);
+                            pRetVal[i] = NULL;
+                        }
+                        free(pRetVal);
+                        pRetVal = NULL;
+                        free((*returnColumnSizes));
+                        (*returnColumnSizes) = NULL;
+                        (*returnSize) = 0;
+                        return pRetVal;
+                    }
+                    memset(pRetVal[(*returnSize)], 0, (2 * sizeof(int)));
+                    (*returnColumnSizes)[(*returnSize)] = 2;
+
+                    pRetVal[(*returnSize)][0] = rStart;
+                    pRetVal[(*returnSize)][1] = cStart;
+                    (*returnSize) += 1;
+                }
+                rStart += directions[idx][0];
+                cStart += directions[idx][1];
+            }
+            idx = (idx + 1) % 4;
+        }
+        ++step;
+        retValSize = (*returnSize);
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<vector<int>> spiralMatrixIII(int rows, int cols, int rStart, int cStart) {
+        vector<vector<int>> retVal;
+
+        // East, South, West, North
+        vector<vector<int>> directions{{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+
+        int idx = 0;
+        int retValSize = retVal.size();
+        for (int step = 1; retValSize < rows * cols;) {
+            for (int i = 0; i < 2; ++i) {
+                for (int j = 0; j < step; ++j) {
+                    if ((rStart >= 0) && (rStart < rows) && (cStart >= 0) && (cStart < cols)) {
+                        retVal.push_back({rStart, cStart});
+                    }
+                    rStart += directions[idx][0];
+                    cStart += directions[idx][1];
+                }
+                idx = (idx + 1) % 4;
+            }
+            ++step;
+            retValSize = retVal.size();
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def spiralMatrixIII(self, rows: int, cols: int, rStart: int, cStart: int) -> List[List[int]]:
+        retVal = []
+
+        # East, South, West, North
+        directions = [[0, 1], [1, 0], [0, -1], [-1, 0]]
+
+        step = 1
+        idx = 0
+        retValSize = len(retVal)
+        while retValSize < (rows * cols):
+            for _ in range(2):
+                for _ in range(step):
+                    if ((rStart >= 0) and (rStart < rows) and (cStart >= 0) and (cStart < cols)):
+                        retVal.append([rStart, cStart])
+                    rStart += directions[idx][0]
+                    cStart += directions[idx][1]
+                idx = (idx + 1) % 4
+            step += 1
+            retValSize = len(retVal)
+
+        return retVal
+```
+
+</details>
+
 ## [896. Monotonic Array](https://leetcode.com/problems/monotonic-array/)  1258
 
 - [Official](https://leetcode.cn/problems/monotonic-array/solutions/624659/dan-diao-shu-lie-by-leetcode-solution-ysex/)
