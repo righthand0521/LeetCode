@@ -3451,6 +3451,245 @@ int largestOverlap(int** img1, int img1Size, int* img1ColSize, int** img2, int i
 
 </details>
 
+## [840. Magic Squares In Grid](https://leetcode.com/problems/magic-squares-in-grid/)  1425
+
+- [Official](https://leetcode.com/problems/magic-squares-in-grid/editorial/)
+- [Official](https://leetcode.cn/problems/magic-squares-in-grid/solutions/107797/ju-zhen-zhong-de-huan-fang-by-leetcode-2/)
+
+<details><summary>Description</summary>
+
+```text
+A 3 x 3 magic square is a 3 x 3 grid filled with distinct numbers from 1 to 9
+such that each row, column, and both diagonals all have the same sum.
+
+Given a row x col grid of integers, how many 3 x 3 contiguous magic square subgrids are there?
+
+Note: while a magic square can only contain numbers from 1 to 9, grid may contain numbers up to 15.
+
+Example 1:
+4 3 8 4
+9 5 1 9
+2 7 6 2
+Input: grid = [[4,3,8,4],[9,5,1,9],[2,7,6,2]]
+Output: 1
+Explanation:
+The following subgrid is a 3 x 3 magic square:
+4 3 8
+9 5 1
+2 7 6
+while this one is not:
+3 8 4
+5 1 9
+7 6 2
+In total, there is only one magic square inside the given grid.
+
+Example 2:
+Input: grid = [[8]]
+Output: 0
+
+Constraints:
+row == grid.length
+col == grid[i].length
+1 <= row, col <= 10
+0 <= grid[i][j] <= 15
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int isMagicSquare(int** grid, int row, int col) {
+    int retVal = 0;
+
+    int seen[10];  // while a magic square can only contain numbers from 1 to 9
+    memset(seen, 0, sizeof(seen));
+
+    int x, y, num;
+    for (x = 0; x < 3; ++x) {
+        for (y = 0; y < 3; ++y) {
+            num = grid[row + x][col + y];
+            if ((num < 1) || (num > 9)) {
+                return retVal;
+            } else if (seen[num] != 0) {
+                return retVal;
+            }
+            seen[num] = 1;
+        }
+    }
+
+    int diagonal1 = grid[row][col] + grid[row + 1][col + 1] + grid[row + 2][col + 2];
+    int diagonal2 = grid[row + 2][col] + grid[row + 1][col + 1] + grid[row][col + 2];
+    if (diagonal1 != diagonal2) {
+        return retVal;
+    }
+
+    int row1 = grid[row][col] + grid[row][col + 1] + grid[row][col + 2];
+    int row2 = grid[row + 1][col] + grid[row + 1][col + 1] + grid[row + 1][col + 2];
+    int row3 = grid[row + 2][col] + grid[row + 2][col + 1] + grid[row + 2][col + 2];
+    if ((row1 != diagonal1) || (row2 != diagonal1) || (row3 != diagonal1)) {
+        return retVal;
+    }
+
+    int col1 = grid[row][col] + grid[row + 1][col] + grid[row + 2][col];
+    int col2 = grid[row][col + 1] + grid[row + 1][col + 1] + grid[row + 2][col + 1];
+    int col3 = grid[row][col + 2] + grid[row + 1][col + 2] + grid[row + 2][col + 2];
+    if ((col1 != diagonal1) || (col2 != diagonal1) || (col3 != diagonal1)) {
+        return retVal;
+    }
+
+    retVal = 1;
+
+    return retVal;
+}
+int numMagicSquaresInside(int** grid, int gridSize, int* gridColSize) {
+    int retVal = 0;
+
+    int rowSize = gridSize;
+    int colSize = gridColSize[0];  // 1 <= row, col <= 10
+    if ((rowSize < 3) || (colSize < 3)) {
+        return retVal;
+    }
+
+    int x, y;
+    for (x = 0; x < rowSize - 2; ++x) {
+        for (y = 0; y < colSize - 2; ++y) {
+            retVal += isMagicSquare(grid, x, y);
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int isMagicSquare(vector<vector<int>>& grid, int row, int col) {
+        int retVal = 0;
+
+        vector<int> seen(10, 0);  // while a magic square can only contain numbers from 1 to 9
+        for (int x = 0; x < 3; ++x) {
+            for (int y = 0; y < 3; ++y) {
+                int num = grid[row + x][col + y];
+                if ((num < 1) || (num > 9)) {
+                    return retVal;
+                } else if (seen[num] != 0) {
+                    return retVal;
+                }
+                seen[num] = 1;
+            }
+        }
+
+        int diagonal1 = grid[row][col] + grid[row + 1][col + 1] + grid[row + 2][col + 2];
+        int diagonal2 = grid[row + 2][col] + grid[row + 1][col + 1] + grid[row][col + 2];
+        if (diagonal1 != diagonal2) {
+            return retVal;
+        }
+
+        int row1 = grid[row][col] + grid[row][col + 1] + grid[row][col + 2];
+        int row2 = grid[row + 1][col] + grid[row + 1][col + 1] + grid[row + 1][col + 2];
+        int row3 = grid[row + 2][col] + grid[row + 2][col + 1] + grid[row + 2][col + 2];
+        if ((row1 != diagonal1) || (row2 != diagonal1) || (row3 != diagonal1)) {
+            return retVal;
+        }
+
+        int col1 = grid[row][col] + grid[row + 1][col] + grid[row + 2][col];
+        int col2 = grid[row][col + 1] + grid[row + 1][col + 1] + grid[row + 2][col + 1];
+        int col3 = grid[row][col + 2] + grid[row + 1][col + 2] + grid[row + 2][col + 2];
+        if ((col1 != diagonal1) || (col2 != diagonal1) || (col3 != diagonal1)) {
+            return retVal;
+        }
+
+        retVal = 1;
+
+        return retVal;
+    }
+
+   public:
+    int numMagicSquaresInside(vector<vector<int>>& grid) {
+        int retVal = 0;
+
+        int rowSize = grid.size();
+        int colSize = grid[0].size();  // 1 <= row, col <= 10
+        if ((rowSize < 3) || (colSize < 3)) {
+            return retVal;
+        }
+
+        for (int x = 0; x < rowSize - 2; ++x) {
+            for (int y = 0; y < colSize - 2; ++y) {
+                retVal += isMagicSquare(grid, x, y);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def isMagicSquare(self, grid: List[List[int]], row: int, col: int) -> int:
+        retVal = 0
+
+        # while a magic square can only contain numbers from 1 to 9
+        seen = [0] * 10
+        for x in range(3):
+            for y in range(3):
+                num = grid[row+x][col+y]
+                if (num < 1) or (num > 9):
+                    return retVal
+                elif seen[num]:
+                    return retVal
+
+                seen[num] = 1
+
+        diagonal1 = grid[row][col] + grid[row+1][col+1] + grid[row+2][col+2]
+        diagonal2 = grid[row+2][col] + grid[row+1][col+1] + grid[row][col+2]
+        if diagonal1 != diagonal2:
+            return retVal
+
+        row1 = grid[row][col] + grid[row][col+1] + grid[row][col+2]
+        row2 = grid[row+1][col] + grid[row+1][col+1] + grid[row+1][col+2]
+        row3 = grid[row+2][col] + grid[row+2][col+1] + grid[row+2][col+2]
+        if (row1 != diagonal1) or (row2 != diagonal1) or (row3 != diagonal1):
+            return retVal
+
+        col1 = grid[row][col] + grid[row+1][col] + grid[row+2][col]
+        col2 = grid[row][col+1] + grid[row+1][col+1] + grid[row+2][col+1]
+        col3 = grid[row][col+2] + grid[row+1][col+2] + grid[row+2][col+2]
+        if (col1 != diagonal1) or (col2 != diagonal1) or (col3 != diagonal1):
+            return retVal
+
+        retVal = 1
+
+        return retVal
+
+    def numMagicSquaresInside(self, grid: List[List[int]]) -> int:
+        retVal = 0
+
+        rowSize = len(grid)
+        colSize = len(grid[0])  # 1 <= row, col <= 10
+        if (rowSize < 3) or (colSize < 3):
+            return retVal
+
+        for x in range(rowSize-2):
+            for y in range(colSize-2):
+                retVal += self.isMagicSquare(grid, x, y)
+
+        return retVal
+```
+
+</details>
+
 ## [867. Transpose Matrix](https://leetcode.com/problems/transpose-matrix/)  1258
 
 - [Official](https://leetcode.com/problems/transpose-matrix/editorial/)
