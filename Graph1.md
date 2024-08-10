@@ -6274,6 +6274,287 @@ int removeStones(int** stones, int stonesSize, int* stonesColSize) {
 
 </details>
 
+## [959. Regions Cut By Slashes](https://leetcode.com/problems/regions-cut-by-slashes/)  2135
+
+- [Official](https://leetcode.com/problems/regions-cut-by-slashes/editorial/)
+- [Official](https://leetcode.cn/problems/regions-cut-by-slashes/solutions/571382/you-xie-gang-hua-fen-qu-yu-by-leetcode-67xb/)
+
+<details><summary>Description</summary>
+
+```text
+An n x n grid is composed of 1 x 1 squares where each 1 x 1 square consists of a '/', '\', or blank space ' '.
+These characters divide the square into contiguous regions.
+
+Given the grid grid represented as a string array, return the number of regions.
+
+Note that backslash characters are escaped, so a '\' is represented as '\\'.
+
+Example 1:
+Input: grid = [" /","/ "]
+Output: 2
+
+Example 2:
+Input: grid = [" /","  "]
+Output: 1
+
+Example 3:
+Input: grid = ["/\\","\\/"]
+Output: 5
+Explanation: Recall that because \ characters are escaped, "\\/" refers to \/, and "/\\" refers to /\.
+
+Constraints:
+n == grid.length == grid[i].length
+1 <= n <= 30
+grid[i][j] is either '/', '\', or ' '.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+const int Directions[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+void floodFill(int** expandedGrid, int expandedGridSize, int x, int y) {
+    expandedGrid[x][y] = 1;
+
+    int bfsQueueSize = expandedGridSize * expandedGridSize;
+    int bfsQueue[bfsQueueSize][2];
+    memset(bfsQueue, 0, sizeof(bfsQueue));
+    int bfsQueueHead = 0;
+    int bfsQueueTail = 0;
+    bfsQueue[bfsQueueTail][0] = x;
+    bfsQueue[bfsQueueTail][1] = y;
+    bfsQueueTail++;
+
+    int row, col;
+    int currentRow, currentCol;
+    int i;
+    while (bfsQueueHead < bfsQueueTail) {
+        currentRow = bfsQueue[bfsQueueHead][0];
+        currentCol = bfsQueue[bfsQueueHead][1];
+        bfsQueueHead++;
+
+        for (i = 0; i < 4; ++i) {
+            row = Directions[i][0] + currentRow;
+            col = Directions[i][1] + currentCol;
+            if ((row < 0) || (row >= expandedGridSize)) {
+                continue;
+            } else if ((col < 0) || (col >= expandedGridSize)) {
+                continue;
+            } else if (expandedGrid[row][col] != 0) {
+                continue;
+            }
+
+            expandedGrid[row][col] = 1;
+            bfsQueue[bfsQueueTail][0] = row;
+            bfsQueue[bfsQueueTail][1] = col;
+            bfsQueueTail++;
+        }
+    }
+}
+int regionsBySlashes(char** grid, int gridSize) {
+    int retVal = 0;
+
+    //
+    int expandedGridSize = gridSize * 3;
+    int** pExpandedGrid = (int**)malloc(expandedGridSize * sizeof(int*));
+    if (pExpandedGrid == NULL) {
+        perror("malloc");
+        return retVal;
+    }
+    int i, j;
+    for (i = 0; i < expandedGridSize; ++i) {
+        pExpandedGrid[i] = (int*)malloc(expandedGridSize * sizeof(int));
+        if (pExpandedGrid[i] == NULL) {
+            perror("malloc");
+            for (j = 0; j < i; ++j) {
+                free(pExpandedGrid[j]);
+                pExpandedGrid[j] = NULL;
+            }
+            free(pExpandedGrid);
+            pExpandedGrid = NULL;
+            return retVal;
+        }
+        memset(pExpandedGrid[i], 0, (expandedGridSize * sizeof(int)));
+    }
+
+    //
+    int row, col;
+    int x, y;
+    for (x = 0; x < gridSize; ++x) {
+        for (y = 0; y < gridSize; ++y) {
+            row = x * 3;
+            col = y * 3;
+            if (grid[x][y] == '\\') {
+                pExpandedGrid[row][col] = 1;
+                pExpandedGrid[row + 1][col + 1] = 1;
+                pExpandedGrid[row + 2][col + 2] = 1;
+            } else if (grid[x][y] == '/') {
+                pExpandedGrid[row][col + 2] = 1;
+                pExpandedGrid[row + 1][col + 1] = 1;
+                pExpandedGrid[row + 2][col] = 1;
+            }
+        }
+    }
+
+    //
+    for (x = 0; x < expandedGridSize; ++x) {
+        for (y = 0; y < expandedGridSize; ++y) {
+            if (pExpandedGrid[x][y] == 0) {
+                floodFill(pExpandedGrid, expandedGridSize, x, y);
+                retVal++;
+            }
+        }
+    }
+
+    //
+    for (i = 0; i < expandedGridSize; ++i) {
+        free(pExpandedGrid[i]);
+        pExpandedGrid[i] = NULL;
+    }
+    free(pExpandedGrid);
+    pExpandedGrid = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    const vector<vector<int>> Directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+
+    void floodFill(vector<vector<int>>& expandedGrid, int x, int y) {
+        int expandedGridSize = expandedGrid.size();
+        expandedGrid[x][y] = 1;
+
+        queue<pair<int, int>> bfsQueue;
+        bfsQueue.push({x, y});
+        while (bfsQueue.empty() == false) {
+            auto [currentRow, currentCol] = bfsQueue.front();
+            bfsQueue.pop();
+
+            for (auto& direction : Directions) {
+                int row = direction[0] + currentRow;
+                int col = direction[1] + currentCol;
+                if ((row < 0) || (row >= expandedGridSize)) {
+                    continue;
+                } else if ((col < 0) || (col >= expandedGridSize)) {
+                    continue;
+                } else if (expandedGrid[row][col] != 0) {
+                    continue;
+                }
+
+                expandedGrid[row][col] = 1;
+                bfsQueue.push({row, col});
+            }
+        }
+    }
+
+   public:
+    int regionsBySlashes(vector<string>& grid) {
+        int retVal = 0;
+
+        int gridSize = grid.size();
+        int expandedGridSize = gridSize * 3;
+
+        vector<vector<int>> expandedGrid(expandedGridSize, vector<int>(expandedGridSize, 0));
+        for (int x = 0; x < gridSize; ++x) {
+            for (int y = 0; y < gridSize; ++y) {
+                int row = x * 3;
+                int col = y * 3;
+                if (grid[x][y] == '\\') {
+                    expandedGrid[row][col] = 1;
+                    expandedGrid[row + 1][col + 1] = 1;
+                    expandedGrid[row + 2][col + 2] = 1;
+                } else if (grid[x][y] == '/') {
+                    expandedGrid[row][col + 2] = 1;
+                    expandedGrid[row + 1][col + 1] = 1;
+                    expandedGrid[row + 2][col] = 1;
+                }
+            }
+        }
+
+        for (int x = 0; x < expandedGridSize; ++x) {
+            for (int y = 0; y < expandedGridSize; ++y) {
+                if (expandedGrid[x][y] == 0) {
+                    floodFill(expandedGrid, x, y);
+                    retVal++;
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.Directions = [(0, 1), (0, -1), (1, 0), (-1, 0),]
+
+    def floodFill(self, expandedGrid: List[str], x: int, y: int) -> None:
+        expandedGridSize = len(expandedGrid)
+        expandedGrid[x][y] = 1
+
+        queue = [(x, y)]
+        while queue:
+            currentCell = queue.pop(0)
+
+            for direction in self.Directions:
+                row = direction[0] + currentCell[0]
+                col = direction[1] + currentCell[1]
+
+                if (row < 0) or (row >= expandedGridSize):
+                    continue
+                elif (col < 0) or (col >= expandedGridSize):
+                    continue
+                elif expandedGrid[row][col] != 0:
+                    continue
+
+                expandedGrid[row][col] = 1
+                queue.append((row, col))
+
+    def regionsBySlashes(self, grid: List[str]) -> int:
+        retVal = 0
+
+        gridSize = len(grid)
+        expandedGridSize = gridSize * 3
+
+        expandedGrid = [[0] * expandedGridSize for _ in range(expandedGridSize)]
+        for x in range(gridSize):
+            for y in range(gridSize):
+                row = x * 3
+                col = y * 3
+                if grid[x][y] == "\\":
+                    expandedGrid[row][col] = 1
+                    expandedGrid[row + 1][col + 1] = 1
+                    expandedGrid[row + 2][col + 2] = 1
+                elif grid[x][y] == "/":
+                    expandedGrid[row][col + 2] = 1
+                    expandedGrid[row + 1][col + 1] = 1
+                    expandedGrid[row + 2][col] = 1
+
+        for x in range(expandedGridSize):
+            for y in range(expandedGridSize):
+                if expandedGrid[x][y] == 0:
+                    self.floodFill(expandedGrid, x, y)
+                    retVal += 1
+
+        return retVal
+```
+
+</details>
+
 ## [990. Satisfiability of Equality Equations](https://leetcode.com/problems/satisfiability-of-equality-equations/)  1638
 
 <details><summary>Description</summary>

@@ -257,6 +257,13 @@
 
 </details>
 
+<details><summary>Number of Islands</summary>
+
+- [200. Number of Islands](https://leetcode.com/problems/number-of-islands)
+- [959. Regions Cut By Slashes](https://leetcode.com/problems/regions-cut-by-slashes/)
+
+</details>
+
 ## Greedy
 
 <details><summary>Greedy</summary>
