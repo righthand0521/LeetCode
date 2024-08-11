@@ -4470,6 +4470,259 @@ class Solution:
 
 </details>
 
+## [173. Binary Search Tree Iterator](https://leetcode.com/problems/binary-search-tree-iterator/)
+
+- [Official](https://leetcode.cn/problems/binary-search-tree-iterator/solutions/683126/er-cha-sou-suo-shu-die-dai-qi-by-leetcod-4y0y/)
+
+<details><summary>Description</summary>
+
+```text
+Implement the BSTIterator class that represents an iterator over the in-order traversal of a binary search tree (BST):
+- BSTIterator(TreeNode root)
+  Initializes an object of the BSTIterator class. The root of the BST is given as part of the constructor.
+  The pointer should be initialized to a non-existent number smaller than any element in the BST.
+- boolean hasNext()
+  Returns true if there exists a number in the traversal to the right of the pointer, otherwise returns false.
+- int next()
+  Moves the pointer to the right, then returns the number at the pointer.
+
+Notice that by initializing the pointer to a non-existent smallest number,
+the first call to next() will return the smallest element in the BST.
+
+You may assume that next() calls will always be valid.
+That is, there will be at least a next number in the in-order traversal when next() is called.
+
+Example 1:
+  7
+ / \
+3   15
+   /  \
+  9    20
+Input
+["BSTIterator", "next", "next", "hasNext", "next", "hasNext", "next", "hasNext", "next", "hasNext"]
+[[[7, 3, 15, null, null, 9, 20]], [], [], [], [], [], [], [], [], []]
+Output
+[null, 3, 7, true, 9, true, 15, true, 20, false]
+Explanation
+BSTIterator bSTIterator = new BSTIterator([7, 3, 15, null, null, 9, 20]);
+bSTIterator.next();    // return 3
+bSTIterator.next();    // return 7
+bSTIterator.hasNext(); // return True
+bSTIterator.next();    // return 9
+bSTIterator.hasNext(); // return True
+bSTIterator.next();    // return 15
+bSTIterator.hasNext(); // return True
+bSTIterator.next();    // return 20
+bSTIterator.hasNext(); // return False
+
+Constraints:
+The number of nodes in the tree is in the range [1, 10^5].
+0 <= Node.val <= 10^6
+At most 10^5 calls will be made to hasNext, and next.
+
+Follow up:
+Could you implement next() and hasNext() to run in average O(1) time and use O(h) memory,
+where h is the height of the tree?
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int getTreeSize(struct TreeNode* root) {
+    int retVal = 0;
+
+    if (root == NULL) {
+        return retVal;
+    }
+    retVal = 1 + getTreeSize(root->left) + getTreeSize(root->right);
+
+    return retVal;
+}
+void inorder(struct TreeNode* root, int* pRetVal, int* returnSize) {
+    if (root == NULL) {
+        return;
+    }
+    inorder(root->left, pRetVal, returnSize);
+    pRetVal[(*returnSize)++] = root->val;
+    inorder(root->right, pRetVal, returnSize);
+}
+int* inorderTraversal(struct TreeNode* root, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    pRetVal = (int*)malloc(getTreeSize(root) * sizeof(int));
+    inorder(root, pRetVal, returnSize);
+
+    return pRetVal;
+}
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+typedef struct {
+    int* returnValue;
+    int returnSize;
+    int index;
+} BSTIterator;
+BSTIterator* bSTIteratorCreate(struct TreeNode* root) {
+    BSTIterator* pRetVal = NULL;
+
+    pRetVal = (BSTIterator*)malloc(sizeof(BSTIterator));
+    pRetVal->returnValue = inorderTraversal(root, &(pRetVal->returnSize));
+    pRetVal->index = 0;
+
+    return pRetVal;
+}
+int bSTIteratorNext(BSTIterator* obj) {
+    int retVal = obj->returnValue[obj->index];
+    obj->index += 1;
+
+    return retVal;
+}
+bool bSTIteratorHasNext(BSTIterator* obj) {
+    bool retVal = false;
+
+    if (obj->index < obj->returnSize) {
+        retVal = true;
+    }
+
+    return retVal;
+}
+void bSTIteratorFree(BSTIterator* obj) {
+    free(obj->returnValue);
+    obj->returnValue = NULL;
+    free(obj);
+    obj = NULL;
+}
+/**
+ * Your BSTIterator struct will be instantiated and called as such:
+ * BSTIterator* obj = bSTIteratorCreate(root);
+ * int param_1 = bSTIteratorNext(obj);
+ * bool param_2 = bSTIteratorHasNext(obj);
+ * bSTIteratorFree(obj);
+ */
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class BSTIterator {
+   private:
+    vector<int> returnValue;
+    int index;
+
+    void inorder(TreeNode* root, vector<int>& returnValue) {
+        if (root == nullptr) {
+            return;
+        }
+        inorder(root->left, returnValue);
+        returnValue.emplace_back(root->val);
+        inorder(root->right, returnValue);
+    }
+    vector<int> inorderTraversal(TreeNode* root) {
+        vector<int> retVal;
+
+        inorder(root, retVal);
+
+        return retVal;
+    }
+
+   public:
+    BSTIterator(TreeNode* root) {
+        index = 0;
+        returnValue = inorderTraversal(root);
+    }
+    int next() {
+        int retVal = returnValue[index];
+        index++;
+
+        return retVal;
+    }
+    bool hasNext() {
+        bool retVal = false;
+
+        int returnValueSize = returnValue.size();
+        if (index < returnValueSize) {
+            retVal = true;
+        }
+
+        return retVal;
+    }
+};
+/**
+ * Your BSTIterator object will be instantiated and called as such:
+ * BSTIterator* obj = new BSTIterator(root);
+ * int param_1 = obj->next();
+ * bool param_2 = obj->hasNext();
+ */
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class BSTIterator:
+    def __init__(self, root: Optional[TreeNode]):
+        self.queue = deque()
+        self.inOrder(root)
+
+    def inOrder(self, root: Optional[TreeNode]) -> None:
+        if not root:
+            return
+        self.inOrder(root.left)
+        self.queue.append(root.val)
+        self.inOrder(root.right)
+
+    def next(self) -> int:
+        retVal = self.queue.popleft()
+
+        return retVal
+
+    def hasNext(self) -> bool:
+        retVal = False
+
+        queueSize = len(self.queue)
+        if queueSize > 0:
+            retVal = True
+
+        return retVal
+
+
+# Your BSTIterator object will be instantiated and called as such:
+# obj = BSTIterator(root)
+# param_1 = obj.next()
+# param_2 = obj.hasNext()
+```
+
+</details>
+
 ## [199. Binary Tree Right Side View](https://leetcode.com/problems/binary-tree-right-side-view/)
 
 - [Official](https://leetcode.cn/problems/binary-tree-right-side-view/solutions/213494/er-cha-shu-de-you-shi-tu-by-leetcode-solution/)
