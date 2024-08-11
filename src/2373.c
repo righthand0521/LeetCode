@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
                      0,
                      NULL}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
-    /* Example 1:
+    /* Example
      *  Input: grid = [[9,9,8,1],[5,6,2,6],[8,2,6,4],[6,2,2,2]]
      *  Output: [[9,9],[8,6]]
      *

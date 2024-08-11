@@ -38,11 +38,12 @@ class Solution {
 };
 
 int main(int argc, char **argv) {
+    int imin = numeric_limits<int>::min();
+    int imax = numeric_limits<int>::max();
     struct subject {
         vector<int> nums;
     };
-    vector<subject> testData{
-        {{1, numeric_limits<int>::min(), 2, numeric_limits<int>::max(), numeric_limits<int>::max(), 3}}, {{}}, {{1}}};
+    vector<subject> testData{{{1, imin, 2, imax, imax, 3}}, {{}}, {{1}}};
     int numberOfTestCase = testData.size();
     /* Example
      *  Input: root = [1,null,2,3]
@@ -61,9 +62,9 @@ int main(int argc, char **argv) {
     for (int i = 0; i < numberOfTestCase; ++i) {
         cout << "Input: root = [";
         for (long unsigned int j = 0; j < testData[i].nums.size(); ++j) {
-            if (testData[i].nums[j] == numeric_limits<int>::min()) {
+            if (testData[i].nums[j] == imin) {
                 cout << (j == 0 ? "" : ",") << "null";
-            } else if (testData[i].nums[j] == numeric_limits<int>::max()) {
+            } else if (testData[i].nums[j] == imax) {
                 continue;
             } else {
                 cout << ((j == 0) ? "" : ",") << testData[i].nums[j];

@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
     vector<subject> testData{{{"MinStack", "push", "push", "push", "getMin", "pop", "top", "getMin"},
                               {{}, {-2}, {0}, {-3}, {}, {}, {}, {}}}};
     int numberOfTestCase = testData.size();
-    /* Example 1:
+    /* Example
      *  Input
      *  ["MinStack","push","push","push","getMin","pop","top","getMin"]
      *  [[],[-2],[0],[-3],[],[],[],[]]

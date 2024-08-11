@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
         int edgesSize;
     } testCase[] = {{{3, 3, 4, 2, 3}, 5}, {{2, -1, 3, 1}, 4}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
-    /* Example 1:
+    /* Example
      *  Input: edges = [3,3,4,2,3]
      *  Output: 3
      *

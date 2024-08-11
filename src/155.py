@@ -64,7 +64,7 @@ if __name__ == "__main__":
         logging.info("Input")
         for methods, val in zip([["MinStack", "push", "push", "push", "getMin", "pop", "top", "getMin"]],
                                 [[[], [-2], [0], [-3], [], [], [], []]]):
-            # /* Example 1:
+            # /* Example
             #  *  Input
             #  *  ["MinStack","push","push","push","getMin","pop","top","getMin"]
             #  *  [[],[-2],[0],[-3],[],[],[],[]]

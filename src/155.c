@@ -102,7 +102,7 @@ int main(int argc, char **argv) {
                      {INT_MIN, -2, 0, -3, INT_MIN, INT_MIN, INT_MIN, INT_MIN},
                      8}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
-    /* Example 1:
+    /* Example
      *  Input
      *  ["MinStack","push","push","push","getMin","pop","top","getMin"]
      *  [[],[-2],[0],[-3],[],[],[],[]]

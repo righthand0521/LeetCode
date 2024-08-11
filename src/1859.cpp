@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
     };
     vector<subject> testData{{"is2 sentence4 This1 a3"}, {"Myself2 Me1 I4 and3"}};
     int numberOfTestCase = testData.size();
-    /* Example 1:
+    /* Example
      *  Input: s = "is2 sentence4 This1 a3"
      *  Output: "This is a sentence"
      *

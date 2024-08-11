@@ -65,7 +65,7 @@ if __name__ == "__main__":
 
         pSolution = Solution()
         for nums, minK, maxK in zip([[1, 3, 5, 2, 7, 5], [1, 1, 1, 1]], [1, 1], [5, 1]):
-            # /* Example 1:
+            # /* Example
             #  *  Input: nums = [1,3,5,2,7,5], minK = 1, maxK = 5
             #  *  Output: 2
             #  *

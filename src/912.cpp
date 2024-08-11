@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
     };
     vector<subject> testData{{{5, 2, 3, 1}}, {{5, 1, 1, 2, 0, 0}}};
     int numberOfTestCase = testData.size();
-    /* Example 1:
+    /* Example
      *  Input: nums = [5,2,3,1]
      *  Output: [1,2,3,5]
      *

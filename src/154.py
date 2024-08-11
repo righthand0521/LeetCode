@@ -48,7 +48,7 @@ if __name__ == "__main__":
 
         pSolution = Solution()
         for nums in [[1, 3, 5], [2, 2, 2, 0, 1]]:
-            # /* Example 1:
+            # /* Example
             #  *  Input: nums = [1,3,5]
             #  *  Output: 1
             #  *

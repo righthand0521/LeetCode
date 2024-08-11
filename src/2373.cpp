@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
     vector<subject> testData{{{{9, 9, 8, 1}, {5, 6, 2, 6}, {8, 2, 6, 4}, {6, 2, 2, 2}}},
                              {{{1, 1, 1, 1, 1}, {1, 1, 1, 1, 1}, {1, 1, 2, 1, 1}, {1, 1, 1, 1, 1}, {1, 1, 1, 1, 1}}}};
     int numberOfTestCase = testData.size();
-    /* Example 1:
+    /* Example
      *  Input: grid = [[9,9,8,1],[5,6,2,6],[8,2,6,4],[6,2,2,2]]
      *  Output: [[9,9],[8,6]]
      *

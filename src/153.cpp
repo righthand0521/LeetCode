@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
     };
     vector<subject> testData{{{3, 4, 5, 1, 2}}, {{4, 5, 6, 7, 0, 1, 2}}, {{11, 13, 15, 17}}, {{2, 1}}, {{2, 3, 1}}};
     int numberOfTestCase = testData.size();
-    /* Example 1:
+    /* Example
      *  Input: nums = [3,4,5,1,2]
      *  Output: 1
      *

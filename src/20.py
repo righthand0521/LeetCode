@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
         pSolution = Solution()
         for s in ["()", "()[]{}", "(]"]:
-            # /* Example 1:
+            # /* Example
             #  *  Input: s = "()"
             #  *  Output: true
             #  *

@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
         int numsSize;
     } testCase[] = {{{1, 3, 5}, 3}, {{2, 2, 2, 0, 1}, 5}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
-    /* Example 1:
+    /* Example
      *  Input: nums = [1,3,5]
      *  Output: 1
      *
