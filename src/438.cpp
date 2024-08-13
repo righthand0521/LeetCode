@@ -5,32 +5,34 @@
 using namespace std;
 
 class Solution {
-#define MAX_COUNT_SIZE (26)  // s and p consist of lowercase English letters.
+   private:
+    int letters = 26;  // s and p consist of lowercase English letters.
+
    public:
     vector<int> findAnagrams(string s, string p) {
         vector<int> retVal;
 
-        int lenS = s.length();
-        int lenP = p.length();
-        if (lenS < lenP) {
+        int sSize = s.size();
+        int pSize = p.size();
+        if (sSize < pSize) {
             return retVal;
         }
 
-        vector<int> countS(MAX_COUNT_SIZE, 0);
-        vector<int> countP(MAX_COUNT_SIZE, 0);
-        for (int i = 0; i < lenP; ++i) {
-            ++countS[s[i] - 'a'];
-            ++countP[p[i] - 'a'];
+        vector<int> sCount(letters, 0);
+        vector<int> pCount(letters, 0);
+        for (int i = 0; i < pSize; ++i) {
+            ++sCount[s[i] - 'a'];
+            ++pCount[p[i] - 'a'];
         }
-        if (countS == countP) {
-            retVal.push_back(0);
+        if (sCount == pCount) {
+            retVal.emplace_back(0);
         }
 
-        for (int i = lenP; i < lenS; ++i) {
-            ++countS[s[i] - 'a'];
-            --countS[s[i - lenP] - 'a'];
-            if (countS == countP) {
-                retVal.push_back(i - lenP + 1);
+        for (int i = pSize; i < sSize; ++i) {
+            ++sCount[s[i] - 'a'];
+            --sCount[s[i - pSize] - 'a'];
+            if (sCount == pCount) {
+                retVal.emplace_back(i - pSize + 1);
             }
         }
 
@@ -45,6 +47,13 @@ int main(int argc, char** argv) {
     };
     vector<subject> testData{{"cbaebabacd", "abc"}, {"abab", "ab"}};
     int numberOfTestCase = testData.size();
+    /* Example
+     *  Input: s = "cbaebabacd", p = "abc"
+     *  Output: [0,6]
+     *
+     *  Input: s = "abab", p = "ab"
+     *  Output: [0,1,2]
+     */
 
     Solution cSolution;
     vector<int> answer;

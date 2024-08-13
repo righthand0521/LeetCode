@@ -697,12 +697,12 @@ s and p consist of lowercase English letters.
 <details><summary>C</summary>
 
 ```c
-#define MAX_RECORD (26)  // s and p consist of lowercase English letters.
+#define MAX_LETTERS (26)  // s and p consist of lowercase English letters.
 bool isSame(int* pRecordS, int* pRecordP) {
     int retVal = false;
 
     int i;
-    for (i = 0; i < MAX_RECORD; i++) {
+    for (i = 0; i < MAX_LETTERS; i++) {
         if (pRecordS[i] != pRecordP[i]) {
             return retVal;
         }
@@ -716,37 +716,41 @@ bool isSame(int* pRecordS, int* pRecordP) {
  */
 int* findAnagrams(char* s, char* p, int* returnSize) {
     int* pRetVal = NULL;
+
     (*returnSize) = 0;
 
-    int lenS = strlen(s);
-    int lenP = strlen(p);
-    if (lenS < lenP) {
+    int sSize = strlen(s);
+    int pSize = strlen(p);
+    if (sSize < pSize) {
         return pRetVal;
     }
 
-    pRetVal = (int*)malloc(lenS * sizeof(int));
+    pRetVal = (int*)malloc(sSize * sizeof(int));
     if (pRetVal == NULL) {
         perror("malloc");
         return pRetVal;
     }
+    memset(pRetVal, 0, (sSize * sizeof(int)));
+
+    int sCount[MAX_LETTERS];
+    memset(sCount, 0, sizeof(sCount));
+    int pCount[MAX_LETTERS];
+    memset(pCount, 0, sizeof(pCount));
 
     int i;
-    int RecordS[MAX_RECORD] = {0};
-    int RecordP[MAX_RECORD] = {0};
-
-    for (i = 0; i < lenP; i++) {
-        RecordS[s[i] - 'a']++;
-        RecordP[p[i] - 'a']++;
+    for (i = 0; i < pSize; i++) {
+        sCount[s[i] - 'a']++;
+        pCount[p[i] - 'a']++;
     }
-    if (isSame(RecordS, RecordP) == true) {
+    if (isSame(sCount, pCount) == true) {
         pRetVal[(*returnSize)++] = 0;
     }
 
-    for (i = lenP; i < lenS; i++) {
-        RecordS[s[i] - 'a']++;
-        RecordS[s[i - lenP] - 'a']--;
-        if (isSame(RecordS, RecordP) == true) {
-            pRetVal[(*returnSize)++] = i - lenP + 1;
+    for (i = pSize; i < sSize; i++) {
+        sCount[s[i] - 'a']++;
+        sCount[s[i - pSize] - 'a']--;
+        if (isSame(sCount, pCount) == true) {
+            pRetVal[(*returnSize)++] = i - pSize + 1;
         }
     }
 
@@ -760,32 +764,34 @@ int* findAnagrams(char* s, char* p, int* returnSize) {
 
 ```c++
 class Solution {
-#define MAX_COUNT_SIZE (26)  // s and p consist of lowercase English letters.
+   private:
+    int letters = 26;  // s and p consist of lowercase English letters.
+
    public:
     vector<int> findAnagrams(string s, string p) {
         vector<int> retVal;
 
-        int lenS = s.length();
-        int lenP = p.length();
-        if (lenS < lenP) {
+        int sSize = s.size();
+        int pSize = p.size();
+        if (sSize < pSize) {
             return retVal;
         }
 
-        vector<int> countS(MAX_COUNT_SIZE, 0);
-        vector<int> countP(MAX_COUNT_SIZE, 0);
-        for (int i = 0; i < lenP; ++i) {
-            ++countS[s[i] - 'a'];
-            ++countP[p[i] - 'a'];
+        vector<int> sCount(letters, 0);
+        vector<int> pCount(letters, 0);
+        for (int i = 0; i < pSize; ++i) {
+            ++sCount[s[i] - 'a'];
+            ++pCount[p[i] - 'a'];
         }
-        if (countS == countP) {
-            retVal.push_back(0);
+        if (sCount == pCount) {
+            retVal.emplace_back(0);
         }
 
-        for (int i = lenP; i < lenS; ++i) {
-            ++countS[s[i] - 'a'];
-            --countS[s[i - lenP] - 'a'];
-            if (countS == countP) {
-                retVal.push_back(i - lenP + 1);
+        for (int i = pSize; i < sSize; ++i) {
+            ++sCount[s[i] - 'a'];
+            --sCount[s[i - pSize] - 'a'];
+            if (sCount == pCount) {
+                retVal.emplace_back(i - pSize + 1);
             }
         }
 
@@ -800,47 +806,32 @@ class Solution {
 
 ```python
 class Solution:
+    def __init__(self) -> None:
+        self.letters = 26  # s and p consist of lowercase English letters.
+
     def findAnagrams(self, s: str, p: str) -> List[int]:
-```
+        retVal = []
 
-</details>
+        sSize = len(s)
+        pSize = len(p)
+        if sSize < pSize:
+            return retVal
 
-<details><summary>Rust</summary>
+        sCount = [0] * self.letters
+        pCount = [0] * self.letters
+        for i in range(pSize):
+            sCount[ord(s[i]) - ord('a')] += 1
+            pCount[ord(p[i]) - ord('a')] += 1
+        if sCount == pCount:
+            retVal.append(0)
 
-```rust
-const COUNT_SIZE: usize = 26; // s and p consist of lowercase English letters.
-impl Solution {
-    pub fn find_anagrams(s: String, p: String) -> Vec<i32> {
-        let mut ret_val = vec![];
+        for i in range(pSize, sSize):
+            sCount[ord(s[i]) - ord('a')] += 1
+            sCount[ord(s[i - pSize]) - ord('a')] -= 1
+            if sCount == pCount:
+                retVal.append(i - pSize + 1)
 
-        let len_s = s.len();
-        let len_p = p.len();
-        if len_s < len_p {
-            return ret_val;
-        }
-
-        let mut count_s: [usize; COUNT_SIZE] = [0; COUNT_SIZE];
-        let mut count_p: [usize; COUNT_SIZE] = [0; COUNT_SIZE];
-
-        for i in 0..len_p {
-            count_s[(s.chars().nth(i).unwrap() as u8 - b'a') as usize] += 1;
-            count_p[(p.chars().nth(i).unwrap() as u8 - b'a') as usize] += 1;
-        }
-        if count_s == count_p {
-            ret_val.push(0);
-        }
-
-        for i in len_p..len_s {
-            count_s[(s.chars().nth(i).unwrap() as u8 - b'a') as usize] += 1;
-            count_s[(s.chars().nth(i - len_p).unwrap() as u8 - b'a') as usize] -= 1;
-            if count_s == count_p {
-                ret_val.push(i as i32 - len_p as i32 + 1);
-            }
-        }
-
-        return ret_val;
-    }
-}
+        return retVal
 ```
 
 </details>

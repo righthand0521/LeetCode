@@ -3,12 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_RECORD (26)  // s and p consist of lowercase English letters.
+#define MAX_LETTERS (26)  // s and p consist of lowercase English letters.
 bool isSame(int* pRecordS, int* pRecordP) {
     int retVal = false;
 
     int i;
-    for (i = 0; i < MAX_RECORD; i++) {
+    for (i = 0; i < MAX_LETTERS; i++) {
         if (pRecordS[i] != pRecordP[i]) {
             return retVal;
         }
@@ -22,37 +22,41 @@ bool isSame(int* pRecordS, int* pRecordP) {
  */
 int* findAnagrams(char* s, char* p, int* returnSize) {
     int* pRetVal = NULL;
+
     (*returnSize) = 0;
 
-    int lenS = strlen(s);
-    int lenP = strlen(p);
-    if (lenS < lenP) {
+    int sSize = strlen(s);
+    int pSize = strlen(p);
+    if (sSize < pSize) {
         return pRetVal;
     }
 
-    pRetVal = (int*)malloc(lenS * sizeof(int));
+    pRetVal = (int*)malloc(sSize * sizeof(int));
     if (pRetVal == NULL) {
         perror("malloc");
         return pRetVal;
     }
+    memset(pRetVal, 0, (sSize * sizeof(int)));
+
+    int sCount[MAX_LETTERS];
+    memset(sCount, 0, sizeof(sCount));
+    int pCount[MAX_LETTERS];
+    memset(pCount, 0, sizeof(pCount));
 
     int i;
-    int RecordS[MAX_RECORD] = {0};
-    int RecordP[MAX_RECORD] = {0};
-
-    for (i = 0; i < lenP; i++) {
-        RecordS[s[i] - 'a']++;
-        RecordP[p[i] - 'a']++;
+    for (i = 0; i < pSize; i++) {
+        sCount[s[i] - 'a']++;
+        pCount[p[i] - 'a']++;
     }
-    if (isSame(RecordS, RecordP) == true) {
+    if (isSame(sCount, pCount) == true) {
         pRetVal[(*returnSize)++] = 0;
     }
 
-    for (i = lenP; i < lenS; i++) {
-        RecordS[s[i] - 'a']++;
-        RecordS[s[i - lenP] - 'a']--;
-        if (isSame(RecordS, RecordP) == true) {
-            pRetVal[(*returnSize)++] = i - lenP + 1;
+    for (i = pSize; i < sSize; i++) {
+        sCount[s[i] - 'a']++;
+        sCount[s[i - pSize] - 'a']--;
+        if (isSame(sCount, pCount) == true) {
+            pRetVal[(*returnSize)++] = i - pSize + 1;
         }
     }
 
@@ -67,6 +71,13 @@ int main(int argc, char** argv) {
         int returnSize;
     } testCase[] = {{"cbaebabacd", "abc", 0}, {"abab", "ab", 0}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: s = "cbaebabacd", p = "abc"
+     *  Output: [0,6]
+     *
+     *  Input: s = "abab", p = "ab"
+     *  Output: [0,1,2]
+     */
 
     int* pAnswer = NULL;
     int i, j;
