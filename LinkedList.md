@@ -2665,6 +2665,8 @@ class Solution:
 
 ## [160. Intersection of Two Linked Lists](https://leetcode.com/problems/intersection-of-two-linked-lists/)
 
+- [Official](https://leetcode.cn/problems/intersection-of-two-linked-lists/solutions/811625/xiang-jiao-lian-biao-by-leetcode-solutio-a8jn/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -2750,45 +2752,39 @@ Follow up: Could you write a solution that runs in O(m + n) time and use only O(
  *     struct ListNode *next;
  * };
  */
-struct ListNode *getIntersectionNode(struct ListNode *headA, struct ListNode *headB) {
+struct ListNode* getIntersectionNode(struct ListNode* headA, struct ListNode* headB) {
     struct ListNode* pRetVal = NULL;
 
     int lenA = 0;
     struct ListNode* pCurrentA = headA;
-    while (pCurrentA->next != NULL)
-    {
+    while (pCurrentA->next != NULL) {
         lenA++;
         pCurrentA = pCurrentA->next;
     }
 
     int lenB = 0;
     struct ListNode* pCurrentB = headB;
-    while (pCurrentB->next != NULL)
-    {
+    while (pCurrentB->next != NULL) {
         lenB++;
         pCurrentB = pCurrentB->next;
     }
 
-    if (pCurrentA != pCurrentB)
-    {
+    if (pCurrentA != pCurrentB) {
         return pRetVal;
     }
 
-    int diff = (lenA>lenB)?lenA-lenB:lenB-lenA;
+    int diff = (lenA > lenB) ? lenA - lenB : lenB - lenA;
 
-    pRetVal = (lenA>lenB)?headA:headB;
+    pRetVal = (lenA > lenB) ? headA : headB;
     int i;
-    for (i=0; i<diff; ++i)
-    {
+    for (i = 0; i < diff; ++i) {
         pRetVal = pRetVal->next;
     }
 
-    pCurrentA = (lenA>lenB)?pRetVal:headA;
-    pCurrentB = (lenA>lenB)?headB:pRetVal;
-    while (pRetVal != NULL)
-    {
-        if (pCurrentA == pCurrentB)
-        {
+    pCurrentA = (lenA > lenB) ? pRetVal : headA;
+    pCurrentB = (lenA > lenB) ? headB : pRetVal;
+    while (pRetVal != NULL) {
+        if (pCurrentA == pCurrentB) {
             return pRetVal;
         }
         pRetVal = pRetVal->next;
@@ -2798,6 +2794,111 @@ struct ListNode *getIntersectionNode(struct ListNode *headA, struct ListNode *he
 
     return pRetVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+   public:
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        ListNode *pRetVal = nullptr;
+
+        int lenA = 0;
+        ListNode *pCurrentA = headA;
+        while (pCurrentA->next != nullptr) {
+            lenA++;
+            pCurrentA = pCurrentA->next;
+        }
+
+        int lenB = 0;
+        ListNode *pCurrentB = headB;
+        while (pCurrentB->next != nullptr) {
+            lenB++;
+            pCurrentB = pCurrentB->next;
+        }
+
+        if (pCurrentA != pCurrentB) {
+            return pRetVal;
+        }
+
+        int diff = (lenA > lenB) ? (lenA - lenB) : (lenB - lenA);
+
+        pRetVal = (lenA > lenB) ? headA : headB;
+        for (int i = 0; i < diff; ++i) {
+            pRetVal = pRetVal->next;
+        }
+
+        pCurrentA = (lenA > lenB) ? pRetVal : headA;
+        pCurrentB = (lenA > lenB) ? headB : pRetVal;
+        while (pRetVal != nullptr) {
+            if (pCurrentA == pCurrentB) {
+                return pRetVal;
+            }
+            pRetVal = pRetVal->next;
+            pCurrentA = pCurrentA->next;
+            pCurrentB = pCurrentB->next;
+        }
+
+        return pRetVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+class Solution:
+    def getIntersectionNode(self, headA: ListNode, headB: ListNode) -> Optional[ListNode]:
+        retVal = None
+
+        lenA = 0
+        pCurrentA = headA
+        while pCurrentA.next != None:
+            lenA += 1
+            pCurrentA = pCurrentA.next
+
+        lenB = 0
+        pCurrentB = headB
+        while pCurrentB.next != None:
+            lenB += 1
+            pCurrentB = pCurrentB.next
+
+        if pCurrentA != pCurrentB:
+            return retVal
+
+        diff = abs(lenA - lenB)
+        retVal = headA if lenA > lenB else headB
+        for i in range(diff):
+            retVal = retVal.next
+
+        pCurrentA = retVal if lenA > lenB else headA
+        pCurrentB = retVal if lenB > lenA else headB
+        while retVal != None:
+            if pCurrentA == pCurrentB:
+                return retVal
+            retVal = retVal.next
+            pCurrentA = pCurrentA.next
+            pCurrentB = pCurrentB.next
+
+        return retVal
 ```
 
 </details>

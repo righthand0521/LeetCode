@@ -49,6 +49,29 @@ class ListNodeCommon:
             print(pNode.val, end="," if pNode.next != None else "")
             pNode = pNode.next
 
+    def addValueToEndListNode(self, head: ListNode, value: int) -> ListNode:
+        pNew = ListNode(value)
+
+        if head == None:
+            return pNew
+
+        pCurrent = head
+        while pCurrent.next != None:
+            pCurrent = pCurrent.next
+        pCurrent.next = pNew
+
+        return head
+
+    def mergeListNode(self, pList1: ListNode, pList2: ListNode) -> ListNode:
+        retVal = pList1
+
+        pCurrent = pList1
+        while pCurrent.next != None:
+            pCurrent = pCurrent.next
+        pCurrent.next = pList2
+
+        return retVal
+
     def addListNodeCycle(self, head: ListNode, pos: int) -> ListNode:
         retVal = head
 

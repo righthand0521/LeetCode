@@ -44,6 +44,37 @@ void printList(ListNode* pHead) {
         pCurrent = pCurrent->next;
     }
 }
+
+ListNode* addValueToEndListNode(ListNode* pHead, int value) {
+    ListNode* pNew = new ListNode(value);
+    if (pNew == nullptr) {
+        return pHead;
+    }
+
+    if (pHead == nullptr) {
+        pHead = pNew;
+        return pHead;
+    }
+
+    ListNode* pCurrent = pHead;
+    while (pCurrent->next != nullptr) {
+        pCurrent = pCurrent->next;
+    }
+    pCurrent->next = pNew;
+
+    return pHead;
+}
+ListNode* mergeListNode(ListNode* pList1, ListNode* pList2) {
+    ListNode* pRetVal = pList1;
+
+    ListNode* pCurrent = pList1;
+    while (pCurrent->next != nullptr) {
+        pCurrent = pCurrent->next;
+    }
+    pCurrent->next = pList2;
+
+    return pRetVal;
+}
 #else
 struct ListNode {
     int val;
