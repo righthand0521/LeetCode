@@ -2157,6 +2157,168 @@ class Solution:
 
 </details>
 
+## [719. Find K-th Smallest Pair Distance](https://leetcode.com/problems/find-k-th-smallest-pair-distance/)
+
+- [Official](https://leetcode.com/problems/find-k-th-smallest-pair-distance/editorial/)
+- [Official](https://leetcode.cn/problems/find-k-th-smallest-pair-distance/solutions/1600107/zhao-chu-di-k-xiao-de-shu-dui-ju-chi-by-xwfgf/)
+
+<details><summary>Description</summary>
+
+```text
+The distance of a pair of integers a and b is defined as the absolute difference between a and b.
+
+Given an integer array nums and an integer k,
+return the kth smallest distance among all the pairs nums[i] and nums[j] where 0 <= i < j < nums.length.
+
+Example 1:
+Input: nums = [1,3,1], k = 1
+Output: 0
+Explanation: Here are all the pairs:
+(1,3) -> 2
+(1,1) -> 0
+(3,1) -> 2
+Then the 1st smallest distance pair is (1,1), and its distance is 0.
+
+Example 2:
+Input: nums = [1,1,1], k = 2
+Output: 0
+
+Example 3:
+Input: nums = [1,6,1], k = 3
+Output: 5
+
+Constraints:
+n == nums.length
+2 <= n <= 10^4
+0 <= nums[i] <= 10^6
+1 <= k <= n * (n - 1) / 2
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Binary search for the answer. How can you check how many pairs have distance <= X?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareInteger(const void* n1, const void* n2) {
+    // ascending order
+    return (*(int*)n1 > *(int*)n2);
+}
+int smallestDistancePair(int* nums, int numsSize, int k) {
+    int retVal = 0;
+
+    qsort(nums, numsSize, sizeof(int), compareInteger);
+
+    int middle, index, i, j;
+    int left = 0;
+    int right = nums[numsSize - 1] - nums[0];
+    while (left <= right) {
+        middle = (left + right) / 2;
+
+        index = 0;
+        i = 0;
+        for (j = 0; j < numsSize; j++) {
+            while (nums[j] - nums[i] > middle) {
+                i++;
+            }
+            index += (j - i);
+        }
+
+        if (index >= k) {
+            right = middle - 1;
+        } else {
+            left = middle + 1;
+        }
+    }
+    retVal = left;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int smallestDistancePair(vector<int>& nums, int k) {
+        int retVal = 0;
+
+        sort(nums.begin(), nums.end());
+
+        int numsSize = nums.size();
+        int left = 0;
+        int right = nums[numsSize - 1] - nums[0];
+        while (left <= right) {
+            int middle = (left + right) / 2;
+
+            int index = 0;
+            int i = 0;
+            for (int j = 0; j < numsSize; j++) {
+                while (nums[j] - nums[i] > middle) {
+                    i++;
+                }
+                index += (j - i);
+            }
+
+            if (index >= k) {
+                right = middle - 1;
+            } else {
+                left = middle + 1;
+            }
+        }
+        retVal = left;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def smallestDistancePair(self, nums: List[int], k: int) -> int:
+        retVal = 0
+
+        nums.sort()
+
+        numsSize = len(nums)
+        left = 0
+        right = nums[numsSize - 1] - nums[0]
+        while left <= right:
+            middle = (left + right) // 2
+
+            index = 0
+            i = 0
+            for j in range(numsSize):
+                while nums[j] - nums[i] > middle:
+                    i += 1
+                index += (j-i)
+
+            if index >= k:
+                right = middle - 1
+            else:
+                left = middle + 1
+
+        retVal = left
+
+        return retVal
+```
+
+</details>
+
 ## [786. K-th Smallest Prime Fraction](https://leetcode.com/problems/k-th-smallest-prime-fraction/)  2168
 
 - [Official](https://leetcode.com/problems/k-th-smallest-prime-fraction/editorial/)
