@@ -12,7 +12,6 @@ bool canPartition(int* nums, int numsSize) {
     for (i = 0; i < numsSize; ++i) {
         sum += nums[i];
     }
-
     if (sum % 2 != 0) {
         return retVal;
     }
@@ -38,6 +37,13 @@ int main(int argc, char** argv) {
         int numsSize;
     } testCase[] = {{{1, 5, 11, 5}, 4}, {{1, 2, 3, 5}, 4}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: nums = [1,5,11,5]
+     *  Output: true
+     *
+     *  Input: nums = [1,2,3,5]
+     *  Output: false
+     */
 
     bool answer = false;
     int i, j;

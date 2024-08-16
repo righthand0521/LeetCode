@@ -4976,16 +4976,15 @@ bool canPartition(int* nums, int numsSize) {
     int i, j;
 
     int sum = 0;
-    for (i=0; i<numsSize; ++i) {
+    for (i = 0; i < numsSize; ++i) {
         sum += nums[i];
     }
-
-    if (sum %2 != 0) {
+    if (sum % 2 != 0) {
         return retVal;
     }
     sum /= 2;
 
-    bool dp[sum+1];
+    bool dp[sum + 1];
     memset(dp, false, sizeof(dp));
     dp[0] = true;
     for (i = 0; i < numsSize; ++i) {
@@ -4997,6 +4996,68 @@ bool canPartition(int* nums, int numsSize) {
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool canPartition(vector<int>& nums) {
+        bool retVal = false;
+
+        int numsSize = nums.size();
+
+        int sum = 0;
+        for (int i = 0; i < numsSize; ++i) {
+            sum += nums[i];
+        }
+        if (sum % 2 != 0) {
+            return retVal;
+        }
+        sum /= 2;
+
+        vector<bool> dp(sum + 1, false);
+        dp[0] = true;
+        for (int i = 0; i < numsSize; ++i) {
+            for (int j = sum; j >= nums[i]; --j) {
+                dp[j] = dp[j] | dp[j - nums[i]];
+            }
+        }
+        retVal = dp[sum];
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def canPartition(self, nums: List[int]) -> bool:
+        retVal = False
+
+        numsSize = len(nums)
+
+        sum = 0
+        for i in range(numsSize):
+            sum += nums[i]
+        if sum % 2 != 0:
+            return retVal
+        sum //= 2
+
+        dp = [True] + [False] * sum
+        for i in range(numsSize):
+            for j in range(sum, nums[i]-1, -1):
+                dp[j] = dp[j] | dp[j - nums[i]]
+        retVal = dp[sum]
+
+        return retVal
 ```
 
 </details>
