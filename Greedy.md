@@ -1295,6 +1295,120 @@ class Solution:
 
 </details>
 
+## [624. Maximum Distance in Arrays](https://leetcode.com/problems/maximum-distance-in-arrays/)
+
+- [Official](https://leetcode.cn/problems/maximum-distance-in-arrays/solutions/2393060/shu-zu-lie-biao-zhong-de-zui-da-ju-chi-b-f9x4/)
+
+<details><summary>Description</summary>
+
+```text
+You are given m arrays, where each array is sorted in ascending order.
+
+You can pick up two integers from two different arrays (each array picks one) and calculate the distance.
+We define the distance between two integers a and b to be their absolute difference |a - b|.
+
+Return the maximum distance.
+
+Example 1:
+Input: arrays = [[1,2,3],[4,5],[1,2,3]]
+Output: 4
+Explanation: One way to reach the maximum distance 4 is to
+pick 1 in the first or third array and pick 5 in the second array.
+
+Example 2:
+Input: arrays = [[1],[1]]
+Output: 0
+
+Constraints:
+m == arrays.length
+2 <= m <= 10^5
+1 <= arrays[i].length <= 500
+-10^4 <= arrays[i][j] <= 10^4
+arrays[i] is sorted in ascending order.
+There will be at most 10^5 integers in all the arrays.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int maxDistance(int** arrays, int arraysSize, int* arraysColSize) {
+    int retVal = 0;
+
+    int minValue = arrays[0][0];
+    int maxValue = arrays[0][arraysColSize[0] - 1];
+    int diff1, diff2;
+    int i;
+    for (i = 1; i < arraysSize; ++i) {
+        diff1 = abs(arrays[i][arraysColSize[i] - 1] - minValue);
+        diff2 = abs(maxValue - arrays[i][0]);
+        retVal = fmax(retVal, fmax(diff1, diff2));
+
+        minValue = fmin(minValue, arrays[i][0]);
+        maxValue = fmax(maxValue, arrays[i][arraysColSize[i] - 1]);
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maxDistance(vector<vector<int>>& arrays) {
+        int retVal = 0;
+
+        int arraysSize = arrays.size();
+
+        int arraysColSize = arrays[0].size();
+        int minValue = arrays[0][0];
+        int maxValue = arrays[0][arraysColSize - 1];
+        for (int i = 1; i < arraysSize; ++i) {
+            arraysColSize = arrays[i].size();
+            int diff1 = abs(arrays[i][arraysColSize - 1] - minValue);
+            int diff2 = abs(maxValue - arrays[i][0]);
+            retVal = max(retVal, max(diff1, diff2));
+
+            minValue = min(minValue, arrays[i][0]);
+            maxValue = max(maxValue, arrays[i][arraysColSize - 1]);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxDistance(self, arrays: List[List[int]]) -> int:
+        retVal = 0
+
+        arraysSize = len(arrays)
+
+        minValue = arrays[0][0]
+        maxValue = arrays[0][-1]
+        for i in range(1, arraysSize):
+            diff1 = abs(arrays[i][-1] - minValue)
+            diff2 = abs(maxValue - arrays[i][0])
+            retVal = max(retVal, diff1, diff2)
+
+            minValue = min(minValue, arrays[i][0])
+            maxValue = max(maxValue, arrays[i][-1])
+
+        return retVal
+```
+
+</details>
+
 ## [646. Maximum Length of Pair Chain](https://leetcode.com/problems/maximum-length-of-pair-chain/)
 
 - [Official](https://leetcode.com/problems/maximum-length-of-pair-chain/editorial/)
