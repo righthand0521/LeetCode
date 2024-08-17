@@ -1960,6 +1960,153 @@ class Solution:
 
 </details>
 
+## [763. Partition Labels](https://leetcode.com/problems/partition-labels/)  1443
+
+- [Official](https://leetcode.com/problems/partition-labels/editorial/)
+- [Official](https://leetcode.cn/problems/partition-labels/solutions/455703/hua-fen-zi-mu-qu-jian-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string s.
+We want to partition the string into as many parts as possible so that each letter appears in at most one part.
+
+Note that the partition is done so that after concatenating all the parts in order, the resultant string should be s.
+
+Return a list of integers representing the size of these parts.
+
+Example 1:
+Input: s = "ababcbacadefegdehijhklij"
+Output: [9,7,8]
+Explanation:
+The partition is "ababcbaca", "defegde", "hijhklij".
+This is a partition so that each letter appears in at most one part.
+A partition like "ababcbacadefegde", "hijhklij" is incorrect, because it splits s into less parts.
+
+Example 2:
+Input: s = "eccbbbbdec"
+Output: [10]
+
+Constraints:
+1 <= s.length <= 500
+s consists of lowercase English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Try to greedily choose the smallest partition that includes the first letter.
+   If you have something like "abaccbdeffed", then you might need to add b.
+   You can use an map like "last['b'] = 5" to help you expand the width of your partition.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MAX_LETTERS (26)  // s consists of lowercase English letters.
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *partitionLabels(char *s, int *returnSize) {
+    int *pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    int sSize = strlen(s);
+    pRetVal = (int *)calloc(sSize, sizeof(int));
+    if (pRetVal == NULL) {
+        perror("calloc");
+        return pRetVal;
+    }
+    int i;
+
+    int last[MAX_LETTERS];
+    memset(last, 0, sizeof(last));
+    for (i = 0; i < sSize; ++i) {
+        last[s[i] - 'a'] = i;
+    }
+
+    int start = 0;
+    int end = 0;
+    for (i = 0; i < sSize; ++i) {
+        end = fmax(end, last[s[i] - 'a']);
+        if (i == end) {
+            pRetVal[(*returnSize)++] = i - start + 1;
+            start = i + 1;
+        }
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int letters = 26;  // s consists of lowercase English letters.
+
+   public:
+    vector<int> partitionLabels(string s) {
+        vector<int> retVal;
+
+        vector<int> last(letters, 0);
+        int sSize = s.size();
+        for (int i = 0; i < sSize; ++i) {
+            last[s[i] - 'a'] = i;
+        }
+
+        int start = 0;
+        int end = 0;
+        for (int i = 0; i < sSize; ++i) {
+            end = max(end, last[s[i] - 'a']);
+            if (i == end) {
+                retVal.emplace_back(i - start + 1);
+                start = i + 1;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.lowercase = 26  # s consists of lowercase English letters.
+
+    def partitionLabels(self, s: str) -> List[int]:
+        retVal = []
+
+        last = [0] * self.lowercase
+        for idx, ch in enumerate(s):
+            last[ord(ch)-ord('a')] = idx
+
+        start = 0
+        end = 0
+        for idx, ch in enumerate(s):
+            end = max(end, last[ord(ch)-ord('a')])
+            if idx == end:
+                retVal.append(idx - start + 1)
+                start = idx + 1
+
+        return retVal
+```
+
+</details>
+
 ## [826. Most Profit Assigning Work](https://leetcode.com/problems/most-profit-assigning-work/)  1708
 
 - [Official](https://leetcode.cn/problems/most-profit-assigning-work/solutions/22424/an-pai-gong-zuo-yi-da-dao-zui-da-shou-yi-by-leetco/)
