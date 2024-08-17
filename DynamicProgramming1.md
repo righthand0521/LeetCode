@@ -2931,6 +2931,8 @@ class Solution:
 
 ## [152. Maximum Product Subarray](https://leetcode.com/problems/maximum-product-subarray/)
 
+- [Official](https://leetcode.cn/problems/maximum-product-subarray/solutions/250015/cheng-ji-zui-da-zi-shu-zu-by-leetcode-solution/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -2959,19 +2961,17 @@ The product of any prefix or suffix of nums is guaranteed to fit in a 32-bit int
 <details><summary>C</summary>
 
 ```c
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
 int maxProduct(int* nums, int numsSize) {
     int retVal = INT_MIN;
 
-    int max = 1;
-    int min = 1;
-    int tmp;
+    double max = 1;
+    double min = 1;
+    double tmp;
     int i;
     for (i = 0; i < numsSize; ++i) {
         /* Dynamic Programming
          *  keep max = MAX(max, nums[i])
-         *  keep min = MAX(min, nums[i]) because -10 <= nums[i] <= 10
+         *  keep min = MIN(min, nums[i]) because -10 <= nums[i] <= 10
          *  swap max and min if nums[i] < 0
          *
          *  Example
@@ -2986,14 +2986,91 @@ int maxProduct(int* nums, int numsSize) {
             max = min;
             min = tmp;
         }
-        max = MAX(nums[i], (max * nums[i]));
-        min = MIN(nums[i], (min * nums[i]));
-        retVal = MAX(retVal, max);
-        // printf("%d: %d; %d, %d; %d\n", i, nums[i], max, min, retVal);
+        max = fmax((double)nums[i], (max * nums[i]));
+        min = fmin((double)nums[i], (min * nums[i]));
+        retVal = fmax((double)retVal, max);
     }
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maxProduct(vector<int>& nums) {
+        int retVal = numeric_limits<int>::min();
+
+        double tmp;
+        double maxValue = 1;
+        double minValue = 1;
+        for (int num : nums) {
+            /* Dynamic Programming
+             *  keep max = MAX(max, nums[i])
+             *  keep min = MIN(min, nums[i]) because -10 <= nums[i] <= 10
+             *  swap max and min if nums[i] < 0
+             *
+             *  Example
+             *   nums[] = {2, 3, -2, 4}
+             *   nums[0]=2: keep max=2, min=2; retVal=2.
+             *   nums[1]=3: keep max=6, min=3; retVal=6.
+             *   nums[2]=-2: swap max=3, min=6; keep max=-2, min=-12; retVal=6.
+             *   nums[3]=4: keep max=4, min=-48; retVal=6.
+             */
+            if (num < 0) {
+                tmp = maxValue;
+                maxValue = minValue;
+                minValue = tmp;
+            }
+            tmp = maxValue * num;
+            maxValue = max((double)num, tmp);
+            tmp = minValue * num;
+            minValue = min((double)num, tmp);
+            retVal = max((double)retVal, maxValue);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxProduct(self, nums: List[int]) -> int:
+        retVal = float("-inf")
+
+        maxValue = 1
+        minValue = 1
+        for num in nums:
+            # /* Dynamic Programming
+            # *  keep max = MAX(max, nums[i])
+            # *  keep min = MIN(min, nums[i]) because -10 <= nums[i] <= 10
+            # *  swap max and min if nums[i] < 0
+            # *
+            # *  Example
+            # *   nums[] = {2, 3, -2, 4}
+            # *   nums[0]=2: keep max=2, min=2; retVal=2.
+            # *   nums[1]=3: keep max=6, min=3; retVal=6.
+            # *   nums[2]=-2: swap max=3, min=6; keep max=-2, min=-12; retVal=6.
+            # *   nums[3]=4: keep max=4, min=-48; retVal=6.
+            # */
+            if num < 0:
+                tmp = maxValue
+                maxValue = minValue
+                minValue = tmp
+            maxValue = max(num, (maxValue * num))
+            minValue = min(num, (minValue * num))
+            retVal = max(retVal, maxValue)
+
+        return retVal
 ```
 
 </details>

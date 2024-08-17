@@ -1,21 +1,20 @@
 #include <limits.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
 int maxProduct(int* nums, int numsSize) {
     int retVal = INT_MIN;
 
-    int max = 1;
-    int min = 1;
-    int tmp;
+    double max = 1;
+    double min = 1;
+    double tmp;
     int i;
     for (i = 0; i < numsSize; ++i) {
         /* Dynamic Programming
          *  keep max = MAX(max, nums[i])
-         *  keep min = MAX(min, nums[i]) because -10 <= nums[i] <= 10
+         *  keep min = MIN(min, nums[i]) because -10 <= nums[i] <= 10
          *  swap max and min if nums[i] < 0
          *
          *  Example
@@ -30,10 +29,9 @@ int maxProduct(int* nums, int numsSize) {
             max = min;
             min = tmp;
         }
-        max = MAX(nums[i], (max * nums[i]));
-        min = MIN(nums[i], (min * nums[i]));
-        retVal = MAX(retVal, max);
-        // printf("%d: %d; %d, %d; %d\n", i, nums[i], max, min, retVal);
+        max = fmax((double)nums[i], (max * nums[i]));
+        min = fmin((double)nums[i], (min * nums[i]));
+        retVal = fmax((double)retVal, max);
     }
 
     return retVal;
@@ -44,8 +42,20 @@ int main(int argc, char** argv) {
     struct testCaseType {
         int nums[MAX_SIZE];
         int numsSize;
-    } testCase[] = {{{2, 3, -2, 4}, 4}, {{-2, 0, -1}, 3}, {{-3, -1, -1}, 3}, {{0, 2}, 2}, {{-1, -2, -9, -6}, 4}};
+    } testCase[] = {{{2, 3, -2, 4}, 4},
+                    {{-2, 0, -1}, 3},
+                    {{0, 10, 10, 10, 10, 10, 10, 10, 10, 10, -10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 0}, 21}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: nums = [2,3,-2,4]
+     *  Output: 6
+     *
+     *  Input: nums = [-2,0,-1]
+     *  Output: 0
+     *
+     *  Input: nums = [0,10,10,10,10,10,10,10,10,10,-10,10,10,10,10,10,10,10,10,10,0]
+     *  Output: 1000000000]
+     */
 
     int answer = 0;
     int i, j;
