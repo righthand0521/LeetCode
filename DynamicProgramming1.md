@@ -3563,6 +3563,9 @@ class Solution:
 
 ## [264. Ugly Number II](https://leetcode.com/problems/ugly-number-ii/)
 
+- [Official](https://leetcode.com/problems/ugly-number-ii/editorial/)
+- [Official](https://leetcode.cn/problems/ugly-number-ii/solutions/712102/chou-shu-ii-by-leetcode-solution-uoqd/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -3589,81 +3592,37 @@ Constraints:
 <details><summary>C</summary>
 
 ```c
-#define DYNAMIC_PROGRAMMING (1)  // Assume you have kth ugly number. Then (k+1)th must be Min(L1*2, L2*3, L3*5).
-#define DEFINTION (1)            // Time Limit Exceeded
-#if (DYNAMIC_PROGRAMMING)
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
-#elif (DEFINTION)
-bool isUgly(int n) {
-    bool retVal = false;
-
-    if (n <= 0) {
-        return retVal;
-    }
-
-    int factors[] = {2, 3, 5};
-    int factorsSize = sizeof(factors) / sizeof(factors[0]);
-
-    int i;
-    for (i = 0; i < factorsSize; ++i) {
-        while (n % factors[i] == 0) {
-            n /= factors[i];
-        }
-    }
-
-    if (n == 1) {
-        retVal = true;
-    }
-
-    return retVal;
-}
-#endif
 int nthUglyNumber(int n) {
-    int retVal = 1;
+    int retVal = 0;
 
-    if (n == 1) {
-        return retVal;
-    }
+    int dp[n + 1];
+    memset(dp, 0, sizeof(dp));
+    dp[1] = 1;
 
-#if (DYNAMIC_PROGRAMMING)
-    unsigned int UglyNumberList[n];
-    unsigned int next = 1;
-    unsigned int idx2 = 0;
-    unsigned int next2 = 2;
-    unsigned int idx3 = 0;
-    unsigned int next3 = 3;
-    unsigned int idx5 = 0;
-    unsigned int next5 = 5;
-
-    UglyNumberList[0] = next;
+    int idx2 = 1;
+    int num2;
+    int idx3 = 1;
+    int num3;
+    int idx5 = 1;
+    int num5;
     int i;
-    for (i = 1; i < n; ++i) {
-        next = MIN(next2, MIN(next3, next5));
-        UglyNumberList[i] = next;
+    for (i = 2; i <= n; ++i) {
+        num2 = dp[idx2] * 2;
+        num3 = dp[idx3] * 3;
+        num5 = dp[idx5] * 5;
+        dp[i] = fmin(num2, fmin(num3, num5));
 
-        if (next == next2) {
-            ++idx2;
-            next2 = UglyNumberList[idx2] * 2;
+        if (dp[i] == num2) {
+            idx2++;
         }
-        if (next == next3) {
-            ++idx3;
-            next3 = UglyNumberList[idx3] * 3;
+        if (dp[i] == num3) {
+            idx3++;
         }
-        if (next == next5) {
-            ++idx5;
-            next5 = UglyNumberList[idx5] * 5;
+        if (dp[i] == num5) {
+            idx5++;
         }
     }
-    retVal = UglyNumberList[n - 1];
-#elif (DEFINTION)
-    int count = 1;
-    while (count < n) {
-        ++retVal;
-        if (isUgly(retVal) == true) {
-            ++count;
-        }
-    }
-#endif
+    retVal = dp[n];
 
     return retVal;
 }
@@ -3671,46 +3630,73 @@ int nthUglyNumber(int n) {
 
 </details>
 
-<details><summary>Dynamic Programming</summary>
+<details><summary>C++</summary>
 
-```text
-Here is a time efficient solution with O(n) extra space.
-The ugly-number sequence is 1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 15, …
-because every number can only be divided by 2, 3, 5,
-one way to look at the sequence is to split the sequence to three groups as below:
- 1. 1×2, 2×2, 3×2, 4×2, 5×2, ...
- 2. 1×3, 2×3, 3×3, 4×3, 5×3, ...
- 3. 1×5, 2×5, 3×5, 4×5, 5×5, ...
-We can find that every subsequence is the ugly-sequence itself (1, 2, 3, 4, 5, …) multiply 2, 3, 5.
-Then we use similar merge method as merge sort, to get every ugly number from the three subsequences.
-Every step we choose the smallest one, and move one step after.
+```c++
+class Solution {
+   public:
+    int nthUglyNumber(int n) {
+        int retVal = 0;
 
-Example:
-Let us see how it works
-  initialize
-    ugly[] =  | 1 |
-    i2 =  i3 = i5 = 0;
-  First iteration
-    ugly[1] = Min(ugly[i2]*2, ugly[i3]*3, ugly[i5]*5) = Min(2, 3, 5) = 2
-    ugly[] =  | 1 | 2 |
-    i2 = 1,  i3 = i5 = 0  (i2 got incremented )
-  Second iteration
-    ugly[2] = Min(ugly[i2]*2, ugly[i3]*3, ugly[i5]*5) = Min(4, 3, 5) = 3
-    ugly[] =  | 1 | 2 | 3 |
-    i2 = 1,  i3 =  1, i5 = 0  (i3 got incremented )
-  Third iteration
-    ugly[3] = Min(ugly[i2]*2, ugly[i3]*3, ugly[i5]*5) = Min(4, 6, 5) = 4
-    ugly[] =  | 1 | 2 | 3 |  4 |
-    i2 = 2,  i3 =  1, i5 = 0  (i2 got incremented )
-  Fourth iteration
-    ugly[4] = Min(ugly[i2]*2, ugly[i3]*3, ugly[i5]*5) = Min(6, 6, 5) = 5
-    ugly[] =  | 1 | 2 | 3 |  4 | 5 |
-    i2 = 2,  i3 =  1, i5 = 1  (i5 got incremented )
-  Fifth iteration
-    ugly[4] = Min(ugly[i2]*2, ugly[i3]*3, ugly[i5]*5) = Min(6, 6, 10) = 6
-    ugly[] =  | 1 | 2 | 3 |  4 | 5 | 6 |
-    i2 = 3,  i3 =  2, i5 = 1  (i2 and i3 got incremented )
-Will continue same way till input n
+        vector<int> dp(n + 1, 0);
+        dp[1] = 1;
+
+        int idx2 = 1;
+        int idx3 = 1;
+        int idx5 = 1;
+        for (int i = 2; i <= n; ++i) {
+            int num2 = dp[idx2] * 2;
+            int num3 = dp[idx3] * 3;
+            int num5 = dp[idx5] * 5;
+            dp[i] = min(num2, min(num3, num5));
+
+            if (dp[i] == num2) {
+                idx2++;
+            }
+            if (dp[i] == num3) {
+                idx3++;
+            }
+            if (dp[i] == num5) {
+                idx5++;
+            }
+        }
+        retVal = dp[n];
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def nthUglyNumber(self, n: int) -> int:
+        retVal = 0
+
+        dp = [0] * (n+1)
+        dp[1] = 1
+
+        idx2 = 1
+        idx3 = 1
+        idx5 = 1
+        for i in range(2, n+1):
+            num2 = dp[idx2] * 2
+            num3 = dp[idx3] * 3
+            num5 = dp[idx5] * 5
+            dp[i] = min(num2, num3, num5)
+
+            if dp[i] == num2:
+                idx2 += 1
+            if dp[i] == num3:
+                idx3 += 1
+            if dp[i] == num5:
+                idx5 += 1
+        retVal = dp[n]
+
+        return retVal
 ```
 
 </details>

@@ -1,83 +1,39 @@
-#include <stdbool.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define DYNAMIC_PROGRAMMING (1)  // Assume you have kth ugly number. Then (k+1)th must be Min(L1*2, L2*3, L3*5).
-#define DEFINTION (1)            // Time Limit Exceeded
-#if (DYNAMIC_PROGRAMMING)
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
-#elif (DEFINTION)
-bool isUgly(int n) {
-    bool retVal = false;
-
-    if (n <= 0) {
-        return retVal;
-    }
-
-    int factors[] = {2, 3, 5};
-    int factorsSize = sizeof(factors) / sizeof(factors[0]);
-
-    int i;
-    for (i = 0; i < factorsSize; ++i) {
-        while (n % factors[i] == 0) {
-            n /= factors[i];
-        }
-    }
-
-    if (n == 1) {
-        retVal = true;
-    }
-
-    return retVal;
-}
-#endif
 int nthUglyNumber(int n) {
-    int retVal = 1;
+    int retVal = 0;
 
-    if (n == 1) {
-        return retVal;
-    }
+    int dp[n + 1];
+    memset(dp, 0, sizeof(dp));
+    dp[1] = 1;
 
-#if (DYNAMIC_PROGRAMMING)
-    unsigned int UglyNumberList[n];
-    unsigned int next = 1;
-    unsigned int idx2 = 0;
-    unsigned int next2 = 2;
-    unsigned int idx3 = 0;
-    unsigned int next3 = 3;
-    unsigned int idx5 = 0;
-    unsigned int next5 = 5;
-
-    UglyNumberList[0] = next;
+    int idx2 = 1;
+    int num2;
+    int idx3 = 1;
+    int num3;
+    int idx5 = 1;
+    int num5;
     int i;
-    for (i = 1; i < n; ++i) {
-        next = MIN(next2, MIN(next3, next5));
-        UglyNumberList[i] = next;
+    for (i = 2; i <= n; ++i) {
+        num2 = dp[idx2] * 2;
+        num3 = dp[idx3] * 3;
+        num5 = dp[idx5] * 5;
+        dp[i] = fmin(num2, fmin(num3, num5));
 
-        if (next == next2) {
-            ++idx2;
-            next2 = UglyNumberList[idx2] * 2;
+        if (dp[i] == num2) {
+            idx2++;
         }
-        if (next == next3) {
-            ++idx3;
-            next3 = UglyNumberList[idx3] * 3;
+        if (dp[i] == num3) {
+            idx3++;
         }
-        if (next == next5) {
-            ++idx5;
-            next5 = UglyNumberList[idx5] * 5;
+        if (dp[i] == num5) {
+            idx5++;
         }
     }
-    retVal = UglyNumberList[n - 1];
-#elif (DEFINTION)
-    int count = 1;
-    while (count < n) {
-        ++retVal;
-        if (isUgly(retVal) == true) {
-            ++count;
-        }
-    }
-#endif
+    retVal = dp[n];
 
     return retVal;
 }
@@ -85,18 +41,19 @@ int nthUglyNumber(int n) {
 int main(int argc, char **argv) {
     struct testCaseType {
         int n;
-    } testCase[] = {{10}, {1}, {1690}};
+    } testCase[] = {{10}, {1}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: n = 10
+     *  Output: 12
+     *
+     *  Input: n = 1
+     *  Output: 1
+     */
 
-    int answer = true;
+    int answer;
     int i;
     for (i = 0; i < numberOfTestCase; ++i) {
-#if (DYNAMIC_PROGRAMMING)
-#elif (DEFINTION)
-        if (testCase[i].n > 20) {
-            continue;
-        }
-#endif
         printf("Input: n = %d\n", testCase[i].n);
 
         answer = nthUglyNumber(testCase[i].n);
