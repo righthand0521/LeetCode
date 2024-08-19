@@ -2663,6 +2663,122 @@ class Solution:
 
 </details>
 
+## [650. 2 Keys Keyboard](https://leetcode.com/problems/2-keys-keyboard/)
+
+- [Official](https://leetcode.com/problems/2-keys-keyboard/editorial/)
+- [Official](https://leetcode.cn/problems/2-keys-keyboard/solutions/1004937/zhi-you-liang-ge-jian-de-jian-pan-by-lee-ussa/)
+
+<details><summary>Description</summary>
+
+```text
+There is only one character 'A' on the screen of a notepad.
+You can perform one of two operations on this notepad for each step:
+- Copy All: You can copy all the characters present on the screen (a partial copy is not allowed).
+- Paste: You can paste the characters which are copied last time.
+
+Given an integer n, return the minimum number of operations to get the character 'A' exactly n times on the screen.
+
+Example 1:
+Input: n = 3
+Output: 3
+Explanation: Initially, we have one character 'A'.
+In step 1, we use Copy All operation.
+In step 2, we use Paste operation to get 'AA'.
+In step 3, we use Paste operation to get 'AAA'.
+
+Example 2:
+Input: n = 1
+Output: 0
+
+Constraints:
+1 <= n <= 1000
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. How many characters may be there in the clipboard at the last step if n = 3? n = 7? n = 10? n = 24?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int minSteps(int n) {
+    int retVal = 0;
+
+    int i = 2;
+    while (i * i <= n) {
+        while (n % i == 0) {
+            n /= i;
+            retVal += i;
+        }
+        i += 1;
+    }
+
+    if (n > 1) {
+        retVal += n;
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minSteps(int n) {
+        int retVal = 0;
+
+        int i = 2;
+        while (i * i <= n) {
+            while (n % i == 0) {
+                n /= i;
+                retVal += i;
+            }
+            i += 1;
+        }
+
+        if (n > 1) {
+            retVal += n;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minSteps(self, n: int) -> int:
+        retVal = 0
+
+        i = 2
+        while i * i <= n:
+            while n % i == 0:
+                n //= i
+                retVal += i
+            i += 1
+
+        if n > 1:
+            retVal += n
+
+        return retVal
+```
+
+</details>
+
 ## [775. Global and Local Inversions](https://leetcode.com/problems/global-and-local-inversions/)  1516
 
 <details><summary>Description</summary>
