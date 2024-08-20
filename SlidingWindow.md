@@ -117,6 +117,309 @@ class Solution:
 
 </details>
 
+## [30. Substring with Concatenation of All Words](https://leetcode.com/problems/substring-with-concatenation-of-all-words/)
+
+- [Official](https://leetcode.cn/problems/substring-with-concatenation-of-all-words/solutions/1616997/chuan-lian-suo-you-dan-ci-de-zi-chuan-by-244a/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string s and an array of strings words. All the strings of words are of the same length.
+
+A concatenated string is a string that exactly contains all the strings of any permutation of words concatenated.
+- For example, if words = ["ab","cd","ef"], then "abcdef", "abefcd", "cdabef", "cdefab", "efabcd",
+  and "efcdab" are all concatenated strings.
+  "acdbef" is not a concatenated string because it is not the concatenation of any permutation of words.
+
+Return an array of the starting indices of all the concatenated substrings in s. You can return the answer in any order.
+
+Example 1:
+Input: s = "barfoothefoobarman", words = ["foo","bar"]
+Output: [0,9]
+Explanation:
+The substring starting at 0 is "barfoo". It is the concatenation of ["bar","foo"] which is a permutation of words.
+The substring starting at 9 is "foobar". It is the concatenation of ["foo","bar"] which is a permutation of words.
+
+Example 2:
+Input: s = "wordgoodgoodgoodbestword", words = ["word","good","best","word"]
+Output: []
+Explanation:
+There is no concatenated substring.
+
+Example 3:
+Input: s = "barfoofoobarthefoobarman", words = ["bar","foo","the"]
+Output: [6,9,12]
+Explanation:
+The substring starting at 6 is "foobarthe". It is the concatenation of ["foo","bar","the"].
+The substring starting at 9 is "barthefoo". It is the concatenation of ["bar","the","foo"].
+The substring starting at 12 is "thefoobar". It is the concatenation of ["the","foo","bar"].
+
+Constraints:
+1 <= s.length <= 10^4
+1 <= words.length <= 5000
+1 <= words[i].length <= 30
+s and words[i] consist of lowercase English letters.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MAX_WORD_SIZE (32)  // 1 <= words[i].length <= 30
+struct hashTable {
+    char key[MAX_WORD_SIZE];
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable* pFree) {
+    struct hashTable* current;
+    struct hashTable* tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%s: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* findSubstring(char* s, char** words, int wordsSize, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    int wordLength = strlen(words[0]);
+    int sLength = strlen(s);
+
+    pRetVal = (int*)malloc(sLength * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (sLength * sizeof(int)));
+
+    struct hashTable* pDiff = NULL;
+    struct hashTable* pEntry = NULL;
+    char word[MAX_WORD_SIZE];
+    int pos = 0;
+    int i, j, start;
+    for (i = 0; i < wordLength; i++) {
+        if (i + wordsSize * wordLength > sLength) {
+            break;
+        }
+
+        memset(word, 0, sizeof(word));
+        for (j = 0; j < wordsSize; j++) {
+            snprintf(word, wordLength + 1, "%s", s + i + j * wordLength);
+
+            pEntry = NULL;
+            HASH_FIND_STR(pDiff, word, pEntry);
+            if (pEntry == NULL) {
+                pEntry = (struct hashTable*)malloc(sizeof(struct hashTable));
+                if (pEntry == NULL) {
+                    perror("malloc");
+                    freeAll(pDiff);
+                    pDiff = NULL;
+                    return pRetVal;
+                }
+                strcpy(pEntry->key, word);
+                pEntry->value = 0;
+                HASH_ADD_STR(pDiff, key, pEntry);
+            }
+            pEntry->value++;
+        }
+
+        for (j = 0; j < wordsSize; j++) {
+            pEntry = NULL;
+            HASH_FIND_STR(pDiff, words[j], pEntry);
+            if (pEntry == NULL) {
+                pEntry = (struct hashTable*)malloc(sizeof(struct hashTable));
+                if (pEntry == NULL) {
+                    perror("malloc");
+                    freeAll(pDiff);
+                    pDiff = NULL;
+                    return pRetVal;
+                }
+                strcpy(pEntry->key, words[j]);
+                pEntry->value = 0;
+                HASH_ADD_STR(pDiff, key, pEntry);
+            }
+            pEntry->value--;
+
+            if (pEntry->value == 0) {
+                HASH_DEL(pDiff, pEntry);
+                free(pEntry);
+            }
+        }
+
+        for (start = i; start < sLength - wordsSize * wordLength + 1; start += wordLength) {
+            if (start != i) {
+                memset(word, 0, sizeof(word));
+                snprintf(word, wordLength + 1, "%s", s + start + (wordsSize - 1) * wordLength);
+
+                pEntry = NULL;
+                HASH_FIND_STR(pDiff, word, pEntry);
+                if (NULL == pEntry) {
+                    pEntry = (struct hashTable*)malloc(sizeof(struct hashTable));
+                    if (pEntry == NULL) {
+                        perror("malloc");
+                        freeAll(pDiff);
+                        pDiff = NULL;
+                        return pRetVal;
+                    }
+                    strcpy(pEntry->key, word);
+                    pEntry->value = 0;
+                    HASH_ADD_STR(pDiff, key, pEntry);
+                }
+                pEntry->value++;
+
+                if (pEntry->value == 0) {
+                    HASH_DEL(pDiff, pEntry);
+                    free(pEntry);
+                }
+
+                snprintf(word, wordLength + 1, "%s", s + start - wordLength);
+
+                pEntry = NULL;
+                HASH_FIND_STR(pDiff, word, pEntry);
+                if (NULL == pEntry) {
+                    pEntry = (struct hashTable*)malloc(sizeof(struct hashTable));
+                    if (pEntry == NULL) {
+                        perror("malloc");
+                        freeAll(pDiff);
+                        pDiff = NULL;
+                        return pRetVal;
+                    }
+                    strcpy(pEntry->key, word);
+                    pEntry->value = 0;
+                    HASH_ADD_STR(pDiff, key, pEntry);
+                }
+                pEntry->value--;
+
+                if (pEntry->value == 0) {
+                    HASH_DEL(pDiff, pEntry);
+                    free(pEntry);
+                }
+            }
+
+            if (HASH_COUNT(pDiff) == 0) {
+                pRetVal[pos++] = start;
+            }
+        }
+
+        freeAll(pDiff);
+        pDiff = NULL;
+    }
+    (*returnSize) = pos;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> findSubstring(string s, vector<string>& words) {
+        vector<int> retVal;
+
+        int wordsSize = words.size();
+        int wordLength = words[0].size();
+        int sLength = s.size();
+        for (int i = 0; ((i < wordLength) && (i + wordsSize * wordLength <= sLength)); ++i) {
+            unordered_map<string, int> differ;
+            for (int j = 0; j < wordsSize; ++j) {
+                ++differ[s.substr(i + j * wordLength, wordLength)];
+            }
+
+            for (string& word : words) {
+                if (--differ[word] == 0) {
+                    differ.erase(word);
+                }
+            }
+
+            for (int start = i; start < sLength - wordsSize * wordLength + 1; start += wordLength) {
+                if (start != i) {
+                    string word = s.substr(start + (wordsSize - 1) * wordLength, wordLength);
+
+                    if (++differ[word] == 0) {
+                        differ.erase(word);
+                    }
+
+                    word = s.substr(start - wordLength, wordLength);
+
+                    if (--differ[word] == 0) {
+                        differ.erase(word);
+                    }
+                }
+
+                if (differ.empty() == true) {
+                    retVal.emplace_back(start);
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def findSubstring(self, s: str, words: List[str]) -> List[int]:
+        retVal = []
+
+        wordsSize = len(words)
+        wordLength = len(words[0])
+        sLength = len(s)
+
+        for i in range(wordLength):
+            if i + wordsSize * wordLength > sLength:
+                break
+
+            differ = Counter()
+            for j in range(wordsSize):
+                word = s[i + j * wordLength: i + (j + 1) * wordLength]
+                differ[word] += 1
+
+            for word in words:
+                differ[word] -= 1
+                if differ[word] == 0:
+                    del differ[word]
+
+            for start in range(i, sLength - wordsSize * wordLength + 1, wordLength):
+                if start != i:
+                    wordLeft = start + (wordsSize - 1) * wordLength
+                    wordRight = start + wordsSize * wordLength
+                    word = s[wordLeft:wordRight]
+
+                    differ[word] += 1
+                    if differ[word] == 0:
+                        del differ[word]
+
+                    word = s[start - wordLength: start]
+
+                    differ[word] -= 1
+                    if differ[word] == 0:
+                        del differ[word]
+
+                differSize = len(differ)
+                if differSize == 0:
+                    retVal.append(start)
+
+        return retVal
+```
+
+</details>
+
 ## [76. Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/)
 
 - [Official](https://leetcode.cn/problems/minimum-window-substring/solutions/257359/zui-xiao-fu-gai-zi-chuan-by-leetcode-solution/)
