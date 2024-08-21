@@ -377,6 +377,7 @@
 
 <details><summary>Reverse Linked List</summary>
 
+- [25. Reverse Nodes in k-Group](https://leetcode.com/problems/reverse-nodes-in-k-group/)
 - [92. Reverse Linked List II](https://leetcode.com/problems/reverse-linked-list-ii/)
 - [206. Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/?envType=study-plan&id=data-structure-i)
 - [2074. Reverse Nodes in Even Length Groups](https://leetcode.com/problems/reverse-nodes-in-even-length-groups/)

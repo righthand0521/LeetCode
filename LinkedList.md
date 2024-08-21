@@ -969,6 +969,227 @@ class Solution:
 
 </details>
 
+## [25. Reverse Nodes in k-Group](https://leetcode.com/problems/reverse-nodes-in-k-group/)
+
+- [Official](https://leetcode.cn/problems/reverse-nodes-in-k-group/solutions/248591/k-ge-yi-zu-fan-zhuan-lian-biao-by-leetcode-solutio/)
+
+<details><summary>Description</summary>
+
+```text
+Given the head of a linked list, reverse the nodes of the list k at a time, and return the modified list.
+
+k is a positive integer and is less than or equal to the length of the linked list.
+If the number of nodes is not a multiple of k then left-out nodes, in the end, should remain as it is.
+
+You may not alter the values in the list's nodes, only nodes themselves may be changed.
+
+Example 1:
+Input: head = [1,2,3,4,5], k = 2
+Output: [2,1,4,3,5]
+
+Example 2:
+Input: head = [1,2,3,4,5], k = 3
+Output: [3,2,1,4,5]
+
+Constraints:
+The number of nodes in the list is n.
+1 <= k <= n <= 5000
+0 <= Node.val <= 1000
+
+Follow-up: Can you solve the problem in O(1) extra memory space?
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+void reverse(struct ListNode** head, struct ListNode** tail) {
+    struct ListNode* pPrevious = (*tail)->next;
+    struct ListNode* pCurrent = (*head);
+    struct ListNode* pNext;
+    while (pPrevious != (*tail)) {
+        pNext = pCurrent->next;
+        pCurrent->next = pPrevious;
+        pPrevious = pCurrent;
+        pCurrent = pNext;
+    }
+
+    struct ListNode* pTmp = (*head);
+    (*head) = (*tail);
+    (*tail) = pTmp;
+}
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+struct ListNode* reverseKGroup(struct ListNode* head, int k) {
+    struct ListNode* pRetVal = head;
+
+    struct ListNode* pHair = (struct ListNode*)malloc(sizeof(struct ListNode));
+    if (pHair == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    pHair->val = 0;
+    pHair->next = head;
+
+    struct ListNode* pPrevious = pHair;
+
+    struct ListNode* pNext;
+    struct ListNode* pTail;
+    int i;
+    while (head != NULL) {
+        pTail = pPrevious;
+
+        for (i = 0; i < k; ++i) {
+            pTail = pTail->next;
+            if (pTail == NULL) {
+                pRetVal = pHair->next;
+                free(pHair);
+                pHair = NULL;
+                return pRetVal;
+            }
+        }
+
+        pNext = pTail->next;
+        reverse(&head, &pTail);
+        pPrevious->next = head;
+        pTail->next = pNext;
+        pPrevious = pTail;
+
+        head = pTail->next;
+    }
+
+    pRetVal = pHair->next;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+   private:
+    pair<ListNode*, ListNode*> reverse(ListNode* head, ListNode* tail) {
+        ListNode* pPrevious = tail->next;
+        ListNode* pCurrent = head;
+        while (pPrevious != tail) {
+            ListNode* pNext = pCurrent->next;
+            pCurrent->next = pPrevious;
+            pPrevious = pCurrent;
+            pCurrent = pNext;
+        }
+
+        return {tail, head};
+    }
+
+   public:
+    ListNode* reverseKGroup(ListNode* head, int k) {
+        ListNode* pRetVal = head;
+
+        ListNode* pHair = new ListNode(0);
+        pHair->next = head;
+        ListNode* pPrevious = pHair;
+
+        while (head != nullptr) {
+            ListNode* pTail = pPrevious;
+
+            for (int i = 0; i < k; ++i) {
+                pTail = pTail->next;
+                if (pTail == nullptr) {
+                    pRetVal = pHair->next;
+                    delete pHair;
+                    pHair = nullptr;
+                    return pRetVal;
+                }
+            }
+
+            ListNode* pNext = pTail->next;
+            tie(head, pTail) = reverse(head, pTail);
+            pPrevious->next = head;
+            pTail->next = pNext;
+            pPrevious = pTail;
+
+            head = pTail->next;
+        }
+
+        pRetVal = pHair->next;
+
+        return pRetVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def reverse(self, head: ListNode, tail: ListNode):
+        pPrevious = tail.next
+        pCurent = head
+        while pPrevious != tail:
+            pNext = pCurent.next
+            pCurent.next = pPrevious
+            pPrevious = pCurent
+            pCurent = pNext
+
+        return tail, head
+
+    def reverseKGroup(self, head: Optional[ListNode], k: int) -> Optional[ListNode]:
+        retVal = head
+
+        pHair = ListNode(0)
+        pHair.next = head
+
+        pPrevious = pHair
+        while head != None:
+            pTail = pPrevious
+
+            for _ in range(k):
+                pTail = pTail.next
+                if pTail == None:
+                    retVal = pHair.next
+                    return retVal
+
+            pNext = pTail.next
+            head, pTail = self.reverse(head, pTail)
+
+            pPrevious.next = head
+            pTail.next = pNext
+            pPrevious = pTail
+            head = pTail.next
+
+        retVal = pHair.next
+
+        return retVal
+```
+
+</details>
+
 ## [61. Rotate List](https://leetcode.com/problems/rotate-list/)
 
 - [Official](https://leetcode.cn/problems/rotate-list/solutions/681812/xuan-zhuan-lian-biao-by-leetcode-solutio-woq1/)
