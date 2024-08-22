@@ -111,6 +111,13 @@
 
 </details>
 
+<details><summary>Number Complement</summary>
+
+- [476. Number Complement](https://leetcode.com/problems/number-complement/)
+- [1009. Complement of Base 10 Integer](https://leetcode.com/problems/complement-of-base-10-integer/)
+
+</details>
+
 ## Design
 
 <details><summary><a href="https://en.wikipedia.org/wiki/Cache_replacement_policies" target="_blank" style="color:gray">Cache replacement policies</a></summary>
