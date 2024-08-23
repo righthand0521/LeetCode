@@ -2558,6 +2558,214 @@ int** outerTrees(int** trees, int treesSize, int* treesColSize, int* returnSize,
 
 </details>
 
+## [592. Fraction Addition and Subtraction](https://leetcode.com/problems/fraction-addition-and-subtraction/)
+
+- [Official](https://leetcode.com/problems/fraction-addition-and-subtraction/editorial/)
+- [Official](https://leetcode.cn/problems/fraction-addition-and-subtraction/solutions/1699131/fen-shu-jia-jian-yun-suan-by-leetcode-so-2mto/)
+
+<details><summary>Description</summary>
+
+```text
+Given a string expression representing an expression of fraction addition and subtraction,
+return the calculation result in string format.
+
+The final result should be an irreducible fraction.
+If your final result is an integer, change it to the format of a fraction that has a denominator 1.
+So in this case, 2 should be converted to 2/1.
+
+Example 1:
+Input: expression = "-1/2+1/2"
+Output: "0/1"
+
+Example 2:
+Input: expression = "-1/2+1/2+1/3"
+Output: "1/3"
+
+Example 3:
+Input: expression = "1/3-1/2"
+Output: "-1/6"
+
+Constraints:
+- The input string only contains '0' to '9', '/', '+' and '-'. So does the output.
+- Each fraction (input and output) has the format ±numerator/denominator.
+  If the first input fraction or the output is positive, then '+' will be omitted.
+- The input only contains valid irreducible fractions,
+  where the numerator and denominator of each fraction will always be in the range [1, 10].
+  If the denominator is 1, it means this fraction is actually an integer in a fraction format defined above.
+- The number of given fractions will be in the range [1, 10].
+- The numerator and denominator of the final result are guaranteed to be valid and in the range of 32-bit int.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int gcd(int dividend, int divisor) {
+    int remainder;
+    while (divisor != 0) {
+        remainder = dividend % divisor;
+        dividend = divisor;
+        divisor = remainder;
+    }
+
+    return dividend;
+}
+char* fractionAddition(char* expression) {
+    char* pRetVal = NULL;
+
+    int expressionSize = strlen(expression);
+
+    int returnSize = expressionSize + 1;
+    pRetVal = (char*)malloc(returnSize * sizeof(char));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (returnSize * sizeof(char)));
+
+    long long numerator = 0;
+    long long x, sign;
+    long long denominator = 1;
+    long long y;
+    int index = 0;
+    while (index < expressionSize) {
+        sign = 1;
+        x = 0;
+        if ((expression[index] == '-') || (expression[index] == '+')) {
+            sign = expression[index] == '-' ? -1 : 1;
+            index++;
+        }
+        while ((index < expressionSize) && (isdigit(expression[index]))) {
+            x = x * 10 + expression[index] - '0';
+            index++;
+        }
+        x = sign * x;
+        index++;
+
+        y = 0;
+        while ((index < expressionSize) && (isdigit(expression[index]))) {
+            y = y * 10 + expression[index] - '0';
+            index++;
+        }
+
+        numerator = numerator * y + x * denominator;
+        denominator *= y;
+    }
+
+    char buf[returnSize];
+    memset(buf, 0, sizeof(buf));
+    long long greatestCommonDivisor;
+    if (numerator != 0) {
+        greatestCommonDivisor = gcd(abs(numerator), denominator);
+        snprintf(buf, sizeof(buf), "%lld/%lld", (numerator / greatestCommonDivisor),
+                 (denominator / greatestCommonDivisor));
+    } else {
+        snprintf(buf, sizeof(buf), "0/1");
+    }
+    memcpy(pRetVal, buf, returnSize);
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    string fractionAddition(string expression) {
+        string retVal = "0/1";
+
+        int expressionSize = expression.size();
+
+        long long numerator = 0;
+        long long denominator = 1;
+        int index = 0;
+        while (index < expressionSize) {
+            long long sign = 1;
+            long long x = 0;
+            if ((expression[index] == '-') || (expression[index] == '+')) {
+                sign = expression[index] == '-' ? -1 : 1;
+                index++;
+            }
+            while ((index < expressionSize) && (isdigit(expression[index]))) {
+                x = x * 10 + expression[index] - '0';
+                index++;
+            }
+            x = sign * x;
+            index++;
+
+            long long y = 0;
+            while ((index < expressionSize) && (isdigit(expression[index]))) {
+                y = y * 10 + expression[index] - '0';
+                index++;
+            }
+
+            numerator = numerator * y + x * denominator;
+            denominator *= y;
+        }
+
+        if (numerator != 0) {
+            long long greatestCommonDivisor = gcd(abs(numerator), denominator);
+            retVal = to_string(numerator / greatestCommonDivisor);
+            retVal += "/";
+            retVal += to_string(denominator / greatestCommonDivisor);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def fractionAddition(self, expression: str) -> str:
+        retVal = "0/1"
+
+        expressionSize = len(expression)
+
+        numerator = 0
+        denominator = 1
+        i = 0
+        while i < expressionSize:
+            sign = 1
+            x = 0
+            if (expression[i] == '-') or (expression[i] == '+'):
+                if expression[i] == '-':
+                    sign = -1
+                i += 1
+            while (i < expressionSize) and (expression[i].isdigit()):
+                x = x * 10 + int(expression[i])
+                i += 1
+            x = sign * x
+            i += 1
+
+            y = 0
+            while (i < expressionSize) and (expression[i].isdigit()):
+                y = y * 10 + int(expression[i])
+                i += 1
+
+            numerator = numerator * y + x * denominator
+            denominator *= y
+
+        if numerator != 0:
+            greatestCommonDivisor = gcd(abs(numerator), denominator)
+            numerator //= greatestCommonDivisor
+            denominator //= greatestCommonDivisor
+            retVal = str(numerator) + "/" + str(denominator)
+
+        return retVal
+```
+
+</details>
+
 ## [633. Sum of Square Numbers](https://leetcode.com/problems/sum-of-square-numbers/)
 
 - [Official](https://leetcode.com/problems/sum-of-square-numbers/editorial/)
