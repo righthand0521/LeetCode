@@ -2154,6 +2154,252 @@ class Solution:
 
 </details>
 
+## [564. Find the Closest Palindrome](https://leetcode.com/problems/find-the-closest-palindrome/)
+
+- [Official](https://leetcode.com/problems/find-the-closest-palindrome/editorial/)
+- [Official](https://leetcode.cn/problems/find-the-closest-palindrome/solutions/1300885/xun-zhao-zui-jin-de-hui-wen-shu-by-leetc-biyt/)
+
+<details><summary>Description</summary>
+
+```text
+Given a string n representing an integer, return the closest integer (not including itself), which is a palindrome.
+If there is a tie, return the smaller one.
+
+The closest is defined as the absolute difference minimized between two integers.
+
+Example 1:
+Input: n = "123"
+Output: "121"
+
+Example 2:
+Input: n = "1"
+Output: "0"
+Explanation: 0 and 2 are the closest palindromes but we return the smallest which is 0.
+
+Constraints:
+1 <= n.length <= 18
+n consists of only digits.
+n does not have leading zeros.
+n is representing an integer in the range [1, 10^18 - 1].
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Will brute force work for this problem? Think of something else.
+2. Take some examples like 1234, 999,1000, etc and check their closest palindromes.
+   How many different cases are possible?
+3. Do we have to consider only left half or right half of the string or both?
+4. Try to find the closest palindrome of these numbers- 12932, 99800, 12120. Did you observe something?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+long halfToPalindrome(long left, bool even) {
+    long retVal = left;
+
+    if (even == false) {
+        left = left / 10;
+    }
+
+    while (left > 0) {
+        retVal = retVal * 10 + left % 10;
+        left /= 10;
+    }
+
+    return retVal;
+}
+char* nearestPalindromic(char* n) {
+    char* pRetVal = NULL;
+
+    int nSize = strlen(n);
+
+    int returnSize = nSize + 4;
+    pRetVal = (char*)malloc(returnSize * sizeof(char));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (nSize * sizeof(char)));
+
+    int i;
+    int firstHalfSize = (nSize % 2 == 0) ? (nSize / 2 - 1) : (nSize / 2);
+    long firstHalf = 0;
+    for (i = 0; i < firstHalfSize + 1; ++i) {
+        firstHalf = (long)(10 * firstHalf) + (long)(n[i] - '0');
+    }
+
+    /* Generate possible palindromic candidates:
+     *  1. Create a palindrome by mirroring the first half.
+     *  2. Create a palindrome by mirroring the first half incremented by 1.
+     *  3. Create a palindrome by mirroring the first half decremented by 1.
+     *  4. Handle edge cases by considering palindromes of the
+     *     form 999...and 100...001 (smallest and largest n-digit palindromes).
+     */
+    int candidatesSize = 5;
+    long candidates[candidatesSize];
+    candidates[0] = halfToPalindrome(firstHalf, nSize % 2 == 0);
+    candidates[1] = halfToPalindrome(firstHalf + 1, nSize % 2 == 0);
+    candidates[2] = halfToPalindrome(firstHalf - 1, nSize % 2 == 0);
+    candidates[3] = (long)pow(10, nSize - 1) - 1;
+    candidates[4] = (long)pow(10, nSize) + 1;
+
+    long diff = LONG_MAX;
+    long res = 0;
+    long nl = atol(n);
+    for (i = 0; i < candidatesSize; ++i) {
+        if (candidates[i] == nl) {
+            continue;
+        }
+
+        if (labs(candidates[i] - nl) < diff) {
+            diff = labs(candidates[i] - nl);
+            res = candidates[i];
+        } else if (labs(candidates[i] - nl) == diff) {
+            res = fmin(res, candidates[i]);
+        }
+    }
+
+    char buf[returnSize];
+    memset(buf, 0, sizeof(buf));
+    snprintf(buf, sizeof(buf), "%ld", res);
+    memcpy(pRetVal, buf, returnSize);
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    long halfToPalindrome(long left, bool even) {
+        long retVal = left;
+
+        if (even == false) {
+            left = left / 10;
+        }
+
+        while (left > 0) {
+            retVal = retVal * 10 + left % 10;
+            left /= 10;
+        }
+
+        return retVal;
+    }
+
+   public:
+    string nearestPalindromic(string n) {
+        string retVal = "";
+
+        int nSize = n.size();
+
+        int i = (nSize % 2 == 0) ? (nSize / 2 - 1) : (nSize / 2);
+        long firstHalf = stol(n.substr(0, i + 1));
+
+        /* Generate possible palindromic candidates:
+         *  1. Create a palindrome by mirroring the first half.
+         *  2. Create a palindrome by mirroring the first half incremented by 1.
+         *  3. Create a palindrome by mirroring the first half decremented by 1.
+         *  4. Handle edge cases by considering palindromes of the
+         *     form 999...and 100...001 (smallest and largest n-digit palindromes).
+         */
+        vector<long> candidates;
+        candidates.push_back(halfToPalindrome(firstHalf, nSize % 2 == 0));
+        candidates.push_back(halfToPalindrome(firstHalf + 1, nSize % 2 == 0));
+        candidates.push_back(halfToPalindrome(firstHalf - 1, nSize % 2 == 0));
+        candidates.push_back((long)pow(10, nSize - 1) - 1);
+        candidates.push_back((long)pow(10, nSize) + 1);
+
+        long diff = numeric_limits<long>::max();
+        long res = 0;
+        long nl = stol(n);
+        for (auto candidate : candidates) {
+            if (candidate == nl) {
+                continue;
+            }
+
+            if (abs(candidate - nl) < diff) {
+                diff = abs(candidate - nl);
+                res = candidate;
+            } else if (abs(candidate - nl) == diff) {
+                res = min(res, candidate);
+            }
+        }
+        retVal = to_string(res);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def halfToPalindrome(self, left: int, even: bool) -> int:
+        retVal = left
+
+        if not even:
+            left = left // 10
+
+        while left > 0:
+            retVal = retVal * 10 + left % 10
+            left //= 10
+
+        return retVal
+
+    def nearestPalindromic(self, n: str) -> str:
+        retVal = ""
+
+        nSize = len(n)
+
+        i = nSize // 2 - 1 if nSize % 2 == 0 else nSize // 2
+        firstHalf = int(n[: i + 1])
+
+        # Generate possible palindromic candidates:
+        #   1. Create a palindrome by mirroring the first half.
+        #   2. Create a palindrome by mirroring the first half incremented by 1.
+        #   3. Create a palindrome by mirroring the first half decremented by 1.
+        #   4. Handle edge cases by considering palindromes of the
+        #      form 999...and 100...001 (smallest and largest n-digit palindromes).
+        candidates = []
+        candidates.append(self.halfToPalindrome(firstHalf, nSize % 2 == 0))
+        candidates.append(self.halfToPalindrome(firstHalf + 1, nSize % 2 == 0))
+        candidates.append(self.halfToPalindrome(firstHalf - 1, nSize % 2 == 0))
+        candidates.append(10 ** (nSize - 1) - 1)
+        candidates.append(10**nSize + 1)
+
+        diff = float("inf")
+        res = 0
+        nl = int(n)
+        for candidate in candidates:
+            if candidate == nl:
+                continue
+
+            if abs(candidate - nl) < diff:
+                diff = abs(candidate - nl)
+                res = candidate
+            elif abs(candidate - nl) == diff:
+                res = min(res, candidate)
+
+        retVal = str(res)
+
+        return retVal
+```
+
+</details>
+
 ## [587. Erect the Fence](https://leetcode.com/problems/erect-the-fence/)
 
 - [Official](https://leetcode.com/problems/erect-the-fence/solutions/127731/erect-the-fence/)
