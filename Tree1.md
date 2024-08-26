@@ -8514,6 +8514,41 @@ class Solution {
 
 </details>
 
+<details><summary>Python3</summary>
+
+```python
+"""
+# Definition for a Node.
+class Node:
+    def __init__(self, val=None, children=None):
+        self.val = val
+        self.children = children
+"""
+
+
+class Solution:
+    def postorderTraversal(self, root: 'Node') -> List[int]:
+        retVal = []
+
+        if root == None:
+            return retVal
+
+        for children in root.children:
+            retVal.extend(self.postorderTraversal(children))
+        retVal.append(root.val)
+
+        return retVal
+
+    def postorder(self, root: 'Node') -> List[int]:
+        retVal = []
+
+        retVal = self.postorderTraversal(root)
+
+        return retVal
+```
+
+</details>
+
 ## [606. Construct String from Binary Tree](https://leetcode.com/problems/construct-string-from-binary-tree/)
 
 - [Official](https://leetcode.cn/problems/construct-string-from-binary-tree/solutions/1343920/gen-ju-er-cha-shu-chuang-jian-zi-fu-chua-e1af/)
