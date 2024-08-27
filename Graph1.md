@@ -5,6 +5,401 @@
 - [Topological sorting](https://en.wikipedia.org/wiki/Topological_sorting)
 - [Union Find](https://en.wikipedia.org/wiki/Disjoint-set_data_structure)
 
+## [127. Word Ladder](https://leetcode.com/problems/word-ladder/)
+
+- [Official](https://leetcode.cn/problems/word-ladder/solutions/473600/dan-ci-jie-long-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+A transformation sequence from word beginWord to word endWord
+using a dictionary wordList is a sequence of words beginWord -> s1 -> s2 -> ... -> sk such that:
+- Every adjacent pair of words differs by a single letter.
+- Every si for 1 <= i <= k is in wordList. Note that beginWord does not need to be in wordList.
+- sk == endWord
+
+Given two words, beginWord and endWord, and a dictionary wordList,
+return the number of words in the shortest transformation sequence from beginWord to endWord,
+or 0 if no such sequence exists.
+
+Example 1:
+Input: beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log","cog"]
+Output: 5
+Explanation: One shortest transformation sequence is "hit" -> "hot" -> "dot" -> "dog" -> cog", which is 5 words long.
+
+Example 2:
+Input: beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log"]
+Output: 0
+Explanation: The endWord "cog" is not in wordList, therefore there is no valid transformation sequence.
+
+Constraints:
+1 <= beginWord.length <= 10
+endWord.length == beginWord.length
+1 <= wordList.length <= 5000
+wordList[i].length == beginWord.length
+beginWord, endWord, and wordList[i] consist of lowercase English letters.
+beginWord != endWord
+All the words in wordList are unique.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MAX_LETTERS (26 + 2)          // beginWord, endWord, and wordList[i] consist of lowercase English letters.
+#define MAX_WORDLISTSIZE (60000 + 4)
+#define MAX_EDGE (50000 + 4)
+struct Trie {
+    int ch[MAX_LETTERS];
+    int val;
+};
+void insert(char* s, int* num, struct Trie* pObj, int* pObjIdx) {
+    int sSize = strlen(s);
+
+    int add = 0;
+    int x;
+    int i;
+    for (i = 0; i < sSize; ++i) {
+        x = s[i] - '`';
+        if (pObj[add].ch[x] == 0) {
+            (*pObjIdx) += 1;
+            pObj[add].ch[x] = (*pObjIdx);
+            memset(pObj[(*pObjIdx)].ch, 0, MAX_LETTERS * sizeof(int));
+            pObj[(*pObjIdx)].val = -1;
+        }
+        add = pObj[add].ch[x];
+    }
+    pObj[add].val = (*num);
+}
+int find(char* s, struct Trie* pObj, int* pObjIdx) {
+    int retVal = -1;
+
+    int add = 0;
+    int sSize = strlen(s);
+    int x;
+    int i;
+    for (i = 0; i < sSize; ++i) {
+        x = s[i] - '`';
+        if (pObj[add].ch[x] == 0) {
+            return retVal;
+        }
+        add = pObj[add].ch[x];
+    }
+    retVal = pObj[add].val;
+
+    return retVal;
+}
+int addWord(char* word, struct Trie* pObj, int* pObjIdx, int* nodeNum) {
+    int retVal = 0;
+
+    if (find(word, pObj, pObjIdx) == -1) {
+        insert(word, nodeNum, pObj, pObjIdx);
+        (*nodeNum) += 1;
+    }
+    retVal = find(word, pObj, pObjIdx);
+
+    return retVal;
+}
+void addEdge(char* word, struct Trie* pObj, int* pObjIdx, int* nodeNum, int** pEdge, int* pEdgeSize) {
+    int id1 = addWord(word, pObj, pObjIdx, nodeNum);
+    int id2;
+    char tmp;
+    int wordSize = strlen(word);
+    int i;
+    for (i = 0; i < wordSize; ++i) {
+        tmp = word[i];
+        word[i] = '`';
+
+        id2 = addWord(word, pObj, pObjIdx, nodeNum);
+        pEdge[id1][pEdgeSize[id1]++] = id2;
+        pEdge[id2][pEdgeSize[id2]++] = id1;
+
+        word[i] = tmp;
+    }
+}
+int ladderLength(char* beginWord, char* endWord, char** wordList, int wordListSize) {
+    int retVal = 0;
+
+    int i, j;
+
+    int trieIdx = 0;
+    struct Trie* pTrie = NULL;
+    pTrie = (struct Trie*)malloc(MAX_WORDLISTSIZE * sizeof(struct Trie));
+    if (pTrie == NULL) {
+        perror("malloc");
+        return retVal;
+    }
+    memset(pTrie[trieIdx].ch, 0, sizeof(pTrie[trieIdx].ch));
+    pTrie[trieIdx].val = -1;
+
+    int* pEdgeSize = NULL;
+    pEdgeSize = (int*)malloc(MAX_EDGE * sizeof(int));
+    if (pEdgeSize == NULL) {
+        perror("malloc");
+        free(pTrie);
+        pTrie = NULL;
+        return retVal;
+    }
+    memset(pEdgeSize, 0, (MAX_EDGE * sizeof(int)));
+
+    int** pEdge = NULL;
+    pEdge = (int**)malloc(MAX_EDGE * sizeof(int*));
+    if (pEdge == NULL) {
+        perror("malloc");
+        free(pEdgeSize);
+        pEdgeSize = NULL;
+        free(pTrie);
+        pTrie = NULL;
+        return retVal;
+    }
+    for (i = 0; i < MAX_EDGE; ++i) {
+        pEdge[i] = (int*)malloc(MAX_LETTERS * sizeof(int));
+        if (pEdge[i] == NULL) {
+            perror("malloc");
+            for (j = 0; j < i; ++j) {
+                free(pEdge[j]);
+                pEdge[j] = NULL;
+            }
+            free(pEdge);
+            pEdge = NULL;
+            free(pEdgeSize);
+            pEdgeSize = NULL;
+            free(pTrie);
+            pTrie = NULL;
+            return retVal;
+        }
+        memset(pEdge[i], 0, (MAX_LETTERS * sizeof(int)));
+    }
+
+    int nodeNum = 0;
+    for (i = 0; i < wordListSize; ++i) {
+        addEdge(wordList[i], pTrie, &trieIdx, &nodeNum, pEdge, pEdgeSize);
+    }
+    addEdge(beginWord, pTrie, &trieIdx, &nodeNum, pEdge, pEdgeSize);
+
+    int endId = find(endWord, pTrie, &trieIdx);
+    if (endId == -1) {
+        for (i = 0; i < MAX_EDGE; ++i) {
+            free(pEdge[i]);
+            pEdge[i] = NULL;
+        }
+        free(pEdge);
+        pEdge = NULL;
+        free(pEdgeSize);
+        pEdgeSize = NULL;
+        free(pTrie);
+        pTrie = NULL;
+        return retVal;
+    }
+
+    int distance[nodeNum];
+    memset(distance, -1, sizeof(distance));
+    int beginId = find(beginWord, pTrie, &trieIdx);
+    distance[beginId] = 0;
+
+    int bfsQueueHead = 0;
+    int bfsQueueTail = 0;
+    int bfsQueue[nodeNum];
+    memset(bfsQueue, 0, sizeof(bfsQueue));
+    bfsQueue[bfsQueueTail++] = beginId;
+    int x;
+    while (bfsQueueHead < bfsQueueTail) {
+        x = bfsQueue[bfsQueueHead++];
+        for (i = 0; i < pEdgeSize[x]; ++i) {
+            if (distance[pEdge[x][i]] != -1) {
+                continue;
+            }
+            distance[pEdge[x][i]] = distance[x] + 1;
+
+            if (pEdge[x][i] == endId) {
+                retVal = distance[pEdge[x][i]] / 2 + 1;
+                for (i = 0; i < MAX_EDGE; ++i) {
+                    free(pEdge[i]);
+                    pEdge[i] = NULL;
+                }
+                free(pEdge);
+                pEdge = NULL;
+                free(pEdgeSize);
+                pEdgeSize = NULL;
+                free(pTrie);
+                pTrie = NULL;
+                return retVal;
+            }
+
+            bfsQueue[bfsQueueTail++] = pEdge[x][i];
+        }
+    }
+
+    //
+    for (i = 0; i < MAX_EDGE; ++i) {
+        free(pEdge[i]);
+        pEdge[i] = NULL;
+    }
+    free(pEdge);
+    pEdge = NULL;
+    free(pEdgeSize);
+    pEdgeSize = NULL;
+    free(pTrie);
+    pTrie = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    unordered_map<string, int> wordId;
+    vector<vector<int>> edge;
+    int nodeNum = 0;
+
+    void addWord(string& word) {
+        if (wordId.count(word) == 0) {
+            wordId[word] = nodeNum++;
+            edge.emplace_back();
+        }
+    }
+    void addEdge(string& word) {
+        addWord(word);
+
+        int id1 = wordId[word];
+        for (char& it : word) {
+            char tmp = it;
+
+            it = '*';
+            addWord(word);
+
+            int id2 = wordId[word];
+            edge[id1].push_back(id2);
+            edge[id2].push_back(id1);
+
+            it = tmp;
+        }
+    }
+
+   public:
+    int ladderLength(string beginWord, string endWord, vector<string>& wordList) {
+        int retVal = 0;
+
+        wordId.clear();
+        edge.clear();
+        nodeNum = 0;
+
+        for (string& word : wordList) {
+            addEdge(word);
+        }
+
+        addEdge(beginWord);
+        if (wordId.count(endWord) == 0) {
+            return retVal;
+        }
+
+        int beginId = wordId[beginWord];
+        int endId = wordId[endWord];
+
+        vector<int> distance(nodeNum, numeric_limits<int>::max());
+        distance[beginId] = 0;
+
+        queue<int> bfsQueue;
+        bfsQueue.push(beginId);
+        while (bfsQueue.empty() == false) {
+            int x = bfsQueue.front();
+            bfsQueue.pop();
+            if (x == endId) {
+                retVal = distance[endId] / 2 + 1;
+                break;
+            }
+
+            for (int& it : edge[x]) {
+                if (distance[it] == numeric_limits<int>::max()) {
+                    distance[it] = distance[x] + 1;
+                    bfsQueue.push(it);
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.wordId = None
+        self.edge = None
+        self.nodeNum = 0
+
+    def addWord(self, word: str) -> None:
+        if word not in self.wordId:
+            self.wordId[word] = self.nodeNum
+            self.nodeNum += 1
+
+    def addEdge(self, word: str) -> None:
+        self.addWord(word)
+
+        id1 = self.wordId[word]
+        chars = list(word)
+        charsSize = len(chars)
+        for i in range(charsSize):
+            tmp = chars[i]
+
+            chars[i] = "*"
+            newWord = "".join(chars)
+            self.addWord(newWord)
+
+            id2 = self.wordId[newWord]
+            self.edge[id1].append(id2)
+            self.edge[id2].append(id1)
+
+            chars[i] = tmp
+
+    def ladderLength(self, beginWord: str, endWord: str, wordList: List[str]) -> int:
+        retVal = 0
+
+        self.wordId = dict()
+        self.edge = defaultdict(list)
+        self.nodeNum = 0
+
+        for word in wordList:
+            self.addEdge(word)
+
+        self.addEdge(beginWord)
+        if endWord not in self.wordId:
+            return retVal
+
+        beginId = self.wordId[beginWord]
+        endId = self.wordId[endWord]
+
+        distance = [float("inf")] * self.nodeNum
+        distance[beginId] = 0
+
+        bfsQueue = deque([beginId])
+        while bfsQueue:
+            x = bfsQueue.popleft()
+            if x == endId:
+                retVal = distance[endId] // 2 + 1
+                break
+
+            for it in self.edge[x]:
+                if distance[it] == float("inf"):
+                    distance[it] = distance[x] + 1
+                    bfsQueue.append(it)
+
+        return retVal
+```
+
+</details>
+
 ## [130. Surrounded Regions](https://leetcode.com/problems/surrounded-regions/)
 
 - [Official](https://leetcode.cn/problems/surrounded-regions/solutions/369110/bei-wei-rao-de-qu-yu-by-leetcode-solution/)
