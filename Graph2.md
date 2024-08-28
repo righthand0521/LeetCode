@@ -7525,6 +7525,274 @@ class Solution:
 
 </details>
 
+## [1905. Count Sub Islands](https://leetcode.com/problems/count-sub-islands/)  1678
+
+- [Official](https://leetcode.com/problems/count-sub-islands/editorial/)
+- [Official](https://leetcode.cn/problems/count-sub-islands/solutions/836393/tong-ji-zi-dao-yu-by-leetcode-solution-x32x/)
+
+<details><summary>Description</summary>
+
+```text
+You are given two m x n binary matrices grid1 and grid2
+containing only 0's (representing water) and 1's (representing land).
+An island is a group of 1's connected 4-directionally (horizontal or vertical).
+Any cells outside of the grid are considered water cells.
+
+An island in grid2 is considered a sub-island if
+there is an island in grid1 that contains all the cells that make up this island in grid2.
+
+Return the number of islands in grid2 that are considered sub-islands.
+
+Example 1:
+Input:
+grid1 = [[1,1,1,0,0],[0,1,1,1,1],[0,0,0,0,0],[1,0,0,0,0],[1,1,0,1,1]],
+grid2 = [[1,1,1,0,0],[0,0,1,1,1],[0,1,0,0,0],[1,0,1,1,0],[0,1,0,1,0]]
+Output: 3
+Explanation: In the picture above, the grid on the left is grid1 and the grid on the right is grid2.
+The 1s colored red in grid2 are those considered to be part of a sub-island. There are three sub-islands.
+
+Example 2:
+Input:
+grid1 = [[1,0,1,0,1],[1,1,1,1,1],[0,0,0,0,0],[1,1,1,1,1],[1,0,1,0,1]],
+grid2 = [[0,0,0,0,0],[1,1,1,1,1],[0,1,0,1,0],[0,1,0,1,0],[1,0,0,0,1]]
+Output: 2
+Explanation: In the picture above, the grid on the left is grid1 and the grid on the right is grid2.
+The 1s colored red in grid2 are those considered to be part of a sub-island. There are two sub-islands.
+
+Constraints:
+m == grid1.length == grid2.length
+n == grid1[i].length == grid2[i].length
+1 <= m, n <= 500
+grid1[i][j] and grid2[i][j] are either 0 or 1.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Let's use floodfill to iterate over the islands of the second grid
+2. Let's note that if all the cells in an island in the second grid
+   if they are represented by land in the first grid then they are connected hence making that island a sub-island
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool dfs(int x, int y, int** grid1, int** grid2, int grid2Size, int* grid2ColSize, int** visited) {
+    bool retVal = true;
+
+    if (grid1[x][y] != 1) {
+        retVal = false;
+    }
+
+    int directions[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+    int rowSize = grid2Size;
+    int colSize = grid2ColSize[0];
+    int nextX, nextY;
+    bool nextCellIsPartOfSubIsland;
+    int i;
+    for (i = 0; i < 4; ++i) {
+        nextX = x + directions[i][0];
+        nextY = y + directions[i][1];
+        if ((nextX < 0) || (nextX >= rowSize)) {
+            continue;
+        } else if ((nextY < 0) || (nextY >= colSize)) {
+            continue;
+        }
+
+        if (visited[nextX][nextY] == 1) {
+            continue;
+        } else if (grid2[nextX][nextY] != 1) {
+            continue;
+        }
+
+        visited[nextX][nextY] = 1;
+        nextCellIsPartOfSubIsland = dfs(nextX, nextY, grid1, grid2, grid2Size, grid2ColSize, visited);
+        retVal = retVal && nextCellIsPartOfSubIsland;
+    }
+
+    return retVal;
+}
+int countSubIslands(int** grid1, int grid1Size, int* grid1ColSize, int** grid2, int grid2Size, int* grid2ColSize) {
+    int retVal = 0;
+
+    int rowSize = grid2Size;
+    int colSize = grid2ColSize[0];
+    int x, y;
+
+    int** visited = (int**)malloc(rowSize * sizeof(int*));
+    if (visited == NULL) {
+        perror("malloc");
+        return retVal;
+    }
+    for (x = 0; x < rowSize; ++x) {
+        visited[x] = (int*)malloc(colSize * sizeof(int));
+        if (visited[x] == NULL) {
+            perror("malloc");
+            for (y = 0; y < x; ++y) {
+                free(visited[y]);
+                visited[y] = NULL;
+            }
+            free(visited);
+            visited = NULL;
+            return retVal;
+        }
+        memset(visited[x], 0, (colSize * sizeof(int)));
+    }
+
+    for (x = 0; x < rowSize; ++x) {
+        for (y = 0; y < colSize; ++y) {
+            if (visited[x][y] == 1) {
+                continue;
+            } else if (grid2[x][y] != 1) {
+                continue;
+            }
+
+            visited[x][y] = 1;
+            if (dfs(x, y, grid1, grid2, grid2Size, grid2ColSize, visited) == true) {
+                retVal += 1;
+            }
+        }
+    }
+
+    //
+    for (x = 0; x < rowSize; ++x) {
+        free(visited[x]);
+        visited[x] = NULL;
+    }
+    free(visited);
+    visited = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int directions[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+
+    bool dfs(int x, int y, vector<vector<int>>& grid1, vector<vector<int>>& grid2, vector<vector<bool>>& visited) {
+        bool retVal = true;
+
+        if (grid1[x][y] != 1) {
+            retVal = false;
+        }
+
+        int rowSize = grid2.size();
+        int colSize = grid2[0].size();
+        for (auto& direction : directions) {
+            int nextX = x + direction[0];
+            int nextY = y + direction[1];
+            if ((nextX < 0) || (nextX >= rowSize)) {
+                continue;
+            } else if ((nextY < 0) || (nextY >= colSize)) {
+                continue;
+            }
+
+            if (visited[nextX][nextY] == true) {
+                continue;
+            } else if (grid2[nextX][nextY] != 1) {
+                continue;
+            }
+
+            visited[nextX][nextY] = true;
+            bool nextCellIsPartOfSubIsland = dfs(nextX, nextY, grid1, grid2, visited);
+            retVal = retVal && nextCellIsPartOfSubIsland;
+        }
+
+        return retVal;
+    }
+
+   public:
+    int countSubIslands(vector<vector<int>>& grid1, vector<vector<int>>& grid2) {
+        int retVal = 0;
+
+        int rowSize = grid2.size();
+        int colSize = grid2[0].size();
+        vector<vector<bool>> visited(rowSize, vector<bool>(colSize, false));
+        for (int x = 0; x < rowSize; ++x) {
+            for (int y = 0; y < colSize; ++y) {
+                if (visited[x][y] == true) {
+                    continue;
+                } else if (grid2[x][y] != 1) {
+                    continue;
+                }
+
+                visited[x][y] = true;
+                if (dfs(x, y, grid1, grid2, visited)) {
+                    retVal += 1;
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def dfs(self, x, y, grid1, grid2, visited):
+        retVal = True
+
+        if grid1[x][y] != 1:
+            retVal = False
+
+        rowSize = len(grid2)
+        colSize = len(grid2[0])
+        for direction in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
+            nextX = x + direction[0]
+            nextY = y + direction[1]
+            if (nextX < 0) or (nextX >= rowSize):
+                continue
+            elif (nextY < 0) or (nextY >= colSize):
+                continue
+
+            if visited[nextX][nextY] == True:
+                continue
+            elif grid2[nextX][nextY] != 1:
+                continue
+
+            visited[nextX][nextY] = True
+            nextCellIsPartOfSubIsland = self.dfs(nextX, nextY, grid1, grid2, visited)
+            retVal = (retVal and nextCellIsPartOfSubIsland)
+
+        return retVal
+
+    def countSubIslands(self, grid1: List[List[int]], grid2: List[List[int]]) -> int:
+        retVal = 0
+
+        rowSize = len(grid2)
+        colSize = len(grid2[0])
+        visited = [[False] * colSize for _ in range(rowSize)]
+        for x in range(rowSize):
+            for y in range(colSize):
+                if visited[x][y] == True:
+                    continue
+                elif grid2[x][y] != 1:
+                    continue
+
+                visited[x][y] = True
+                if self.dfs(x, y, grid1, grid2, visited):
+                    retVal += 1
+
+        return retVal
+```
+
+</details>
+
 ## [1926. Nearest Exit from Entrance in Maze](https://leetcode.com/problems/nearest-exit-from-entrance-in-maze/)  1638
 
 - [Official](https://leetcode.cn/problems/nearest-exit-from-entrance-in-maze/solutions/869920/mi-gong-zhong-chi-ru-kou-zui-jin-de-chu-0ued5/)
