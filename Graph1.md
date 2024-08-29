@@ -6530,6 +6530,9 @@ class Solution:
 
 ## [947. Most Stones Removed with Same Row or Column](https://leetcode.com/problems/most-stones-removed-with-same-row-or-column/)  2034
 
+- [Official](https://leetcode.com/problems/most-stones-removed-with-same-row-or-column/editorial/)
+- [Official](https://leetcode.cn/problems/most-stones-removed-with-same-row-or-column/solutions/560363/yi-chu-zui-duo-de-tong-xing-huo-tong-lie-m50r/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -6576,95 +6579,173 @@ No two stones are at the same coordinate point.
 <details><summary>C</summary>
 
 ```c
-struct hashStruct {
-    int index;
-    int value;
-    UT_hash_handle hh;
-};
-void freeAll(struct hashStruct* pFree) {
-    struct hashStruct* current;
-    struct hashStruct* tmp;
-    HASH_ITER(hh, pFree, current, tmp) {
-        HASH_DEL(pFree, current);
-        free(current);
-    }
-}
-int getUnionFind(int* pUnionFind, int idx) {
-    if (pUnionFind[idx] != idx) {
-        pUnionFind[idx] = getUnionFind(pUnionFind, pUnionFind[idx]);
-    }
+void dfs(int** adjacencyList, int* adjacencyListColSize, bool* visited, int stone) {
+    visited[stone] = true;
 
-    return pUnionFind[idx];
-}
-int merge(int* pUnionFind, int exist, int new) {
-    int existValue = getUnionFind(pUnionFind, exist);
-    int newValue = getUnionFind(pUnionFind, new);
-    if (existValue == newValue) {
-        return 0;
-    }
-    pUnionFind[newValue] = existValue;
-
-    return 1;
-}
-
-int removeStones(int** stones, int stonesSize, int* stonesColSize) {
-    int retVal = stonesSize;
-
+    int neighbor;
     int i;
-
-    int UnionFind[stonesSize];
-    for (i=0; i<stonesSize; ++i) {
-        UnionFind[i] = i;
-    }
-
-    struct hashStruct* hashRow = NULL;
-    struct hashStruct* tmpRow;
-    struct hashStruct* hashCol = NULL;
-    struct hashStruct* tmpCol;
-    int count = stonesSize;
-    for (i=0; i<stonesSize; ++i) {
-        tmpRow = NULL;
-        HASH_FIND_INT(hashRow, stones[i], tmpRow);
-        if (tmpRow) {
-            count -= merge(UnionFind, tmpRow->index, i);
-        }
-        else {
-            tmpRow = malloc(sizeof(struct hashStruct));
-            if (tmpRow == NULL) {
-                perror("malloc");
-                freeAll(hashRow);
-                freeAll(hashCol);
-                return retVal;
-            }
-            tmpRow->value = stones[i][0];
-            tmpRow->index = i;
-            HASH_ADD_INT(hashRow, value, tmpRow);
-        }
-
-        tmpCol = NULL;
-        HASH_FIND_INT(hashCol, stones[i]+1, tmpCol);
-        if (tmpCol) {
-            count -= merge(UnionFind, tmpCol->index, i);
-        }
-        else {
-            tmpCol = malloc(sizeof(struct hashStruct));
-            if (tmpCol == NULL) {
-                perror("malloc");
-                freeAll(hashRow);
-                freeAll(hashCol);
-                return retVal;
-            }
-            tmpCol->value = stones[i][1];
-            tmpCol->index = i;
-            HASH_ADD_INT(hashCol, value, tmpCol);
+    for (i = 0; i < adjacencyListColSize[stone]; ++i) {
+        neighbor = adjacencyList[stone][i];
+        if (visited[neighbor] == false) {
+            dfs(adjacencyList, adjacencyListColSize, visited, neighbor);
         }
     }
-    retVal -= count;
-    freeAll(hashRow);
-    freeAll(hashCol);
+}
+int removeStones(int** stones, int stonesSize, int* stonesColSize) {
+    int retVal = 0;
+
+    int i, j;
+
+    int** adjacencyList = NULL;
+    adjacencyList = (int**)malloc(stonesSize * sizeof(int*));
+    if (adjacencyList == NULL) {
+        perror("malloc");
+        return retVal;
+    }
+    for (i = 0; i < stonesSize; ++i) {
+        adjacencyList[i] = (int*)malloc(stonesSize * sizeof(int));
+        if (adjacencyList[i] == NULL) {
+            perror("malloc");
+            for (j = 0; j < i; ++j) {
+                free(adjacencyList[j]);
+                adjacencyList[j] = NULL;
+            }
+            free(adjacencyList);
+            adjacencyList = NULL;
+            return retVal;
+        }
+        memset(adjacencyList[i], 0, (stonesSize * sizeof(int)));
+    }
+    int* adjacencyListColSize = NULL;
+    adjacencyListColSize = (int*)malloc(stonesSize * sizeof(int));
+    if (adjacencyListColSize == NULL) {
+        perror("malloc");
+        for (i = 0; i < stonesSize; ++i) {
+            free(adjacencyList[i]);
+            adjacencyList[i] = NULL;
+        }
+        free(adjacencyList);
+        adjacencyList = NULL;
+        return retVal;
+    }
+    memset(adjacencyListColSize, 0, (stonesSize * sizeof(int)));
+    for (i = 0; i < stonesSize; i++) {
+        for (j = i + 1; j < stonesSize; j++) {
+            if ((stones[i][0] == stones[j][0]) || (stones[i][1] == stones[j][1])) {
+                adjacencyList[i][adjacencyListColSize[i]++] = j;
+                adjacencyList[j][adjacencyListColSize[j]++] = i;
+            }
+        }
+    }
+
+    bool visited[stonesSize];
+    memset(visited, false, sizeof(visited));
+    int numOfConnectedComponents = 0;
+    for (i = 0; i < stonesSize; i++) {
+        if (visited[i] == false) {
+            dfs(adjacencyList, adjacencyListColSize, visited, i);
+            numOfConnectedComponents++;
+        }
+    }
+
+    retVal = stonesSize - numOfConnectedComponents;
+
+    //
+    free(adjacencyListColSize);
+    adjacencyListColSize = NULL;
+    for (i = 0; i < stonesSize; ++i) {
+        free(adjacencyList[i]);
+        adjacencyList[i] = NULL;
+    }
+    free(adjacencyList);
+    adjacencyList = NULL;
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    void dfs(vector<vector<int>>& adjacencyList, vector<bool>& visited, int stone) {
+        visited[stone] = true;
+        for (int neighbor : adjacencyList[stone]) {
+            if (visited[neighbor] == false) {
+                dfs(adjacencyList, visited, neighbor);
+            }
+        }
+    }
+
+   public:
+    int removeStones(vector<vector<int>>& stones) {
+        int retVal = 0;
+
+        int stonesSize = stones.size();
+
+        vector<vector<int>> adjacencyList(stonesSize);
+        for (int i = 0; i < stonesSize; i++) {
+            for (int j = i + 1; j < stonesSize; j++) {
+                if ((stones[i][0] == stones[j][0]) || (stones[i][1] == stones[j][1])) {
+                    adjacencyList[i].push_back(j);
+                    adjacencyList[j].push_back(i);
+                }
+            }
+        }
+
+        vector<bool> visited(stonesSize, false);
+        int numOfConnectedComponents = 0;
+        for (int i = 0; i < stonesSize; i++) {
+            if (visited[i] == false) {
+                dfs(adjacencyList, visited, i);
+                numOfConnectedComponents++;
+            }
+        }
+
+        retVal = stonesSize - numOfConnectedComponents;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def dfs(self, adjacencyList: List[List[int]], visited: List[int], stone: int) -> None:
+        visited[stone] = True
+        for neighbor in adjacencyList[stone]:
+            if visited[neighbor] == False:
+                self.dfs(adjacencyList, visited, neighbor)
+
+    def removeStones(self, stones: List[List[int]]) -> int:
+        retVal = 0
+
+        stonesSize = len(stones)
+
+        adjacencyList = [[] for _ in range(stonesSize)]
+        for i in range(stonesSize):
+            for j in range(i + 1, stonesSize):
+                if (stones[i][0] == stones[j][0]) or (stones[i][1] == stones[j][1]):
+                    adjacencyList[i].append(j)
+                    adjacencyList[j].append(i)
+
+        visited = [False] * stonesSize
+        numOfConnectedComponents = 0
+        for i in range(stonesSize):
+            if visited[i] == False:
+                self.dfs(adjacencyList, visited, i)
+                numOfConnectedComponents += 1
+
+        retVal = stonesSize - numOfConnectedComponents
+
+        return retVal
 ```
 
 </details>
