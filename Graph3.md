@@ -3657,6 +3657,396 @@ class Graph:
 
 </details>
 
+## [2699. Modify Graph Edge Weights](https://leetcode.com/problems/modify-graph-edge-weights/)  2873
+
+- [Official](https://leetcode.com/problems/modify-graph-edge-weights/editorial/)
+- [Official](https://leetcode.cn/problems/modify-graph-edge-weights/solutions/2300101/xiu-gai-tu-zhong-de-bian-quan-by-leetcod-66bg/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an undirected weighted connected graph containing n nodes labeled from 0 to n - 1,
+and an integer array edges where edges[i] = [ai, bi, wi] indicates that
+there is an edge between nodes ai and bi with weight wi.
+
+Some edges have a weight of -1 (wi = -1), while others have a positive weight (wi > 0).
+
+Your task is to modify all edges with a weight of -1 by assigning them positive integer values in the range [1, 2*10^9]
+so that the shortest distance between the nodes source and destination becomes equal to an integer target.
+If there are multiple modifications that make the shortest distance between source and destination equal to target,
+any of them will be considered correct.
+
+Return an array containing all edges (even unmodified ones) in any order
+if it is possible to make the shortest distance from source to destination equal to target,
+or an empty array if it's impossible.
+
+Note: You are not allowed to modify the weights of edges with initial positive weights.
+
+Example 1:
+Input: n = 5, edges = [[4,1,-1],[2,0,-1],[0,3,-1],[4,3,-1]], source = 0, destination = 1, target = 5
+Output: [[4,1,1],[2,0,1],[0,3,3],[4,3,1]]
+Explanation: The graph above shows a possible modification to the edges, making the distance from 0 to 1 equal to 5.
+
+Example 2:
+Input: n = 3, edges = [[0,1,-1],[0,2,5]], source = 0, destination = 2, target = 6
+Output: []
+Explanation: The graph above contains the initial edges.
+It is not possible to make the distance from 0 to 2 equal to 6 by modifying the edge with weight -1.
+So, an empty array is returned.
+
+Example 3:
+Input: n = 4, edges = [[1,0,4],[1,2,3],[2,3,5],[0,3,-1]], source = 0, destination = 2, target = 6
+Output: [[1,0,4],[1,2,3],[2,3,5],[0,3,1]]
+Explanation: The graph above shows a modified graph having the shortest distance from 0 to 2 as 6.
+
+Constraints:
+1 <= n <= 100
+1 <= edges.length <= n * (n - 1) / 2
+edges[i].length == 3
+0 <= ai, bi < n
+wi = -1 or 1 <= wi <= 10^7
+ai != bi
+0 <= source, destination < n
+source != destination
+1 <= target <= 10^9
+The graph is connected, and there are no self-loops or repeated edges
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Firstly, check that it’s actually possible to make the shortest path from source to destination equal to the target.
+2. If the shortest path from source to destination without the edges to be modified, is less than the target,
+   then it is not possible.
+3. If the shortest path from source to destination including the edges to be modified
+   and assigning them a temporary weight of 1, is greater than the target, then it is also not possible.
+4. Suppose we can find a modifiable edge (u, v) such that the length of the shortest path
+   from source to u (dis1) plus the length of the shortest path from v to destination (dis2) is less than
+   target (dis1 + dis2 < target), then we can change its weight to "target - dis1 - dis2".
+5. For all the other edges that still have the weight "-1,"
+   change the weights into sufficient large number (target, target + 1 or 200000000 etc.).
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+long long *fromDestination = NULL;
+long long *dijkstra(int op, int source, int n, int **edges, int edgesSize, int *edgesColSize, int **adjacency,
+                    int *checkTarget) {
+    long long *pRetVal = NULL;
+
+    int i;
+
+    pRetVal = (long long *)malloc(n * sizeof(long long));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (n * sizeof(long long)));
+    for (i = 0; i < n; ++i) {
+        pRetVal[i] = LLONG_MAX / 2;
+    }
+    pRetVal[source] = 0;
+
+    bool visited[n];
+    memset(visited, false, sizeof(visited));
+
+    int u, v;
+    int round;
+    for (round = 0; round < n - 1; ++round) {
+        u = -1;
+        for (i = 0; i < n; ++i) {
+            if (visited[i] == true) {
+                continue;
+            }
+
+            if ((u == -1) || (pRetVal[i] < pRetVal[u])) {
+                u = i;
+            }
+        }
+        visited[u] = true;
+
+        for (v = 0; v < n; ++v) {
+            if (visited[v] == true) {
+                continue;
+            } else if (adjacency[u][v] == -1) {
+                continue;
+            }
+
+            if (edges[adjacency[u][v]][2] != -1) {
+                pRetVal[v] = fmin(pRetVal[v], pRetVal[u] + edges[adjacency[u][v]][2]);
+                continue;
+            }
+
+            if (op == 0) {
+                pRetVal[v] = fmin(pRetVal[v], pRetVal[u] + 1);
+            } else {
+                int modify = (*checkTarget) - pRetVal[u] - fromDestination[v];
+                if (modify > 0) {
+                    pRetVal[v] = fmin(pRetVal[v], pRetVal[u] + modify);
+                    edges[adjacency[u][v]][2] = modify;
+                } else {
+                    edges[adjacency[u][v]][2] = (*checkTarget);
+                }
+            }
+        }
+    }
+
+    return pRetVal;
+}
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int **modifiedGraphEdges(int n, int **edges, int edgesSize, int *edgesColSize, int source, int destination, int target,
+                         int *returnSize, int **returnColumnSizes) {
+    int **pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    int i, j;
+
+    int **adjacency = (int **)malloc(n * sizeof(int *));
+    if (adjacency == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    for (i = 0; i < n; ++i) {
+        adjacency[i] = (int *)malloc(n * sizeof(int));
+        if (adjacency[i] == NULL) {
+            perror("malloc");
+            goto exit_adjacency;
+        }
+        for (j = 0; j < n; ++j) {
+            adjacency[i][j] = -1;
+        }
+    }
+    for (i = 0; i < edgesSize; ++i) {
+        adjacency[edges[i][0]][edges[i][1]] = i;
+        adjacency[edges[i][1]][edges[i][0]] = i;
+    }
+
+    fromDestination = NULL;
+    int checkTarget = target;
+    fromDestination = dijkstra(0, destination, n, edges, edgesSize, edgesColSize, adjacency, &checkTarget);
+    if (fromDestination == NULL) {
+        perror("malloc");
+        goto exit_adjacency;
+    }
+    if (fromDestination[source] > target) {
+        goto exit_fromDestination;
+    }
+
+    long long *fromSource = dijkstra(1, source, n, edges, edgesSize, edgesColSize, adjacency, &checkTarget);
+    if (fromDestination == NULL) {
+        perror("malloc");
+        goto exit_fromDestination;
+    }
+    if (fromSource[destination] != target) {
+        goto exit_fromSource;
+    }
+
+    //
+    pRetVal = edges;
+    (*returnSize) = edgesSize;
+    (*returnColumnSizes) = edgesColSize;
+
+exit_fromSource:
+    free(fromSource);
+    fromSource = NULL;
+
+exit_fromDestination:
+    free(fromDestination);
+    fromDestination = NULL;
+
+exit_adjacency:
+    for (i = 0; i < n; ++i) {
+        if (adjacency[i] != NULL) {
+            free(adjacency[i]);
+            adjacency[i] = NULL;
+        }
+    }
+    free(adjacency);
+    adjacency = NULL;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    vector<long long> fromDestination;
+    int target;
+
+    vector<long long> dijkstra(int op, int source, vector<vector<int>>& edges, const vector<vector<int>>& adjacency) {
+        vector<long long> retVal;
+
+        int n = adjacency.size();
+        vector<long long> distance(n, numeric_limits<int>::max() / 2);
+        distance[source] = 0;
+        vector<int> visited(n);
+
+        for (int round = 0; round < n - 1; ++round) {
+            int u = -1;
+            for (int i = 0; i < n; ++i) {
+                if (visited[i] == true) {
+                    continue;
+                }
+
+                if ((u == -1) || (distance[i] < distance[u])) {
+                    u = i;
+                }
+            }
+            visited[u] = true;
+
+            for (int v = 0; v < n; ++v) {
+                if (visited[v] == true) {
+                    continue;
+                } else if (adjacency[u][v] == -1) {
+                    continue;
+                }
+
+                if (edges[adjacency[u][v]][2] != -1) {
+                    distance[v] = min(distance[v], distance[u] + edges[adjacency[u][v]][2]);
+                    continue;
+                }
+
+                if (op == 0) {
+                    distance[v] = min(distance[v], distance[u] + 1);
+                } else {
+                    int modify = target - distance[u] - fromDestination[v];
+                    if (modify > 0) {
+                        distance[v] = min(distance[v], distance[u] + modify);
+                        edges[adjacency[u][v]][2] = modify;
+                    } else {
+                        edges[adjacency[u][v]][2] = target;
+                    }
+                }
+            }
+        }
+        retVal = distance;
+
+        return retVal;
+    }
+
+   public:
+    vector<vector<int>> modifiedGraphEdges(int n, vector<vector<int>>& edges, int source, int destination, int target) {
+        vector<vector<int>> retVal;
+
+        this->target = target;
+
+        vector<vector<int>> adjacency(n, vector<int>(n, -1));
+        int edgesSize = edges.size();
+        for (int i = 0; i < edgesSize; ++i) {
+            int u = edges[i][0];
+            int v = edges[i][1];
+            adjacency[u][v] = i;
+            adjacency[v][u] = i;
+        }
+
+        fromDestination = dijkstra(0, destination, edges, adjacency);
+        if (fromDestination[source] > target) {
+            return retVal;
+        }
+
+        vector<long long> fromSource = dijkstra(1, source, edges, adjacency);
+        if (fromSource[destination] != target) {
+            return retVal;
+        }
+
+        retVal = edges;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.fromDestination = None
+        self.target = 0
+
+    def dijkstra(self, option: int, source: int, n: int, edges: List[List[int]], adjacency: List[List[int]]) -> List[int]:
+        retVal = []
+
+        distance = [float("inf")] * n
+        distance[source] = 0
+
+        visited = [False] * n
+
+        for _ in range(n - 1):
+            u = -1
+            for i in range(n):
+                if visited[i] == True:
+                    continue
+                if ((u == -1) or (distance[i] < distance[u])):
+                    u = i
+            visited[u] = True
+
+            for v in range(n):
+                if visited[v] == True:
+                    continue
+                elif adjacency[u][v] == -1:
+                    continue
+
+                if edges[adjacency[u][v]][2] != -1:
+                    distance[v] = min(distance[v], distance[u] + edges[adjacency[u][v]][2])
+                    continue
+
+                if option == 0:
+                    distance[v] = min(distance[v], distance[u] + 1)
+                else:
+                    modify = self.target - distance[u] - self.fromDestination[v]
+                    if modify > 0:
+                        distance[v] = min(distance[v], distance[u] + modify)
+                        edges[adjacency[u][v]][2] = modify
+                    else:
+                        edges[adjacency[u][v]][2] = self.target
+
+        retVal = distance
+
+        return retVal
+
+    def modifiedGraphEdges(self, n: int, edges: List[List[int]], source: int, destination: int, target: int) -> List[List[int]]:
+        retVal = []
+
+        self.fromDestination = []
+        self.target = target
+
+        adjacency = [[-1] * n for _ in range(n)]
+        for i, (u, v, w) in enumerate(edges):
+            adjacency[u][v] = adjacency[v][u] = i
+
+        self.fromDestination = self.dijkstra(0, destination, n, edges, adjacency)
+        if self.fromDestination[source] > target:
+            return retVal
+
+        fromSource = self.dijkstra(1, source, n, edges, adjacency)
+        if fromSource[destination] != target:
+            return retVal
+
+        retVal = edges
+
+        return retVal
+```
+
+</details>
+
 ## [2709. Greatest Common Divisor Traversal](https://leetcode.com/problems/greatest-common-divisor-traversal/)  2171
 
 <details><summary>Description</summary>
