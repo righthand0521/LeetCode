@@ -966,6 +966,212 @@ class Solution:
 
 </details>
 
+## [52. N-Queens II](https://leetcode.com/problems/n-queens-ii/)
+
+- [Official](https://leetcode.cn/problems/n-queens-ii/solutions/449388/nhuang-hou-ii-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+The n-queens puzzle is the problem of placing n queens on an n x n chessboard such that no two queens attack each other.
+
+Given an integer n, return the number of distinct solutions to the n-queens puzzle.
+
+Example 1:
+Input: n = 4
+Output: 2
+Explanation: There are two distinct solutions to the 4-queens puzzle as shown.
+
+Example 2:
+Input: n = 1
+Output: 1
+
+Constraints:
+1 <= n <= 9
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    UT_hash_handle hh;
+};
+struct hashTable* find(struct hashTable** pObj, int key) {
+    struct hashTable* pRetVal = NULL;
+
+    HASH_FIND_INT((*pObj), &key, pRetVal);
+
+    return pRetVal;
+}
+void insert(struct hashTable** pObj, int key) {
+    struct hashTable* pTmp = NULL;
+    HASH_FIND_INT((*pObj), &key, pTmp);
+    if (pTmp == NULL) {
+        pTmp = (struct hashTable*)malloc(sizeof(struct hashTable));
+        if (pTmp == NULL) {
+            perror("malloc");
+            return;
+        }
+        pTmp->key = key;
+        HASH_ADD_INT((*pObj), key, pTmp);
+    }
+}
+void erase(struct hashTable** pObj, int key) {
+    struct hashTable* pTmp = NULL;
+    HASH_FIND_INT((*pObj), &key, pTmp);
+    if (pTmp != NULL) {
+        HASH_DEL((*pObj), pTmp);
+        free(pTmp);
+        pTmp = NULL;
+    }
+}
+int backtrack(int n, int row, struct hashTable** columns, struct hashTable** diagonals1,
+              struct hashTable** diagonals2) {
+    int retVal = 0;
+
+    if (row == n) {
+        retVal = 1;
+        return retVal;
+    }
+
+    int diagonal1, diagonal2;
+    int i;
+    for (i = 0; i < n; i++) {
+        if (find(columns, i) != NULL) {
+            continue;
+        }
+
+        diagonal1 = row - i;
+        if (find(diagonals1, diagonal1) != NULL) {
+            continue;
+        }
+
+        diagonal2 = row + i;
+        if (find(diagonals2, diagonal2) != NULL) {
+            continue;
+        }
+
+        insert(columns, i);
+        insert(diagonals1, diagonal1);
+        insert(diagonals2, diagonal2);
+        retVal += backtrack(n, row + 1, columns, diagonals1, diagonals2);
+        erase(columns, i);
+        erase(diagonals1, diagonal1);
+        erase(diagonals2, diagonal2);
+    }
+
+    return retVal;
+}
+int totalNQueens(int n) {
+    int retVal = 0;
+
+    struct hashTable* columns = NULL;
+    struct hashTable* diagonals1 = NULL;
+    struct hashTable* diagonals2 = NULL;
+    retVal = backtrack(n, 0, &columns, &diagonals1, &diagonals2);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int backtrack(int n, int row, unordered_set<int>& columns, unordered_set<int>& diagonals1,
+                  unordered_set<int>& diagonals2) {
+        int retVal = 0;
+
+        if (row == n) {
+            retVal = 1;
+            return retVal;
+        }
+
+        for (int i = 0; i < n; i++) {
+            if (columns.find(i) != columns.end()) {
+                continue;
+            }
+
+            int diagonal1 = row - i;
+            if (diagonals1.find(diagonal1) != diagonals1.end()) {
+                continue;
+            }
+
+            int diagonal2 = row + i;
+            if (diagonals2.find(diagonal2) != diagonals2.end()) {
+                continue;
+            }
+
+            columns.insert(i);
+            diagonals1.insert(diagonal1);
+            diagonals2.insert(diagonal2);
+            retVal += backtrack(n, row + 1, columns, diagonals1, diagonals2);
+            columns.erase(i);
+            diagonals1.erase(diagonal1);
+            diagonals2.erase(diagonal2);
+        }
+
+        return retVal;
+    }
+    int totalNQueens(int n) {
+        int retVal = 0;
+
+        unordered_set<int> columns;
+        unordered_set<int> diagonals1;
+        unordered_set<int> diagonals2;
+        retVal = backtrack(n, 0, columns, diagonals1, diagonals2);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def backtrack(self, n: int, row: int, columns: set, diagonal1: set, diagonal2: set) -> int:
+        retVal = 0
+
+        if row == n:
+            retVal = 1
+            return retVal
+
+        for i in range(n):
+            if i in columns or row - i in diagonal1 or row + i in diagonal2:
+                continue
+
+            columns.add(i)
+            diagonal1.add(row - i)
+            diagonal2.add(row + i)
+            retVal += self.backtrack(n, row + 1, columns, diagonal1, diagonal2)
+            columns.remove(i)
+            diagonal1.remove(row - i)
+            diagonal2.remove(row + i)
+
+        return retVal
+
+    def totalNQueens(self, n: int) -> int:
+        retVal = 0
+
+        columns = set()
+        diagonal1 = set()
+        diagonal2 = set()
+        retVal = self.backtrack(n, 0, columns, diagonal1, diagonal2)
+
+        return retVal
+```
+
+</details>
+
 ## [77. Combinations](https://leetcode.com/problems/combinations)
 
 - [Official](https://leetcode.cn/problems/combinations/solutions/405094/zu-he-by-leetcode-solution/)
