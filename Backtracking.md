@@ -966,6 +966,265 @@ class Solution:
 
 </details>
 
+## [51. N-Queens](https://leetcode.com/problems/n-queens/)
+
+- [Official](https://leetcode.cn/problems/n-queens/solutions/398929/nhuang-hou-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+The n-queens puzzle is the problem of placing n queens on an n x n chessboard such that no two queens attack each other.
+
+Given an integer n, return all distinct solutions to the n-queens puzzle. You may return the answer in any order.
+
+Each solution contains a distinct board configuration of the n-queens' placement,
+where 'Q' and '.' both indicate a queen and an empty space, respectively.
+
+Example 1:
+Input: n = 4
+Output: [[".Q..","...Q","Q...","..Q."],["..Q.","Q...","...Q",".Q.."]]
+Explanation: There exist two distinct solutions to the 4-queens puzzle as shown above
+
+Example 2:
+Input: n = 1
+Output: [["Q"]]
+
+Constraints:
+1 <= n <= 9
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+void generateBoard(int n, int* pQueens, char*** pRetVal, int* returnSize) {
+    pRetVal[(*returnSize)] = (char**)malloc(n * sizeof(char*));
+    if (pRetVal[(*returnSize)] == NULL) {
+        perror("malloc");
+        return;
+    }
+
+    int i, j;
+    for (i = 0; i < n; i++) {
+        pRetVal[(*returnSize)][i] = (char*)malloc((n + 1) * sizeof(char));
+        if (pRetVal[(*returnSize)][i] == NULL) {
+            perror("malloc");
+            return;
+        }
+        for (j = 0; j < n; j++) {
+            pRetVal[(*returnSize)][i][j] = '.';
+        }
+        pRetVal[(*returnSize)][i][pQueens[i]] = 'Q';
+        pRetVal[(*returnSize)][i][n] = 0;
+    }
+}
+void backtrack(int n, int row, int* pQueens, int* pColumns, int* pDiagonals1, int* pDiagonals2, char*** pRetVal,
+               int* returnSize) {
+    if (row == n) {
+        generateBoard(n, pQueens, pRetVal, returnSize);
+        (*returnSize) += 1;
+        return;
+    }
+
+    int diagonal1, diagonal2;
+    int i;
+    for (i = 0; i < n; i++) {
+        if (pColumns[i] == true) {
+            continue;
+        }
+
+        diagonal1 = row - i + n - 1;
+        if (pDiagonals1[diagonal1] == true) {
+            continue;
+        }
+
+        diagonal2 = row + i;
+        if (pDiagonals2[diagonal2] == true) {
+            continue;
+        }
+
+        pQueens[row] = i;
+        pColumns[i] = true;
+        pDiagonals1[diagonal1] = true;
+        pDiagonals2[diagonal2] = true;
+        backtrack(n, row + 1, pQueens, pColumns, pDiagonals1, pDiagonals2, pRetVal, returnSize);
+        pQueens[row] = -1;
+        pColumns[i] = false;
+        pDiagonals1[diagonal1] = false;
+        pDiagonals2[diagonal2] = false;
+    }
+}
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+char*** solveNQueens(int n, int* returnSize, int** returnColumnSizes) {
+    char*** pRetVal = NULL;
+
+    (*returnSize) = 0;
+    (*returnColumnSizes) = NULL;
+    pRetVal = (char***)malloc(501 * sizeof(char**));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+
+    int queens[n];
+    memset(queens, -1, sizeof(queens));
+    int columns[n];
+    memset(columns, 0, sizeof(columns));
+    int diagonals1[n + n];
+    memset(diagonals1, 0, sizeof(diagonals1));
+    int diagonals2[n + n];
+    memset(diagonals2, 0, sizeof(diagonals2));
+
+    backtrack(n, 0, queens, columns, diagonals1, diagonals2, pRetVal, returnSize);
+
+    int i, j;
+    (*returnColumnSizes) = (int*)malloc((*returnSize) * sizeof(int));
+    if ((*returnColumnSizes) == NULL) {
+        perror("malloc");
+        for (i = 0; i < (*returnSize); ++i) {
+            for (j = 0; j < n; ++j) {
+                free(pRetVal[i][j]);
+                pRetVal[i][j] = NULL;
+            }
+            free(pRetVal[i]);
+            pRetVal[i] = NULL;
+        }
+        free(pRetVal);
+        pRetVal = NULL;
+        return pRetVal;
+    }
+    for (i = 0; i < (*returnSize); i++) {
+        (*returnColumnSizes)[i] = n;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    vector<string> generateBoard(vector<int> &queens, int n) {
+        vector<string> retVal;
+
+        for (int i = 0; i < n; i++) {
+            string row = string(n, '.');
+            row[queens[i]] = 'Q';
+            retVal.push_back(row);
+        }
+
+        return retVal;
+    }
+    void backtrack(vector<vector<string>> &solutions, vector<int> &queens, int n, int row, unordered_set<int> &columns,
+                   unordered_set<int> &diagonals1, unordered_set<int> &diagonals2) {
+        if (row == n) {
+            vector<string> board = generateBoard(queens, n);
+            solutions.push_back(board);
+            return;
+        }
+
+        for (int i = 0; i < n; i++) {
+            if (columns.find(i) != columns.end()) {
+                continue;
+            }
+
+            int diagonal1 = row - i;
+            if (diagonals1.find(diagonal1) != diagonals1.end()) {
+                continue;
+            }
+
+            int diagonal2 = row + i;
+            if (diagonals2.find(diagonal2) != diagonals2.end()) {
+                continue;
+            }
+
+            queens[row] = i;
+            columns.insert(i);
+            diagonals1.insert(diagonal1);
+            diagonals2.insert(diagonal2);
+            backtrack(solutions, queens, n, row + 1, columns, diagonals1, diagonals2);
+            queens[row] = -1;
+            columns.erase(i);
+            diagonals1.erase(diagonal1);
+            diagonals2.erase(diagonal2);
+        }
+    }
+
+   public:
+    vector<vector<string>> solveNQueens(int n) {
+        vector<vector<string>> retVal;
+
+        auto queens = vector<int>(n, -1);
+        auto columns = unordered_set<int>();
+        auto diagonals1 = unordered_set<int>();
+        auto diagonals2 = unordered_set<int>();
+        backtrack(retVal, queens, n, 0, columns, diagonals1, diagonals2);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def generateBoard(self, n: int, queens: List[int], board: List[str]):
+        retVal = []
+
+        for i in range(n):
+            board[queens[i]] = "Q"
+            retVal.append("".join(board))
+            board[queens[i]] = "."
+
+        return retVal
+
+    def backtrack(self, n: int, row: int,
+                  queens: List[int], columns: set, diagonal1: set, diagonal2: set, board: List[str],
+                  answer: List[List[str]]) -> None:
+        if row == n:
+            answer.append(self.generateBoard(n, queens, board))
+            return
+
+        for i in range(n):
+            if (i in columns) or ((row - i) in diagonal1) or ((row + i) in diagonal2):
+                continue
+
+            queens[row] = i
+            columns.add(i)
+            diagonal1.add(row - i)
+            diagonal2.add(row + i)
+            self.backtrack(n, row + 1, queens, columns, diagonal1, diagonal2, board, answer)
+            columns.remove(i)
+            diagonal1.remove(row - i)
+            diagonal2.remove(row + i)
+
+    def solveNQueens(self, n: int) -> List[List[str]]:
+        retVal = []
+
+        queens = [-1] * n
+        columns = set()
+        diagonal1 = set()
+        diagonal2 = set()
+        board = ["."] * n
+        self.backtrack(n, 0, queens, columns, diagonal1, diagonal2, board, retVal)
+
+        return retVal
+```
+
+</details>
+
 ## [52. N-Queens II](https://leetcode.com/problems/n-queens-ii/)
 
 - [Official](https://leetcode.cn/problems/n-queens-ii/solutions/449388/nhuang-hou-ii-by-leetcode-solution/)

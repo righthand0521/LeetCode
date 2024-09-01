@@ -42,6 +42,13 @@
 
 </details>
 
+<details><summary>N-Queens</summary>
+
+- [51. N-Queens](https://leetcode.com/problems/n-queens/)
+- [52. N-Queens II](https://leetcode.com/problems/n-queens-ii/)
+
+</details>
+
 ## Binary Search
 
 <details><summary>Type 1</summary>
