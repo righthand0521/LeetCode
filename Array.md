@@ -8191,6 +8191,9 @@ class Solution {
 
 ## [2022. Convert 1D Array Into 2D Array](https://leetcode.com/problems/convert-1d-array-into-2d-array/)  1307
 
+- [Official](https://leetcode.com/problems/convert-1d-array-into-2d-array/editorial/)
+- [Official](https://leetcode.cn/problems/convert-1d-array-into-2d-array/solutions/1185411/jiang-yi-wei-shu-zu-zhuan-bian-cheng-er-zt47o/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -8227,6 +8230,17 @@ Constraints:
 1 <= m, n <= 4 * 10^4
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. When is it possible to convert original into a 2D array and when is it impossible?
+2. It is possible if and only if m * n == original.length
+3. If it is possible to convert original to a 2D array,
+   keep an index i such that original[i] is the next element to add to the 2D array.
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
@@ -8237,51 +8251,40 @@ Constraints:
  * The sizes of the arrays are returned as *returnColumnSizes array.
  * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
  */
-int** construct2DArray(int* original, int originalSize, int m, int n, int* returnSize, int** returnColumnSizes){
+int** construct2DArray(int* original, int originalSize, int m, int n, int* returnSize, int** returnColumnSizes) {
     int** pRetVal = NULL;
+
     (*returnSize) = 0;
     (*returnColumnSizes) = NULL;
 
-    if (originalSize != (m * n))
-    {
+    if (originalSize != (m * n)) {
         return pRetVal;
     }
 
-    (*returnSize) = m;
-    (*returnColumnSizes) = (int*)malloc((*returnSize) * sizeof(int));
-    if ((*returnColumnSizes) == NULL)
-    {
+    (*returnColumnSizes) = (int*)malloc(m * sizeof(int));
+    if ((*returnColumnSizes) == NULL) {
         perror("malloc");
         return pRetVal;
     }
-    int i;
-    for (i=0; i<(*returnSize); ++i)
-    {
-        (*returnColumnSizes)[i] = n;
-    }
+    memset((*returnColumnSizes), 0, (m * sizeof(int)));
 
-    pRetVal = (int**)malloc((*returnSize) * sizeof(int*));
-    if (pRetVal == NULL)
-    {
+    pRetVal = (int**)malloc(m * sizeof(int*));
+    if (pRetVal == NULL) {
         perror("malloc");
         free((*returnColumnSizes));
         (*returnColumnSizes) = NULL;
         return pRetVal;
     }
 
-    i = 0;
-    int row = 0;
-    int col = 0;
-    for (row=0; row<(*returnSize); ++row)
-    {
-        pRetVal[row] = (int*)malloc(((*returnColumnSizes)[row]) * sizeof(int));
-        if (pRetVal[row] == NULL)
-        {
+    int originalIndex = 0;
+    int x, y;
+    for (x = 0; x < m; ++x) {
+        pRetVal[x] = (int*)malloc(n * sizeof(int));
+        if (pRetVal[x] == NULL) {
             perror("malloc");
             free((*returnColumnSizes));
             (*returnColumnSizes) = NULL;
-            for (i=0; i<row; ++i)
-            {
+            for (int i = 0; i < x; ++i) {
                 free(pRetVal[i]);
                 pRetVal[i] = NULL;
             }
@@ -8289,21 +8292,67 @@ int** construct2DArray(int* original, int originalSize, int m, int n, int* retur
             pRetVal = NULL;
             return pRetVal;
         }
-        memset(pRetVal[row], 0, ((*returnColumnSizes)[row]) * sizeof(int));
-
-        while (i<originalSize)
-        {
-            pRetVal[row][col++] = original[i++];
-            if (col == (*returnColumnSizes)[row])
-            {
-                col = 0;
-                break;
-            }
+        memset(pRetVal[x], 0, (n * sizeof(int)));
+        for (y = 0; y < n; ++y) {
+            pRetVal[x][y] = original[originalIndex++];
         }
+        (*returnColumnSizes)[x] = n;
     }
+    (*returnSize) = m;
 
     return pRetVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<vector<int>> construct2DArray(vector<int>& original, int m, int n) {
+        vector<vector<int>> retVal;
+
+        int originalSize = original.size();
+        if (originalSize != m * n) {
+            return retVal;
+        }
+        retVal.resize(m, vector<int>(n, false));
+
+        int originalIndex = 0;
+        for (int x = 0; x < m; ++x) {
+            for (int y = 0; y < n; ++y) {
+                retVal[x][y] = original[originalIndex++];
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def construct2DArray(self, original: List[int], m: int, n: int) -> List[List[int]]:
+        retVal = []
+
+        originalSize = len(original)
+        if originalSize != m * n:
+            return retVal
+        retVal = [[0] * n for _ in range(m)]
+
+        originalIndex = 0
+        for x in range(m):
+            for y in range(n):
+                retVal[x][y] = original[originalIndex]
+                originalIndex += 1
+
+        return retVal
 ```
 
 </details>

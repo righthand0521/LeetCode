@@ -2,8 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
 int** construct2DArray(int* original, int originalSize, int m, int n, int* returnSize, int** returnColumnSizes) {
     int** pRetVal = NULL;
+
     (*returnSize) = 0;
     (*returnColumnSizes) = NULL;
 
@@ -11,18 +17,14 @@ int** construct2DArray(int* original, int originalSize, int m, int n, int* retur
         return pRetVal;
     }
 
-    (*returnSize) = m;
-    (*returnColumnSizes) = (int*)malloc((*returnSize) * sizeof(int));
+    (*returnColumnSizes) = (int*)malloc(m * sizeof(int));
     if ((*returnColumnSizes) == NULL) {
         perror("malloc");
         return pRetVal;
     }
-    int i;
-    for (i = 0; i < (*returnSize); ++i) {
-        (*returnColumnSizes)[i] = n;
-    }
+    memset((*returnColumnSizes), 0, (m * sizeof(int)));
 
-    pRetVal = (int**)malloc((*returnSize) * sizeof(int*));
+    pRetVal = (int**)malloc(m * sizeof(int*));
     if (pRetVal == NULL) {
         perror("malloc");
         free((*returnColumnSizes));
@@ -30,16 +32,15 @@ int** construct2DArray(int* original, int originalSize, int m, int n, int* retur
         return pRetVal;
     }
 
-    i = 0;
-    int row = 0;
-    int col = 0;
-    for (row = 0; row < (*returnSize); ++row) {
-        pRetVal[row] = (int*)malloc(((*returnColumnSizes)[row]) * sizeof(int));
-        if (pRetVal[row] == NULL) {
+    int originalIndex = 0;
+    int x, y;
+    for (x = 0; x < m; ++x) {
+        pRetVal[x] = (int*)malloc(n * sizeof(int));
+        if (pRetVal[x] == NULL) {
             perror("malloc");
             free((*returnColumnSizes));
             (*returnColumnSizes) = NULL;
-            for (i = 0; i < row; ++i) {
+            for (int i = 0; i < x; ++i) {
                 free(pRetVal[i]);
                 pRetVal[i] = NULL;
             }
@@ -47,16 +48,13 @@ int** construct2DArray(int* original, int originalSize, int m, int n, int* retur
             pRetVal = NULL;
             return pRetVal;
         }
-        memset(pRetVal[row], 0, ((*returnColumnSizes)[row]) * sizeof(int));
-
-        while (i < originalSize) {
-            pRetVal[row][col++] = original[i++];
-            if (col == (*returnColumnSizes)[row]) {
-                col = 0;
-                break;
-            }
+        memset(pRetVal[x], 0, (n * sizeof(int)));
+        for (y = 0; y < n; ++y) {
+            pRetVal[x][y] = original[originalIndex++];
         }
+        (*returnColumnSizes)[x] = n;
     }
+    (*returnSize) = m;
 
     return pRetVal;
 }
@@ -72,6 +70,16 @@ int main(int argc, char** argv) {
         int* returnColumnSizes;
     } testCase[] = {{{1, 2, 3, 4}, 4, 2, 2, 0, NULL}, {{1, 2, 3}, 3, 1, 3, 0, NULL}, {{1, 2}, 2, 1, 1, 0, NULL}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: original = [1,2,3,4], m = 2, n = 2
+     *  Output: [[1,2],[3,4]]
+     *
+     *  Input: original = [1,2,3], m = 1, n = 3
+     *  Output: [[1,2,3]]
+     *
+     *  Input: original = [1,2], m = 1, n = 1
+     *  Output: []
+     */
 
     int** pAnswer = NULL;
     int i, j, k;
