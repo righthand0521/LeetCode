@@ -12,18 +12,16 @@ int getLucky(char* s, int k) {
         sum += (translateToInteger % 10);
         sum += (translateToInteger / 10);
     }
-    --k;
 
     retVal = sum;
-    while (k > 0) {
+    int i;
+    for (i = 1; i < k; ++i) {
         retVal = 0;
         while (sum > 0) {
             retVal += (sum % 10);
             sum /= 10;
         }
         sum = retVal;
-
-        --k;
     }
 
     return retVal;
@@ -36,6 +34,16 @@ int main(int argc, char** argv) {
         int k;
     } testCase[] = {{"iiii", 1}, {"leetcode", 2}, {"zbax", 2}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: s = "iiii", k = 1
+     *  Output: 36
+     *
+     *  Input: s = "leetcode", k = 2
+     *  Output: 6
+     *
+     *  Input: s = "zbax", k = 2
+     *  Output: 8
+     */
 
     int answer;
     int i;

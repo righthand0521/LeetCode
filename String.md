@@ -5240,6 +5240,9 @@ class Solution {
 
 <details><summary>Description</summary>
 
+- [Official](https://leetcode.com/problems/sum-of-digits-of-string-after-convert/editorial/)
+- [Official](https://leetcode.cn/problems/sum-of-digits-of-string-after-convert/solutions/2019652/zi-fu-chuan-zhuan-hua-hou-de-ge-wei-shu-bhdx4/)
+
 ```text
 You are given a string s consisting of lowercase English letters, and an integer k.
 
@@ -5282,6 +5285,15 @@ Constraints:
 s consists of lowercase English letters.
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. First, let's note that after the first transform the value will be at most 100 * 10 which is not much
+2. After The first transform, we can just do the rest of the transforms by brute force
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
@@ -5297,22 +5309,78 @@ int getLucky(char* s, int k) {
         sum += (translateToInteger % 10);
         sum += (translateToInteger / 10);
     }
-    --k;
 
     retVal = sum;
-    while (k > 0) {
+    int i;
+    for (i = 1; i < k; ++i) {
         retVal = 0;
         while (sum > 0) {
             retVal += (sum % 10);
             sum /= 10;
         }
         sum = retVal;
-
-        --k;
     }
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int getLucky(string s, int k) {
+        int retVal = 0;
+
+        int sum = 0;
+        for (char c : s) {
+            int translateToInteger = c - 'a' + 1;
+            sum += (translateToInteger % 10);
+            sum += (translateToInteger / 10);
+        }
+
+        retVal = sum;
+        for (int i = 1; i < k; ++i) {
+            retVal = 0;
+            while (sum > 0) {
+                retVal += (sum % 10);
+                sum /= 10;
+            }
+            sum = retVal;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def getLucky(self, s: str, k: int) -> int:
+        retVal = 0
+
+        sum = 0
+        for c in s:
+            translateToInteger = (ord(c) - ord('a') + 1)
+            sum += (translateToInteger % 10)
+            sum += (translateToInteger // 10)
+
+        retVal = sum
+        for _ in range(1, k):
+            retVal = 0
+            while sum > 0:
+                retVal += (sum % 10)
+                sum //= 10
+            sum = retVal
+
+        return retVal
 ```
 
 </details>
