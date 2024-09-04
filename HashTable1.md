@@ -5663,6 +5663,259 @@ class MyHashMap:
 
 </details>
 
+## [874. Walking Robot Simulation](https://leetcode.com/problems/walking-robot-simulation/)  1846
+
+- [Official](https://leetcode.com/problems/walking-robot-simulation/editorial/)
+- [Official](https://leetcode.cn/problems/walking-robot-simulation/solutions/2343695/mo-ni-xing-zou-ji-qi-ren-by-leetcode-sol-41b8/)
+
+<details><summary>Description</summary>
+
+```text
+A robot on an infinite XY-plane starts at point (0, 0) facing north.
+The robot can receive a sequence of these three possible types of commands:
+- -2: Turn left 90 degrees.
+- -1: Turn right 90 degrees.
+- 1 <= k <= 9: Move forward k units, one unit at a time.
+
+Some of the grid squares are obstacles. The ith obstacle is at grid point obstacles[i] = (xi, yi).
+If the robot runs into an obstacle, then it will instead stay in its current location and move on to the next command.
+
+Return the maximum Euclidean distance
+that the robot ever gets from the origin squared (i.e. if the distance is 5, return 25).
+Note:
+- North means +Y direction.
+- East means +X direction.
+- South means -Y direction.
+- West means -X direction.
+- There can be obstacle in [0,0].
+
+Example 1:
+Input: commands = [4,-1,3], obstacles = []
+Output: 25
+Explanation: The robot starts at (0, 0):
+1. Move north 4 units to (0, 4).
+2. Turn right.
+3. Move east 3 units to (3, 4).
+The furthest point the robot ever gets from the origin is (3, 4), which squared is 32 + 42 = 25 units away.
+
+Example 2:
+Input: commands = [4,-1,4,-2,4], obstacles = [[2,4]]
+Output: 65
+Explanation: The robot starts at (0, 0):
+1. Move north 4 units to (0, 4).
+2. Turn right.
+3. Move east 1 unit and get blocked by the obstacle at (2, 4), robot is at (1, 4).
+4. Turn left.
+5. Move north 4 units to (1, 8).
+The furthest point the robot ever gets from the origin is (1, 8), which squared is 12 + 82 = 65 units away.
+
+Example 3:
+Input: commands = [6,-1,-1,6], obstacles = []
+Output: 36
+Explanation: The robot starts at (0, 0):
+1. Move north 6 units to (0, 6).
+2. Turn right.
+3. Turn right.
+4. Move south 6 units to (0, 0).
+The furthest point the robot ever gets from the origin is (0, 6), which squared is 62 = 36 units away.
+
+Constraints:
+1 <= commands.length <= 10^4
+commands[i] is either -2, -1, or an integer in the range [1, 9].
+0 <= obstacles.length <= 10^4
+-3 * 10^4 <= xi, yi <= 3 * 10^4
+The answer is guaranteed to be less than 2^31.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+static const int HASH_MULTIPLIER = 60001;  // Slightly larger than 2 * max coordinate value
+struct hashTable {
+    int key;
+    UT_hash_handle hh;
+};
+void hashFreeAll(struct hashTable *pFree) {
+    struct hashTable *current = NULL;
+    struct hashTable *tmp = NULL;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d\n", pFree->key);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int robotSim(int *commands, int commandsSize, int **obstacles, int obstaclesSize, int *obstaclesColSize) {
+    int retVal = 0;
+
+    int i, j;
+
+    struct hashTable *pHashTable = NULL;
+    struct hashTable *pTemp;
+    int key;
+    for (i = 0; i < obstaclesSize; i++) {
+        key = obstacles[i][0] * HASH_MULTIPLIER + obstacles[i][1];
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTable, &key, pTemp);
+        if (pTemp == NULL) {
+            pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                hashFreeAll(pHashTable);
+                return retVal;
+            }
+            pTemp->key = key;
+            HASH_ADD_INT(pHashTable, key, pTemp);
+        }
+    }
+
+    const int directions[4][2] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
+    int d = 1;
+    int px = 0;
+    int py = 0;
+    for (i = 0; i < commandsSize; i++) {
+        if (commands[i] < 0) {
+            d += ((commands[i] == -1) ? (1) : (-1));
+            d %= 4;
+            if (d < 0) {
+                d += 4;
+            }
+            continue;
+        }
+
+        for (j = 0; j < commands[i]; ++j) {
+            key = (px + directions[d][0]) * HASH_MULTIPLIER + py + directions[d][1];
+            pTemp = NULL;
+            HASH_FIND_INT(pHashTable, &key, pTemp);
+            if (pTemp != NULL) {
+                break;
+            }
+            px += directions[d][0];
+            py += directions[d][1];
+            retVal = fmax(retVal, px * px + py * py);
+        }
+    }
+
+    //
+    hashFreeAll(pHashTable);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    vector<vector<int>> directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+
+    int hashCoordinates(int x, int y) {
+        int retVal = 0;
+
+        static const int HASH_MULTIPLIER = 60001;  // Slightly larger than 2 * max coordinate value
+        retVal = x + HASH_MULTIPLIER * y;
+
+        return retVal;
+    }
+
+   public:
+    int robotSim(vector<int>& commands, vector<vector<int>>& obstacles) {
+        int retVal = 0;
+
+        unordered_set<int> obstacleSet;
+        for (auto& obstacle : obstacles) {
+            obstacleSet.insert(hashCoordinates(obstacle[0], obstacle[1]));
+        }
+
+        vector<int> currentPosition = {0, 0};
+        int maxDistanceSquared = 0;
+        int currentDirection = 0;
+        for (int command : commands) {
+            if (command == -1) {
+                currentDirection = (currentDirection + 1) % 4;
+                continue;
+            } else if (command == -2) {
+                currentDirection = (currentDirection + 3) % 4;
+                continue;
+            }
+
+            vector<int> direction = directions[currentDirection];
+            for (int step = 0; step < command; step++) {
+                int nextX = currentPosition[0] + direction[0];
+                int nextY = currentPosition[1] + direction[1];
+                if (obstacleSet.count(hashCoordinates(nextX, nextY)) > 0) {
+                    break;
+                }
+                currentPosition[0] = nextX;
+                currentPosition[1] = nextY;
+            }
+
+            int maxValue = currentPosition[0] * currentPosition[0] + currentPosition[1] * currentPosition[1];
+            maxDistanceSquared = max(maxDistanceSquared, maxValue);
+        }
+        retVal = maxDistanceSquared;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+
+    def hashCoordinates(self, x: int, y: int) -> int:
+        retVal = 0
+
+        HASH_MULTIPLIER = 60001  # Slightly larger than 2 * max coordinate value
+        retVal = x + HASH_MULTIPLIER * y
+
+        return retVal
+
+    def robotSim(self, commands: List[int], obstacles: List[List[int]]) -> int:
+        retVal = 0
+
+        obstacleSet = {self.hashCoordinates(x, y) for x, y in obstacles}
+
+        x = 0
+        y = 0
+        maxDistanceSquared = 0
+        currentDirection = 0
+        for command in commands:
+            if command == -1:
+                currentDirection = (currentDirection + 1) % 4
+                continue
+            elif command == -2:
+                currentDirection = (currentDirection + 3) % 4
+                continue
+
+            dx, dy = self.directions[currentDirection]
+            for _ in range(command):
+                nextX = x + dx
+                nextY = y + dy
+                if self.hashCoordinates(nextX, nextY) in obstacleSet:
+                    break
+                x = nextX
+                y = nextY
+
+            maxDistanceSquared = max(maxDistanceSquared, x * x + y * y)
+
+        retVal = maxDistanceSquared
+
+        return retVal
+```
+
+</details>
+
 ## [930. Binary Subarrays With Sum](https://leetcode.com/problems/binary-subarrays-with-sum/)  1591
 
 - [Official](https://leetcode.com/problems/binary-subarrays-with-sum/editorial/)
