@@ -1310,6 +1310,229 @@ int maxProduct(struct TreeNode* root) {
 
 </details>
 
+## [1367. Linked List in Binary Tree](https://leetcode.com/problems/linked-list-in-binary-tree/)  1649
+
+- [Official](https://leetcode.com/problems/linked-list-in-binary-tree/editorial/)
+- [Official](https://leetcode.cn/problems/linked-list-in-binary-tree/solutions/122916/er-cha-shu-zhong-de-lie-biao-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+Given a binary tree root and a linked list with head as the first node.
+
+Return True if all the elements in the linked list starting
+from the head correspond to some downward path connected in the binary tree otherwise return False.
+
+In this context downward path means a path that starts at some node and goes downwards.
+
+Example 1:
+     1
+ /       \
+4         4
+ \       /
+  2     2
+ /     / \
+1     6   8
+         / \
+        1   3
+Input: head = [4,2,8], root = [1,4,4,null,2,2,null,1,null,6,8,null,null,null,null,1,3]
+Output: true
+Explanation: Nodes in blue form a subpath in the binary Tree.
+
+Example 2:
+     1
+ /       \
+4         4
+ \       /
+  2     2
+ /     / \
+1     6   8
+         / \
+        1   3
+Input: head = [1,4,2,6], root = [1,4,4,null,2,2,null,1,null,6,8,null,null,null,null,1,3]
+Output: true
+
+Example 3:
+     1
+ /       \
+4         4
+ \       /
+  2     2
+ /     / \
+1     6   8
+         / \
+        1   3
+Input: head = [1,4,2,6,8], root = [1,4,4,null,2,2,null,1,null,6,8,null,null,null,null,1,3]
+Output: false
+Explanation: There is no path in the binary tree that contains all the elements of the linked list from head.
+
+Constraints:
+The number of nodes in the tree will be in the range [1, 2500].
+The number of nodes in the list will be in the range [1, 100].
+1 <= Node.val <= 100 for each node in the linked list and binary tree.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Create recursive function, given a pointer in a Linked List and any node in the Binary Tree.
+   Check if all the elements in the linked list starting
+   from the head correspond to some downward path in the binary tree.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool dfs(struct ListNode* head, struct TreeNode* root) {
+    bool retVal = false;
+
+    if (head == NULL) {
+        retVal = true;
+    } else if (root == NULL) {
+        retVal = false;
+    } else if (head->val != root->val) {
+        retVal = false;
+    } else {
+        retVal = dfs(head->next, root->left) || dfs(head->next, root->right);
+    }
+
+    return retVal;
+}
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+bool isSubPath(struct ListNode* head, struct TreeNode* root) {
+    bool retVal = false;
+
+    if (root == NULL) {
+        return retVal;
+    }
+
+    retVal = dfs(head, root) || isSubPath(head, root->left) || isSubPath(head, root->right);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   private:
+    bool dfs(ListNode* head, TreeNode* root) {
+        bool retVal = false;
+
+        if (head == nullptr) {
+            retVal = true;
+        } else if (root == nullptr) {
+            retVal = false;
+        } else if (head->val != root->val) {
+            retVal = false;
+        } else {
+            retVal = dfs(head->next, root->left) || dfs(head->next, root->right);
+        }
+
+        return retVal;
+    }
+
+   public:
+    bool isSubPath(ListNode* head, TreeNode* root) {
+        bool retVal = false;
+
+        if (root == nullptr) {
+            return retVal;
+        }
+
+        retVal = dfs(head, root) || isSubPath(head, root->left) || isSubPath(head, root->right);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def dfs(self, head: Optional[ListNode], root: Optional[TreeNode]) -> bool:
+        retVal = False
+
+        if head is None:
+            retVal= True
+        elif root is None:
+            retVal= False
+        elif head.val != root.val:
+            retVal= False
+        else:
+            retVal = self.dfs(head.next, root.left) or self.dfs(head.next, root.right)
+
+        return retVal
+
+    def isSubPath(self, head: Optional[ListNode], root: Optional[TreeNode]) -> bool:
+        retVal = False
+
+        if root is None:
+            return retVal
+
+        retVal = self.dfs(head, root) or self.isSubPath(head, root.left) or self.isSubPath(head, root.right)
+
+        return retVal
+```
+
+</details>
+
 ## [1372. Longest ZigZag Path in a Binary Tree](https://leetcode.com/problems/longest-zigzag-path-in-a-binary-tree/)  1713
 
 - [Official](https://leetcode.cn/problems/longest-zigzag-path-in-a-binary-tree/solutions/147425/er-cha-shu-zhong-de-zui-chang-jiao-cuo-lu-jing-b-2/)
