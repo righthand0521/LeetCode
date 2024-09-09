@@ -9080,6 +9080,221 @@ impl Solution {
 
 </details>
 
+## [2326. Spiral Matrix IV](https://leetcode.com/problems/spiral-matrix-iv/)  1421
+
+- [Official](https://leetcode.com/problems/spiral-matrix-iv/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given two integers m and n, which represent the dimensions of a matrix.
+
+You are also given the head of a linked list of integers.
+
+Generate an m x n matrix that contains the integers in the linked list presented in spiral order (clockwise),
+starting from the top-left of the matrix. If there are remaining empty spaces, fill them with -1.
+
+Return the generated matrix.
+
+Example 1:
+Input: m = 3, n = 5, head = [3,0,2,6,8,1,7,9,4,2,5,5,0]
+Output: [[3,0,2,6,8],[5,0,-1,-1,1],[5,2,4,9,7]]
+Explanation: The diagram above shows how the values are printed in the matrix.
+Note that the remaining spaces in the matrix are filled with -1.
+
+Example 2:
+Input: m = 1, n = 4, head = [0,1,2]
+Output: [[0,1,2,-1]]
+Explanation: The diagram above shows how the values are printed from left to right in the matrix.
+The last space in the matrix is set to -1.
+
+Constraints:
+1 <= m, n <= 10^5
+1 <= m * n <= 10^5
+The number of nodes in the list is in the range [1, m * n].
+0 <= Node.val <= 1000
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. First, generate an m x n matrix filled with -1s.
+2. Navigate within the matrix at (i, j) with the help of a direction vector ⟨di, dj⟩. At (i, j),
+   you need to decide if you can keep going in the current direction.
+3. If you cannot keep going, rotate the direction vector clockwise by 90 degrees.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int** spiralMatrix(int m, int n, struct ListNode* head, int* returnSize, int** returnColumnSizes) {
+    int** pRetVal = NULL;
+
+    (*returnSize) = 0;
+    (*returnColumnSizes) = NULL;
+
+    int i, j;
+
+    (*returnColumnSizes) = (int*)malloc(m * sizeof(int));
+    if ((*returnColumnSizes) == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset((*returnColumnSizes), 0, (m * sizeof(int)));
+    pRetVal = (int**)malloc(m * sizeof(int*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        free((*returnColumnSizes));
+        (*returnColumnSizes) = NULL;
+        return pRetVal;
+    }
+    for (i = 0; i < m; ++i) {
+        pRetVal[i] = (int*)malloc(n * sizeof(int));
+        if (pRetVal[i] == NULL) {
+            perror("malloc");
+            free((*returnColumnSizes));
+            (*returnColumnSizes) = NULL;
+            for (j = 0; j < i; ++j) {
+                free(pRetVal[j]);
+                pRetVal[j] = NULL;
+            }
+            free(pRetVal);
+            pRetVal = NULL;
+            return pRetVal;
+        }
+        memset(pRetVal[i], -1, (n * sizeof(int)));
+        (*returnColumnSizes)[i] = n;
+    }
+    (*returnSize) = m;
+
+    int movement[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+    int movementIndex = 0;
+    int x = 0;
+    int y = 0;
+    struct ListNode* pCurrent = head;
+    while (pCurrent != NULL) {
+        pRetVal[x][y] = pCurrent->val;
+
+        x += movement[movementIndex][0];
+        y += movement[movementIndex][1];
+        // 0 <= Node.val <= 1000
+        if ((x < 0) || (y < 0) || (x >= m) || (y >= n) || (pRetVal[x][y] != -1)) {
+            x -= movement[movementIndex][0];
+            y -= movement[movementIndex][1];
+            movementIndex = (movementIndex + 1) % 4;
+            x += movement[movementIndex][0];
+            y += movement[movementIndex][1];
+        }
+
+        pCurrent = pCurrent->next;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+   public:
+    vector<vector<int>> spiralMatrix(int m, int n, ListNode* head) {
+        vector<vector<int>> retVal(m, vector<int>(n, -1));
+
+        vector<vector<int>> movement = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+        int movementIndex = 0;
+        int x = 0;
+        int y = 0;
+        ListNode* pCurrent = head;
+        while (pCurrent != nullptr) {
+            retVal[x][y] = pCurrent->val;
+
+            x += movement[movementIndex][0];
+            y += movement[movementIndex][1];
+            // 0 <= Node.val <= 1000
+            if ((x < 0) || (y < 0) || (x >= m) || (y >= n) || (retVal[x][y] != -1)) {
+                x -= movement[movementIndex][0];
+                y -= movement[movementIndex][1];
+                movementIndex = (movementIndex + 1) % 4;
+                x += movement[movementIndex][0];
+                y += movement[movementIndex][1];
+            }
+
+            pCurrent = pCurrent->next;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def spiralMatrix(self, m: int, n: int, head: Optional[ListNode]) -> List[List[int]]:
+        retVal = [[-1] * n for _ in range(m)]
+
+        movement = [[0, 1], [1, 0], [0, -1], [-1, 0]]
+        movementIndex = 0
+        x = 0
+        y = 0
+        pCurrent = head
+        while pCurrent != None:
+            retVal[x][y] = pCurrent.val
+
+            x += movement[movementIndex][0]
+            y += movement[movementIndex][1]
+            # 0 <= Node.val <= 1000
+            if (x < 0) or (y < 0) or (x >= m) or (y >= n) or (retVal[x][y] != -1):
+                x -= movement[movementIndex][0]
+                y -= movement[movementIndex][1]
+                movementIndex = (movementIndex + 1) % 4
+                x += movement[movementIndex][0]
+                y += movement[movementIndex][1]
+
+            pCurrent = pCurrent.next
+
+        return retVal
+```
+
+</details>
+
 ## [2348. Number of Zero-Filled Subarrays](https://leetcode.com/problems/number-of-zero-filled-subarrays/)  1315
 
 <details><summary>Description</summary>
