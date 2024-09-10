@@ -6854,6 +6854,200 @@ class Solution:
 
 </details>
 
+## [2807. Insert Greatest Common Divisors in Linked List](https://leetcode.com/problems/insert-greatest-common-divisors-in-linked-list/)  1279
+
+- [Official](https://leetcode.com/problems/insert-greatest-common-divisors-in-linked-list/editorial/)
+- [Official](https://leetcode.cn/problems/insert-greatest-common-divisors-in-linked-list/solutions/2589529/zai-lian-biao-zhong-cha-ru-zui-da-gong-y-udrs/)
+
+<details><summary>Description</summary>
+
+```text
+Given the head of a linked list head, in which each node contains an integer value.
+
+Between every pair of adjacent nodes, insert a new node with a value equal to the greatest common divisor of them.
+
+Return the linked list after insertion.
+
+The greatest common divisor of two numbers is the largest positive integer that evenly divides both numbers.
+
+Example 1:
+Input: head = [18,6,10,3]
+Output: [18,6,6,2,10,1,3]
+Explanation: The 1st diagram denotes the initial linked list
+and the 2nd diagram denotes the linked list after inserting the new nodes (nodes in blue are the inserted nodes).
+- We insert the greatest common divisor of 18 and 6 = 6 between the 1st and the 2nd nodes.
+- We insert the greatest common divisor of 6 and 10 = 2 between the 2nd and the 3rd nodes.
+- We insert the greatest common divisor of 10 and 3 = 1 between the 3rd and the 4th nodes.
+There are no more adjacent nodes, so we return the linked list.
+
+Example 2:
+Input: head = [7]
+Output: [7]
+Explanation: The 1st diagram denotes the initial linked list
+and the 2nd diagram denotes the linked list after inserting the new nodes.
+There are no pairs of adjacent nodes, so we return the initial linked list.
+
+Constraints:
+The number of nodes in the list is in the range [1, 5000].
+1 <= Node.val <= 1000
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int gcd(int a, int b) {
+    int retVal = 1;
+
+    int tmp;
+    while (b != 0) {
+        tmp = a;
+        a = b;
+        b = tmp % b;
+    }
+    retVal = a;
+
+    return retVal;
+}
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+struct ListNode* insertGreatestCommonDivisors(struct ListNode* head) {
+    struct ListNode* pRetVal = head;
+
+    if ((pRetVal == NULL) || (pRetVal->next == NULL)) {
+        return pRetVal;
+    }
+
+    int gcdValue;
+    struct ListNode* pGcdNode;
+    struct ListNode* pNode1 = pRetVal;
+    struct ListNode* pNode2 = pRetVal->next;
+    while (pNode2 != NULL) {
+        gcdValue = gcd(pNode1->val, pNode2->val);
+
+        pGcdNode = (struct ListNode*)malloc(sizeof(struct ListNode));
+        if (pGcdNode == NULL) {
+            perror("malloc");
+            return pRetVal;
+        }
+        pGcdNode->val = gcdValue;
+        pGcdNode->next = NULL;
+        pNode1->next = pGcdNode;
+        pGcdNode->next = pNode2;
+
+        pNode1 = pNode2;
+        pNode2 = pNode2->next;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+   private:
+    int gcd(int a, int b) {
+        int retVal = 1;
+
+        while (b != 0) {
+            int tmp = a;
+            a = b;
+            b = tmp % b;
+        }
+        retVal = a;
+
+        return retVal;
+    }
+
+   public:
+    ListNode *insertGreatestCommonDivisors(ListNode *head) {
+        ListNode *pRetVal = head;
+
+        if ((pRetVal == nullptr) || (pRetVal->next == nullptr)) {
+            return pRetVal;
+        }
+
+        ListNode *pNode1 = pRetVal;
+        ListNode *pNode2 = pRetVal->next;
+        while (pNode2 != nullptr) {
+            int gcdValue = gcd(pNode1->val, pNode2->val);
+
+            ListNode *gcdNode = new ListNode(gcdValue);
+            pNode1->next = gcdNode;
+            gcdNode->next = pNode2;
+
+            pNode1 = pNode2;
+            pNode2 = pNode2->next;
+        }
+
+        return pRetVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def gcd(self, a: int, b: int) -> int:
+        retVal = 1
+
+        while b != 0:
+            a, b = b, a % b
+        retVal = a
+
+        return retVal
+
+    def insertGreatestCommonDivisors(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        retVal = head
+
+        if (retVal is None) or (retVal.next is None):
+            return retVal
+
+        node1 = retVal
+        node2 = retVal.next
+        while node2 is not None:
+            gcdValue = self.gcd(node1.val, node2.val)
+
+            gcdNode = ListNode(gcdValue)
+            node1.next = gcdNode
+            gcdNode.next = node2
+
+            node1 = node2
+            node2 = node2.next
+
+        return retVal
+```
+
+</details>
+
 ## [2816. Double a Number Represented as a Linked List](https://leetcode.com/problems/double-a-number-represented-as-a-linked-list/)  1393
 
 - [Official](https://leetcode.com/problems/double-a-number-represented-as-a-linked-list/editorial/)
