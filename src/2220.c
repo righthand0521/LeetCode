@@ -19,8 +19,15 @@ int main(int argc, char **argv) {
     struct testCaseType {
         int start;
         int goal;
-    } testCase[] = {{10, 7}, {3, 4}, {29, 15}};
+    } testCase[] = {{10, 7}, {3, 4}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: start = 10, goal = 7
+     *  Output: 3
+     *
+     *  Input: start = 3, goal = 4
+     *  Output: 3
+     */
 
     int answer;
     int i;

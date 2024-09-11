@@ -3205,6 +3205,9 @@ class Solution:
 
 ## [2220. Minimum Bit Flips to Convert Number](https://leetcode.com/problems/minimum-bit-flips-to-convert-number/)  1282
 
+- [Official](https://leetcode.com/problems/minimum-bit-flips-to-convert-number/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-bit-flips-to-convert-number/solutions/1398488/zhuan-huan-shu-zi-de-zui-shao-wei-fan-zh-awf2/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -3237,24 +3240,70 @@ Constraints:
 0 <= start, goal <= 10^9
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. If the value of a bit in start and goal differ, then we need to flip that bit.
+2. Consider using the XOR operation to determine which bits need a bit flip.
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
 
 ```c
-int minBitFlips(int start, int goal){
+int minBitFlips(int start, int goal) {
     int retVal = 0;
 
     int i;
-    for (i=0; i<32; ++i)
-    {
-        retVal += (start&1)^(goal&1);
+    for (i = 0; i < 32; ++i) {
+        retVal += (start & 1) ^ (goal & 1);
         start >>= 1;
         goal >>= 1;
     }
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minBitFlips(int start, int goal) {
+        int retVal = 0;
+
+        for (int i = 0; i < 32; ++i) {
+            retVal += (start & 1) ^ (goal & 1);
+            start >>= 1;
+            goal >>= 1;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minBitFlips(self, start: int, goal: int) -> int:
+        retVal = 0
+
+        for _ in range(32):
+            retVal += (start & 1) ^ (goal & 1)
+            start >>= 1
+            goal >>= 1
+
+        return retVal
 ```
 
 </details>
