@@ -2890,6 +2890,149 @@ class Solution:
 
 </details>
 
+## [1684. Count the Number of Consistent Strings](https://leetcode.com/problems/count-the-number-of-consistent-strings/)  1288
+
+- [Official](https://leetcode.com/problems/count-the-number-of-consistent-strings/editorial/)
+- [Official](https://leetcode.cn/problems/count-the-number-of-consistent-strings/solutions/1953831/tong-ji-yi-zhi-zi-fu-chuan-de-shu-mu-by-38356/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string allowed consisting of distinct characters and an array of strings words.
+A string is consistent if all characters in the string appear in the string allowed.
+
+Return the number of consistent strings in the array words.
+
+Example 1:
+Input: allowed = "ab", words = ["ad","bd","aaab","baa","badab"]
+Output: 2
+Explanation: Strings "aaab" and "baa" are consistent since they only contain characters 'a' and 'b'.
+
+Example 2:
+Input: allowed = "abc", words = ["a","b","c","ab","ac","bc","abc"]
+Output: 7
+Explanation: All strings are consistent.
+
+Example 3:
+Input: allowed = "cad", words = ["cc","acd","b","ba","bac","bad","ac","d"]
+Output: 4
+Explanation: Strings "cc", "acd", "ac", and "d" are consistent.
+
+Constraints:
+1 <= words.length <= 10^4
+1 <= allowed.length <= 26
+1 <= words[i].length <= 10
+The characters in allowed are distinct.
+words[i] and allowed contain only lowercase English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. A string is incorrect if it contains a character that is not allowed
+2. Constraints are small enough for brute force
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int countConsistentStrings(char *allowed, char **words, int wordsSize) {
+    int retVal = 0;
+
+    int i, j;
+
+    int allowedChars[26];  // words[i] and allowed contain only lowercase English letters.
+    memset(allowedChars, 0, sizeof(allowedChars));
+    int allowedSize = strlen(allowed);
+    for (i = 0; i < allowedSize; ++i) {
+        allowedChars[allowed[i] - 'a'] = 1;
+    }
+
+    int wordSize;
+    int isConsistent;
+    for (i = 0; i < wordsSize; ++i) {
+        isConsistent = 1;
+        wordSize = strlen(words[i]);
+        for (j = 0; j < wordSize; ++j) {
+            if (allowedChars[words[i][j] - 'a'] == 0) {
+                isConsistent = 0;
+                break;
+            }
+        }
+        if (isConsistent == 1) {
+            retVal += 1;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int countConsistentStrings(string allowed, vector<string>& words) {
+        int retVal = 0;
+
+        vector<int> allowedChars(26, 0);  // words[i] and allowed contain only lowercase English letters.
+        for (char c : allowed) {
+            allowedChars[c - 'a'] = 1;
+        }
+
+        for (string word : words) {
+            int isConsistent = 1;
+            for (char c : word) {
+                if (allowedChars[c - 'a'] == 0) {
+                    isConsistent = 0;
+                    break;
+                }
+            }
+            if (isConsistent == 1) {
+                retVal += 1;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def countConsistentStrings(self, allowed: str, words: List[str]) -> int:
+        retVal = 0
+
+        # words[i] and allowed contain only lowercase English letters.
+        allowedChars = [0] * 26
+        for c in allowed:
+            allowedChars[ord(c)-ord('a')] = 1
+
+        for word in words:
+            isConsistent = 1
+            for c in word:
+                if allowedChars[ord(c)-ord('a')] == 0:
+                    isConsistent = 0
+                    break
+            if isConsistent == 1:
+                retVal += 1
+
+        return retVal
+```
+
+</details>
+
 ## [1781. Sum of Beauty of All Substrings](https://leetcode.com/problems/sum-of-beauty-of-all-substrings/)  1714
 
 - [Official](https://leetcode.cn/problems/sum-of-beauty-of-all-substrings/solutions/2016548/suo-you-zi-zi-fu-chuan-mei-li-zhi-zhi-he-rq3x/)
