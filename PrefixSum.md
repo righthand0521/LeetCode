@@ -503,6 +503,142 @@ class Solution:
 
 </details>
 
+## [1310. XOR Queries of a Subarray](https://leetcode.com/problems/xor-queries-of-a-subarray/)  1459
+
+- [Official](https://leetcode.com/problems/xor-queries-of-a-subarray/editorial/)
+- [Official](https://leetcode.cn/problems/xor-queries-of-a-subarray/solutions/101717/zi-shu-zu-yi-huo-cha-xun-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an array arr of positive integers.
+You are also given the array queries where queries[i] = [lefti, righti].
+
+For each query i compute the XOR of elements from lefti to righti
+(that is, arr[lefti] XOR arr[lefti + 1] XOR ... XOR arr[righti] ).
+
+Return an array answer where answer[i] is the answer to the ith query.
+
+Example 1:
+Input: arr = [1,3,4,8], queries = [[0,1],[1,2],[0,3],[3,3]]
+Output: [2,7,14,8]
+Explanation:
+The binary representation of the elements in the array are:
+1 = 0001
+3 = 0011
+4 = 0100
+8 = 1000
+The XOR values for queries are:
+[0,1] = 1 xor 3 = 2
+[1,2] = 3 xor 4 = 7
+[0,3] = 1 xor 3 xor 4 xor 8 = 14
+[3,3] = 8
+
+Example 2:
+Input: arr = [4,8,2,10], queries = [[2,3],[1,3],[0,0],[0,3]]
+Output: [8,0,4,4]
+
+Constraints:
+1 <= arr.length, queries.length <= 3 * 10^4
+1 <= arr[i] <= 10^9
+queries[i].length == 2
+0 <= lefti <= righti < arr.length
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. What is the result of x ^ y ^ x ?
+2. Compute the prefix sum for XOR.
+3. Process the queries with the prefix sum values.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* xorQueries(int* arr, int arrSize, int** queries, int queriesSize, int* queriesColSize, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    int i;
+
+    int prefixSum[arrSize + 1];
+    memset(prefixSum, 0, sizeof(prefixSum));
+    for (i = 0; i < arrSize; ++i) {
+        prefixSum[i + 1] = prefixSum[i] ^ arr[i];
+    }
+
+    pRetVal = (int*)malloc(queriesSize * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (queriesSize * sizeof(int)));
+    for (i = 0; i < queriesSize; ++i) {
+        pRetVal[i] = prefixSum[queries[i][1] + 1] ^ prefixSum[queries[i][0]];
+        (*returnSize) += 1;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> xorQueries(vector<int>& arr, vector<vector<int>>& queries) {
+        vector<int> retVal;
+
+        int arrSize = arr.size();
+        int prefixSumSize = arrSize + 1;
+        vector<int> prefixSum(prefixSumSize, 0);
+        for (int i = 0; i < arrSize; ++i) {
+            prefixSum[i + 1] = prefixSum[i] ^ arr[i];
+        }
+
+        int queriesSize = queries.size();
+        for (int i = 0; i < queriesSize; ++i) {
+            retVal.emplace_back(prefixSum[queries[i][1] + 1] ^ prefixSum[queries[i][0]]);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def xorQueries(self, arr: List[int], queries: List[List[int]]) -> List[int]:
+        retVal = []
+
+        prefixSum = [0]
+        for key, value in enumerate(arr):
+            prefixSum.append(prefixSum[key] ^ arr[key])
+
+        for query in queries:
+            retVal.append(prefixSum[query[1]+1] ^ prefixSum[query[0]])
+
+        return retVal
+```
+
+</details>
+
 ## [1480. Running Sum of 1d Array](https://leetcode.com/problems/running-sum-of-1d-array/)  1104
 
 - [Official](https://leetcode.com/problems/running-sum-of-1d-array/editorial/)
