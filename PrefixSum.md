@@ -639,6 +639,144 @@ class Solution:
 
 </details>
 
+## [1371. Find the Longest Substring Containing Vowels in Even Counts](https://leetcode.com/problems/find-the-longest-substring-containing-vowels-in-even-counts/)  2040
+
+- [Official](https://leetcode.com/problems/find-the-longest-substring-containing-vowels-in-even-counts/editorial/)
+- [Official](https://leetcode.cn/problems/find-the-longest-substring-containing-vowels-in-even-counts/solutions/238567/mei-ge-yuan-yin-bao-han-ou-shu-ci-de-zui-chang-z-2/)
+
+<details><summary>Description</summary>
+
+```text
+Given the string s, return the size of the longest substring containing each vowel an even number of times.
+That is, 'a', 'e', 'i', 'o', and 'u' must appear an even number of times.
+
+Example 1:
+Input: s = "eleetminicoworoep"
+Output: 13
+Explanation: The longest substring is "leetminicowor"
+which contains two each of the vowels: e, i and o and zero of the vowels: a and u.
+
+Example 2:
+Input: s = "leetcodeisgreat"
+Output: 5
+Explanation: The longest substring is "leetc" which contains two e's.
+
+Example 3:
+Input: s = "bcbcbc"
+Output: 6
+Explanation: In this case,
+the given string "bcbcbc" is the longest because all vowels: a, e, i, o and u appear zero times.
+
+Constraints:
+1 <= s.length <= 5 x 10^5
+s contains only lowercase English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Represent the counts (odd or even) of vowels with a bitmask.
+2. Precompute the prefix xor for the bitmask of vowels and then get the longest valid substring.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int findTheLongestSubstring(char* s) {
+    int retVal = 0;
+
+    int characterMap[26];  // s contains only lowercase English letters.
+    memset(characterMap, 0, sizeof(characterMap));
+    characterMap['a' - 'a'] = 1;
+    characterMap['e' - 'a'] = 2;
+    characterMap['i' - 'a'] = 4;
+    characterMap['o' - 'a'] = 8;
+    characterMap['u' - 'a'] = 16;
+    int mp[32];  // 1 + 2 + 4 + 8 + 16 = 31 < 32
+    memset(mp, -1, sizeof(mp));
+
+    int sSize = strlen(s);
+    int prefixXOR = 0;
+    int i;
+    for (i = 0; i < sSize; ++i) {
+        prefixXOR ^= characterMap[s[i] - 'a'];
+        if ((mp[prefixXOR] == -1) && (prefixXOR != 0)) {
+            mp[prefixXOR] = i;
+        }
+        retVal = fmax(retVal, i - mp[prefixXOR]);
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int findTheLongestSubstring(string s) {
+        int retVal = 0;
+
+        vector<int> characterMap(26, 0);  // s contains only lowercase English letters.
+        characterMap['a' - 'a'] = 1;
+        characterMap['e' - 'a'] = 2;
+        characterMap['i' - 'a'] = 4;
+        characterMap['o' - 'a'] = 8;
+        characterMap['u' - 'a'] = 16;
+        vector<int> mp(32, -1);  // 1 + 2 + 4 + 8 + 16 = 31 < 32
+
+        int sSize = s.size();
+        int prefixXOR = 0;
+        for (int i = 0; i < sSize; ++i) {
+            prefixXOR ^= characterMap[s[i] - 'a'];
+            if ((mp[prefixXOR] == -1) && (prefixXOR != 0)) {
+                mp[prefixXOR] = i;
+            }
+            retVal = max(retVal, i - mp[prefixXOR]);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def findTheLongestSubstring(self, s: str) -> int:
+        retVal = 0
+
+        characterMap = [0] * 26  # s contains only lowercase English letters.
+        characterMap[ord("a") - ord("a")] = 1
+        characterMap[ord("e") - ord("a")] = 2
+        characterMap[ord("i") - ord("a")] = 4
+        characterMap[ord("o") - ord("a")] = 8
+        characterMap[ord("u") - ord("a")] = 16
+        mp = [-1] * 32  # 1+2+4+8+16=31 < 32
+
+        sSize = len(s)
+        prefixXOR = 0
+        for i in range(sSize):
+            prefixXOR ^= characterMap[ord(s[i]) - ord("a")]
+            if (mp[prefixXOR] == -1) and (prefixXOR != 0):
+                mp[prefixXOR] = i
+            retVal = max(retVal, i - mp[prefixXOR])
+
+        return retVal
+```
+
+</details>
+
 ## [1480. Running Sum of 1d Array](https://leetcode.com/problems/running-sum-of-1d-array/)  1104
 
 - [Official](https://leetcode.com/problems/running-sum-of-1d-array/editorial/)
