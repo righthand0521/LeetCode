@@ -5916,6 +5916,225 @@ class Solution:
 
 </details>
 
+## [884. Uncommon Words from Two Sentences](https://leetcode.com/problems/uncommon-words-from-two-sentences/)  1259
+
+- [Official](https://leetcode.com/problems/uncommon-words-from-two-sentences/editorial/)
+- [Official](https://leetcode.cn/problems/uncommon-words-from-two-sentences/solutions/1237687/liang-ju-hua-zhong-de-bu-chang-jian-dan-a8bmz/)
+
+<details><summary>Description</summary>
+
+```text
+A sentence is a string of single-space separated words where each word consists only of lowercase letters.
+
+A word is uncommon if it appears exactly once in one of the sentences, and does not appear in the other sentence.
+
+Given two sentences s1 and s2, return a list of all the uncommon words. You may return the answer in any order.
+
+Example 1:
+Input: s1 = "this apple is sweet", s2 = "this apple is sour"
+Output: ["sweet","sour"]
+Explanation:
+The word "sweet" appears only in s1, while the word "sour" appears only in s2.
+
+Example 2:
+Input: s1 = "apple apple", s2 = "banana"
+Output: ["banana"]
+
+Constraints:
+1 <= s1.length, s2.length <= 200
+s1 and s2 consist of lowercase English letters and spaces.
+s1 and s2 do not have leading or trailing spaces.
+All the words in s1 and s2 are separated by a single space.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MAX_WORD_SIZE (200 + 4)  // 1 <= s1.length, s2.length <= 200
+struct hashTable {
+    char key[MAX_WORD_SIZE];
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *current;
+    struct hashTable *tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%s: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+char **uncommonFromSentences(char *s1, char *s2, int *returnSize) {
+    char **pRetVal = NULL;
+
+    (*returnSize) = 0;
+    int mallocSize = 0;
+
+    struct hashTable *pHashTable = NULL;
+    struct hashTable *pTemp;
+
+#define SEPARATED (" ")
+    char *pStr = NULL;
+    pStr = strtok(s1, SEPARATED);
+    while (pStr != NULL) {
+        pTemp = NULL;
+        HASH_FIND_STR(pHashTable, pStr, pTemp);
+        if (pTemp == NULL) {
+            pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                freeAll(pHashTable);
+                pHashTable = NULL;
+                return pRetVal;
+            }
+            strcpy(pTemp->key, pStr);
+            pTemp->value = 1;
+            HASH_ADD_STR(pHashTable, key, pTemp);
+            mallocSize++;
+        } else {
+            pTemp->value += 1;
+        }
+
+        pStr = strtok(NULL, SEPARATED);
+    }
+    pStr = strtok(s2, SEPARATED);
+    while (pStr != NULL) {
+        pTemp = NULL;
+        HASH_FIND_STR(pHashTable, pStr, pTemp);
+        if (pTemp == NULL) {
+            pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                freeAll(pHashTable);
+                pHashTable = NULL;
+                return pRetVal;
+            }
+            strcpy(pTemp->key, pStr);
+            pTemp->value = 1;
+            HASH_ADD_STR(pHashTable, key, pTemp);
+            mallocSize++;
+        } else {
+            pTemp->value += 1;
+        }
+
+        pStr = strtok(NULL, SEPARATED);
+    }
+
+    pRetVal = (char **)malloc(mallocSize * sizeof(char *));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        freeAll(pHashTable);
+        pHashTable = NULL;
+        return pRetVal;
+    }
+
+    int i;
+    pTemp = NULL;
+    struct hashTable *pCurrent = NULL;
+    HASH_ITER(hh, pHashTable, pCurrent, pTemp) {
+        if (pHashTable->value == 1) {
+            pRetVal[(*returnSize)] = (char *)malloc(MAX_WORD_SIZE * sizeof(char));
+            if (pRetVal[(*returnSize)] == NULL) {
+                perror("malloc");
+                for (i = 0; i < (*returnSize); ++i) {
+                    free(pRetVal[i]);
+                    pRetVal[i] = NULL;
+                }
+                free(pRetVal);
+                pRetVal = NULL;
+                (*returnSize) = 0;
+                freeAll(pHashTable);
+                pHashTable = NULL;
+                return pRetVal;
+            }
+            memset(pRetVal[(*returnSize)], 0, (MAX_WORD_SIZE * sizeof(char)));
+            strcpy(pRetVal[(*returnSize)], pHashTable->key);
+            (*returnSize)++;
+        }
+
+        HASH_DEL(pHashTable, pCurrent);
+        free(pCurrent);
+        pCurrent = NULL;
+    }
+    pHashTable = NULL;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<string> uncommonFromSentences(string s1, string s2) {
+        vector<string> retVal;
+
+        unordered_map<string, int> hashTable;
+
+        string splitStr = "";
+        int s1Size = s1.size();
+        for (int i = 0; i <= s1Size; ++i) {
+            if ((s1[i] != ' ') && (s1[i] != '\0')) {
+                splitStr.push_back(s1[i]);
+                continue;
+            }
+            hashTable[splitStr] += 1;
+            splitStr = "";
+        }
+        int s2Size = s2.size();
+        for (int i = 0; i <= s2Size; ++i) {
+            if ((s2[i] != ' ') && (s2[i] != '\0')) {
+                splitStr.push_back(s2[i]);
+                continue;
+            }
+            hashTable[splitStr] += 1;
+            splitStr = "";
+        }
+
+        for (auto& iterator : hashTable) {
+            if (iterator.second == 1) {
+                retVal.emplace_back(iterator.first);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def uncommonFromSentences(self, s1: str, s2: str) -> List[str]:
+        retVal = []
+
+        hashTable = Counter()
+        for word in s1.split():
+            hashTable[word] += 1
+        for word in s2.split():
+            hashTable[word] += 1
+
+        for key, value in hashTable.items():
+            if value == 1:
+                retVal.append(key)
+
+        return retVal
+```
+
+</details>
+
 ## [930. Binary Subarrays With Sum](https://leetcode.com/problems/binary-subarrays-with-sum/)  1591
 
 - [Official](https://leetcode.com/problems/binary-subarrays-with-sum/editorial/)
