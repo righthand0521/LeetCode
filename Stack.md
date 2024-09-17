@@ -165,6 +165,134 @@ class Solution:
 
 </details>
 
+## [32. Longest Valid Parentheses](https://leetcode.com/problems/longest-valid-parentheses/)
+
+- [Official](https://leetcode.cn/problems/longest-valid-parentheses/solutions/314683/zui-chang-you-xiao-gua-hao-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+Given a string containing just the characters '(' and ')',
+return the length of the longest valid (well-formed) parentheses substring.
+
+Example 1:
+Input: s = "(()"
+Output: 2
+Explanation: The longest valid parentheses substring is "()".
+
+Example 2:
+Input: s = ")()())"
+Output: 4
+Explanation: The longest valid parentheses substring is "()()".
+
+Example 3:
+Input: s = ""
+Output: 0
+
+Constraints:
+0 <= s.length <= 3 * 10^4
+s[i] is '(', or ')'.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int longestValidParentheses(char* s) {
+    int retVal = 0;
+
+    int sSize = strlen(s);
+
+    int stackTop = -1;
+    int stack[sSize + 1];
+    memset(stack, 0, sizeof(stack));
+    stackTop++;
+    stack[stackTop] = -1;
+
+    int i;
+    for (i = 0; i < sSize; i++) {
+        if (s[i] == '(') {
+            stackTop++;
+            stack[stackTop] = i;
+            continue;
+        }
+
+        stack[stackTop] = 0;
+        stackTop--;
+        if (stackTop == -1) {
+            stackTop++;
+            stack[stackTop] = i;
+        } else {
+            retVal = fmax(retVal, i - stack[stackTop]);
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int longestValidParentheses(string s) {
+        int retVal = 0;
+
+        stack<int> stack;
+        stack.push(-1);
+
+        int sSize = s.size();
+        for (int i = 0; i < sSize; i++) {
+            if (s[i] == '(') {
+                stack.push(i);
+                continue;
+            }
+
+            stack.pop();
+            if (stack.empty()) {
+                stack.push(i);
+            } else {
+                retVal = max(retVal, i - stack.top());
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def longestValidParentheses(self, s: str) -> int:
+        retVal = 0
+
+        stack = []
+        stack.append(-1)
+
+        for idx, value in enumerate(s):
+            if value == '(':
+                stack.append(idx)
+                continue
+
+            stack.pop()
+            if not stack:
+                stack.append(idx)
+            else:
+                retVal = max(retVal, idx-stack[-1])
+
+        return retVal
+```
+
+</details>
+
 ## [71. Simplify Path](https://leetcode.com/problems/simplify-path/)
 
 - [Official](https://leetcode.cn/problems/simplify-path/solutions/1193258/jian-hua-lu-jing-by-leetcode-solution-aucq/)
