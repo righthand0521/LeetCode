@@ -12,16 +12,16 @@ int compareInteger(const void* n1, const void* n2) {
      *    432: 43200000 + 43200 = 43243200
      *  43200: 43200000 +   432 = 43200432
      */
-    long digits1 = 10;
+    double digits1 = 10;
     while (digits1 <= *(int*)n1) {
         digits1 *= 10;
     }
-    long digits2 = 10;
+    double digits2 = 10;
     while (digits2 <= *(int*)n2) {
         digits2 *= 10;
     }
-    long comp1 = (*(int*)n2) * digits1 + (*(int*)n1);
-    long comp2 = (*(int*)n1) * digits2 + (*(int*)n2);
+    double comp1 = (*(int*)n2) * digits1 + (*(int*)n1);
+    double comp2 = (*(int*)n1) * digits2 + (*(int*)n2);
 
     return (comp1 > comp2);
 }
@@ -53,7 +53,7 @@ char* largestNumber(int* nums, int numsSize) {
     int idx = 0;
     int i;
     for (i = 0; i < numsSize; ++i) {
-        idx += snprintf(pRetVal + idx, returnSize - idx - 1, "%d", nums[i]);
+        idx += snprintf(pRetVal + idx, returnSize - idx, "%d", nums[i]);
     }
 
     return pRetVal;
@@ -64,7 +64,8 @@ int main(int argc, char** argv) {
     struct testCaseType {
         int nums[MAX_SIZE];
         int numsSize;
-    } testCase[] = {{{10, 2}, 2}, {{3, 30, 34, 5, 9}, 5}, {{432, 43243}, 2}, {{999999991, 9}, 2}, {{0, 0}, 2}};
+    } testCase[] = {{{10, 2}, 2}, {{3, 30, 34, 5, 9}, 5},       {{432, 43243}, 2}, {{999999991, 9}, 2},
+                    {{0, 0}, 2},  {{1000000000, 1000000000}, 2}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
     /* Example
      *  Input: nums = [10,2]
@@ -81,6 +82,9 @@ int main(int argc, char** argv) {
      *
      *  Input: nums = [0, 0]
      *  Output: "0"
+     *
+     *  Input: [1000000000, 1000000000]
+     *  Output: "10000000001000000000"
      */
 
     char* pAnswer = NULL;

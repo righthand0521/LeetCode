@@ -458,7 +458,7 @@ class Solution:
 
 ## [179. Largest Number](https://leetcode.com/problems/largest-number/)
 
-- [Official](https://leetcode.com/problems/largest-number/solutions/127595/largest-number/)
+- [Official](https://leetcode.com/problems/largest-number/editorial/)
 - [Official](https://leetcode.cn/problems/largest-number/solutions/715680/zui-da-shu-by-leetcode-solution-sid5/)
 
 <details><summary>Description</summary>
@@ -496,16 +496,16 @@ int compareInteger(const void* n1, const void* n2) {
      *    432: 43200000 + 43200 = 43243200
      *  43200: 43200000 +   432 = 43200432
      */
-    long digits1 = 10;
+    double digits1 = 10;
     while (digits1 <= *(int*)n1) {
         digits1 *= 10;
     }
-    long digits2 = 10;
+    double digits2 = 10;
     while (digits2 <= *(int*)n2) {
         digits2 *= 10;
     }
-    long comp1 = (*(int*)n2) * digits1 + (*(int*)n1);
-    long comp2 = (*(int*)n1) * digits2 + (*(int*)n2);
+    double comp1 = (*(int*)n2) * digits1 + (*(int*)n1);
+    double comp2 = (*(int*)n1) * digits2 + (*(int*)n2);
 
     return (comp1 > comp2);
 }
@@ -537,7 +537,7 @@ char* largestNumber(int* nums, int numsSize) {
     int idx = 0;
     int i;
     for (i = 0; i < numsSize; ++i) {
-        idx += snprintf(pRetVal + idx, returnSize - idx - 1, "%d", nums[i]);
+        idx += snprintf(pRetVal + idx, returnSize - idx, "%d", nums[i]);
     }
 
     return pRetVal;
@@ -551,46 +551,52 @@ char* largestNumber(int* nums, int numsSize) {
 ```c++
 class Solution {
    public:
-    string largestNumber(vector<int>& nums) {
+    string largestNumber(vector<int> &nums) {
         string retVal;
 
-        sort(nums.begin(), nums.end(), [](const int& n1, const int& n2) {
-            /* Example
-             *  43243 432
-             *  43243: 43243000 +   432 = 43243432
-             *    432: 43200000 + 43243 = 43243243
-             *
-             *  432 43200
-             *    432: 43200000 + 43200 = 43243200
-             *  43200: 43200000 +   432 = 43200432
-             */
-            long digits1 = 10;
-            while (digits1 <= n1) {
-                digits1 *= 10;
-            }
-            long digits2 = 10;
-            while (digits2 <= n2) {
-                digits2 *= 10;
-            }
-            long comp1 = n1 * digits2 + n2;
-            long comp2 = n2 * digits1 + n1;
-
-            return (comp1 > comp2);
+        vector<string> numStrings;
+        for (int num : nums) {
+            numStrings.push_back(to_string(num));
+        }
+        sort(numStrings.begin(), numStrings.end(), [](string &a, string &b) {
+            //
+            return a + b > b + a;
         });
 
-        // Input: nums = [0, 0], Output: "0".
-        if (nums[0] == 0) {
+        if (numStrings[0] == "0") {
             retVal = "0";
-            return retVal;
-        }
-
-        for (auto num : nums) {
-            retVal += to_string(num);
+        } else {
+            retVal = "";
+            for (string &numStr : numStrings) {
+                retVal += numStr;
+            }
         }
 
         return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def largestNumber(self, nums: List[int]) -> str:
+        retVal = ""
+
+        numsStrings = []
+        for num in nums:
+            numsStrings.append(str(num))
+        numsStrings.sort(key=lambda a: a * 10, reverse=True)
+
+        if numsStrings[0] == "0":
+            retVal = "0"
+        else:
+            retVal = "".join(numsStrings)
+
+        return retVal
 ```
 
 </details>
