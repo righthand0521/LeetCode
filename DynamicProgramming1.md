@@ -3561,6 +3561,305 @@ class Solution:
 
 </details>
 
+## [241. Different Ways to Add Parentheses](https://leetcode.com/problems/different-ways-to-add-parentheses/)
+
+- [Official](https://leetcode.com/problems/different-ways-to-add-parentheses/editorial/)
+- [Official](https://leetcode.cn/problems/different-ways-to-add-parentheses/solutions/1634445/wei-yun-suan-biao-da-shi-she-ji-you-xian-lyw6/)
+
+<details><summary>Description</summary>
+
+```text
+Given a string expression of numbers and operators,
+return all possible results from computing all the different possible ways to group numbers and operators.
+You may return the answer in any order.
+
+The test cases are generated such that the output values fit in a 32-bit integer
+and the number of different results does not exceed 10^4.
+
+Example 1:
+Input: expression = "2-1-1"
+Output: [0,2]
+Explanation:
+((2-1)-1) = 0
+(2-(1-1)) = 2
+
+Example 2:
+Input: expression = "2*3-4*5"
+Output: [-34,-14,-10,-10,10]
+Explanation:
+(2*(3-(4*5))) = -34
+((2*3)-(4*5)) = -14
+((2*(3-4))*5) = -10
+(2*((3-4)*5)) = -10
+(((2*3)-4)*5) = 10
+
+Constraints:
+1 <= expression.length <= 20
+expression consists of digits and the operator '+', '-', and '*'.
+All the integer values in the input expression are in the range [0, 99].
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+void initializeBaseCases(char* expression, int*** dp, int** dpSize) {
+    int expressionSize = strlen(expression);
+
+    int dig1, dig2, number;
+    int i;
+    for (i = 0; i < expressionSize; ++i) {
+        if (isdigit(expression[i]) == 0) {
+            continue;
+        }
+
+        dig1 = expression[i] - '0';
+        if ((i + 1 < expressionSize) && (isdigit(expression[i + 1]))) {
+            dig2 = expression[i + 1] - '0';
+            number = dig1 * 10 + dig2;
+            dp[i][i + 1][dpSize[i][i + 1]] = number;
+            dpSize[i][i + 1] += 1;
+        }
+
+        dp[i][i][dpSize[i][i]] = dig1;
+        dpSize[i][i] += 1;
+    }
+}
+void processSubexpression(char* expression, int*** dp, int** dpSize, int start, int end) {
+    int leftSize, rightSize;
+    int i, j;
+    int split;
+    for (split = start; split <= end; split++) {
+        if (isdigit(expression[split])) {
+            continue;
+        }
+
+        leftSize = dpSize[start][split - 1];
+        rightSize = dpSize[split + 1][end];
+        for (i = 0; i < leftSize; ++i) {
+            for (j = 0; j < rightSize; ++j) {
+                switch (expression[split]) {
+                    case '+':
+                        dp[start][end][dpSize[start][end]] = dp[start][split - 1][i] + dp[split + 1][end][j];
+                        dpSize[start][end] += 1;
+                        break;
+                    case '-':
+                        dp[start][end][dpSize[start][end]] = dp[start][split - 1][i] - dp[split + 1][end][j];
+                        dpSize[start][end] += 1;
+                        break;
+                    case '*':
+                        dp[start][end][dpSize[start][end]] = dp[start][split - 1][i] * dp[split + 1][end][j];
+                        dpSize[start][end] += 1;
+                        break;
+                }
+            }
+        }
+    }
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* diffWaysToCompute(char* expression, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+    int i, j;
+
+    int expressionSize = strlen(expression);
+    int maxReturnSize = 1 << expressionSize;
+
+    int*** dp = (int***)malloc(expressionSize * sizeof(int**));
+    for (i = 0; i < expressionSize; ++i) {
+        dp[i] = (int**)malloc(expressionSize * sizeof(int*));
+        for (j = 0; j < expressionSize; ++j) {
+            dp[i][j] = (int*)malloc(maxReturnSize * sizeof(int));
+            memset(dp[i][j], 0, (maxReturnSize * sizeof(int)));
+        }
+    }
+    int** dpSize = (int**)malloc(expressionSize * sizeof(int*));
+    for (i = 0; i < expressionSize; ++i) {
+        dpSize[i] = (int*)malloc(expressionSize * sizeof(int));
+        memset(dpSize[i], 0, (expressionSize * sizeof(int)));
+    }
+    initializeBaseCases(expression, dp, dpSize);
+
+    int length, start, end;
+    for (length = 3; length <= expressionSize; length++) {
+        for (start = 0; start + length - 1 < expressionSize; start++) {
+            end = start + length - 1;
+            processSubexpression(expression, dp, dpSize, start, end);
+        }
+    }
+
+    pRetVal = (int*)malloc(maxReturnSize * sizeof(int));
+    memset(pRetVal, 0, (maxReturnSize * sizeof(int)));
+    (*returnSize) = dpSize[0][expressionSize - 1];
+    for (i = 0; i < (*returnSize); ++i) {
+        pRetVal[i] = dp[0][expressionSize - 1][i];
+    }
+
+    //
+    for (i = 0; i < expressionSize; ++i) {
+        for (j = 0; j < expressionSize; ++j) {
+            free(dp[i][j]);
+            dp[i][j] = NULL;
+        }
+        free(dp[i]);
+        dp[i] = NULL;
+    }
+    free(dp);
+    dp = NULL;
+    //
+    for (i = 0; i < expressionSize; ++i) {
+        free(dpSize[i]);
+        dpSize[i] = NULL;
+    }
+    free(dpSize);
+    dpSize = NULL;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    void initializeBaseCases(string& expression, vector<vector<vector<int>>>& dp) {
+        int expressionSize = expression.size();
+
+        for (int i = 0; i < expressionSize; i++) {
+            if (isdigit(expression[i]) == 0) {
+                continue;
+            }
+
+            int dig1 = expression[i] - '0';
+            if ((i + 1 < expressionSize) && (isdigit(expression[i + 1]))) {
+                int dig2 = expression[i + 1] - '0';
+                int number = dig1 * 10 + dig2;
+                dp[i][i + 1].emplace_back(number);
+            }
+
+            dp[i][i].emplace_back(dig1);
+        }
+    }
+    void processSubexpression(string& expression, vector<vector<vector<int>>>& dp, int start, int end) {
+        for (int split = start; split <= end; split++) {
+            if (isdigit(expression[split])) {
+                continue;
+            }
+
+            vector<int> leftResults = dp[start][split - 1];
+            vector<int> rightResults = dp[split + 1][end];
+            computeResults(expression[split], leftResults, rightResults, dp[start][end]);
+        }
+    }
+    void computeResults(char op, vector<int>& leftResults, vector<int>& rightResults, vector<int>& results) {
+        for (int leftValue : leftResults) {
+            for (int rightValue : rightResults) {
+                switch (op) {
+                    case '+':
+                        results.emplace_back(leftValue + rightValue);
+                        break;
+                    case '-':
+                        results.emplace_back(leftValue - rightValue);
+                        break;
+                    case '*':
+                        results.emplace_back(leftValue * rightValue);
+                        break;
+                }
+            }
+        }
+    }
+
+   public:
+    vector<int> diffWaysToCompute(string expression) {
+        vector<int> retVal;
+
+        int expressionSize = expression.size();
+
+        vector<vector<vector<int>>> dp(expressionSize, vector<vector<int>>(expressionSize));
+
+        initializeBaseCases(expression, dp);
+
+        for (int length = 3; length <= expressionSize; length++) {
+            for (int start = 0; start + length - 1 < expressionSize; start++) {
+                int end = start + length - 1;
+                processSubexpression(expression, dp, start, end);
+            }
+        }
+
+        retVal = dp[0][expressionSize - 1];
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def initializeBaseCases(self, expression: str, dp: List[List[List[int]]]) -> None:
+        expressionSize = len(expression)
+
+        for i, char in enumerate(expression):
+            if char.isdigit() == False:
+                continue
+
+            dig1 = ord(char) - ord("0")
+            if (i + 1 < expressionSize) and (expression[i + 1].isdigit()):
+                dig2 = ord(expression[i + 1]) - ord("0")
+                number = dig1 * 10 + dig2
+                dp[i][i + 1].append(number)
+
+            dp[i][i].append(dig1)
+
+    def processSubexpression(self, expression: str, dp: List[List[List[int]]], start: int, end: int) -> None:
+        for split in range(start, end + 1):
+            if expression[split].isdigit():
+                continue
+
+            leftResults = dp[start][split - 1]
+            rightResults = dp[split + 1][end]
+            self.computeResults(expression[split], leftResults, rightResults, dp[start][end])
+
+    def computeResults(self, op: str, leftResults: List[int], rightResults: List[int], results: List[int]) -> None:
+        for leftValue in leftResults:
+            for rightValue in rightResults:
+                if op == "+":
+                    results.append(leftValue + rightValue)
+                elif op == "-":
+                    results.append(leftValue - rightValue)
+                elif op == "*":
+                    results.append(leftValue * rightValue)
+
+    def diffWaysToCompute(self, expression: str) -> List[int]:
+        retVal = []
+
+        expressionSize = len(expression)
+        dp = [[[] for _ in range(expressionSize)] for _ in range(expressionSize)]
+
+        self.initializeBaseCases(expression, dp)
+
+        for length in range(3, expressionSize + 1):
+            for start in range(expressionSize - length + 1):
+                end = start + length - 1
+                self.processSubexpression(expression, dp, start, end)
+
+        retVal = dp[0][expressionSize - 1]
+
+        return retVal
+```
+
+</details>
+
 ## [264. Ugly Number II](https://leetcode.com/problems/ugly-number-ii/)
 
 - [Official](https://leetcode.com/problems/ugly-number-ii/editorial/)
