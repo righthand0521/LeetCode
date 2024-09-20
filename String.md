@@ -1809,6 +1809,182 @@ bool isOneEditDistance(char* s, char* t) {
 
 </details>
 
+## [214. Shortest Palindrome](https://leetcode.com/problems/shortest-palindrome/)
+
+- [Official](https://leetcode.com/problems/shortest-palindrome/editorial/)
+- [Official](https://leetcode.cn/problems/shortest-palindrome/solutions/392561/zui-duan-hui-wen-chuan-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string s. You can convert s to palindrome by adding characters in front of it.
+
+Return the shortest palindrome you can find by performing this transformation.
+
+Example 1:
+Input: s = "aacecaaa"
+Output: "aaacecaaa"
+
+Example 2:
+Input: s = "abcd"
+Output: "dcbabcd"
+
+Constraints:
+0 <= s.length <= 5 * 10^4
+s consists of lowercase English letters only.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// https://en.wikipedia.org/wiki/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm
+void kmp(char* s, int* pPrefixTable) {
+    int sSize = strlen(s);
+
+    int length = 0;
+    int i;
+    for (i = 1; i < sSize; i++) {
+        while ((length > 0) && (s[i] != s[length])) {
+            length = pPrefixTable[length - 1];
+        }
+
+        if (s[i] == s[length]) {
+            length++;
+        }
+
+        pPrefixTable[i] = length;
+    }
+}
+char* shortestPalindrome(char* s) {
+    char* pRetVal = NULL;
+
+    int sSize = strlen(s);
+    int i;
+
+    char reversedString[sSize + 1];
+    memset(reversedString, 0, sizeof(reversedString));
+    for (i = 0; i < sSize; ++i) {
+        reversedString[i] = s[sSize - 1 - i];
+    }
+
+    int combinedStringSize = 2 * (sSize + 1) + 1;
+    char combinedString[combinedStringSize];
+    memset(combinedString, 0, sizeof(combinedString));
+    snprintf(combinedString, sizeof(combinedString), "%s#%s", s, reversedString);
+
+    int* pPrefixTable = (int*)malloc(combinedStringSize * sizeof(int));
+    memset(pPrefixTable, 0, (combinedStringSize * sizeof(int)));
+    kmp(combinedString, pPrefixTable);
+    int palindromeLength = pPrefixTable[strlen(combinedString) - 1];
+
+    char suffix[sSize + 1];
+    memset(suffix, 0, sizeof(suffix));
+    strncpy(suffix, reversedString, sSize - palindromeLength);
+
+    pRetVal = (char*)malloc(combinedStringSize * sizeof(char));
+    memset(pRetVal, 0, (combinedStringSize * sizeof(char)));
+    snprintf(pRetVal, (combinedStringSize * sizeof(char)), "%s%s", suffix, s);
+
+    //
+    free(pPrefixTable);
+    pPrefixTable = NULL;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    // https://en.wikipedia.org/wiki/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm
+    vector<int> kmp(string s) {
+        vector<int> retVal;
+
+        int sSize = s.size();
+
+        retVal.resize(sSize, 0);
+        int length = 0;
+        for (int i = 1; i < sSize; i++) {
+            while ((length > 0) && (s[i] != s[length])) {
+                length = retVal[length - 1];
+            }
+
+            if (s[i] == s[length]) {
+                length++;
+            }
+
+            retVal[i] = length;
+        }
+
+        return retVal;
+    }
+
+   public:
+    string shortestPalindrome(string s) {
+        string retVal = s;
+
+        string reversedString = string(s.rbegin(), s.rend());
+        string combinedString = s + "#" + reversedString;
+
+        vector<int> prefixTable = kmp(combinedString);
+        int palindromeLength = prefixTable[combinedString.length() - 1];
+
+        string suffix = reversedString.substr(0, s.length() - palindromeLength);
+        retVal = suffix + s;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    # https://en.wikipedia.org/wiki/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm
+    def kmp(self, s: str) -> List[int]:
+        retVal = []
+
+        sSize = len(s)
+
+        retVal = [0] * sSize
+        length = 0
+        for i in range(1, sSize):
+            while (length > 0) and (s[i] != s[length]):
+                length = retVal[length - 1]
+
+            if s[i] == s[length]:
+                length += 1
+
+            retVal[i] = length
+
+        return retVal
+
+    def shortestPalindrome(self, s: str) -> str:
+        retVal = s
+
+        reversedString = s[::-1]
+        combinedString = s + "#" + reversedString
+
+        prefixTable = self.kmp(combinedString)
+        palindromeLength = prefixTable[-1]
+
+        suffix = reversedString[: len(s) - palindromeLength]
+        retVal = suffix + s
+
+        return retVal
+```
+
+</details>
+
 ## [273. Integer to English Words](https://leetcode.com/problems/integer-to-english-words/)
 
 - [Official](https://leetcode.com/problems/integer-to-english-words/editorial/)
