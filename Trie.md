@@ -840,6 +840,126 @@ class Solution:
 
 </details>
 
+## [386. Lexicographical Numbers](https://leetcode.com/problems/lexicographical-numbers/)
+
+- [Official](https://leetcode.com/problems/lexicographical-numbers/editorial/)
+- [Official](https://leetcode.cn/problems/lexicographical-numbers/solutions/1428281/zi-dian-xu-pai-shu-by-leetcode-solution-98mz/)
+
+<details><summary>Description</summary>
+
+```text
+Given an integer n, return all the numbers in the range [1, n] sorted in lexicographical order.
+
+You must write an algorithm that runs in O(n) time and uses O(1) extra space.
+
+Example 1:
+Input: n = 13
+Output: [1,10,11,12,13,2,3,4,5,6,7,8,9]
+
+Example 2:
+Input: n = 2
+Output: [1,2]
+
+Constraints:
+1 <= n <= 5 * 10^4
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *lexicalOrder(int n, int *returnSize) {
+    int *pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    pRetVal = (int *)malloc(n * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (n * sizeof(int)));
+
+    int currentNumber = 1;
+    int i;
+    for (i = 0; i < n; ++i) {
+        pRetVal[(*returnSize)++] = currentNumber;
+
+        if (currentNumber * 10 <= n) {
+            currentNumber *= 10;
+            continue;
+        }
+
+        while ((currentNumber % 10) == 9 || (currentNumber >= n)) {
+            currentNumber /= 10;
+        }
+        currentNumber += 1;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> lexicalOrder(int n) {
+        vector<int> retVal;
+
+        int currentNumber = 1;
+        for (int i = 0; i < n; ++i) {
+            retVal.emplace_back(currentNumber);
+
+            if (currentNumber * 10 <= n) {
+                currentNumber *= 10;
+                continue;
+            }
+
+            while ((currentNumber % 10) == 9 || (currentNumber >= n)) {
+                currentNumber /= 10;
+            }
+            currentNumber += 1;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def lexicalOrder(self, n: int) -> List[int]:
+        retVal = []
+
+        currentNumber = 1
+        for _ in range(n):
+            retVal.append(currentNumber)
+
+            if currentNumber * 10 <= n:
+                currentNumber *= 10
+                continue
+
+            while (currentNumber % 10) == 9 or (currentNumber >= n):
+                currentNumber //= 10
+            currentNumber += 1
+
+        return retVal
+```
+
+</details>
+
 ## [472. Concatenated Words](https://leetcode.com/problems/concatenated-words/)
 
 - [Official](https://leetcode.com/problems/concatenated-words/solutions/2822170/concatenated-words/)
