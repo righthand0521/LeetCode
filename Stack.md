@@ -461,6 +461,148 @@ class Solution:
 
 </details>
 
+## [84. Largest Rectangle in Histogram](https://leetcode.com/problems/largest-rectangle-in-histogram/)
+
+- [Official](https://leetcode.cn/problems/largest-rectangle-in-histogram/solutions/266844/zhu-zhuang-tu-zhong-zui-da-de-ju-xing-by-leetcode-/)
+
+<details><summary>Description</summary>
+
+```text
+Given an array of integers heights representing the histogram's bar height where the width of each bar is 1,
+return the area of the largest rectangle in the histogram.
+
+Example 1:
+Input: heights = [2,1,5,6,2,3]
+Output: 10
+Explanation: The above is a histogram where width of each bar is 1.
+The largest rectangle is shown in the red area, which has an area = 10 units.
+
+Example 2:
+Input: heights = [2,4]
+Output: 4
+
+Constraints:
+1 <= heights.length <= 10^5
+0 <= heights[i] <= 10^4
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int largestRectangleArea(int* heights, int heightsSize) {
+    int retVal = 0;
+
+    int i;
+
+    int left[heightsSize];
+    int right[heightsSize];
+    for (i = 0; i < heightsSize; ++i) {
+        left[i] = 0;
+        right[i] = heightsSize;
+    }
+
+#define STACK_EMPTY (-1)
+    int monotonicStackTop = STACK_EMPTY;
+    int monotonicStack[heightsSize + 1];
+    memset(monotonicStack, 0, sizeof(monotonicStack));
+
+    for (i = 0; i < heightsSize; ++i) {
+        while ((monotonicStackTop != STACK_EMPTY) && (heights[monotonicStack[monotonicStackTop]] >= heights[i])) {
+            right[monotonicStack[monotonicStackTop]] = i;
+            monotonicStack[monotonicStackTop] = 0;
+            monotonicStackTop--;
+        }
+
+        left[i] = -1;
+        if (monotonicStackTop != STACK_EMPTY) {
+            left[i] = monotonicStack[monotonicStackTop];
+        }
+
+        monotonicStackTop++;
+        monotonicStack[monotonicStackTop] = i;
+    }
+
+    for (i = 0; i < heightsSize; ++i) {
+        retVal = fmax(retVal, (right[i] - left[i] - 1) * heights[i]);
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int largestRectangleArea(vector<int>& heights) {
+        int retVal = 0;
+
+        int heightsSize = heights.size();
+
+        vector<int> left(heightsSize, 0);
+        vector<int> right(heightsSize, heightsSize);
+        stack<int> monotonicStack;
+        for (int i = 0; i < heightsSize; ++i) {
+            while ((monotonicStack.empty() == false) && (heights[monotonicStack.top()] >= heights[i])) {
+                right[monotonicStack.top()] = i;
+                monotonicStack.pop();
+            }
+
+            left[i] = -1;
+            if (monotonicStack.empty() == false) {
+                left[i] = monotonicStack.top();
+            }
+
+            monotonicStack.push(i);
+        }
+
+        for (int i = 0; i < heightsSize; ++i) {
+            retVal = max(retVal, (right[i] - left[i] - 1) * heights[i]);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def largestRectangleArea(self, heights: List[int]) -> int:
+        retVal = 0
+
+        heightsSize = len(heights)
+
+        left = [0] * heightsSize
+        right = [heightsSize] * heightsSize
+        monotonicStack = []
+        for i in range(heightsSize):
+            while (monotonicStack) and (heights[monotonicStack[-1]] >= heights[i]):
+                right[monotonicStack[-1]] = i
+                monotonicStack.pop()
+
+            left[i] = -1
+            if monotonicStack:
+                left[i] = monotonicStack[-1]
+
+            monotonicStack.append(i)
+
+        for i in range(heightsSize):
+            retVal = max(retVal, (right[i] - left[i] - 1) * heights[i])
+
+        return retVal
+```
+
+</details>
+
 ## [85. Maximal Rectangle](https://leetcode.com/problems/maximal-rectangle/)
 
 - [Official](https://leetcode.cn/problems/maximal-rectangle/solutions/535672/zui-da-ju-xing-by-leetcode-solution-bjlu/)
