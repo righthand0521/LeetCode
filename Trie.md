@@ -960,6 +960,155 @@ class Solution:
 
 </details>
 
+## [440. K-th Smallest in Lexicographical Order](https://leetcode.com/problems/k-th-smallest-in-lexicographical-order/)
+
+- [Official](https://leetcode.com/problems/k-th-smallest-in-lexicographical-order/editorial/)
+- [Official](https://leetcode.cn/problems/k-th-smallest-in-lexicographical-order/solutions/1358635/zi-dian-xu-de-di-kxiao-shu-zi-by-leetcod-bfy0/)
+
+<details><summary>Description</summary>
+
+```text
+Given two integers n and k, return the kth lexicographically smallest integer in the range [1, n].
+
+Example 1:
+Input: n = 13, k = 2
+Output: 10
+Explanation: The lexicographical order is [1, 10, 11, 12, 13, 2, 3, 4, 5, 6, 7, 8, 9],
+so the second smallest number is 10.
+
+Example 2:
+Input: n = 1, k = 1
+Output: 1
+
+Constraints:
+1 <= k <= n <= 10^9
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// To count how many numbers exist between prefix1 and prefix2
+int countSteps(int n, long prefix1, long prefix2) {
+    int retVal = 0;
+
+    while (prefix1 <= n) {
+        retVal += fmin((long)(n + 1), prefix2) - prefix1;
+        prefix1 *= 10;
+        prefix2 *= 10;
+    }
+
+    return retVal;
+}
+int findKthNumber(int n, int k) {
+    int retVal = 1;
+
+    int step;
+    k--;
+    while (k > 0) {
+        step = countSteps(n, retVal, retVal + 1);
+
+        // If the steps are less than or equal to k, we skip this prefix's subtree
+        if (step <= k) {
+            // Move to the next prefix and decrease k by the number of steps we skip
+            retVal++;
+            k -= step;
+        } else {
+            // Move to the next level of the tree and decrement k by 1
+            retVal *= 10;
+            k--;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    // To count how many numbers exist between prefix1 and prefix2
+    int countSteps(int n, long prefix1, long prefix2) {
+        int retVal = 0;
+
+        while (prefix1 <= n) {
+            retVal += min((long)(n + 1), prefix2) - prefix1;
+            prefix1 *= 10;
+            prefix2 *= 10;
+        }
+
+        return retVal;
+    }
+
+   public:
+    int findKthNumber(int n, int k) {
+        int retVal = 1;
+
+        k--;
+        while (k > 0) {
+            int step = countSteps(n, retVal, retVal + 1);
+
+            // If the steps are less than or equal to k, we skip this prefix's subtree
+            if (step <= k) {
+                // Move to the next prefix and decrease k by the number of steps we skip
+                retVal++;
+                k -= step;
+            } else {
+                // Move to the next level of the tree and decrement k by 1
+                retVal *= 10;
+                k--;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    # To count how many numbers exist between prefix1 and prefix2
+    def countSteps(self, n: int, prefix1: int, prefix2: int) -> int:
+        retVal = 0
+
+        while prefix1 <= n:
+            retVal += min(n + 1, prefix2) - prefix1
+            prefix1 *= 10
+            prefix2 *= 10
+
+        return retVal
+
+    def findKthNumber(self, n: int, k: int) -> int:
+        retVal = 1
+
+        k -= 1
+        while k > 0:
+            step = self.countSteps(n, retVal, retVal + 1)
+
+            # If the steps are less than or equal to k, we skip this prefix's subtree
+            if step <= k:
+                # Move to the next prefix and decrease k by the number of steps we skip
+                retVal += 1
+                k -= step
+            else:
+                # Move to the next level of the tree and decrement k by 1
+                retVal *= 10
+                k -= 1
+
+        return retVal
+```
+
+</details>
+
 ## [472. Concatenated Words](https://leetcode.com/problems/concatenated-words/)
 
 - [Official](https://leetcode.com/problems/concatenated-words/solutions/2822170/concatenated-words/)
