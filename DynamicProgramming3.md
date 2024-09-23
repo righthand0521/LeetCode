@@ -1372,6 +1372,7 @@ class Solution:
 ## [2707. Extra Characters in a String](https://leetcode.com/problems/extra-characters-in-a-string/)  1735
 
 - [Official](https://leetcode.com/problems/extra-characters-in-a-string/editorial/)
+- [Official](https://leetcode.cn/problems/extra-characters-in-a-string/solutions/2590667/zi-fu-chuan-zhong-de-e-wai-zi-fu-by-leet-f0lu/)
 
 <details><summary>Description</summary>
 
