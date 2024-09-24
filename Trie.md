@@ -1696,3 +1696,315 @@ class Solution:
 ```
 
 </details>
+
+## [3043. Find the Length of the Longest Common Prefix](https://leetcode.com/problems/find-the-length-of-the-longest-common-prefix/)  1688
+
+- [Official](https://leetcode.com/problems/find-the-length-of-the-longest-common-prefix/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given two arrays with positive integers arr1 and arr2.
+
+A prefix of a positive integer is an integer formed by one or more of its digits, starting from its leftmost digit.
+For example, 123 is a prefix of the integer 12345, while 234 is not.
+
+A common prefix of two integers a and b is an integer c, such that c is a prefix of both a and b.
+For example, 5655359 and 56554 have a common prefix 565 while 1223 and 43456 do not have a common prefix.
+
+You need to find the length of the longest common prefix between all pairs of integers (x, y)
+such that x belongs to arr1 and y belongs to arr2.
+
+Return the length of the longest common prefix among all pairs. If no common prefix exists among them, return 0.
+
+Example 1:
+Input: arr1 = [1,10,100], arr2 = [1000]
+Output: 3
+Explanation: There are 3 pairs (arr1[i], arr2[j]):
+- The longest common prefix of (1, 1000) is 1.
+- The longest common prefix of (10, 1000) is 10.
+- The longest common prefix of (100, 1000) is 100.
+The longest common prefix is 100 with a length of 3.
+
+Example 2:
+Input: arr1 = [1,2,3], arr2 = [4,4,4]
+Output: 0
+Explanation: There exists no common prefix for any pair (arr1[i], arr2[j]), hence we return 0.
+Note that common prefixes between elements of the same array do not count.
+
+Constraints:
+1 <= arr1.length, arr2.length <= 5 * 10^4
+1 <= arr1[i], arr2[i] <= 10^8
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Put all the possible prefixes of each element in arr1 into a HashSet.
+2. For all the possible prefixes of each element in arr2, check if it exists in the HashSet.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#ifndef TREE_NODE_H
+#define TREE_NODE_H
+
+#define TRIE_WIDTH (10)  // Each node has up to 10 possible children (digits 0-9)
+struct TrieNode {
+    struct TrieNode* children[TRIE_WIDTH];
+};
+struct TrieNode* createNode() {
+    struct TrieNode* pNew = (struct TrieNode*)calloc(1, sizeof(struct TrieNode));
+    if (pNew == NULL) {
+        perror("perror");
+        return pNew;
+    }
+
+    int i;
+    for (i = 0; i < TRIE_WIDTH; ++i) {
+        pNew->children[i] = NULL;
+    }
+
+    return pNew;
+}
+void freeNode(struct TrieNode* pRoot) {
+    if (pRoot == NULL) {
+        return;
+    }
+
+    int i;
+    for (i = 0; i < TRIE_WIDTH; ++i) {
+        freeNode(pRoot->children[i]);
+    }
+
+    free(pRoot);
+}
+struct TrieNode* addNode(struct TrieNode* pRoot, int num) {
+    struct TrieNode* pCurrent = pRoot;
+
+    char numStr[8 + 4];  // 1 <= arr1[i], arr2[i] <= 10^8
+    memset(numStr, 0, sizeof(numStr));
+    snprintf(numStr, sizeof(numStr), "%d", num);
+    int numStrSize = strlen(numStr);
+
+    int idx;
+    int i;
+    for (i = 0; i < numStrSize; ++i) {
+        idx = numStr[i] - '0';
+        if (pCurrent->children[idx] == NULL) {
+            pCurrent->children[idx] = createNode();
+        }
+        pCurrent = pCurrent->children[idx];
+    }
+
+    return pRoot;
+}
+int findLongestPrefix(struct TrieNode* pRoot, int num) {
+    int retVal = 0;
+
+    struct TrieNode* pCurrent = pRoot;
+
+    char numStr[8 + 4];  // 1 <= arr1[i], arr2[i] <= 10^8
+    memset(numStr, 0, sizeof(numStr));
+    snprintf(numStr, sizeof(numStr), "%d", num);
+    int numStrSize = strlen(numStr);
+
+    int idx;
+    int i;
+    for (i = 0; i < numStrSize; ++i) {
+        idx = numStr[i] - '0';
+        if (pCurrent->children[idx]) {
+            // Increase length if the current digit matches
+            retVal++;
+            pCurrent = pCurrent->children[idx];
+        } else {
+            // Stop if no match for the current digit
+            break;
+        }
+    }
+
+    return retVal;
+}
+
+#endif  // TREE_NODE_H
+int longestCommonPrefix(int* arr1, int arr1Size, int* arr2, int arr2Size) {
+    int retVal = 0;
+
+    struct TrieNode* pObj = createNode();
+    if (pObj == NULL) {
+        return retVal;
+    }
+
+    // Step 1: Insert all numbers from arr1 into the Trie
+    for (int i = 0; i < arr1Size; ++i) {
+        pObj = addNode(pObj, arr1[i]);
+    }
+
+    // Step 2: Find the longest prefix match for each number in arr2
+    int len;
+    for (int i = 0; i < arr2Size; ++i) {
+        len = findLongestPrefix(pObj, arr2[i]);
+        retVal = fmax(retVal, len);
+    }
+
+    freeNode(pObj);
+    pObj = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class TrieNode {
+   public:
+    TrieNode* children[10];  // Each node has up to 10 possible children (digits 0-9)
+
+    TrieNode() {
+        for (int i = 0; i < 10; ++i) {
+            children[i] = nullptr;
+        }
+    }
+    ~TrieNode() {
+        for (int i = 0; i < 10; ++i) {
+            delete children[i];
+        }
+    }
+};
+class Trie {
+   public:
+    TrieNode* root;
+
+    Trie() {
+        //
+        root = new TrieNode();
+    }
+    ~Trie() {
+        //
+        delete root;
+    }
+
+    void insert(int num) {
+        TrieNode* node = root;
+
+        string numStr = to_string(num);
+        for (char digit : numStr) {
+            int idx = digit - '0';
+            if (node->children[idx] == nullptr) {
+                node->children[idx] = new TrieNode();
+            }
+            node = node->children[idx];
+        }
+    }
+    int findLongestPrefix(int num) {
+        int retVal = 0;
+
+        TrieNode* node = root;
+        string numStr = to_string(num);
+        for (char digit : numStr) {
+            int idx = digit - '0';
+            if (node->children[idx]) {
+                // Increase length if the current digit matches
+                retVal++;
+                node = node->children[idx];
+            } else {
+                // Stop if no match for the current digit
+                break;
+            }
+        }
+
+        return retVal;
+    }
+};
+class Solution {
+   public:
+    int longestCommonPrefix(vector<int>& arr1, vector<int>& arr2) {
+        int retVal = 0;
+
+        Trie trie;
+
+        // Step 1: Insert all numbers from arr1 into the Trie
+        for (int num : arr1) {
+            trie.insert(num);
+        }
+
+        // Step 2: Find the longest prefix match for each number in arr2
+        for (int num : arr2) {
+            int len = trie.findLongestPrefix(num);
+            retVal = max(retVal, len);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class TrieNode:
+    def __init__(self):
+        # Each node has up to 10 possible children (digits 0-9)
+        self.children = [None] * 10
+
+
+class Trie:
+    def __init__(self):
+        self.root = TrieNode()
+
+    def insert(self, num) -> None:
+        node = self.root
+        numStr = str(num)
+        for digit in numStr:
+            idx = int(digit)
+            if not node.children[idx]:
+                node.children[idx] = TrieNode()
+            node = node.children[idx]
+
+    def findLongestPrefix(self, num) -> int:
+        retVal = 0
+
+        node = self.root
+        numStr = str(num)
+        for digit in numStr:
+            idx = int(digit)
+            if node.children[idx]:
+                # Increase length if the current digit matches
+                retVal += 1
+                node = node.children[idx]
+            else:
+                # Stop if no match for the current digit
+                break
+
+        return retVal
+
+
+class Solution:
+    def longestCommonPrefix(self, arr1: List[int], arr2: List[int]) -> int:
+        retVal = 0
+
+        trie = Trie()
+
+        # Step 1: Insert all numbers from arr1 into the Trie
+        for num in arr1:
+            trie.insert(num)
+
+        # Step 2: Find the longest prefix match for each number in arr2
+        for num in arr2:
+            len = trie.findLongestPrefix(num)
+            retVal = max(retVal, len)
+
+        return retVal
+```
+
+</details>
