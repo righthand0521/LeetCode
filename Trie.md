@@ -1697,6 +1697,269 @@ class Solution:
 
 </details>
 
+## [2416. Sum of Prefix Scores of Strings](https://leetcode.com/problems/sum-of-prefix-scores-of-strings/)  1725
+
+- [Official](https://leetcode.com/problems/sum-of-prefix-scores-of-strings/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an array words of size n consisting of non-empty strings.
+
+We define the score of a string word as the number of strings words[i] such that word is a prefix of words[i].
+- For example, if words = ["a", "ab", "abc", "cab"], then the score of "ab" is 2,
+  since "ab" is a prefix of both "ab" and "abc".
+
+Return an array answer of size n where answer[i] is the sum of scores of every non-empty prefix of words[i].
+
+Note that a string is considered as a prefix of itself.
+
+Example 1:
+Input: words = ["abc","ab","bc","b"]
+Output: [5,4,3,2]
+Explanation: The answer for each string is the following:
+- "abc" has 3 prefixes: "a", "ab", and "abc".
+- There are 2 strings with the prefix "a", 2 strings with the prefix "ab", and 1 string with the prefix "abc".
+The total is answer[0] = 2 + 2 + 1 = 5.
+- "ab" has 2 prefixes: "a" and "ab".
+- There are 2 strings with the prefix "a", and 2 strings with the prefix "ab".
+The total is answer[1] = 2 + 2 = 4.
+- "bc" has 2 prefixes: "b" and "bc".
+- There are 2 strings with the prefix "b", and 1 string with the prefix "bc".
+The total is answer[2] = 2 + 1 = 3.
+- "b" has 1 prefix: "b".
+- There are 2 strings with the prefix "b".
+The total is answer[3] = 2.
+
+Example 2:
+Input: words = ["abcd"]
+Output: [4]
+Explanation:
+"abcd" has 4 prefixes: "a", "ab", "abc", and "abcd".
+Each prefix has a score of one, so the total is answer[0] = 1 + 1 + 1 + 1 = 4.
+
+Constraints:
+1 <= words.length <= 1000
+1 <= words[i].length <= 1000
+words[i] consists of lowercase English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. What data structure will allow you to efficiently keep track of the score of each prefix?
+2. Use a Trie. Insert all the words into it,
+   and keep a counter at each node that will tell you how many times we have visited each prefix.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#ifndef TREE_NODE_H
+#define TREE_NODE_H
+
+#define TRIE_WIDTH (26)  // words[i] consists of lowercase English letters.
+typedef struct Trie {
+    struct Trie* children[TRIE_WIDTH];
+    int score;
+} Trie;
+
+Trie* createTrie() {
+    Trie* pRetVal = NULL;
+
+    pRetVal = (Trie*)malloc(sizeof(Trie));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal->children, 0, sizeof(pRetVal->children));
+    pRetVal->score = 0;
+
+    return pRetVal;
+}
+void insert(Trie* pObj, char* word) {
+    int idx;
+    int wordsSize = strlen(word);
+    int i;
+    for (i = 0; i < wordsSize; i++) {
+        idx = word[i] - 'a';
+        if (pObj->children[idx] == NULL) {
+            pObj->children[idx] = createTrie();
+            if (pObj->children[idx] == NULL) {
+                perror("malloc");
+                return;
+            }
+        }
+        pObj = pObj->children[idx];
+        pObj->score++;
+    }
+}
+void freeTrie(Trie* pObj) {
+    int i;
+    for (i = 0; i < TRIE_WIDTH; i++) {
+        if (pObj->children[i]) {
+            freeTrie(pObj->children[i]);
+            pObj->children[i] = NULL;
+        }
+    }
+    free(pObj);
+    pObj = NULL;
+}
+
+#endif  // TREE_NODE_H
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* sumPrefixScores(char** words, int wordsSize, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+    int i, j;
+
+    pRetVal = (int*)malloc(wordsSize * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (wordsSize * sizeof(int)));
+    (*returnSize) = wordsSize;
+
+    Trie* pRoot = createTrie();
+    if (pRoot == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    for (i = 0; i < wordsSize; i++) {
+        insert(pRoot, words[i]);
+    }
+
+    int idx, wordSize;
+    Trie* pCurrent = pRoot;
+    for (i = 0; i < wordsSize; ++i) {
+        pCurrent = pRoot;
+        wordSize = strlen(words[i]);
+        for (j = 0; j < wordSize; j++) {
+            idx = words[i][j] - 'a';
+            pCurrent = pCurrent->children[idx];
+            pRetVal[i] += pCurrent->score;
+        }
+    }
+
+    freeTrie(pRoot);
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+struct TrieNode {
+    TrieNode* next[26] = {};  // words[i] consists of lowercase English letters.
+    int cnt = 0;
+};
+class Solution {
+    TrieNode root;
+
+   public:
+    void insert(string word) {
+        auto node = &root;
+        for (char c : word) {
+            if (node->next[c - 'a'] == nullptr) {
+                node->next[c - 'a'] = new TrieNode();
+            }
+            node->next[c - 'a']->cnt++;
+            node = node->next[c - 'a'];
+        }
+    }
+    int count(string s) {
+        int retVal = 0;
+
+        auto node = &root;
+        for (char c : s) {
+            retVal += node->next[c - 'a']->cnt;
+            node = node->next[c - 'a'];
+        }
+
+        return retVal;
+    }
+    vector<int> sumPrefixScores(vector<string>& words) {
+        vector<int> retVal;
+
+        int wordsSize = words.size();
+
+        for (int i = 0; i < wordsSize; i++) {
+            insert(words[i]);
+        }
+
+        retVal.resize(wordsSize, 0);
+        for (int i = 0; i < wordsSize; i++) {
+            retVal[i] = count(words[i]);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class TrieNode:
+    def __init__(self) -> None:
+        # words[i] consists of lowercase English letters.
+        self.next = [None] * 26
+        self.cnt = 0
+
+
+class Solution:
+    def __init__(self) -> None:
+        self.root = TrieNode()
+
+    def insert(self, word: str) -> None:
+        node = self.root
+        for c in word:
+            if node.next[ord(c) - ord("a")] is None:
+                node.next[ord(c) - ord("a")] = TrieNode()
+
+            node.next[ord(c) - ord("a")].cnt += 1
+            node = node.next[ord(c) - ord("a")]
+
+    def count(self, s: str) -> int:
+        retVal = 0
+
+        node = self.root
+        for c in s:
+            retVal += node.next[ord(c) - ord("a")].cnt
+            node = node.next[ord(c) - ord("a")]
+
+        return retVal
+
+    def sumPrefixScores(self, words: List[str]) -> List[int]:
+        retVal = []
+
+        wordsSize = len(words)
+
+        for i in range(wordsSize):
+            self.insert(words[i])
+
+        retVal = [0] * wordsSize
+        for i in range(wordsSize):
+            retVal[i] = self.count(words[i])
+
+        return retVal
+```
+
+</details>
+
 ## [3043. Find the Length of the Longest Common Prefix](https://leetcode.com/problems/find-the-length-of-the-longest-common-prefix/)  1688
 
 - [Official](https://leetcode.com/problems/find-the-length-of-the-longest-common-prefix/editorial/)
