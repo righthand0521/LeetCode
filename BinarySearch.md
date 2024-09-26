@@ -2319,6 +2319,194 @@ class Solution:
 
 </details>
 
+## [729. My Calendar I](https://leetcode.com/problems/my-calendar-i/)
+
+- [Official](https://leetcode.com/problems/my-calendar-i/editorial/)
+- [Official](https://leetcode.cn/problems/my-calendar-i/solutions/1643942/wo-de-ri-cheng-an-pai-biao-i-by-leetcode-nlxr/)
+
+<details><summary>Description</summary>
+
+```text
+You are implementing a program to use as your calendar.
+We can add a new event if adding the event will not cause a double booking.
+
+A double booking happens when two events have some non-empty intersection (i.e., some moment is common to both events.).
+
+The event can be represented as a pair of integers start and end
+that represents a booking on the half-open interval [start, end),
+the range of real numbers x such that start <= x < end.
+
+Implement the MyCalendar class:
+- MyCalendar()
+  Initializes the calendar object.
+- boolean book(int start, int end)
+  Returns true if the event can be added to the calendar successfully without causing a double booking.
+  Otherwise, return false and do not add the event to the calendar.
+
+Example 1:
+Input
+["MyCalendar", "book", "book", "book"]
+[[], [10, 20], [15, 25], [20, 30]]
+Output
+[null, true, false, true]
+Explanation
+MyCalendar myCalendar = new MyCalendar();
+myCalendar.book(10, 20); // return True
+myCalendar.book(15, 25); // return False, It can not be booked because time 15 is already booked by another event.
+myCalendar.book(20, 30); // return True, The event can be booked, as the first event takes every time less than 20,
+but not including 20.
+
+Constraints:
+0 <= start < end <= 10^9
+At most 1000 calls will be made to book.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Store the events as a sorted list of intervals. If none of the events conflict, then the new event can be added.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MAX_CALLS (1000 + 4)  // At most 1000 calls will be made to book.
+typedef struct {
+    int start[MAX_CALLS];
+    int end[MAX_CALLS];
+    int idx;
+} MyCalendar;
+MyCalendar* myCalendarCreate() {
+    MyCalendar* pObj = NULL;
+
+    pObj = (MyCalendar*)malloc(sizeof(MyCalendar));
+    if (pObj == NULL) {
+        perror("malloc");
+        return pObj;
+    }
+    memset(pObj, -1, sizeof(MyCalendar));
+    pObj->idx = 0;
+
+    return pObj;
+}
+bool myCalendarBook(MyCalendar* obj, int start, int end) {
+    bool retVal = false;
+
+    if (obj->idx == 0) {
+        obj->start[obj->idx] = start;
+        obj->end[obj->idx] = end;
+        obj->idx += 1;
+        retVal = true;
+        return retVal;
+    }
+
+    int i;
+    for (i = 0; i < obj->idx; ++i) {
+        if ((start >= obj->start[i]) && (start < obj->end[i])) {
+            return retVal;
+        } else if ((end > obj->start[i]) && (end < obj->end[i])) {
+            return retVal;
+        } else if ((start <= obj->start[i]) && (end >= obj->end[i])) {
+            return retVal;
+        }
+    }
+
+    obj->start[obj->idx] = start;
+    obj->end[obj->idx] = end;
+    obj->idx += 1;
+    retVal = true;
+
+    return retVal;
+}
+void myCalendarFree(MyCalendar* obj) {
+    free(obj);
+    obj = NULL;
+}
+/**
+ * Your MyCalendar struct will be instantiated and called as such:
+ * MyCalendar* obj = myCalendarCreate();
+ * bool param_1 = myCalendarBook(obj, start, end);
+ * myCalendarFree(obj);
+ */
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class MyCalendar {
+   private:
+    set<pair<int, int>> calendar;
+
+   public:
+    MyCalendar() {}
+    bool book(int start, int end) {
+        bool retVal = false;
+
+        const pair<int, int> event{start, end};
+        const auto nextEvent = calendar.lower_bound(event);
+        if ((nextEvent != calendar.end()) && (nextEvent->first < end)) {
+            return retVal;
+        }
+
+        if (nextEvent != calendar.begin()) {
+            const auto prevEvent = prev(nextEvent);
+            if (prevEvent->second > start) {
+                return retVal;
+            }
+        }
+        calendar.insert(event);
+        retVal = true;
+
+        return retVal;
+    }
+};
+/**
+ * Your MyCalendar object will be instantiated and called as such:
+ * MyCalendar* obj = new MyCalendar();
+ * bool param_1 = obj->book(start,end);
+ */
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+from sortedcontainers import SortedList
+
+class MyCalendar:
+    def __init__(self):
+        self.calendar = SortedList()
+
+    def book(self, start: int, end: int) -> bool:
+        retVal = False
+
+        calendarSize = len(self.calendar)
+
+        idx = self.calendar.bisect_right((start, end))
+        if (idx > 0) and (self.calendar[idx-1][1] > start):
+            return retVal
+        elif (idx < calendarSize) and (self.calendar[idx][0] < end):
+            return retVal
+
+        self.calendar.add((start, end))
+        retVal = True
+
+        return retVal
+
+# Your MyCalendar object will be instantiated and called as such:
+# obj = MyCalendar()
+# param_1 = obj.book(start,end)
+```
+
+</details>
+
 ## [786. K-th Smallest Prime Fraction](https://leetcode.com/problems/k-th-smallest-prime-fraction/)  2168
 
 - [Official](https://leetcode.com/problems/k-th-smallest-prime-fraction/editorial/)

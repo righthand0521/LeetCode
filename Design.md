@@ -1,7 +1,9 @@
 # Design
 
+- [Binary Search](https://en.wikipedia.org/wiki/Binary_search_algorithm)
+  - [729. My Calendar I](https://leetcode.com/problems/my-calendar-i/)
 - [Graph](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics))
-  - [2642. Design Graph With Shortest Path Calculator](https://leetcode.com/problems/design-graph-with-shortest-path-calculator/description/)
+  - [2642. Design Graph With Shortest Path Calculator](https://leetcode.com/problems/design-graph-with-shortest-path-calculator/)
 - [Hash Table](https://en.wikipedia.org/wiki/Hash_table)
   - [380. Insert Delete GetRandom O(1)](https://leetcode.com/problems/insert-delete-getrandom-o1/)
   - [705. Design HashSet](https://leetcode.com/problems/design-hashset/)
@@ -20,7 +22,7 @@
   - [622. Design Circular Queue](https://leetcode.com/problems/design-circular-queue/)
   - [703. Kth Largest Element in a Stream](https://leetcode.com/problems/kth-largest-element-in-a-stream/)
   - [933. Number of Recent Calls](https://leetcode.com/problems/number-of-recent-calls/)
-  - [1845. Seat Reservation Manager](https://leetcode.com/problems/seat-reservation-manager/description/)
+  - [1845. Seat Reservation Manager](https://leetcode.com/problems/seat-reservation-manager/)
   - [2336. Smallest Number in Infinite Set](https://leetcode.com/problems/smallest-number-in-infinite-set/)
 - [Stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type))
   - [155. Min Stack](https://leetcode.com/problems/min-stack/)
