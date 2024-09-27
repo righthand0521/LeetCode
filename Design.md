@@ -2,6 +2,7 @@
 
 - [Binary Search](https://en.wikipedia.org/wiki/Binary_search_algorithm)
   - [729. My Calendar I](https://leetcode.com/problems/my-calendar-i/)
+  - [731. My Calendar II](https://leetcode.com/problems/my-calendar-ii/)
 - [Graph](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics))
   - [2642. Design Graph With Shortest Path Calculator](https://leetcode.com/problems/design-graph-with-shortest-path-calculator/)
 - [Hash Table](https://en.wikipedia.org/wiki/Hash_table)

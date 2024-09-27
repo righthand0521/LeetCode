@@ -2507,6 +2507,264 @@ class MyCalendar:
 
 </details>
 
+## [731. My Calendar II](https://leetcode.com/problems/my-calendar-ii/)
+
+- [Official](https://leetcode.com/problems/my-calendar-ii/editorial/)
+- [Official](https://leetcode.cn/problems/my-calendar-ii/solutions/1678660/wo-de-ri-cheng-an-pai-biao-ii-by-leetcod-wo6n/)
+
+<details><summary>Description</summary>
+
+```text
+You are implementing a program to use as your calendar.
+We can add a new event if adding the event will not cause a triple booking.
+
+A triple booking happens when three events have some non-empty intersection
+(i.e., some moment is common to all the three events.).
+
+The event can be represented as a pair of integers start and end
+that represents a booking on the half-open interval [start, end),
+the range of real numbers x such that start <= x < end.
+
+Implement the MyCalendarTwo class:
+- MyCalendarTwo()
+  Initializes the calendar object.
+- boolean book(int start, int end)
+  Returns true if the event can be added to the calendar successfully without causing a triple booking.
+  Otherwise, return false and do not add the event to the calendar.
+
+Example 1:
+Input
+["MyCalendarTwo", "book", "book", "book", "book", "book", "book"]
+[[], [10, 20], [50, 60], [10, 40], [5, 15], [5, 10], [25, 55]]
+Output
+[null, true, true, true, false, true, true]
+Explanation
+MyCalendarTwo myCalendarTwo = new MyCalendarTwo();
+myCalendarTwo.book(10, 20); // return True, The event can be booked.
+myCalendarTwo.book(50, 60); // return True, The event can be booked.
+myCalendarTwo.book(10, 40); // return True, The event can be double booked.
+myCalendarTwo.book(5, 15);  // return False, The event cannot be booked, because it would result in a triple booking.
+myCalendarTwo.book(5, 10);  // return True, The event can be booked,
+as it does not use time 10 which is already double booked.
+myCalendarTwo.book(25, 55); // return True, The event can be booked,
+as the time in [25, 40) will be double booked with the third event, the time [40, 50) will be single booked,
+and the time [50, 55) will be double booked with the second event.
+
+Constraints:
+0 <= start < end <= 10^9
+At most 1000 calls will be made to book.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Store two sorted lists of intervals: one list will be all times that are at least single booked,
+   and another list will be all times that are definitely double booked.
+   If none of the double bookings conflict, then the booking will succeed,
+   and you should update your single and double bookings accordingly.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MAX_CALLS (1000 + 4)  // At most 1000 calls will be made to book.
+typedef struct {
+    int bookings[MAX_CALLS][2];
+    int bookingsIndex;
+    int overlapBookings[MAX_CALLS][2];
+    int overlapBookingsIndex;
+} MyCalendarTwo;
+MyCalendarTwo* myCalendarTwoCreate() {
+    MyCalendarTwo* pObj = NULL;
+
+    pObj = (MyCalendarTwo*)malloc(sizeof(MyCalendarTwo));
+    if (pObj == NULL) {
+        perror("malloc");
+        return pObj;
+    }
+    memset(pObj, 0, sizeof(MyCalendarTwo));
+    pObj->bookingsIndex = 0;
+    pObj->overlapBookingsIndex = 0;
+
+    return pObj;
+}
+// Return true if the booking [start1, end1) & [start2, end2) overlaps.
+bool doesOverlap(MyCalendarTwo* obj, int start1, int end1, int start2, int end2) {
+    bool retVal = false;
+
+    int maxStart = fmax(start1, start2);
+    int minEnd = fmin(end1, end2);
+    if (maxStart < minEnd) {
+        retVal = true;
+    }
+
+    return retVal;
+}
+// Return overlapping booking between [start1, end1) & [start2, end2).
+void getOverlapped(MyCalendarTwo* obj, int start1, int end1, int start2, int end2) {
+    obj->overlapBookings[obj->overlapBookingsIndex][0] = fmax(start1, start2);
+    obj->overlapBookings[obj->overlapBookingsIndex][1] = fmin(end1, end2);
+    obj->overlapBookingsIndex += 1;
+}
+bool myCalendarTwoBook(MyCalendarTwo* obj, int start, int end) {
+    bool retVal = false;
+
+    int i;
+
+    // Returns false if the new booking overlaps with the existing double-booked bookings.
+    for (i = 0; i < obj->overlapBookingsIndex; ++i) {
+        if (doesOverlap(obj, obj->overlapBookings[i][0], obj->overlapBookings[i][1], start, end) == true) {
+            return retVal;
+        }
+    }
+
+    // Add the double overlapping if any with the new booking.
+    int bookStart, bookEnd;
+    for (i = 0; i < obj->bookingsIndex; ++i) {
+        bookStart = obj->bookings[i][0];
+        bookEnd = obj->bookings[i][1];
+        if (doesOverlap(obj, bookStart, bookEnd, start, end) == true) {
+            getOverlapped(obj, bookStart, bookEnd, start, end);
+        }
+    }
+
+    // Add the booking to the list of bookings.
+    obj->bookings[obj->bookingsIndex][0] = start;
+    obj->bookings[obj->bookingsIndex][1] = end;
+    obj->bookingsIndex += 1;
+    retVal = true;
+
+    return retVal;
+}
+void myCalendarTwoFree(MyCalendarTwo* obj) {
+    free(obj);
+    obj = NULL;
+}
+/**
+ * Your MyCalendarTwo struct will be instantiated and called as such:
+ * MyCalendarTwo* obj = myCalendarTwoCreate();
+ * bool param_1 = myCalendarTwoBook(obj, start, end);
+ * myCalendarTwoFree(obj);
+ */
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class MyCalendarTwo {
+   private:
+    // Return true if the booking [start1, end1) & [start2, end2) overlaps.
+    bool doesOverlap(int start1, int end1, int start2, int end2) {
+        bool retVal = false;
+
+        if (max(start1, start2) < min(end1, end2)) {
+            retVal = true;
+        }
+
+        return retVal;
+    }
+    // Return overlapping booking between [start1, end1) & [start2, end2).
+    pair<int, int> getOverlapped(int start1, int end1, int start2, int end2) {
+        pair<int, int> retVal;
+
+        retVal = {max(start1, start2), min(end1, end2)};
+
+        return retVal;
+    }
+
+   public:
+    vector<pair<int, int>> bookings;
+    vector<pair<int, int>> overlapBookings;
+
+    MyCalendarTwo() {}
+    bool book(int start, int end) {
+        bool retVal = false;
+
+        // Returns false if the new booking overlaps with the existing double-booked bookings.
+        for (pair<int, int> booking : overlapBookings) {
+            if (doesOverlap(booking.first, booking.second, start, end) == true) {
+                return retVal;
+            }
+        }
+
+        // Add the double overlapping if any with the new booking.
+        for (pair<int, int> booking : bookings) {
+            if (doesOverlap(booking.first, booking.second, start, end) == true) {
+                overlapBookings.push_back(getOverlapped(booking.first, booking.second, start, end));
+            }
+        }
+
+        // Add the booking to the list of bookings.
+        bookings.push_back({start, end});
+        retVal = true;
+
+        return retVal;
+    }
+};
+/**
+ * Your MyCalendarTwo object will be instantiated and called as such:
+ * MyCalendarTwo* obj = new MyCalendarTwo();
+ * bool param_1 = obj->book(start,end);
+ */
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class MyCalendarTwo:
+    def __init__(self):
+        self.bookings = []
+        self.overlapBookings = []
+
+    # Return True if the booking [start1, end1) & [start2, end2) overlaps.
+    def doesOverlap(self, start1: int, end1: int, start2: int, end2: int) -> bool:
+        retVal = False
+
+        if max(start1, start2) < min(end1, end2):
+            retVal = True
+
+        return retVal
+
+    # Return the overlapping booking between [start1, end1) & [start2, end2).
+    def getOverlapped(self, start1: int, end1: int, start2: int, end2: int) -> tuple:
+        retVal = max(start1, start2), min(end1, end2)
+
+        return retVal
+
+    def book(self, start: int, end: int) -> bool:
+        retVal = False
+
+        # Check if the new booking overlaps with any double-booked booking.
+        for booking in self.overlapBookings:
+            if self.doesOverlap(booking[0], booking[1], start, end) == True:
+                return retVal
+
+        # Add any new double overlaps that the current booking creates.
+        for booking in self.bookings:
+            if self.doesOverlap(booking[0], booking[1], start, end) == True:
+                self.overlapBookings.append(self.getOverlapped(booking[0], booking[1], start, end))
+
+        # Add the new booking to the list of bookings.
+        self.bookings.append((start, end))
+        retVal = True
+
+        return retVal
+
+# Your MyCalendarTwo object will be instantiated and called as such:
+# obj = MyCalendarTwo()
+# param_1 = obj.book(start,end)
+```
+
+</details>
+
 ## [786. K-th Smallest Prime Fraction](https://leetcode.com/problems/k-th-smallest-prime-fraction/)  2168
 
 - [Official](https://leetcode.com/problems/k-th-smallest-prime-fraction/editorial/)
