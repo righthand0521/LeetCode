@@ -21,6 +21,7 @@
   - [232. Implement Queue using Stacks](https://leetcode.com/problems/implement-queue-using-stacks/)
   - [295. Find Median from Data Stream](https://leetcode.com/problems/find-median-from-data-stream/)
   - [622. Design Circular Queue](https://leetcode.com/problems/design-circular-queue/)
+  - [641. Design Circular Deque](https://leetcode.com/problems/design-circular-deque/)
   - [703. Kth Largest Element in a Stream](https://leetcode.com/problems/kth-largest-element-in-a-stream/)
   - [933. Number of Recent Calls](https://leetcode.com/problems/number-of-recent-calls/)
   - [1845. Seat Reservation Manager](https://leetcode.com/problems/seat-reservation-manager/)

@@ -1631,6 +1631,557 @@ public:
 
 </details>
 
+## [641. Design Circular Deque](https://leetcode.com/problems/design-circular-deque/)
+
+- [Official](https://leetcode.com/problems/design-circular-deque/editorial/)
+- [Official](https://leetcode.cn/problems/design-circular-deque/solutions/1743694/she-ji-xun-huan-shuang-duan-dui-lie-by-l-97v0/)
+
+<details><summary>Description</summary>
+
+```text
+Design your implementation of the circular double-ended queue (deque).
+
+Implement the MyCircularDeque class:
+- MyCircularDeque(int k)
+  Initializes the deque with a maximum size of k.
+- boolean insertFront()
+  Adds an item at the front of Deque. Returns true if the operation is successful, or false otherwise.
+- boolean insertLast()
+  Adds an item at the rear of Deque. Returns true if the operation is successful, or false otherwise.
+- boolean deleteFront()
+  Deletes an item from the front of Deque. Returns true if the operation is successful, or false otherwise.
+- boolean deleteLast()
+  Deletes an item from the rear of Deque. Returns true if the operation is successful, or false otherwise.
+- int getFront()
+  Returns the front item from the Deque. Returns -1 if the deque is empty.
+- int getRear()
+  Returns the last item from Deque. Returns -1 if the deque is empty.
+- boolean isEmpty()
+  Returns true if the deque is empty, or false otherwise.
+- boolean isFull()
+  Returns true if the deque is full, or false otherwise.
+
+Example 1:
+Input
+["MyCircularDeque", "insertLast", "insertLast", "insertFront", "insertFront",
+"getRear", "isFull", "deleteLast", "insertFront", "getFront"]
+[[3], [1], [2], [3], [4], [], [], [], [4], []]
+Output
+[null, true, true, true, false, 2, true, true, true, 4]
+
+Explanation
+MyCircularDeque myCircularDeque = new MyCircularDeque(3);
+myCircularDeque.insertLast(1);  // return True
+myCircularDeque.insertLast(2);  // return True
+myCircularDeque.insertFront(3); // return True
+myCircularDeque.insertFront(4); // return False, the queue is full.
+myCircularDeque.getRear();      // return 2
+myCircularDeque.isFull();       // return True
+myCircularDeque.deleteLast();   // return True
+myCircularDeque.insertFront(4); // return True
+myCircularDeque.getFront();     // return 4
+
+Constraints:
+1 <= k <= 1000
+0 <= value <= 1000
+At most 2000 calls will be made to insertFront, insertLast, deleteFront, deleteLast, getFront, getRear, isEmpty, isFull.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+typedef struct DLinkListNode {
+    int val;
+    struct DLinkListNode* prev;
+    struct DLinkListNode* next;
+} DLinkListNode;
+DLinkListNode* dLinkListNodeCreat(int val) {
+    DLinkListNode* obj = NULL;
+
+    obj = (DLinkListNode*)malloc(sizeof(DLinkListNode));
+    if (obj == NULL) {
+        perror("malloc");
+        return obj;
+    }
+    obj->val = val;
+    obj->prev = NULL;
+    obj->next = NULL;
+
+    return obj;
+}
+typedef struct {
+    int capacity;
+    DLinkListNode* head;
+    DLinkListNode* tail;
+    int size;
+} MyCircularDeque;
+MyCircularDeque* myCircularDequeCreate(int k) {
+    MyCircularDeque* obj = NULL;
+
+    obj = (MyCircularDeque*)malloc(sizeof(MyCircularDeque));
+    if (obj == NULL) {
+        perror("malloc");
+        return obj;
+    }
+    obj->capacity = k;
+    obj->head = NULL;
+    obj->tail = NULL;
+    obj->size = 0;
+
+    return obj;
+}
+bool myCircularDequeIsEmpty(MyCircularDeque* obj) {
+    bool retVal = false;
+
+    if (obj->size == 0) {
+        retVal = true;
+    }
+
+    return retVal;
+}
+bool myCircularDequeIsFull(MyCircularDeque* obj) {
+    bool retVal = false;
+
+    if (obj->size == obj->capacity) {
+        retVal = true;
+    }
+
+    return retVal;
+}
+bool myCircularDequeInsertFront(MyCircularDeque* obj, int value) {
+    bool retVal = false;
+
+    if (myCircularDequeIsFull(obj) == true) {
+        return retVal;
+    }
+
+    DLinkListNode* pNew = dLinkListNodeCreat(value);
+    if (pNew == NULL) {
+        return retVal;
+    }
+
+    if (obj->size == 0) {
+        obj->head = pNew;
+        obj->tail = pNew;
+    } else {
+        pNew->next = obj->head;
+        obj->head->prev = pNew;
+        obj->head = pNew;
+    }
+    obj->size++;
+    retVal = true;
+
+    return retVal;
+}
+bool myCircularDequeInsertLast(MyCircularDeque* obj, int value) {
+    bool retVal = false;
+
+    if (myCircularDequeIsFull(obj) == true) {
+        return retVal;
+    }
+
+    DLinkListNode* pNew = dLinkListNodeCreat(value);
+    if (pNew == NULL) {
+        return retVal;
+    }
+
+    if (obj->size == 0) {
+        obj->head = pNew;
+        obj->tail = pNew;
+    } else {
+        obj->tail->next = pNew;
+        pNew->prev = obj->tail;
+        obj->tail = pNew;
+    }
+    obj->size++;
+    retVal = true;
+
+    return retVal;
+}
+bool myCircularDequeDeleteFront(MyCircularDeque* obj) {
+    bool retVal = false;
+
+    if (myCircularDequeIsEmpty(obj) == true) {
+        return retVal;
+    }
+
+    DLinkListNode* pDelete = obj->head;
+    obj->head = obj->head->next;
+    if (obj->head != NULL) {
+        obj->head->prev = NULL;
+    }
+    free(pDelete);
+    pDelete = NULL;
+    obj->size--;
+    retVal = true;
+
+    return retVal;
+}
+bool myCircularDequeDeleteLast(MyCircularDeque* obj) {
+    bool retVal = false;
+
+    if (myCircularDequeIsEmpty(obj) == true) {
+        return retVal;
+    }
+
+    DLinkListNode* pDelete = obj->tail;
+    obj->tail = obj->tail->prev;
+    if (obj->tail != NULL) {
+        obj->tail->next = NULL;
+    }
+    free(pDelete);
+    pDelete = NULL;
+    obj->size--;
+    retVal = true;
+
+    return retVal;
+}
+int myCircularDequeGetFront(MyCircularDeque* obj) {
+    int retVal = -1;  // Returns -1 if the deque is empty.
+
+    if (myCircularDequeIsEmpty(obj) == false) {
+        retVal = obj->head->val;
+    }
+
+    return retVal;
+}
+int myCircularDequeGetRear(MyCircularDeque* obj) {
+    int retVal = -1;  // Returns -1 if the deque is empty.
+
+    if (myCircularDequeIsEmpty(obj) == false) {
+        retVal = obj->tail->val;
+    }
+
+    return retVal;
+}
+void myCircularDequeFree(MyCircularDeque* obj) {
+    DLinkListNode* pDelete = NULL;
+    while (obj->head != obj->tail) {
+        pDelete = obj->head;
+        obj->head = obj->head->next;
+        free(pDelete);
+        pDelete = NULL;
+    }
+    free(obj->head);
+    obj->head = NULL;
+
+    free(obj);
+    obj = NULL;
+}
+/**
+ * Your MyCircularDeque struct will be instantiated and called as such:
+ * MyCircularDeque* obj = myCircularDequeCreate(k);
+ * bool param_1 = myCircularDequeInsertFront(obj, value);
+ * bool param_2 = myCircularDequeInsertLast(obj, value);
+ * bool param_3 = myCircularDequeDeleteFront(obj);
+ * bool param_4 = myCircularDequeDeleteLast(obj);
+ * int param_5 = myCircularDequeGetFront(obj);
+ * int param_6 = myCircularDequeGetRear(obj);
+ * bool param_7 = myCircularDequeIsEmpty(obj);
+ * bool param_8 = myCircularDequeIsFull(obj);
+ * myCircularDequeFree(obj);
+ */
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+struct Node {
+    int val;
+    Node* next;
+    Node* prev;
+    Node(int val, Node* next = NULL, Node* prev = NULL) : val(val), next(next), prev(prev) {}
+};
+class MyCircularDeque {
+   private:
+    int capacity;
+    Node* head;
+    Node* rear;
+    int size;
+
+   public:
+    MyCircularDeque(int k) {
+        capacity = k;
+        head = nullptr;
+        rear = nullptr;
+        size = 0;
+    }
+    ~MyCircularDeque() {
+        while (head != rear) {
+            Node* pCurrent = head;
+            head = head->next;
+            delete pCurrent;
+        }
+        delete head;
+    }
+    bool insertFront(int value) {
+        bool retVal = false;
+
+        if (isFull() == true) {
+            return retVal;
+        }
+
+        if (head == NULL) {
+            head = new Node(value);
+            rear = head;
+        } else {
+            Node* newHead = new Node(value);
+            newHead->next = head;
+            head->prev = newHead;
+            head = newHead;
+        }
+        size++;
+        retVal = true;
+
+        return retVal;
+    }
+    bool insertLast(int value) {
+        bool retVal = false;
+
+        if (isFull() == true) {
+            return retVal;
+        }
+
+        if (head == NULL) {
+            head = new Node(value);
+            rear = head;
+        } else {
+            Node* newNode = new Node(value, NULL, rear);
+            rear->next = newNode;
+            rear = newNode;
+        }
+        size++;
+        retVal = true;
+
+        return retVal;
+    }
+    bool deleteFront() {
+        bool retVal = false;
+
+        if (isEmpty() == true) {
+            return retVal;
+        }
+
+        if (size == 1) {
+            head = NULL;
+            rear = NULL;
+        } else {
+            Node* nextNode = head->next;
+            delete head;
+            head = nextNode;
+        }
+        size--;
+        retVal = true;
+
+        return retVal;
+    }
+    bool deleteLast() {
+        bool retVal = false;
+
+        if (isEmpty() == true) {
+            return retVal;
+        }
+
+        if (size == 1) {
+            head = NULL;
+            rear = NULL;
+        } else {
+            Node* prevNode = rear->prev;
+            delete rear;
+            rear = prevNode;
+        }
+        size--;
+        retVal = true;
+
+        return retVal;
+    }
+    int getFront() {
+        int retVal = -1;  // Returns -1 if the deque is empty.
+
+        if (isEmpty() == false) {
+            retVal = head->val;
+        }
+
+        return retVal;
+    }
+    int getRear() {
+        int retVal = -1;  // Returns -1 if the deque is empty.
+
+        if (isEmpty() == false) {
+            retVal = rear->val;
+        }
+
+        return retVal;
+    }
+    bool isEmpty() {
+        bool retVal = false;
+
+        if (size == 0) {
+            retVal = true;
+        }
+
+        return retVal;
+    }
+    bool isFull() {
+        bool retVal = false;
+
+        if (size == capacity) {
+            retVal = true;
+        }
+
+        return retVal;
+    }
+};
+/**
+ * Your MyCircularDeque object will be instantiated and called as such:
+ * MyCircularDeque* obj = new MyCircularDeque(k);
+ * bool param_1 = obj->insertFront(value);
+ * bool param_2 = obj->insertLast(value);
+ * bool param_3 = obj->deleteFront();
+ * bool param_4 = obj->deleteLast();
+ * int param_5 = obj->getFront();
+ * int param_6 = obj->getRear();
+ * bool param_7 = obj->isEmpty();
+ * bool param_8 = obj->isFull();
+ */
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Node:
+    def __init__(self, val, next=None, prev=None):
+        self.val = val
+        self.next = next
+        self.prev = prev
+
+
+class MyCircularDeque:
+    def __init__(self, k: int):
+        self.capacity = k
+        self.head = None
+        self.rear = None
+        self.size = 0
+
+    def insertFront(self, value: int) -> bool:
+        retVal = False
+
+        if self.isFull() == True:
+            return retVal
+
+        if self.head is None:
+            self.head = Node(value, None, None)
+            self.rear = self.head
+        else:
+            newHead = Node(value, self.head, None)
+            self.head.prev = newHead
+            self.head = newHead
+        self.size += 1
+        retVal = True
+
+        return retVal
+
+    def insertLast(self, value: int) -> bool:
+        retVal = False
+
+        if self.isFull() == True:
+            return retVal
+
+        if self.head is None:
+            self.head = Node(value, None, None)
+            self.rear = self.head
+        else:
+            self.rear.next = Node(value, None, self.rear)
+            self.rear = self.rear.next
+        self.size += 1
+        retVal = True
+
+        return retVal
+
+    def deleteFront(self) -> bool:
+        retVal = False
+
+        if self.isEmpty() == True:
+            return retVal
+
+        if self.size == 1:
+            self.head = None
+            self.rear = None
+        else:
+            self.head = self.head.next
+        self.size -= 1
+        retVal = True
+
+        return retVal
+
+    def deleteLast(self) -> bool:
+        retVal = False
+
+        if self.isEmpty() == True:
+            return retVal
+
+        if self.size == 1:
+            self.head = None
+            self.rear = None
+        else:
+            self.rear = self.rear.prev
+        self.size -= 1
+        retVal = True
+
+        return retVal
+
+    def getFront(self) -> int:
+        retVal = -1  # Returns -1 if the deque is empty.
+
+        if self.isEmpty() == False:
+            retVal = self.head.val
+
+        return retVal
+
+    def getRear(self) -> int:
+        retVal = -1  # Returns -1 if the deque is empty.
+
+        if self.isEmpty() == False:
+            retVal = self.rear.val
+
+        return retVal
+
+    def isEmpty(self) -> bool:
+        retVal = False
+
+        if self.size == 0:
+            retVal = True
+
+        return retVal
+
+    def isFull(self) -> bool:
+        retVal = False
+
+        if self.size == self.capacity:
+            retVal = True
+
+        return retVal
+
+# Your MyCircularDeque object will be instantiated and called as such:
+# obj = MyCircularDeque(k)
+# param_1 = obj.insertFront(value)
+# param_2 = obj.insertLast(value)
+# param_3 = obj.deleteFront()
+# param_4 = obj.deleteLast()
+# param_5 = obj.getFront()
+# param_6 = obj.getRear()
+# param_7 = obj.isEmpty()
+# param_8 = obj.isFull()
+```
+
+</details>
+
 ## [703. Kth Largest Element in a Stream](https://leetcode.com/problems/kth-largest-element-in-a-stream/)
 
 - [Official](https://leetcode.com/problems/kth-largest-element-in-a-stream/editorial/)
