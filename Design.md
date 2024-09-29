@@ -13,6 +13,7 @@
   - [2353. Design a Food Rating System](https://leetcode.com/problems/design-a-food-rating-system/)
 - [Linked List](https://en.wikipedia.org/wiki/Linked_list)
   - [382. Linked List Random Node](https://leetcode.com/problems/linked-list-random-node/)
+  - [432. All O`one Data Structure](https://leetcode.com/problems/all-oone-data-structure/)
   - [707. Design Linked List](https://leetcode.com/problems/design-linked-list/)
 - [Prefix Sum](https://en.wikipedia.org/wiki/Prefix_sum)
   - [303. Range Sum Query - Immutable](https://leetcode.com/problems/range-sum-query-immutable/)
