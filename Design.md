@@ -32,6 +32,7 @@
   - [225. Implement Stack using Queues](https://leetcode.com/problems/implement-stack-using-queues/)
   - [341. Flatten Nested List Iterator](https://leetcode.com/problems/flatten-nested-list-iterator/)
   - [901. Online Stock Span](https://leetcode.com/problems/online-stock-span/)
+  - [1381. Design a Stack With Increment Operation](https://leetcode.com/problems/design-a-stack-with-increment-operation/)
 - [Tree](https://en.wikipedia.org/wiki/Tree_(data_structure))
   - [173. Binary Search Tree Iterator](https://leetcode.com/problems/binary-search-tree-iterator/)
   - [297. Serialize and Deserialize Binary Tree](https://leetcode.com/problems/serialize-and-deserialize-binary-tree/)

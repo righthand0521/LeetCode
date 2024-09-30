@@ -4832,6 +4832,224 @@ class Solution:
 
 </details>
 
+## [1381. Design a Stack With Increment Operation](https://leetcode.com/problems/design-a-stack-with-increment-operation/)  1285
+
+- [Official](https://leetcode.com/problems/design-a-stack-with-increment-operation/editorial/)
+- [Official](https://leetcode.cn/problems/design-a-stack-with-increment-operation/solutions/241895/she-ji-yi-ge-zhi-chi-zeng-liang-cao-zuo-de-zhan-by/)
+
+<details><summary>Description</summary>
+
+```text
+Design a stack that supports increment operations on its elements.
+
+Implement the CustomStack class:
+- CustomStack(int maxSize)
+  Initializes the object with maxSize which is the maximum number of elements in the stack.
+- void push(int x)
+  Adds x to the top of the stack if the stack has not reached the maxSize.
+- int pop()
+  Pops and returns the top of the stack or -1 if the stack is empty.
+- void inc(int k, int val)
+  Increments the bottom k elements of the stack by val.
+  If there are less than k elements in the stack, increment all the elements in the stack.
+
+Example 1:
+Input
+["CustomStack","push","push","pop","push","push","push","increment","increment","pop","pop","pop","pop"]
+[[3],[1],[2],[],[2],[3],[4],[5,100],[2,100],[],[],[],[]]
+Output
+[null,null,null,2,null,null,null,null,null,103,202,201,-1]
+Explanation
+CustomStack stk = new CustomStack(3); // Stack is Empty []
+stk.push(1);                          // stack becomes [1]
+stk.push(2);                          // stack becomes [1, 2]
+stk.pop();                            // return 2 --> Return top of the stack 2, stack becomes [1]
+stk.push(2);                          // stack becomes [1, 2]
+stk.push(3);                          // stack becomes [1, 2, 3]
+stk.push(4);                          // stack still [1, 2, 3], Do not add another elements as size is 4
+stk.increment(5, 100);                // stack becomes [101, 102, 103]
+stk.increment(2, 100);                // stack becomes [201, 202, 103]
+stk.pop();                            // return 103 --> Return top of the stack 103, stack becomes [201, 202]
+stk.pop();                            // return 202 --> Return top of the stack 202, stack becomes [201]
+stk.pop();                            // return 201 --> Return top of the stack 201, stack becomes []
+stk.pop();                            // return -1 --> Stack is empty return -1.
+
+Constraints:
+1 <= maxSize, x, k <= 1000
+0 <= val <= 100
+At most 1000 calls will be made to each method of increment, push and pop each separately.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use an array to represent the stack. Push will add new integer to the array.
+   Pop removes the last element in the array and increment will add val to the first k elements of the array.
+2. This solution run in O(1) per push and pop and O(k) per increment.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+typedef struct {
+    int* data;
+    int top;
+    int maxSize;
+} CustomStack;
+CustomStack* customStackCreate(int maxSize) {
+    CustomStack* obj = NULL;
+
+    obj = (CustomStack*)malloc(sizeof(CustomStack));
+    if (obj == NULL) {
+        perror("malloc");
+        return obj;
+    }
+    obj->data = (int*)malloc(maxSize * sizeof(int));
+    if (obj->data == NULL) {
+        perror("malloc");
+        return obj;
+    }
+    obj->maxSize = maxSize;
+    obj->top = -1;  // Pops and returns the top of the stack or -1 if the stack is empty.
+
+    return obj;
+}
+void customStackPush(CustomStack* obj, int x) {
+    if (obj->top == obj->maxSize - 1) {
+        return;
+    }
+    obj->top += 1;
+    obj->data[obj->top] = x;
+}
+int customStackPop(CustomStack* obj) {
+    int retVal = -1;  // Pops and returns the top of the stack or -1 if the stack is empty.
+
+    if (obj->top == -1) {
+        return retVal;
+    }
+    retVal = obj->data[obj->top];
+    obj->top -= 1;
+
+    return retVal;
+}
+void customStackIncrement(CustomStack* obj, int k, int val) {
+    int i;
+    if (obj->top + 1 < k) {
+        for (i = 0; i <= obj->top; i++) {
+            obj->data[i] += val;
+        }
+    } else {
+        for (i = 0; i < k; i++) {
+            obj->data[i] += val;
+        }
+    }
+}
+void customStackFree(CustomStack* obj) {
+    free(obj->data);
+    obj->data = NULL;
+    free(obj);
+    obj = NULL;
+}
+/**
+ * Your CustomStack struct will be instantiated and called as such:
+ * CustomStack* obj = customStackCreate(maxSize);
+ * customStackPush(obj, x);
+ * int param_2 = customStackPop(obj);
+ * customStackIncrement(obj, k, val);
+ * customStackFree(obj);
+ */
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class CustomStack {
+   private:
+    list<int> stack;
+    int maxSize;
+
+   public:
+    CustomStack(int maxSize) {
+        //
+        this->maxSize = maxSize;
+    }
+    void push(int x) {
+        int stackSize = stack.size();
+        if (stackSize < maxSize) {
+            stack.push_back(x);
+        }
+    }
+    int pop() {
+        int retVal = -1;  // Pops and returns the top of the stack or -1 if the stack is empty.
+
+        if (stack.empty()) {
+            return retVal;
+        }
+        retVal = stack.back();
+        stack.pop_back();
+
+        return retVal;
+    }
+    void increment(int k, int val) {
+        auto iterator = stack.begin();
+        for (int i = 0; (i < k && iterator != stack.end()); (i++, iterator++)) {
+            (*iterator) += val;
+        }
+    }
+};
+/**
+ * Your CustomStack object will be instantiated and called as such:
+ * CustomStack* obj = new CustomStack(maxSize);
+ * obj->push(x);
+ * int param_2 = obj->pop();
+ * obj->increment(k,val);
+ */
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class CustomStack:
+    def __init__(self, maxSize: int):
+        self.stack = deque()
+        self.maxSize = maxSize
+
+    def push(self, x: int) -> None:
+        stackSize = len(self.stack)
+        if stackSize < self.maxSize:
+            self.stack.append(x)
+
+    def pop(self) -> int:
+        # Pops and returns the top of the stack or -1 if the stack is empty.
+        retVal = -1
+
+        if self.stack:
+            retVal = self.stack.pop()
+
+        return retVal
+
+    def increment(self, k: int, val: int) -> None:
+        for i, _ in zip(range(k), self.stack):
+            self.stack[i] += val
+
+
+# Your CustomStack object will be instantiated and called as such:
+# obj = CustomStack(maxSize)
+# obj.push(x)
+# param_2 = obj.pop()
+# obj.increment(k,val)
+```
+
+</details>
+
 ## [1441. Build an Array With Stack Operations](https://leetcode.com/problems/build-an-array-with-stack-operations/)  1180
 
 - [Official](https://leetcode.com/problems/build-an-array-with-stack-operations/editorial/)
