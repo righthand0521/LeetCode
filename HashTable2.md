@@ -2102,6 +2102,147 @@ class Solution:
 
 </details>
 
+## [1497. Check If Array Pairs Are Divisible by k](https://leetcode.com/problems/check-if-array-pairs-are-divisible-by-k/)  1787
+
+- [Official](https://leetcode.com/problems/check-if-array-pairs-are-divisible-by-k/editorial/)
+- [Official](https://leetcode.cn/problems/check-if-array-pairs-are-divisible-by-k/solutions/310418/jian-cha-shu-zu-dui-shi-fou-ke-yi-bei-k-zheng-chu-/)
+
+<details><summary>Description</summary>
+
+```text
+Given an array of integers arr of even length n and an integer k.
+We want to divide the array into exactly n / 2 pairs such that the sum of each pair is divisible by k.
+Return true If you can find a way to do that or false otherwise.
+
+Example 1:
+Input: arr = [1,2,3,4,5,10,6,7,8,9], k = 5
+Output: true
+Explanation: Pairs are (1,9),(2,8),(3,7),(4,6) and (5,10).
+
+Example 2:
+Input: arr = [1,2,3,4,5,6], k = 7
+Output: true
+Explanation: Pairs are (1,6),(2,5) and(3,4).
+
+Example 3:
+Input: arr = [1,2,3,4,5,6], k = 10
+Output: false
+Explanation: You can try all possible pairs to see that
+there is no way to divide arr into 3 pairs each with sum divisible by 10.
+
+Constraints:
+arr.length == n
+1 <= n <= 10^5
+n is even.
+-10^9 <= arr[i] <= 10^9
+1 <= k <= 10^5
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Keep an array of the frequencies of ((x % k) + k) % k for each x in arr.
+2. for each i in [0, k - 1] we need to check if freq[i] == freq[k - i]
+3. Take care of the case when i == k - i and when i == 0
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool canArrange(int* arr, int arrSize, int k) {
+    bool retVal = false;
+
+    int remainderCount[k];
+    memset(remainderCount, 0, sizeof(remainderCount));
+
+    int remainder;
+    int i;
+    for (i = 0; i < arrSize; ++i) {
+        remainder = (arr[i] % k + k) % k;
+        remainderCount[remainder]++;
+    }
+
+    for (i = 0; i < arrSize; ++i) {
+        remainder = (arr[i] % k + k) % k;
+        if (remainder == 0) {
+            if (remainderCount[remainder] % 2 == 1) {
+                return retVal;
+            }
+        } else if (remainderCount[remainder] != remainderCount[k - remainder]) {
+            return retVal;
+        }
+    }
+    retVal = true;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool canArrange(vector<int>& arr, int k) {
+        bool retVal = false;
+
+        unordered_map<int, int> remainderCount;
+        for (auto i : arr) {
+            remainderCount[(i % k + k) % k]++;
+        }
+
+        for (auto i : arr) {
+            int remainder = (i % k + k) % k;
+
+            if (remainder == 0) {
+                if (remainderCount[remainder] % 2 == 1) {
+                    return retVal;
+                }
+            } else if (remainderCount[remainder] != remainderCount[k - remainder]) {
+                return retVal;
+            }
+        }
+        retVal = true;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def canArrange(self, arr: List[int], k: int) -> bool:
+        retVal = False
+
+        remainderCount = {}
+        for i in arr:
+            remainder = (i % k + k) % k
+            remainderCount[remainder] = remainderCount.get(remainder, 0) + 1
+
+        for i in arr:
+            remainder = (i % k + k) % k
+            if remainder == 0:
+                if remainderCount[remainder] % 2 == 1:
+                    return retVal
+            elif remainderCount[remainder] != remainderCount.get(k - remainder, 0):
+                return retVal
+        retVal = True
+
+        return retVal
+```
+
+</details>
+
 ## [1512. Number of Good Pairs](https://leetcode.com/problems/number-of-good-pairs/)  1160
 
 - [Official](https://leetcode.cn/problems/number-of-good-pairs/solutions/336449/hao-shu-dui-de-shu-mu-by-leetcode-solution/)
