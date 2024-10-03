@@ -882,6 +882,239 @@ class Solution:
 
 </details>
 
+## [1590. Make Sum Divisible by P](https://leetcode.com/problems/make-sum-divisible-by-p/)  2038
+
+- [Official](https://leetcode.com/problems/make-sum-divisible-by-p/editorial/)
+- [Official](https://leetcode.cn/problems/make-sum-divisible-by-p/solutions/2157277/shi-shu-zu-he-neng-bei-p-zheng-chu-by-le-dob9/)
+
+<details><summary>Description</summary>
+
+```text
+Given an array of positive integers nums, remove the smallest subarray (possibly empty)
+such that the sum of the remaining elements is divisible by p.
+It is not allowed to remove the whole array.
+
+Return the length of the smallest subarray that you need to remove, or -1 if it's impossible.
+
+A subarray is defined as a contiguous block of elements in the array.
+
+Example 1:
+Input: nums = [3,1,4,2], p = 6
+Output: 1
+Explanation: The sum of the elements in nums is 10, which is not divisible by 6.
+We can remove the subarray [4], and the sum of the remaining elements is 6, which is divisible by 6.
+
+Example 2:
+Input: nums = [6,3,5,2], p = 9
+Output: 2
+Explanation: We cannot remove a single element to get a sum divisible by 9.
+The best way is to remove the subarray [5,2], leaving us with [6,3] with sum 9.
+
+Example 3:
+Input: nums = [1,2,3], p = 3
+Output: 0
+Explanation: Here the sum is 6. which is already divisible by 3. Thus we do not need to remove anything.
+
+Constraints:
+1 <= nums.length <= 10^5
+1 <= nums[i] <= 10^9
+1 <= p <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use prefix sums to calculate the subarray sums.
+2. Suppose you know the remainder for the sum of the entire array. How does removing a subarray affect that remainder?
+   What remainder does the subarray need to have in order to make the rest of the array sum up to be divisible by k?
+3. Use a map to keep track of the rightmost index for every prefix sum % p.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *current;
+    struct hashTable *tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int minSubarray(int *nums, int numsSize, int p) {
+    int retVal = 0;
+
+    // Step 1: Calculate total sum and target remainder
+    int totalSum = 0;
+    for (int i = 0; i < numsSize; ++i) {
+        totalSum = (totalSum + nums[i]) % p;
+    }
+    int target = totalSum % p;
+    if (target == 0) {  // The array is already divisible by p
+        return retVal;
+    }
+
+    // Step 2: Use a hash map to track prefix sum mod p
+    struct hashTable *pHashTable = NULL;
+    struct hashTable *pTemp = NULL;
+    pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+    if (pTemp == NULL) {
+        perror("malloc");
+        freeAll(pHashTable);
+        return retVal;
+    }
+    pTemp->key = 0;
+    pTemp->value = -1;
+    HASH_ADD_INT(pHashTable, key, pTemp);
+
+    // Step 3: Iterate over the array
+    retVal = numsSize;
+    int needed;
+    int currentSum = 0;
+    for (int i = 0; i < numsSize; ++i) {
+        currentSum = (currentSum + nums[i]) % p;
+
+        needed = (currentSum - target + p) % p;  // Calculate what we need to remove
+        // If we have seen the needed remainder, we can consider this subarray
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTable, &needed, pTemp);
+        if (pTemp != NULL) {
+            retVal = fmin(retVal, i - pTemp->value);
+        }
+
+        // Store the current remainder and index
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTable, &currentSum, pTemp);
+        if (pTemp == NULL) {
+            pTemp = NULL;
+            pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                freeAll(pHashTable);
+                return retVal;
+            }
+            pTemp->key = currentSum;
+            pTemp->value = i;
+            HASH_ADD_INT(pHashTable, key, pTemp);
+        } else {
+            pTemp->value = i;
+        }
+    }
+
+    if (retVal == numsSize) {
+        retVal = -1;
+    }
+
+    //
+    freeAll(pHashTable);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minSubarray(vector<int>& nums, int p) {
+        int retVal = 0;
+
+        int numsSize = nums.size();
+
+        // Step 1: Calculate total sum and target remainder
+        int totalSum = 0;
+        for (int num : nums) {
+            totalSum = (totalSum + num) % p;
+        }
+        int target = totalSum % p;
+        if (target == 0) {  // The array is already divisible by p
+            return retVal;
+        }
+
+        // Step 2: Use a hash map to track prefix sum mod p
+        unordered_map<int, int> modMap;
+        modMap[0] = -1;  // To handle the case where the whole prefix is the answer
+
+        // Step 3: Iterate over the array
+        retVal = numsSize;
+        int currentSum = 0;
+        for (int i = 0; i < numsSize; ++i) {
+            currentSum = (currentSum + nums[i]) % p;
+
+            int needed = (currentSum - target + p) % p;  // Calculate what we need to remove
+            // If we have seen the needed remainder, we can consider this subarray
+            if (modMap.find(needed) != modMap.end()) {
+                retVal = min(retVal, i - modMap[needed]);
+            }
+
+            modMap[currentSum] = i;  // Store the current remainder and index
+        }
+
+        if (retVal == numsSize) {
+            retVal = -1;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minSubarray(self, nums: List[int], p: int) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+
+        # Step 1: Calculate total sum and target remainder
+        totalSum = 0
+        for num in nums:
+            totalSum = (totalSum + num) % p
+        target = totalSum % p
+        if target == 0:
+            return retVal  # The array is already divisible by p
+
+        # Step 2: Use a dict to track prefix sum mod p
+        modMap = {0: -1}    # To handle the case where the whole prefix is the answer
+
+        # Step 3: Iterate over the array
+        retVal = numsSize
+        currentSum = 0
+        for i in range(numsSize):
+            currentSum = (currentSum + nums[i]) % p
+
+            needed = (currentSum - target + p) % p  # Calculate what we need to remove
+            # If we have seen the needed remainder, we can consider this subarray
+            if needed in modMap:
+                retVal = min(retVal, i - modMap[needed])
+
+            modMap[currentSum] = i  # Store the current remainder and index
+
+        if retVal == numsSize:
+            retVal = -1
+
+        return retVal
+```
+
+</details>
+
 ## [1685. Sum of Absolute Differences in a Sorted Array](https://leetcode.com/problems/sum-of-absolute-differences-in-a-sorted-array/)  1495
 
 - [Official](https://leetcode.com/problems/sum-of-absolute-differences-in-a-sorted-array/editorial/)
