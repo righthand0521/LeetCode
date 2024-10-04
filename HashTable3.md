@@ -2994,6 +2994,169 @@ class Solution:
 
 </details>
 
+## [2491. Divide Players Into Teams of Equal Skill](https://leetcode.com/problems/divide-players-into-teams-of-equal-skill/)  1323
+
+- [Official](https://leetcode.com/problems/divide-players-into-teams-of-equal-skill/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a positive integer array skill of even length n where skill[i] denotes the skill of the ith player.
+Divide the players into n / 2 teams of size 2 such that the total skill of each team is equal.
+
+The chemistry of a team is equal to the product of the skills of the players on that team.
+
+Return the sum of the chemistry of all the teams,
+or return -1 if there is no way to divide the players into teams such that the total skill of each team is equal.
+
+Example 1:
+Input: skill = [3,2,5,1,3,4]
+Output: 22
+Explanation:
+Divide the players into the following teams: (1, 5), (2, 4), (3, 3), where each team has a total skill of 6.
+The sum of the chemistry of all the teams is: 1 * 5 + 2 * 4 + 3 * 3 = 5 + 8 + 9 = 22.
+
+Example 2:
+Input: skill = [3,4]
+Output: 12
+Explanation:
+The two players form a team with a total skill of 7.
+The chemistry of the team is 3 * 4 = 12.
+
+Example 3:
+Input: skill = [1,1,2,3]
+Output: -1
+Explanation:
+There is no way to divide the players into teams such that the total skill of each team is equal.
+
+Constraints:
+2 <= skill.length <= 10^5
+skill.length is even.
+1 <= skill[i] <= 1000
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Try sorting the skill array.
+2. It is always optimal to pair the weakest available player with the strongest available player.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+long long dividePlayers(int* skill, int skillSize) {
+    long long retVal = -1;
+
+    int totalSkill = 0;
+    int skillFrequency[1001];  // 1 <= skill[i] <= 1000
+    memset(skillFrequency, 0, sizeof(skillFrequency));
+    for (int i = 0; i < skillSize; ++i) {
+        totalSkill += skill[i];
+        skillFrequency[skill[i]]++;
+    }
+    if (totalSkill % (skillSize / 2) != 0) {
+        return retVal;
+    }
+
+    int partnerSkill;
+    int targetTeamSkill = totalSkill / (skillSize / 2);
+    long long totalChemistry = 0;
+    for (int i = 0; i < skillSize; ++i) {
+        partnerSkill = targetTeamSkill - skill[i];
+        if (skillFrequency[partnerSkill] == 0) {
+            return retVal;
+        }
+
+        totalChemistry += (long long)skill[i] * (long long)partnerSkill;
+        skillFrequency[partnerSkill]--;
+    }
+    retVal = totalChemistry / 2;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    long long dividePlayers(vector<int>& skill) {
+        long long retVal = -1;
+
+        int skillSize = skill.size();
+
+        int totalSkill = 0;
+        vector<int> skillFrequency(1001, 0);  // 1 <= skill[i] <= 1000
+        for (int playerSkill : skill) {
+            totalSkill += playerSkill;
+            skillFrequency[playerSkill]++;
+        }
+        if (totalSkill % (skillSize / 2) != 0) {
+            return retVal;
+        }
+
+        int targetTeamSkill = totalSkill / (skillSize / 2);
+        long long totalChemistry = 0;
+        for (int playerSkill : skill) {
+            int partnerSkill = targetTeamSkill - playerSkill;
+            if (skillFrequency[partnerSkill] == 0) {
+                return retVal;
+            }
+
+            totalChemistry += (long long)playerSkill * (long long)partnerSkill;
+            skillFrequency[partnerSkill]--;
+        }
+        retVal = totalChemistry / 2;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def dividePlayers(self, skill: List[int]) -> int:
+        retVal = -1
+
+        skillSize = len(skill)
+
+        totalSkill = sum(skill)
+        if totalSkill % (skillSize // 2) != 0:
+            return retVal
+
+        skillFrequency = [0] * 1001  # // 1 <= skill[i] <= 1000
+        for playerSkill in skill:
+            skillFrequency[playerSkill] += 1
+
+        targetTeamSkill = totalSkill // (skillSize // 2)
+        totalChemistry = 0
+        for playerSkill in skill:
+            partnerSkill = targetTeamSkill - playerSkill
+            if skillFrequency[partnerSkill] == 0:
+                return retVal
+
+            totalChemistry += (playerSkill * partnerSkill)
+            skillFrequency[partnerSkill] -= 1
+
+        retVal = totalChemistry // 2
+
+        return retVal
+```
+
+</details>
+
 ## [2570. Merge Two 2D Arrays by Summing Values](https://leetcode.com/problems/merge-two-2d-arrays-by-summing-values/)  1281
 
 <details><summary>Description</summary>
