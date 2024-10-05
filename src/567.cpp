@@ -5,21 +5,23 @@
 using namespace std;
 
 class Solution {
-#define MAX_COUNT_SIZE (26)  // s1 and s2 consist of lowercase English letters.
+   private:
+    int lettersSize = 26;  // s1 and s2 consist of lowercase English letters.
+
    public:
     bool checkInclusion(string s1, string s2) {
         bool retVal = false;
 
-        int len1 = s1.length();
-        int len2 = s2.length();
-        if (len2 < len1) {
+        int s1Size = s1.size();
+        int s2Size = s2.size();
+        if (s2Size < s1Size) {
             return retVal;
         }
 
-        vector<int> count1(MAX_COUNT_SIZE, 0);
-        vector<int> count2(MAX_COUNT_SIZE, 0);
+        vector<int> count1(lettersSize, 0);
+        vector<int> count2(lettersSize, 0);
 
-        for (int i = 0; i < len1; ++i) {
+        for (int i = 0; i < s1Size; ++i) {
             ++count1[s1[i] - 'a'];
             ++count2[s2[i] - 'a'];
         }
@@ -28,9 +30,9 @@ class Solution {
             return retVal;
         }
 
-        for (int i = len1; i < len2; ++i) {
+        for (int i = s1Size; i < s2Size; ++i) {
             ++count2[s2[i] - 'a'];
-            --count2[s2[i - len1] - 'a'];
+            --count2[s2[i - s1Size] - 'a'];
             if (count1 == count2) {
                 retVal = true;
                 return retVal;
@@ -48,6 +50,13 @@ int main(int argc, char** argv) {
     };
     vector<subject> testData{{"ab", "eidbaooo"}, {"ab", "eidboaoo"}};
     int numberOfTestCase = testData.size();
+    /* Example
+     *  Input: s1 = "ab", s2 = "eidbaooo"
+     *  Output: true
+     *
+     *  Input: s1 = "ab", s2 = "eidboaoo"
+     *  Output: false
+     */
 
     Solution cSolution;
     bool answer = false;

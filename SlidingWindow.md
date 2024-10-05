@@ -1165,17 +1165,31 @@ Constraints:
 s1 and s2 consist of lowercase English letters.
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. Obviously, brute force will result in TLE. Think of something else.
+2. How will you check whether one string is a permutation of another string?
+3. One way is to sort the string and then compare. But, Is there a better way?
+4. If one string is a permutation of another string then they must have one common metric. What is that?
+5. Both strings must have same character frequencies, if one is permutation of another.
+   Which data structure should be used to store frequencies?
+6. What about hash table? An array of size 26?
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
 
 ```c
-#define COUNT_SIZE (26)  // s1 and s2 consist of lowercase English letters.
-bool IsCountEqual(int* pCount1, int* pCount2) {
+#define MAX_LETTERS_SIZE (26)  // s1 and s2 consist of lowercase English letters.
+bool isCountEqual(int* pCount1, int* pCount2) {
     bool retVal = false;
 
     int i;
-    for (i = 0; i < COUNT_SIZE; ++i) {
+    for (i = 0; i < MAX_LETTERS_SIZE; ++i) {
         if (pCount1[i] != pCount2[i]) {
             return retVal;
         }
@@ -1187,33 +1201,33 @@ bool IsCountEqual(int* pCount1, int* pCount2) {
 bool checkInclusion(char* s1, char* s2) {
     bool retVal = false;
 
-    int len1 = strlen(s1);
-    int len2 = strlen(s2);
-    if (len2 < len1) {
+    int s1Size = strlen(s1);
+    int s2Size = strlen(s2);
+    if (s2Size < s1Size) {
         return retVal;
     }
 
-    int Count1[COUNT_SIZE];
-    memset(Count1, 0, sizeof(Count1));
-    int Count2[COUNT_SIZE];
-    memset(Count2, 0, sizeof(Count2));
+    int count1[MAX_LETTERS_SIZE];
+    memset(count1, 0, sizeof(count1));
+    int count2[MAX_LETTERS_SIZE];
+    memset(count2, 0, sizeof(count2));
 
     int i;
-    for (i = 0; i < len1; ++i) {
-        ++Count1[(unsigned int)(s1[i] - 'a')];
-        ++Count2[(unsigned int)(s2[i] - 'a')];
+    for (i = 0; i < s1Size; ++i) {
+        ++count1[(unsigned int)(s1[i] - 'a')];
+        ++count2[(unsigned int)(s2[i] - 'a')];
     }
-    if (IsCountEqual(Count1, Count2) == true) {
+    if (isCountEqual(count1, count2) == true) {
         retVal = true;
         return retVal;
     }
 
-    for (i = len1; i < len2; ++i) {
-        ++Count2[(unsigned int)(s2[i] - 'a')];
-        --Count2[(unsigned int)(s2[i - len1] - 'a')];
-        if (IsCountEqual(Count1, Count2) == true) {
+    for (i = s1Size; i < s2Size; ++i) {
+        ++count2[(unsigned int)(s2[i] - 'a')];
+        --count2[(unsigned int)(s2[i - s1Size] - 'a')];
+        if (isCountEqual(count1, count2) == true) {
             retVal = true;
-            break;
+            return retVal;
         }
     }
 
@@ -1227,21 +1241,23 @@ bool checkInclusion(char* s1, char* s2) {
 
 ```c++
 class Solution {
-#define MAX_COUNT_SIZE (26)  // s1 and s2 consist of lowercase English letters.
+   private:
+    int lettersSize = 26;  // s1 and s2 consist of lowercase English letters.
+
    public:
     bool checkInclusion(string s1, string s2) {
         bool retVal = false;
 
-        int len1 = s1.length();
-        int len2 = s2.length();
-        if (len2 < len1) {
+        int s1Size = s1.size();
+        int s2Size = s2.size();
+        if (s2Size < s1Size) {
             return retVal;
         }
 
-        vector<int> count1(MAX_COUNT_SIZE, 0);
-        vector<int> count2(MAX_COUNT_SIZE, 0);
+        vector<int> count1(lettersSize, 0);
+        vector<int> count2(lettersSize, 0);
 
-        for (int i = 0; i < len1; ++i) {
+        for (int i = 0; i < s1Size; ++i) {
             ++count1[s1[i] - 'a'];
             ++count2[s2[i] - 'a'];
         }
@@ -1250,9 +1266,9 @@ class Solution {
             return retVal;
         }
 
-        for (int i = len1; i < len2; ++i) {
+        for (int i = s1Size; i < s2Size; ++i) {
             ++count2[s2[i] - 'a'];
-            --count2[s2[i - len1] - 'a'];
+            --count2[s2[i - s1Size] - 'a'];
             if (count1 == count2) {
                 retVal = true;
                 return retVal;
@@ -1270,7 +1286,35 @@ class Solution {
 
 ```python
 class Solution:
+    def __init__(self) -> None:
+        self.letters = 26  # // s1 and s2 consist of lowercase English letters.
+
     def checkInclusion(self, s1: str, s2: str) -> bool:
+        retVal = False
+
+        s1Size = len(s1)
+        s2Size = len(s2)
+        if s2Size < s1Size:
+            return retVal
+
+        count1 = [0] * self.letters
+        count2 = [0] * self.letters
+
+        for i in range(s1Size):
+            count1[ord(s1[i]) - ord('a')] += 1
+            count2[ord(s2[i]) - ord('a')] += 1
+        if count1 == count2:
+            retVal = True
+            return retVal
+
+        for i in range(s1Size, s2Size):
+            count2[ord(s2[i]) - ord('a')] += 1
+            count2[ord(s2[i-s1Size]) - ord('a')] -= 1
+            if count1 == count2:
+                retVal = True
+                return retVal
+
+        return retVal
 ```
 
 </details>

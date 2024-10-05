@@ -3,12 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define COUNT_SIZE (26)  // s1 and s2 consist of lowercase English letters.
-bool IsCountEqual(int* pCount1, int* pCount2) {
+#define MAX_LETTERS_SIZE (26)  // s1 and s2 consist of lowercase English letters.
+bool isCountEqual(int* pCount1, int* pCount2) {
     bool retVal = false;
 
     int i;
-    for (i = 0; i < COUNT_SIZE; ++i) {
+    for (i = 0; i < MAX_LETTERS_SIZE; ++i) {
         if (pCount1[i] != pCount2[i]) {
             return retVal;
         }
@@ -20,33 +20,33 @@ bool IsCountEqual(int* pCount1, int* pCount2) {
 bool checkInclusion(char* s1, char* s2) {
     bool retVal = false;
 
-    int len1 = strlen(s1);
-    int len2 = strlen(s2);
-    if (len2 < len1) {
+    int s1Size = strlen(s1);
+    int s2Size = strlen(s2);
+    if (s2Size < s1Size) {
         return retVal;
     }
 
-    int Count1[COUNT_SIZE];
-    memset(Count1, 0, sizeof(Count1));
-    int Count2[COUNT_SIZE];
-    memset(Count2, 0, sizeof(Count2));
+    int count1[MAX_LETTERS_SIZE];
+    memset(count1, 0, sizeof(count1));
+    int count2[MAX_LETTERS_SIZE];
+    memset(count2, 0, sizeof(count2));
 
     int i;
-    for (i = 0; i < len1; ++i) {
-        ++Count1[(unsigned int)(s1[i] - 'a')];
-        ++Count2[(unsigned int)(s2[i] - 'a')];
+    for (i = 0; i < s1Size; ++i) {
+        ++count1[(unsigned int)(s1[i] - 'a')];
+        ++count2[(unsigned int)(s2[i] - 'a')];
     }
-    if (IsCountEqual(Count1, Count2) == true) {
+    if (isCountEqual(count1, count2) == true) {
         retVal = true;
         return retVal;
     }
 
-    for (i = len1; i < len2; ++i) {
-        ++Count2[(unsigned int)(s2[i] - 'a')];
-        --Count2[(unsigned int)(s2[i - len1] - 'a')];
-        if (IsCountEqual(Count1, Count2) == true) {
+    for (i = s1Size; i < s2Size; ++i) {
+        ++count2[(unsigned int)(s2[i] - 'a')];
+        --count2[(unsigned int)(s2[i - s1Size] - 'a')];
+        if (isCountEqual(count1, count2) == true) {
             retVal = true;
-            break;
+            return retVal;
         }
     }
 
@@ -60,6 +60,13 @@ int main(int argc, char** argv) {
         char s2[MAX_SIZE];
     } testCase[] = {{"ab", "eidbaooo"}, {"ab", "eidboaoo"}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: s1 = "ab", s2 = "eidbaooo"
+     *  Output: true
+     *
+     *  Input: s1 = "ab", s2 = "eidboaoo"
+     *  Output: false
+     */
 
     bool answer = false;
     int i;
