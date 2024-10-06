@@ -3293,6 +3293,7 @@ class Solution:
 
 ## [1813. Sentence Similarity III](https://leetcode.com/problems/sentence-similarity-iii/)  1588
 
+- [Official](https://leetcode.com/problems/sentence-similarity-iii/editorial/)
 - [Official](https://leetcode.cn/problems/sentence-similarity-iii/solutions/2062566/ju-zi-xiang-si-xing-iii-by-leetcode-solu-vjy7/)
 
 <details><summary>Description</summary>
@@ -3330,6 +3331,15 @@ Constraints:
 sentence1 and sentence2 consist of lowercase and uppercase English letters and spaces.
 The words in sentence1 and sentence2 are separated by a single space.
 ```
+
+<details><summary>Hint</summary>
+
+```text
+1. One way to look at it is to find one sentence as a concatenation of a prefix and suffix from the other sentence.
+2. Get the longest common prefix between them and the longest common suffix.
+```
+
+</details>
 
 </details>
 
@@ -3406,22 +3416,14 @@ class Solution {
             words2.push_back(word2);
         }
 
-        while ((words1.empty() == false) && (words2.empty() == false)) {
-            if (words1.front() == words2.front()) {
-                words1.erase(words1.begin());
-                words2.erase(words2.begin());
-            } else {
-                break;
-            }
+        while ((words1.empty() == false) && (words2.empty() == false) && (words1.front() == words2.front())) {
+            words1.erase(words1.begin());
+            words2.erase(words2.begin());
         }
 
-        while ((words1.empty() == false) && (words2.empty() == false)) {
-            if (words1.back() == words2.back()) {
-                words1.pop_back();
-                words2.pop_back();
-            } else {
-                break;
-            }
+        while ((words1.empty() == false) && (words2.empty() == false) && (words1.back() == words2.back())) {
+            words1.pop_back();
+            words2.pop_back();
         }
 
         if ((words1.empty() == true) || (words2.empty() == true)) {
@@ -3431,6 +3433,32 @@ class Solution {
         return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def areSentencesSimilar(self, sentence1: str, sentence2: str) -> bool:
+        retVal = False
+
+        words1 = list(sentence1.split())
+        words2 = list(sentence2.split())
+
+        while words1 and words2 and (words1[0] == words2[0]):
+            words1.pop(0)
+            words2.pop(0)
+
+        while words1 and words2 and (words1[-1] == words2[-1]):
+            words1.pop(-1)
+            words2.pop(-1)
+
+        if (not words1) or (not words2):
+            retVal = True
+
+        return retVal
 ```
 
 </details>

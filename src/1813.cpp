@@ -24,22 +24,14 @@ class Solution {
             words2.push_back(word2);
         }
 
-        while ((words1.empty() == false) && (words2.empty() == false)) {
-            if (words1.front() == words2.front()) {
-                words1.erase(words1.begin());
-                words2.erase(words2.begin());
-            } else {
-                break;
-            }
+        while ((words1.empty() == false) && (words2.empty() == false) && (words1.front() == words2.front())) {
+            words1.erase(words1.begin());
+            words2.erase(words2.begin());
         }
 
-        while ((words1.empty() == false) && (words2.empty() == false)) {
-            if (words1.back() == words2.back()) {
-                words1.pop_back();
-                words2.pop_back();
-            } else {
-                break;
-            }
+        while ((words1.empty() == false) && (words2.empty() == false) && (words1.back() == words2.back())) {
+            words1.pop_back();
+            words2.pop_back();
         }
 
         if ((words1.empty() == true) || (words2.empty() == true)) {
@@ -60,6 +52,19 @@ int main(int argc, char **argv) {
                              {"Eating right now", "Eating"},
                              {"Luky", "Lucccky"}};
     int numberOfTestCase = testData.size();
+    /* Example
+     *  Input: sentence1 = "My name is Haley", sentence2 = "My Haley"
+     *  Output: true
+     *
+     *  Input: sentence1 = "of", sentence2 = "A lot of words"
+     *  Output: false
+     *
+     *  Input: sentence1 = "Eating right now", sentence2 = "Eating"
+     *  Output: true
+     *
+     *  Input: sentence1 = "Luky", sentence2 = "Lucccky"
+     *  Output: false
+     */
 
     Solution cSolution;
     bool answer = false;

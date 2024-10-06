@@ -59,6 +59,19 @@ int main(int argc, char** argv) {
                     {"Eating right now", "Eating"},
                     {"Luky", "Lucccky"}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: sentence1 = "My name is Haley", sentence2 = "My Haley"
+     *  Output: true
+     *
+     *  Input: sentence1 = "of", sentence2 = "A lot of words"
+     *  Output: false
+     *
+     *  Input: sentence1 = "Eating right now", sentence2 = "Eating"
+     *  Output: true
+     *
+     *  Input: sentence1 = "Luky", sentence2 = "Lucccky"
+     *  Output: false
+     */
 
     bool answer = false;
     int i;
