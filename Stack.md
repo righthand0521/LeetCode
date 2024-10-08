@@ -5753,6 +5753,139 @@ class Solution:
 
 </details>
 
+## [1963. Minimum Number of Swaps to Make the String Balanced](https://leetcode.com/problems/minimum-number-of-swaps-to-make-the-string-balanced/)  1688
+
+- [Official](https://leetcode.com/problems/minimum-number-of-swaps-to-make-the-string-balanced/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-number-of-swaps-to-make-the-string-balanced/solutions/922748/shi-zi-fu-chuan-ping-heng-de-zui-xiao-ji-f7ye/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed string s of even length n.
+The string consists of exactly n / 2 opening brackets '[' and n / 2 closing brackets ']'.
+
+A string is called balanced if and only if:
+- It is the empty string, or
+- It can be written as AB, where both A and B are balanced strings, or
+- It can be written as [C], where C is a balanced string.
+
+You may swap the brackets at any two indices any number of times.
+
+Return the minimum number of swaps to make s balanced.
+
+Example 1:
+Input: s = "][]["
+Output: 1
+Explanation: You can make the string balanced by swapping index 0 with index 3.
+The resulting string is "[[]]".
+
+Example 2:
+Input: s = "]]][[["
+Output: 2
+Explanation: You can do the following to make the string balanced:
+- Swap index 0 with index 4. s = "[]][][".
+- Swap index 1 with index 5. s = "[[][]]".
+The resulting string is "[[][]]".
+
+Example 3:
+Input: s = "[]"
+Output: 0
+Explanation: The string is already balanced.
+
+Constraints:
+n == s.length
+2 <= n <= 10^6
+n is even.
+s[i] is either '[' or ']'.
+The number of opening brackets '[' equals n / 2, and the number of closing brackets ']' equals n / 2.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Iterate over the string and keep track of the number of opening and closing brackets on each step.
+2. If the number of closing brackets is ever larger, you need to make a swap.
+3. Swap it with the opening bracket closest to the end of s.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int minSwaps(char* s) {
+    int retVal = 0;
+
+    int stackSize = 0;
+    int sSize = strlen(s);
+    for (int i = 0; i < sSize; ++i) {
+        if (s[i] == '[') {
+            // If character is opening bracket, increment the stack size.
+            stackSize++;
+        } else if (stackSize > 0) {
+            // If the character is closing bracket, and we have an opening bracket, decrease the stack size.
+            stackSize--;
+        }
+    }
+    retVal = (stackSize + 1) / 2;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minSwaps(string s) {
+        int retVal = 0;
+
+        int stackSize = 0;
+        for (char c : s) {
+            if (c == '[') {
+                // If character is opening bracket, increment the stack size.
+                stackSize++;
+            } else if (stackSize > 0) {
+                // If the character is closing bracket, and we have an opening bracket, decrease the stack size.
+                stackSize--;
+            }
+        }
+        retVal = (stackSize + 1) / 2;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minSwaps(self, s: str) -> int:
+        retVal = 0
+
+        stackSize = 0
+        for ch in s:
+            # If character is opening bracket, increment the stack size.
+            if ch == "[":
+                stackSize += 1
+            # If the character is closing bracket, and we have an opening bracket, decrease the stack size.
+            elif stackSize > 0:
+                stackSize -= 1
+        retVal = (stackSize + 1) // 2
+
+        return retVal
+```
+
+</details>
+
 ## [2211. Count Collisions on a Road](https://leetcode.com/problems/count-collisions-on-a-road/)  1581
 
 <details><summary>Description</summary>
