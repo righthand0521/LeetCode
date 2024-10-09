@@ -3940,6 +3940,123 @@ class Solution:
 
 </details>
 
+## [921. Minimum Add to Make Parentheses Valid](https://leetcode.com/problems/minimum-add-to-make-parentheses-valid/)  1242
+
+- [Official](https://leetcode.com/problems/minimum-add-to-make-parentheses-valid/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-add-to-make-parentheses-valid/solutions/1855025/shi-gua-hao-you-xiao-de-zui-shao-tian-ji-gcxu/)
+
+<details><summary>Description</summary>
+
+```text
+A parentheses string is valid if and only if:
+- It is the empty string,
+- It can be written as AB (A concatenated with B), where A and B are valid strings, or
+- It can be written as (A), where A is a valid string.
+
+You are given a parentheses string s. In one move, you can insert a parenthesis at any position of the string.
+- For example, if s = "()))",
+  you can insert an opening parenthesis to be "(()))" or a closing parenthesis to be "())))".
+
+Return the minimum number of moves required to make s valid.
+
+Example 1:
+Input: s = "())"
+Output: 1
+
+Example 2:
+Input: s = "((("
+Output: 3
+
+Constraints:
+1 <= s.length <= 1000
+s[i] is either '(' or ')'.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int minAddToMakeValid(char* s) {
+    int retVal = 0;
+
+    int sSize = strlen(s);
+    int openBrackets = 0;
+    int minAddsRequired = 0;
+    int i;
+    for (i = 0; i < sSize; ++i) {
+        if (s[i] == '(') {
+            openBrackets++;
+        } else {
+            // If open bracket exists, match it with the closing one. If not, we need to add a open bracket.
+            (openBrackets > 0) ? (openBrackets--) : (minAddsRequired++);
+        }
+    }
+
+    // Add the remaining open brackets as closing brackets would be required.
+    retVal = minAddsRequired + openBrackets;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minAddToMakeValid(string s) {
+        int retVal = 0;
+
+        int openBrackets = 0;
+        int minAddsRequired = 0;
+        for (char c : s) {
+            if (c == '(') {
+                openBrackets++;
+            } else {
+                // If open bracket exists, match it with the closing one. If not, we need to add a open bracket.
+                (openBrackets > 0) ? (openBrackets--) : (minAddsRequired++);
+            }
+        }
+
+        // Add the remaining open brackets as closing brackets would be required.
+        retVal = minAddsRequired + openBrackets;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minAddToMakeValid(self, s: str) -> int:
+        retVal = 0
+
+        openBrackets = 0
+        minAddsRequired = 0
+        for c in s:
+            if c == '(':
+                openBrackets += 1
+            else:
+                if openBrackets > 0:  # If open bracket exists, match it with the closing one.
+                    openBrackets -= 1
+                else:   # If not, we need to add a open bracket.
+                    minAddsRequired += 1
+
+        # Add the remaining open brackets as closing brackets would be required.
+        retVal = minAddsRequired + openBrackets
+
+        return retVal
+```
+
+</details>
+
 ## [946. Validate Stack Sequences](https://leetcode.com/problems/validate-stack-sequences/)  1461
 
 - [Official](https://leetcode.cn/problems/validate-stack-sequences/solutions/1785639/yan-zheng-zhan-xu-lie-by-leetcode-soluti-cql0/)
