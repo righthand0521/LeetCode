@@ -4192,6 +4192,123 @@ class Solution:
 
 </details>
 
+## [962. Maximum Width Ramp](https://leetcode.com/problems/maximum-width-ramp/)  1607
+
+- [Official](https://leetcode.com/problems/maximum-width-ramp/editorial/)
+- [Official](https://leetcode.cn/problems/maximum-width-ramp/solutions/3610/zui-da-kuan-du-po-by-leetcode/)
+
+<details><summary>Description</summary>
+
+```text
+A ramp in an integer array nums is a pair (i, j) for which i < j and nums[i] <= nums[j].
+The width of such a ramp is j - i.
+
+Given an integer array nums, return the maximum width of a ramp in nums. If there is no ramp in nums, return 0.
+
+Example 1:
+Input: nums = [6,0,8,2,1,5]
+Output: 4
+Explanation: The maximum width ramp is achieved at (i, j) = (1, 5): nums[1] = 0 and nums[5] = 5.
+
+Example 2:
+Input: nums = [9,8,1,0,1,9,4,0,4,1]
+Output: 7
+Explanation: The maximum width ramp is achieved at (i, j) = (2, 9): nums[2] = 1 and nums[9] = 1.
+
+Constraints:
+2 <= nums.length <= 5 * 10^4
+0 <= nums[i] <= 5 * 10^4
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int maxWidthRamp(int* nums, int numsSize) {
+    int retVal = 0;
+
+    int indexStackTop = -1;
+    int indexStack[numsSize];
+    memset(indexStack, 0, sizeof(indexStack));
+    indexStack[++indexStackTop] = 0;
+
+    int i;
+    for (i = 1; i < numsSize; ++i) {
+        if (nums[indexStack[indexStackTop]] > nums[i]) {
+            indexStack[++indexStackTop] = i;
+        }
+    }
+
+    for (i = numsSize - 1; i >= 0; --i) {
+        while ((indexStackTop != -1) && (nums[indexStack[indexStackTop]] <= nums[i])) {
+            retVal = fmax(retVal, i - indexStack[indexStackTop]);
+            indexStack[indexStackTop--] = 0;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maxWidthRamp(vector<int>& nums) {
+        int retVal = 0;
+
+        int numsSize = nums.size();
+
+        vector<int> indexStack;
+        indexStack.push_back(0);
+        for (int i = 1; i < numsSize; ++i) {
+            if (nums[indexStack.back()] > nums[i]) {
+                indexStack.push_back(i);
+            }
+        }
+
+        for (int i = numsSize - 1; i >= 0; --i) {
+            while ((indexStack.empty() == false) && (nums[indexStack.back()] <= nums[i])) {
+                retVal = max(retVal, i - indexStack.back());
+                indexStack.pop_back();
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxWidthRamp(self, nums: List[int]) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+
+        indexStack = [0]
+        for i in range(1, numsSize):
+            if nums[indexStack[-1]] > nums[i]:
+                indexStack.append(i)
+
+        for i in range(numsSize - 1, -1, -1):
+            while indexStack and nums[indexStack[-1]] <= nums[i]:
+                retVal = max(retVal, i - indexStack[-1])
+                indexStack.pop()
+
+        return retVal
+```
+
+</details>
+
 ## [1047. Remove All Adjacent Duplicates In String](https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string/)  1286
 
 - [Official](https://leetcode.cn/problems/remove-all-adjacent-duplicates-in-string/solutions/643955/shan-chu-zi-fu-chuan-zhong-de-suo-you-xi-4ohr/)
