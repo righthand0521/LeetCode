@@ -4146,6 +4146,200 @@ class SeatManager:
 
 </details>
 
+## [1942. The Number of the Smallest Unoccupied Chair](https://leetcode.com/problems/the-number-of-the-smallest-unoccupied-chair/)  1695
+
+- [Official](https://leetcode.com/problems/the-number-of-the-smallest-unoccupied-chair/editorial/)
+- [Official](https://leetcode.cn/problems/the-number-of-the-smallest-unoccupied-chair/solutions/895434/zui-xiao-wei-bei-zhan-ju-yi-zi-de-bian-h-kz2d/)
+
+<details><summary>Description</summary>
+
+```text
+There is a party where n friends numbered from 0 to n - 1 are attending.
+There is an infinite number of chairs in this party that are numbered from 0 to infinity.
+When a friend arrives at the party, they sit on the unoccupied chair with the smallest number.
+- For example, if chairs 0, 1, and 5 are occupied when a friend comes, they will sit on chair number 2.
+
+When a friend leaves the party, their chair becomes unoccupied at the moment they leave.
+If another friend arrives at that same moment, they can sit in that chair.
+
+You are given a 0-indexed 2D integer array times where times[i] = [arrivali, leavingi],
+indicating the arrival and leaving times of the ith friend respectively, and an integer targetFriend.
+All arrival times are distinct.
+
+Return the chair number that the friend numbered targetFriend will sit on.
+
+Example 1:
+Input: times = [[1,4],[2,3],[4,6]], targetFriend = 1
+Output: 1
+Explanation:
+- Friend 0 arrives at time 1 and sits on chair 0.
+- Friend 1 arrives at time 2 and sits on chair 1.
+- Friend 1 leaves at time 3 and chair 1 becomes empty.
+- Friend 0 leaves at time 4 and chair 0 becomes empty.
+- Friend 2 arrives at time 4 and sits on chair 0.
+Since friend 1 sat on chair 1, we return 1.
+
+Example 2:
+Input: times = [[3,10],[1,5],[2,6]], targetFriend = 0
+Output: 2
+Explanation:
+- Friend 1 arrives at time 1 and sits on chair 0.
+- Friend 2 arrives at time 2 and sits on chair 1.
+- Friend 0 arrives at time 3 and sits on chair 2.
+- Friend 1 leaves at time 5 and chair 0 becomes empty.
+- Friend 2 leaves at time 6 and chair 1 becomes empty.
+- Friend 0 leaves at time 10 and chair 2 becomes empty.
+Since friend 0 sat on chair 2, we return 2.
+
+Constraints:
+n == times.length
+2 <= n <= 10^4
+times[i].length == 2
+1 <= arrivali < leavingi <= 10^5
+0 <= targetFriend <= n - 1
+Each arrivali time is distinct.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Sort times by arrival time.
+2. for each arrival_i find the smallest unoccupied chair and mark it as occupied until leaving_i.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// https://leetcode.cn/problems/the-number-of-the-smallest-unoccupied-chair/solutions/1102966/zui-xiao-wei-bei-zhan-ju-yi-zi-de-bian-h-tjlc/
+int compareIntArray(const void *a1, const void *a2) {
+    int *p1 = *(int **)a1;
+    int *p2 = *(int **)a2;
+
+    // ascending order
+    if (p1[0] == p2[0]) {
+        return (p1[1] > p2[1]);
+    }
+
+    return (p1[0] > p2[0]);
+}
+int smallestChair(int **times, int timesSize, int *timesColSize, int targetFriend) {
+    int retVal = 0;
+
+    int arriveTime = times[targetFriend][0];
+
+    qsort(times, timesSize, sizeof(int *), compareIntArray);
+
+    int seat[arriveTime];
+    memset(seat, 0, sizeof(seat));
+    int i = 0;
+    int j = 0;
+    while ((timesSize > i) && (times[i][0] <= arriveTime)) {
+        j = 0;
+        while ((arriveTime > j) && (seat[j] > times[i][0])) {
+            j++;
+        }
+
+        if (arriveTime > j) {
+            seat[j] = times[i][1];
+        }
+
+        i++;
+    }
+    retVal = j;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int smallestChair(vector<vector<int>>& times, int targetFriend) {
+        int retVal = 0;
+
+        int targetArrival = times[targetFriend][0];
+
+        sort(times.begin(), times.end());
+
+        priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> leavingQueue;
+        set<int> availableChairs;
+        int nextChair = 0;
+        for (auto time : times) {
+            int arrival = time[0];
+            int leave = time[1];
+
+            while ((leavingQueue.empty() == false) && (leavingQueue.top().first <= arrival)) {
+                availableChairs.insert(leavingQueue.top().second);
+                leavingQueue.pop();
+            }
+
+            int currentChair;
+            if (availableChairs.empty() == false) {
+                currentChair = *availableChairs.begin();
+                availableChairs.erase(availableChairs.begin());
+            } else {
+                currentChair = nextChair++;
+            }
+
+            leavingQueue.push({leave, currentChair});
+
+            if (arrival == targetArrival) {
+                retVal = currentChair;
+                break;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def smallestChair(self, times: List[List[int]], targetFriend: int) -> int:
+        retVal = 0
+
+        times = sorted([(arrival, leave, index) for index, (arrival, leave) in enumerate(times)])
+
+        nextChair = 0
+        availableChairs = []
+        leavingQueue = []
+        for time in times:
+            arrival, leave, index = time
+
+            while leavingQueue and leavingQueue[0][0] <= arrival:
+                _, chair = heappop(leavingQueue)
+                heappush(availableChairs, chair)
+
+            if availableChairs:
+                currentChair = heappop(availableChairs)
+            else:
+                currentChair = nextChair
+                nextChair += 1
+
+            heappush(leavingQueue, (leave, currentChair))
+
+            if index == targetFriend:
+                retVal = currentChair
+                break
+
+        return retVal
+```
+
+</details>
+
 ## [1962. Remove Stones to Minimize the Total](https://leetcode.com/problems/remove-stones-to-minimize-the-total/)  1418
 
 - [Official](https://leetcode.com/problems/remove-stones-to-minimize-the-total/solutions/2636179/remove-stones-to-minimize-the-total/)
