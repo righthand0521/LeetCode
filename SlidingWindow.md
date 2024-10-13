@@ -1361,6 +1361,235 @@ impl Solution {
 
 </details>
 
+## [632. Smallest Range Covering Elements from K Lists](https://leetcode.com/problems/smallest-range-covering-elements-from-k-lists/)
+
+- [Official](https://leetcode.com/problems/smallest-range-covering-elements-from-k-lists/editorial/)
+- [Official](https://leetcode.cn/problems/smallest-range-covering-elements-from-k-lists/solutions/355881/zui-xiao-qu-jian-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+You have k lists of sorted integers in non-decreasing order.
+Find the smallest range that includes at least one number from each of the k lists.
+
+We define the range [a, b] is smaller than range [c, d] if b - a < d - c or a < c if b - a == d - c.
+
+Example 1:
+Input: nums = [[4,10,15,24,26],[0,9,12,20],[5,18,22,30]]
+Output: [20,24]
+Explanation:
+List 1: [4, 10, 15, 24,26], 24 is in range [20,24].
+List 2: [0, 9, 12, 20], 20 is in range [20,24].
+List 3: [5, 18, 22, 30], 22 is in range [20,24].
+
+Example 2:
+Input: nums = [[1,2,3],[1,2,3],[1,2,3]]
+Output: [1,1]
+
+Constraints:
+nums.length == k
+1 <= k <= 3500
+1 <= nums[i].length <= 50
+-10^5 <= nums[i][j] <= 10^5
+nums[i] is sorted in non-decreasing order.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareIntArray(const void* a1, const void* a2) {
+    int* p1 = (int*)a1;
+    int* p2 = (int*)a2;
+
+    // ascending order
+    if (p1[0] == p2[0]) {
+        return (p1[1] > p2[1]);
+    }
+
+    return (p1[0] > p2[0]);
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* smallestRange(int** nums, int numsSize, int* numsColSize, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    int i, j;
+
+    // Merge all lists with their list index
+    int mergedIndex = 0;
+    int mergedSize = 0;
+    for (i = 0; i < numsSize; ++i) {
+        mergedSize += numsColSize[i];
+    }
+    int merged[mergedSize][2];
+    memset(merged, 0, sizeof(merged));
+    for (i = 0; i < numsSize; ++i) {
+        for (j = 0; j < numsColSize[i]; ++j) {
+            merged[mergedIndex][0] = nums[i][j];
+            merged[mergedIndex][1] = i;
+            mergedIndex++;
+        }
+    }
+    qsort(merged, mergedSize, sizeof(merged[0]), compareIntArray);
+
+    // Two pointers to track the smallest range
+    int freq[numsSize];
+    memset(freq, 0, sizeof(freq));
+    int rangeStart = 0;
+    int rangeEnd = INT_MAX;
+    int curRange;
+    int count = 0;
+    int left = 0;
+    int right = 0;
+    for (right = 0; right < mergedSize; right++) {
+        freq[merged[right][1]]++;
+        if (freq[merged[right][1]] == 1) {
+            count++;
+        }
+
+        // When all lists are represented, try to shrink the window
+        while (count == numsSize) {
+            curRange = merged[right][0] - merged[left][0];
+            if (curRange < rangeEnd - rangeStart) {
+                rangeStart = merged[left][0];
+                rangeEnd = merged[right][0];
+            }
+
+            freq[merged[left][1]]--;
+            if (freq[merged[left][1]] == 0) {
+                count--;
+            }
+
+            left++;
+        }
+    }
+
+    pRetVal = (int*)calloc(2, sizeof(int));
+    if (pRetVal == NULL) {
+        perror("calloc");
+        return pRetVal;
+    }
+    pRetVal[0] = rangeStart;
+    pRetVal[1] = rangeEnd;
+    (*returnSize) = 2;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> smallestRange(vector<vector<int>>& nums) {
+        vector<int> retVal;
+
+        int numsSize = nums.size();
+
+        // Merge all lists with their list index
+        vector<pair<int, int>> merged;
+        for (int i = 0; i < numsSize; ++i) {
+            for (int num : nums[i]) {
+                merged.push_back({num, i});
+            }
+        }
+        sort(merged.begin(), merged.end());
+        int mergedSize = merged.size();
+
+        // Two pointers to track the smallest range
+        unordered_map<int, int> freq;
+        int rangeStart = 0;
+        int rangeEnd = numeric_limits<int>::max();
+        int count = 0;
+        int left = 0;
+        for (int right = 0; right < mergedSize; right++) {
+            freq[merged[right].second]++;
+            if (freq[merged[right].second] == 1) {
+                count++;
+            }
+
+            // When all lists are represented, try to shrink the window
+            while (count == numsSize) {
+                int curRange = merged[right].first - merged[left].first;
+                if (curRange < rangeEnd - rangeStart) {
+                    rangeStart = merged[left].first;
+                    rangeEnd = merged[right].first;
+                }
+
+                freq[merged[left].second]--;
+                if (freq[merged[left].second] == 0) {
+                    count--;
+                }
+
+                left++;
+            }
+        }
+
+        retVal = {rangeStart, rangeEnd};
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def smallestRange(self, nums: List[List[int]]) -> List[int]:
+        retVal = []
+
+        numsSize = len(nums)
+
+        # Merge all lists with their list index
+        merged = []
+        for i in range(numsSize):
+            for num in nums[i]:
+                merged.append((num, i))
+        merged.sort()
+        mergedSize = len(merged)
+
+        # Two pointers to track the smallest range
+        freq = defaultdict(int)
+        rangeStart = 0
+        rangeEnd = float("inf")
+        count = 0
+        left = 0
+        for right in range(mergedSize):
+            freq[merged[right][1]] += 1
+            if freq[merged[right][1]] == 1:
+                count += 1
+
+            # When all lists are represented, try to shrink the window
+            while count == numsSize:
+                curRange = merged[right][0] - merged[left][0]
+                if curRange < rangeEnd - rangeStart:
+                    rangeStart = merged[left][0]
+                    rangeEnd = merged[right][0]
+
+                freq[merged[left][1]] -= 1
+                if freq[merged[left][1]] == 0:
+                    count -= 1
+
+                left += 1
+
+        retVal = [rangeStart, rangeEnd]
+
+        return retVal
+```
+
+</details>
+
 ## [643. Maximum Average Subarray I](https://leetcode.com/problems/maximum-average-subarray-i/)
 
 - [Official](https://leetcode.com/problems/maximum-average-subarray-i/editorial/)
