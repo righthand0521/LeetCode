@@ -5149,6 +5149,175 @@ class Solution:
 
 </details>
 
+## [2530. Maximal Score After Applying K Operations](https://leetcode.com/problems/maximal-score-after-applying-k-operations/)  1386
+
+- [Official](https://leetcode.com/problems/maximal-score-after-applying-k-operations/editorial/)
+- [Official](https://leetcode.cn/problems/maximal-score-after-applying-k-operations/solutions/2484596/zhi-xing-k-ci-cao-zuo-hou-de-zui-da-fen-a1jub/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed integer array nums and an integer k. You have a starting score of 0.
+
+In one operation:
+1. choose an index i such that 0 <= i < nums.length,
+2. increase your score by nums[i], and
+3. replace nums[i] with ceil(nums[i] / 3).
+
+Return the maximum possible score you can attain after applying exactly k operations.
+
+The ceiling function ceil(val) is the least integer greater than or equal to val.
+
+Example 1:
+Input: nums = [10,10,10,10,10], k = 5
+Output: 50
+Explanation: Apply the operation to each array element exactly once. The final score is 10 + 10 + 10 + 10 + 10 = 50.
+
+Example 2:
+Input: nums = [1,10,3,3,3], k = 3
+Output: 17
+Explanation: You can do the following operations:
+Operation 1: Select i = 1, so nums becomes [1,4,3,3,3]. Your score increases by 10.
+Operation 2: Select i = 1, so nums becomes [1,2,3,3,3]. Your score increases by 4.
+Operation 3: Select i = 2, so nums becomes [1,1,1,3,3]. Your score increases by 3.
+The final score is 10 + 4 + 3 = 17.
+
+Constraints:
+1 <= nums.length, k <= 10^5
+1 <= nums[i] <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. It is always optimal to select the greatest element in the array.
+2. Use a heap to query for the maximum in O(log n) time.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#ifndef HEAP_H
+#define HEAP_H
+
+void swap(int *nums, int i, int j) {
+    int x = nums[i];
+    nums[i] = nums[j];
+    nums[j] = x;
+}
+void down(int *nums, int size, int i) {
+    int k;
+    for (k = 2 * i + 1; k < size; k = 2 * k + 1) {
+        if ((k + 1 < size) && (nums[k] < nums[k + 1])) {
+            k++;
+        }
+        if (nums[k] < nums[(k - 1) / 2]) {
+            break;
+        }
+
+        swap(nums, k, (k - 1) / 2);
+    }
+}
+void Init(int *nums, int size) {
+    int i;
+    for (i = size / 2 - 1; i >= 0; i--) {
+        down(nums, size, i);
+    }
+}
+void Push(int *nums, int size, int x) {
+    nums[size] = x;
+
+    int i;
+    for (i = size; ((i > 0) && (nums[(i - 1) / 2] < nums[i])); i = (i - 1) / 2) {
+        swap(nums, i, (i - 1) / 2);
+    }
+}
+int Pop(int *nums, int size) {
+    int retVal = 0;
+
+    swap(nums, 0, size - 1);
+    down(nums, size - 1, 0);
+    retVal = nums[size - 1];
+
+    return retVal;
+}
+
+#endif  // HEAP_H
+long long maxKelements(int *nums, int numsSize, int k) {
+    long long retVal = 0;
+
+    Init(nums, numsSize);
+
+    int maxElement;
+    int i;
+    for (i = 0; i < k; i++) {
+        maxElement = Pop(nums, numsSize);
+        retVal += maxElement;
+        Push(nums, numsSize - 1, (maxElement + 2) / 3);
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    long long maxKelements(vector<int>& nums, int k) {
+        long long retVal = 0;
+
+        // Create max-heap to store the elements.
+        priority_queue<int> maxHeap;
+        for (auto& i : nums) {
+            maxHeap.push(i);
+        }
+
+        while (k--) {
+            int maxElement = maxHeap.top();
+            retVal += maxElement;
+            maxHeap.pop();
+            maxHeap.push(ceil(maxElement / 3.0));
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxKelements(self, nums: List[int], k: int) -> int:
+        retVal = 0
+
+        # Define a max-heap by using a min-heap with negative values
+        maxHeap = [-i for i in nums]
+        heapify(maxHeap)
+
+        while k > 0:
+            k -= 1
+            # Retrieve the max element (invert the sign because it's stored as negative)
+            maxElement = -heappop(maxHeap)
+            retVal += maxElement
+
+            heappush(maxHeap, -ceil(maxElement / 3))
+
+        return retVal
+```
+
+</details>
+
 ## [2542. Maximum Subsequence Score](https://leetcode.com/problems/maximum-subsequence-score/)  2056
 
 - [Official](https://leetcode.com/problems/maximum-subsequence-score/editorial/)
