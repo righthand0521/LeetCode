@@ -3194,6 +3194,232 @@ class Solution:
 
 </details>
 
+## [1405. Longest Happy String](https://leetcode.com/problems/longest-happy-string/)  1820
+
+- [Official](https://leetcode.com/problems/longest-happy-string/editorial/)
+- [Official](https://leetcode.cn/problems/longest-happy-string/solutions/1245601/zui-chang-kuai-le-zi-fu-chuan-by-leetcod-5nde/)
+
+<details><summary>Description</summary>
+
+```text
+A string s is called happy if it satisfies the following conditions:
+- s only contains the letters 'a', 'b', and 'c'.
+- s does not contain any of "aaa", "bbb", or "ccc" as a substring.
+- s contains at most a occurrences of the letter 'a'.
+- s contains at most b occurrences of the letter 'b'.
+- s contains at most c occurrences of the letter 'c'.
+
+Given three integers a, b, and c, return the longest possible happy string.
+If there are multiple longest happy strings, return any of them.
+If there is no such string, return the empty string "".
+
+A substring is a contiguous sequence of characters within a string.
+
+Example 1:
+Input: a = 1, b = 1, c = 7
+Output: "ccaccbcc"
+Explanation: "ccbccacc" would also be a correct answer.
+
+Example 2:
+Input: a = 7, b = 1, c = 0
+Output: "aabaa"
+Explanation: It is the only correct answer in this case.
+
+Constraints:
+0 <= a, b, c <= 100
+a + b + c > 0
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use a greedy approach.
+2. Use the letter with the maximum current limit that can be added without breaking the condition.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+char* longestDiverseString(int a, int b, int c) {
+    char* pRetVal = NULL;
+
+    int returnSize = a + b + c + 1;
+    pRetVal = (char*)malloc(returnSize * sizeof(char));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (returnSize * sizeof(char)));
+
+    int idx = 0;
+    int curra = 0;
+    int currb = 0;
+    int currc = 0;
+    int totalIterations = a + b + c;
+    int i;
+    for (i = 0; i < totalIterations; i++) {
+        if (a >= b && a >= c && curra != 2) {
+            pRetVal[idx++] = 'a';
+            a--;
+            curra++;
+            currb = 0;
+            currc = 0;
+        } else if (a > 0 && (currb == 2 || currc == 2)) {
+            pRetVal[idx++] = 'a';
+            a--;
+            curra++;
+            currb = 0;
+            currc = 0;
+        } else if (b >= a && b >= c && currb != 2) {
+            pRetVal[idx++] = 'b';
+            b--;
+            currb++;
+            curra = 0;
+            currc = 0;
+        } else if (b > 0 && (currc == 2 || curra == 2)) {
+            pRetVal[idx++] = 'b';
+            b--;
+            currb++;
+            curra = 0;
+            currc = 0;
+        } else if (c >= a && c >= b && currc != 2) {
+            pRetVal[idx++] = 'c';
+            c--;
+            currc++;
+            curra = 0;
+            currb = 0;
+        } else if (c > 0 && (curra == 2 || currb == 2)) {
+            pRetVal[idx++] = 'c';
+            c--;
+            currc++;
+            curra = 0;
+            currb = 0;
+        }
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    string longestDiverseString(int a, int b, int c) {
+        string retVal;
+
+        int curra = 0;
+        int currb = 0;
+        int currc = 0;
+        int totalIterations = a + b + c;
+        for (int i = 0; i < totalIterations; i++) {
+            if (a >= b && a >= c && curra != 2) {
+                retVal += 'a';
+                a--;
+                curra++;
+                currb = 0;
+                currc = 0;
+            } else if (a > 0 && (currb == 2 || currc == 2)) {
+                retVal += 'a';
+                a--;
+                curra++;
+                currb = 0;
+                currc = 0;
+            } else if (b >= a && b >= c && currb != 2) {
+                retVal += 'b';
+                b--;
+                currb++;
+                curra = 0;
+                currc = 0;
+            } else if (b > 0 && (currc == 2 || curra == 2)) {
+                retVal += 'b';
+                b--;
+                currb++;
+                curra = 0;
+                currc = 0;
+            } else if (c >= a && c >= b && currc != 2) {
+                retVal += 'c';
+                c--;
+                currc++;
+                curra = 0;
+                currb = 0;
+            } else if (c > 0 && (curra == 2 || currb == 2)) {
+                retVal += 'c';
+                c--;
+                currc++;
+                curra = 0;
+                currb = 0;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def longestDiverseString(self, a: int, b: int, c: int) -> str:
+        retVal = ""
+
+        curra = 0
+        currb = 0
+        currc = 0
+        totalIterations = a + b + c
+        for _ in range(totalIterations):
+            if (a >= b and a >= c and curra != 2):
+                retVal += "a"
+                a -= 1
+                curra += 1
+                currb = 0
+                currc = 0
+            elif (a > 0 and (currb == 2 or currc == 2)):
+                retVal += "a"
+                a -= 1
+                curra += 1
+                currb = 0
+                currc = 0
+            elif (b >= a and b >= c and currb != 2):
+                retVal += "b"
+                b -= 1
+                currb += 1
+                curra = 0
+                currc = 0
+            elif (b > 0 and (currc == 2 or curra == 2)):
+                retVal += "b"
+                b -= 1
+                currb += 1
+                curra = 0
+                currc = 0
+            elif (c >= a and c >= b and currc != 2):
+                retVal += "c"
+                c -= 1
+                currc += 1
+                curra = 0
+                currb = 0
+            elif (c > 0 and (curra == 2 or currb == 2)):
+                retVal += "c"
+                c -= 1
+                currc += 1
+                curra = 0
+                currb = 0
+
+        return retVal
+```
+
+</details>
+
 ## [1481. Least Number of Unique Integers after K Removals](https://leetcode.com/problems/least-number-of-unique-integers-after-k-removals/)  1284
 
 - [Official](https://leetcode.com/problems/least-number-of-unique-integers-after-k-removals/editorial/)
