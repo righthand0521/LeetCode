@@ -1818,6 +1818,135 @@ class Solution:
 
 </details>
 
+## [670. Maximum Swap](https://leetcode.com/problems/maximum-swap/)
+
+- [Official](https://leetcode.com/problems/maximum-swap/editorial/)
+- [Official](https://leetcode.cn/problems/maximum-swap/solutions/1818457/zui-da-jiao-huan-by-leetcode-solution-lnd5/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer num. You can swap two digits at most once to get the maximum valued number.
+
+Return the maximum valued number you can get.
+
+Example 1:
+Input: num = 2736
+Output: 7236
+Explanation: Swap the number 2 and the number 7.
+
+Example 2:
+Input: num = 9973
+Output: 9973
+Explanation: No swap.
+
+Constraints:
+0 <= num <= 10^8
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int maximumSwap(int num) {
+    int retVal = 0;
+
+    char numStr[32];
+    memset(numStr, 0, sizeof(numStr));
+    snprintf(numStr, sizeof(numStr), "%d", num);
+    int numStrSize = strlen(numStr);
+
+    int maxDigitIndex = -1;
+    int swapIdx1 = -1;
+    int swapIdx2 = -1;
+    int i;
+    for (i = numStrSize - 1; i >= 0; --i) {
+        if ((maxDigitIndex == -1) || (numStr[i] > numStr[maxDigitIndex])) {
+            maxDigitIndex = i;
+        } else if (numStr[i] < numStr[maxDigitIndex]) {
+            swapIdx1 = i;
+            swapIdx2 = maxDigitIndex;
+        }
+    }
+
+    int tmp;
+    if ((swapIdx1 != -1) && (swapIdx2 != -1)) {
+        tmp = numStr[swapIdx1];
+        numStr[swapIdx1] = numStr[swapIdx2];
+        numStr[swapIdx2] = tmp;
+    }
+    retVal = atoi(numStr);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maximumSwap(int num) {
+        int retVal = 0;
+
+        string numStr = to_string(num);
+        int numStrSize = numStr.size();
+        int maxDigitIndex = -1;
+        int swapIdx1 = -1;
+        int swapIdx2 = -1;
+        for (int i = numStrSize - 1; i >= 0; --i) {
+            if ((maxDigitIndex == -1) || (numStr[i] > numStr[maxDigitIndex])) {
+                maxDigitIndex = i;
+            } else if (numStr[i] < numStr[maxDigitIndex]) {
+                swapIdx1 = i;
+                swapIdx2 = maxDigitIndex;
+            }
+        }
+
+        if ((swapIdx1 != -1) && (swapIdx2 != -1)) {
+            swap(numStr[swapIdx1], numStr[swapIdx2]);
+        }
+        retVal = stoi(numStr);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maximumSwap(self, num: int) -> int:
+        retVal = 0
+
+        numStr = list(str(num))
+        numStrSize = len(numStr)
+        maxDigitIndex = -1
+        swapIdx1 = -1
+        swapIdx2 = -1
+        for i in range(numStrSize - 1, -1, -1):
+            if maxDigitIndex == -1 or numStr[i] > numStr[maxDigitIndex]:
+                maxDigitIndex = i
+            elif numStr[i] < numStr[maxDigitIndex]:
+                swapIdx1 = i
+                swapIdx2 = maxDigitIndex
+
+        if swapIdx1 != -1 and swapIdx2 != -1:
+            numStr[swapIdx1], numStr[swapIdx2] = numStr[swapIdx2], numStr[swapIdx1]
+
+        retVal = int("".join(numStr))
+
+        return retVal
+```
+
+</details>
+
 ## [678. Valid Parenthesis String](https://leetcode.com/problems/valid-parenthesis-string/)
 
 - [Official](https://leetcode.com/problems/valid-parenthesis-string/editorial/)
