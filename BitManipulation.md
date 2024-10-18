@@ -3203,6 +3203,137 @@ class Solution:
 
 </details>
 
+## [2044. Count Number of Maximum Bitwise-OR Subsets](https://leetcode.com/problems/count-number-of-maximum-bitwise-or-subsets/)  1567
+
+- [Official](https://leetcode.com/problems/count-number-of-maximum-bitwise-or-subsets/editorial/)
+- [Official](https://leetcode.cn/problems/count-number-of-maximum-bitwise-or-subsets/solutions/1335667/tong-ji-an-wei-huo-neng-de-dao-zui-da-zh-r6zd/)
+
+<details><summary>Description</summary>
+
+```text
+Given an integer array nums, find the maximum possible bitwise OR of a subset of nums
+and return the number of different non-empty subsets with the maximum bitwise OR.
+
+An array a is a subset of an array b if a can be obtained from b by deleting some (possibly zero) elements of b.
+Two subsets are considered different if the indices of the elements chosen are different.
+
+The bitwise OR of an array a is equal to a[0] OR a[1] OR ... OR a[a.length - 1] (0-indexed).
+
+Example 1:
+Input: nums = [3,1]
+Output: 2
+Explanation: The maximum possible bitwise OR of a subset is 3. There are 2 subsets with a bitwise OR of 3:
+- [3]
+- [3,1]
+
+Example 2:
+Input: nums = [2,2,2]
+Output: 7
+Explanation: All non-empty subsets of [2,2,2] have a bitwise OR of 2. There are 23 - 1 = 7 total subsets.
+
+Example 3:
+Input: nums = [3,2,1,5]
+Output: 6
+Explanation: The maximum possible bitwise OR of a subset is 7. There are 6 subsets with a bitwise OR of 7:
+- [3,5]
+- [3,1,5]
+- [3,2,5]
+- [3,2,1,5]
+- [2,5]
+- [2,1,5]
+
+Constraints:
+1 <= nums.length <= 16
+1 <= nums[i] <= 10^5
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Can we enumerate all possible subsets?
+2. The maximum bitwise-OR is the bitwise-OR of the whole array.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int countMaxOrSubsets(int* nums, int numsSize) {
+    int retVal = 0;
+
+    int dp[1 << 17];
+    memset(dp, 0, sizeof(dp));
+    dp[0] = 1;
+
+    int max = 0;
+    int i, j;
+    for (i = 0; i < numsSize; ++i) {
+        for (j = max; j >= 0; --j) {
+            dp[j | nums[i]] += dp[j];
+        }
+        max |= nums[i];
+    }
+    retVal = dp[max];
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int countMaxOrSubsets(vector<int>& nums) {
+        int retVal = 0;
+
+        vector<int> dp(1 << 17, 0);
+        dp[0] = 1;
+
+        int max = 0;
+        for (int num : nums) {
+            for (int i = max; i >= 0; i--) {
+                dp[i | num] += dp[i];
+            }
+            max |= num;
+        }
+        retVal = dp[max];
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def countMaxOrSubsets(self, nums: List[int]) -> int:
+        retVal = 0
+
+        dp = [0] * (1 << 17)
+        dp[0] = 1
+
+        maxValue = 0
+        for num in nums:
+            for i in range(maxValue, -1, -1):
+                dp[i | num] += dp[i]
+            maxValue |= num
+
+        retVal = dp[maxValue]
+
+        return retVal
+```
+
+</details>
+
 ## [2220. Minimum Bit Flips to Convert Number](https://leetcode.com/problems/minimum-bit-flips-to-convert-number/)  1282
 
 - [Official](https://leetcode.com/problems/minimum-bit-flips-to-convert-number/editorial/)
