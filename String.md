@@ -4639,6 +4639,136 @@ int isPrefixOfWord(char* sentence, char* searchWord) {
 
 </details>
 
+## [1545. Find Kth Bit in Nth Binary String](https://leetcode.com/problems/find-kth-bit-in-nth-binary-string/)  1479
+
+- [Official](https://leetcode.com/problems/find-kth-bit-in-nth-binary-string/editorial/)
+- [Official](https://leetcode.cn/problems/find-kth-bit-in-nth-binary-string/solutions/382517/zhao-chu-di-n-ge-er-jin-zhi-zi-fu-chuan-zhong-de-2/)
+
+<details><summary>Description</summary>
+
+```text
+Given two positive integers n and k, the binary string Sn is formed as follows:
+- S1 = "0"
+- Si = Si - 1 + "1" + reverse(invert(Si - 1)) for i > 1
+
+Where + denotes the concatenation operation, reverse(x) returns the reversed string x,
+and invert(x) inverts all the bits in x (0 changes to 1 and 1 changes to 0).
+
+For example, the first four strings in the above sequence are:
+- S1 = "0"
+- S2 = "011"
+- S3 = "0111001"
+- S4 = "011100110110001"
+
+Return the kth bit in Sn. It is guaranteed that k is valid for the given n.
+
+Example 1:
+Input: n = 3, k = 1
+Output: "0"
+Explanation: S3 is "0111001".
+The 1st bit is "0".
+
+Example 2:
+Input: n = 4, k = 11
+Output: "1"
+Explanation: S4 is "011100110110001".
+The 11th bit is "1".
+
+Constraints:
+1 <= n <= 20
+1 <= k <= 2^n - 1
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Since n is small, we can simply simulate the process of constructing S1 to Sn.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+char findKthBit(int n, int k) {
+    char retVal = '0';
+
+    if (n == 1) {
+        return retVal;
+    }
+
+    char correspondingBit;
+    int length = 1 << n;
+    if (k < length / 2) {
+        retVal = findKthBit(n - 1, k);
+    } else if (k == length / 2) {
+        retVal = '1';
+    } else {
+        correspondingBit = findKthBit(n - 1, length - k);
+        retVal = (correspondingBit == '0') ? '1' : '0';
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    char findKthBit(int n, int k) {
+        int retVal = '0';
+
+        if (n == 1) {
+            return retVal;
+        }
+
+        int length = 1 << n;
+        if (k < length / 2) {
+            retVal = findKthBit(n - 1, k);
+        } else if (k == length / 2) {
+            retVal = '1';
+        } else {
+            char correspondingBit = findKthBit(n - 1, length - k);
+            retVal = (correspondingBit == '0') ? '1' : '0';
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def findKthBit(self, n: int, k: int) -> str:
+        retVal = '0'
+
+        if n == 1:
+            return retVal
+
+        length = 1 << n
+        if k < length // 2:
+            retVal = self.findKthBit(n - 1, k)
+        elif k == length // 2:
+            retVal = '1'
+        else:
+            correspondingBit = self.findKthBit(n - 1, length - k)
+            retVal = "1" if correspondingBit == "0" else "0"
+
+        return retVal
+```
+
+</details>
+
 ## [1678. Goal Parser Interpretation](https://leetcode.com/problems/goal-parser-interpretation/)  1221
 
 <details><summary>Description</summary>
