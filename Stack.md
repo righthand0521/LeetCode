@@ -4594,6 +4594,206 @@ class Solution:
 
 </details>
 
+## [1106. Parsing A Boolean Expression](https://leetcode.com/problems/parsing-a-boolean-expression/)  1880
+
+- [Official](https://leetcode.com/problems/parsing-a-boolean-expression/editorial/)
+- [Official](https://leetcode.cn/problems/parsing-a-boolean-expression/solutions/1948172/jie-xi-bu-er-biao-da-shi-by-leetcode-sol-vmvg/)
+
+<details><summary>Description</summary>
+
+```text
+A boolean expression is an expression that evaluates to either true or false. It can be in one of the following shapes:
+- 't' that evaluates to true.
+- 'f' that evaluates to false.
+- '!(subExpr)' that evaluates to the logical NOT of the inner expression subExpr.
+- '&(subExpr1, subExpr2, ..., subExprn)' that evaluates to the logical AND of
+  the inner expressions subExpr1, subExpr2, ..., subExprn where n >= 1.
+- '|(subExpr1, subExpr2, ..., subExprn)' that evaluates to the logical OR of
+  the inner expressions subExpr1, subExpr2, ..., subExprn where n >= 1.
+
+Given a string expression that represents a boolean expression, return the evaluation of that expression.
+
+It is guaranteed that the given expression is valid and follows the given rules.
+
+Example 1:
+Input: expression = "&(|(f))"
+Output: false
+Explanation:
+First, evaluate |(f) --> f. The expression is now "&(f)".
+Then, evaluate &(f) --> f. The expression is now "f".
+Finally, return false.
+
+Example 2:
+Input: expression = "|(f,f,f,t)"
+Output: true
+Explanation: The evaluation of (false OR false OR false OR true) is true.
+
+Example 3:
+Input: expression = "!(&(f,t))"
+Output: true
+Explanation:
+First, evaluate &(f,t) --> (false AND true) --> false --> f. The expression is now "!(f)".
+Then, evaluate !(f) --> NOT false --> true. We return true.
+
+Constraints:
+1 <= expression.length <= 2 * 10^4
+expression[i] is one following characters: '(', ')', '&', '|', '!', 't', 'f', and ','.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Write a function "parse" which calls helper functions "parse_or", "parse_and", "parse_not".
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool parseBoolExpr(char* expression) {
+    bool retVal = false;
+
+    int expressionSize = strlen(expression);
+
+    int stackTop = -1;
+    char stack[expressionSize + 1];
+    memset(stack, 0, sizeof(stack));
+
+    bool hasTrue, hasFalse;
+    char c, topValue, op;
+    int i;
+    for (i = 0; i < expressionSize; ++i) {
+        c = expression[i];
+        if ((c == ',') || (c == '(')) {
+            continue;
+        } else if ((c == 't') || (c == 'f') || (c == '!') || (c == '&') || (c == '|')) {
+            stack[++stackTop] = c;
+        } else if (c == ')') {
+            hasTrue = false;
+            hasFalse = false;
+            while (stackTop >= 0) {
+                if ((stack[stackTop] == '!') || (stack[stackTop] == '&') || (stack[stackTop] == '|')) {
+                    break;
+                }
+                topValue = stack[stackTop--];
+                if (topValue == 't') {
+                    hasTrue = true;
+                } else if (topValue == 'f') {
+                    hasFalse = true;
+                }
+            }
+
+            op = (stackTop >= 0) ? stack[stackTop--] : '0';
+            if (op == '!') {
+                stack[++stackTop] = (hasTrue == true) ? 'f' : 't';
+            } else if (op == '&') {
+                stack[++stackTop] = (hasFalse == true) ? 'f' : 't';
+            } else {
+                stack[++stackTop] = (hasTrue == true) ? 't' : 'f';
+            }
+        }
+    }
+    if ((stackTop >= 0) && (stack[stackTop] == 't')) {
+        retVal = true;
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool parseBoolExpr(string expression) {
+        bool retVal = false;
+
+        stack<char> st;
+        for (char c : expression) {
+            if (c == ',' || c == '(') {
+                continue;
+            } else if ((c == 't') || (c == 'f') || (c == '!') || (c == '&') || (c == '|')) {
+                st.push(c);
+            } else if (c == ')') {
+                bool hasTrue = false;
+                bool hasFalse = false;
+                while ((st.top() != '!') && (st.top() != '&') && (st.top() != '|')) {
+                    char topValue = st.top();
+                    st.pop();
+                    if (topValue == 't') {
+                        hasTrue = true;
+                    } else if (topValue == 'f') {
+                        hasFalse = true;
+                    }
+                }
+
+                char op = st.top();
+                st.pop();
+                if (op == '!') {
+                    st.push((hasTrue == true) ? 'f' : 't');
+                } else if (op == '&') {
+                    st.push((hasFalse == true) ? 'f' : 't');
+                } else {
+                    st.push((hasTrue == true) ? 't' : 'f');
+                }
+            }
+        }
+        if (st.top() == 't') {
+            retVal = true;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def parseBoolExpr(self, expression: str) -> bool:
+        retVal = False
+
+        stack = deque()
+        for c in expression:
+            if c == "," or c == "(":
+                continue
+            elif c in ["t", "f", "!", "&", "|"]:
+                stack.append(c)
+            elif c == ")":
+                hasTrue = False
+                hasFalse = False
+                while stack[-1] not in ["!", "&", "|"]:
+                    topValue = stack.pop()
+                    if topValue == "t":
+                        hasTrue = True
+                    elif topValue == "f":
+                        hasFalse = True
+
+                op = stack.pop()
+                if op == "!":
+                    stack.append("f" if (hasTrue == True) else "t")
+                elif op == "&":
+                    stack.append("f" if (hasFalse == True) else "t")
+                else:
+                    stack.append("t" if (hasTrue == True) else "f")
+
+        if stack[-1] == "t":
+            retVal = True
+
+        return retVal
+```
+
+</details>
+
 ## [1124. Longest Well-Performing Interval](https://leetcode.com/problems/longest-well-performing-interval/)  1908
 
 - [Official](https://leetcode.cn/problems/longest-well-performing-interval/solutions/2109622/biao-xian-liang-hao-de-zui-chang-shi-jia-rlij/)
