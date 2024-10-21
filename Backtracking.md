@@ -3484,6 +3484,217 @@ class Solution:
 
 </details>
 
+## [1593. Split a String Into the Max Number of Unique Substrings](https://leetcode.com/problems/split-a-string-into-the-max-number-of-unique-substrings/)  1739
+
+- [Official](https://leetcode.com/problems/split-a-string-into-the-max-number-of-unique-substrings/editorial/)
+- [Official](https://leetcode.cn/problems/split-a-string-into-the-max-number-of-unique-substrings/solutions/441191/chai-fen-zi-fu-chuan-shi-wei-yi-zi-zi-fu-chuan-de-/)
+
+<details><summary>Description</summary>
+
+```text
+Given a string s, return the maximum number of unique substrings that the given string can be split into.
+
+You can split string s into any list of non-empty substrings,
+where the concatenation of the substrings forms the original string.
+However, you must split the substrings such that all of them are unique.
+
+A substring is a contiguous sequence of characters within a string.
+
+Example 1:
+Input: s = "ababccc"
+Output: 5
+Explanation: One way to split maximally is ['a', 'b', 'ab', 'c', 'cc'].
+Splitting like ['a', 'b', 'a', 'b', 'c', 'cc'] is not valid as you have 'a' and 'b' multiple times.
+
+Example 2:
+Input: s = "aba"
+Output: 2
+Explanation: One way to split maximally is ['a', 'ba'].
+
+Example 3:
+Input: s = "aa"
+Output: 1
+Explanation: It is impossible to split the string any further.
+
+Constraints:
+1 <= s.length <= 16
+s contains only lower case English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use a set to keep track of which substrings have been used already
+2. Try each possible substring at every position and backtrack if a complete split is not possible
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MAX_KEY_SIZE (16 + 4)  // 1 <= s.length <= 16
+struct hashTable {
+    char key[MAX_KEY_SIZE];
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable* pFree) {
+    struct hashTable* current;
+    struct hashTable* tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%s\n", pFree->key);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int backtrack(char* s, int start, struct hashTable** pSeen) {
+    int retVal = 0;
+
+    int sSize = strlen(s);
+
+    // Base case: If we reach the end of the string, return 0 (no more substrings to add)
+    if (start == sSize) {
+        return retVal;
+    }
+
+    struct hashTable* pTmp;
+    char substring[sSize + 1];
+    int end;
+    for (end = start + 1; end <= sSize; ++end) {
+        // Try every possible substring starting from 'start'
+        memset(substring, 0, sizeof(substring));
+        snprintf(substring, end - start + 1, "%s", s + start);
+
+        // If the substring is unique
+        pTmp = NULL;
+        HASH_FIND_STR(*pSeen, substring, pTmp);
+        if (pTmp != NULL) {
+            continue;
+        }
+        pTmp = (struct hashTable*)malloc(sizeof(struct hashTable));
+        if (pTmp == NULL) {
+            perror("malloc");
+            return retVal;
+        }
+        snprintf(pTmp->key, MAX_KEY_SIZE, "%s", substring);
+
+        // Add the substring to the seen set
+        HASH_ADD_STR(*pSeen, key, pTmp);
+
+        // Recursively count unique substrings from the next position
+        retVal = fmax(retVal, 1 + backtrack(s, end, pSeen));
+
+        // Backtrack: remove the substring from the seen set
+        pTmp = NULL;
+        HASH_FIND_STR(*pSeen, substring, pTmp);
+        if (pTmp == NULL) {
+            continue;
+        }
+        HASH_DEL(*pSeen, pTmp);
+        free(pTmp);
+    }
+
+    return retVal;
+}
+int maxUniqueSplit(char* s) {
+    int retVal = 0;
+
+    struct hashTable* pSeen = NULL;
+    retVal = backtrack(s, 0, &pSeen);
+
+    //
+    freeAll(pSeen);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int backtrack(const string& s, int start, unordered_set<string>& seen) {
+        int retVal = 0;
+
+        int sSize = s.size();
+
+        // Base case: If we reach the end of the string, return 0 (no more substrings to add)
+        if (start == sSize) {
+            return retVal;
+        }
+
+        // Try every possible substring starting from 'start'
+        for (int end = start + 1; end <= sSize; ++end) {
+            string substring = s.substr(start, end - start);
+            if (seen.find(substring) == seen.end()) {  // If the substring is unique
+                // Add the substring to the seen set
+                seen.insert(substring);
+                // Recursively count unique substrings from the next position
+                retVal = max(retVal, 1 + backtrack(s, end, seen));
+                // Backtrack: remove the substring from the seen set
+                seen.erase(substring);
+            }
+        }
+
+        return retVal;
+    }
+
+   public:
+    int maxUniqueSplit(string s) {
+        int retVal = 0;
+
+        unordered_set<string> seen;
+        retVal = backtrack(s, 0, seen);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def backtrack(self, s, start, seen):
+        retVal = 0
+
+        sSize = len(s)
+
+        # Base case: If we reach the end of the string, return 0 (no more substrings to add)
+        if start == sSize:
+            return retVal
+
+        # Try every possible substring starting from 'start'
+        for end in range(start + 1, sSize + 1):
+            substring = s[start:end]
+            if substring not in seen:   # If the substring is unique
+                # Add the substring to the seen set
+                seen.add(substring)
+                # Recursively count unique substrings from the next position
+                retVal = max(retVal, 1 + self.backtrack(s, end, seen))
+                # Backtrack: remove the substring from the seen set
+                seen.remove(substring)
+
+        return retVal
+
+    def maxUniqueSplit(self, s: str) -> int:
+        retVal = 0
+
+        seen = set()
+        retVal = self.backtrack(s, 0, seen)
+
+        return retVal
+```
+
+</details>
+
 ## [1601. Maximum Number of Achievable Transfer Requests](https://leetcode.com/problems/maximum-number-of-achievable-transfer-requests/)  2118
 
 - [Official](https://leetcode.com/problems/maximum-number-of-achievable-transfer-requests/editorial/)
