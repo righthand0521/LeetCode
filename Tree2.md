@@ -4523,3 +4523,284 @@ class Solution:
 ```
 
 </details>
+
+## [2641. Cousins in Binary Tree II](https://leetcode.com/problems/cousins-in-binary-tree-ii/)  1676
+
+- [Official](https://leetcode.com/problems/cousins-in-binary-tree-ii/editorial/)
+- [Official](https://leetcode.cn/problems/cousins-in-binary-tree-ii/solutions/2626702/er-cha-shu-de-tang-xiong-di-jie-dian-ii-1b9oj/)
+
+<details><summary>Description</summary>
+
+```text
+Given the root of a binary tree, replace the value of each node in the tree with the sum of all its cousins' values.
+
+Two nodes of a binary tree are cousins if they have the same depth with different parents.
+
+Return the root of the modified tree.
+
+Note that the depth of a node is the number of edges in the path from the root node to it.
+
+Example 1:
+Input: root = [5,4,9,1,10,null,7]
+Output: [0,0,0,7,7,null,11]
+Explanation: The diagram above shows the initial binary tree and the binary tree after changing the value of each node.
+- Node with value 5 does not have any cousins so its sum is 0.
+- Node with value 4 does not have any cousins so its sum is 0.
+- Node with value 9 does not have any cousins so its sum is 0.
+- Node with value 1 has a cousin with value 7 so its sum is 7.
+- Node with value 10 has a cousin with value 7 so its sum is 7.
+- Node with value 7 has cousins with values 1 and 10 so its sum is 11.
+
+Example 2:
+Input: root = [3,1,2]
+Output: [0,0,0]
+Explanation: The diagram above shows the initial binary tree and the binary tree after changing the value of each node.
+- Node with value 3 does not have any cousins so its sum is 0.
+- Node with value 1 does not have any cousins so its sum is 0.
+- Node with value 2 does not have any cousins so its sum is 0.
+
+Constraints:
+The number of nodes in the tree is in the range [1, 10^5].
+1 <= Node.val <= 10^4
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use DFS two times.
+2. For the first time, find the sum of values of all the levels of the binary tree.
+3. For the second time,
+   update the value of the node with the sum of the values of the current level - sibling node’s values.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MAX_NODES_SIZE (int)(1e5)  // The number of nodes in the tree is in the range [1, 10^5].
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+struct TreeNode* replaceValueInTree(struct TreeNode* root) {
+    struct TreeNode* pRetVal = root;
+
+    if (pRetVal == NULL) {
+        return pRetVal;
+    }
+
+    int queueHead = 0;
+    int queueTail = 0;
+    struct TreeNode* queue[MAX_NODES_SIZE];
+    memset(queue, 0, sizeof(queue));
+    queue[queueTail++] = pRetVal;
+
+    int levelSumsIndex = 0;
+    int levelSums[MAX_NODES_SIZE];
+    memset(levelSums, 0, sizeof(levelSums));
+
+    struct TreeNode* currentNode;
+    int levelSize;
+    int levelSum = 0;
+    while (queueHead < queueTail) {
+        levelSum = 0;
+
+        levelSize = queueTail - queueHead;
+        for (int i = 0; i < levelSize; ++i) {
+            currentNode = queue[queueHead++];
+
+            levelSum += currentNode->val;
+            if (currentNode->left) {
+                queue[queueTail++] = currentNode->left;
+            }
+            if (currentNode->right) {
+                queue[queueTail++] = currentNode->right;
+            }
+        }
+
+        levelSums[levelSumsIndex++] = levelSum;
+    }
+
+    queueHead = 0;
+    queueTail = 0;
+    memset(queue, 0, sizeof(queue));
+    queue[queueTail++] = pRetVal;
+
+    pRetVal->val = 0;
+    int levelIndex = 1;
+    int siblingSum = 0;
+    while (queueHead < queueTail) {
+        levelSize = queueTail - queueHead;
+        for (int i = 0; i < levelSize; ++i) {
+            currentNode = queue[queueHead++];
+
+            siblingSum = 0;
+            siblingSum += ((currentNode->left != NULL) ? (currentNode->left->val) : (0));
+            siblingSum += ((currentNode->right != NULL) ? (currentNode->right->val) : (0));
+
+            if (currentNode->left) {
+                currentNode->left->val = levelSums[levelIndex] - siblingSum;
+                queue[queueTail++] = currentNode->left;
+            }
+            if (currentNode->right) {
+                currentNode->right->val = levelSums[levelIndex] - siblingSum;
+                queue[queueTail++] = currentNode->right;
+            }
+        }
+
+        ++levelIndex;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   public:
+    TreeNode *replaceValueInTree(TreeNode *root) {
+        TreeNode *pRetVal = root;
+
+        if (pRetVal == nullptr) {
+            return pRetVal;
+        }
+
+        queue<TreeNode *> nodeQueue;
+        nodeQueue.push(pRetVal);
+
+        vector<int> levelSums;
+        while (nodeQueue.empty() == false) {
+            int levelSum = 0;
+
+            int levelSize = nodeQueue.size();
+            for (int i = 0; i < levelSize; ++i) {
+                TreeNode *currentNode = nodeQueue.front();
+                nodeQueue.pop();
+
+                levelSum += currentNode->val;
+                if (currentNode->left) {
+                    nodeQueue.push(currentNode->left);
+                }
+                if (currentNode->right) {
+                    nodeQueue.push(currentNode->right);
+                }
+            }
+
+            levelSums.push_back(levelSum);
+        }
+
+        nodeQueue.push(pRetVal);
+        int levelIndex = 1;
+        pRetVal->val = 0;
+        while (nodeQueue.empty() == false) {
+            int levelSize = nodeQueue.size();
+            for (int i = 0; i < levelSize; ++i) {
+                TreeNode *currentNode = nodeQueue.front();
+                nodeQueue.pop();
+
+                int siblingSum = 0;
+                siblingSum += ((currentNode->left != nullptr) ? (currentNode->left->val) : (0));
+                siblingSum += ((currentNode->right != nullptr) ? (currentNode->right->val) : (0));
+
+                if (currentNode->left) {
+                    currentNode->left->val = levelSums[levelIndex] - siblingSum;
+                    nodeQueue.push(currentNode->left);
+                }
+                if (currentNode->right) {
+                    currentNode->right->val = levelSums[levelIndex] - siblingSum;
+                    nodeQueue.push(currentNode->right);
+                }
+            }
+
+            ++levelIndex;
+        }
+
+        return pRetVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def replaceValueInTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        retVal = root
+
+        if not retVal:
+            return retVal
+
+        nodeQueue = deque([retVal])
+        levelSums = []
+
+        while nodeQueue:
+            levelSum = 0
+
+            levelSize = len(nodeQueue)
+            for _ in range(levelSize):
+                currentNode = nodeQueue.popleft()
+                levelSum += currentNode.val
+                if currentNode.left:
+                    nodeQueue.append(currentNode.left)
+                if currentNode.right:
+                    nodeQueue.append(currentNode.right)
+
+            levelSums.append(levelSum)
+
+        nodeQueue.append(retVal)
+        levelIndex = 1
+        retVal.val = 0
+        while nodeQueue:
+            levelSize = len(nodeQueue)
+            for _ in range(levelSize):
+                currentNode = nodeQueue.popleft()
+
+                siblingSum = 0
+                if currentNode.left:
+                    siblingSum += currentNode.left.val
+                if currentNode.right:
+                    siblingSum += currentNode.right.val
+
+                if currentNode.left:
+                    currentNode.left.val = levelSums[levelIndex] - siblingSum
+                    nodeQueue.append(currentNode.left)
+                if currentNode.right:
+                    currentNode.right.val = levelSums[levelIndex] - siblingSum
+                    nodeQueue.append(currentNode.right)
+
+            levelIndex += 1
+
+        return retVal
+```
+
+</details>
