@@ -11451,6 +11451,157 @@ class Solution:
 
 </details>
 
+## [951. Flip Equivalent Binary Trees](https://leetcode.com/problems/flip-equivalent-binary-trees/)  1477
+
+- [Official](https://leetcode.com/problems/flip-equivalent-binary-trees/editorial/)
+- [Official](https://leetcode.cn/problems/flip-equivalent-binary-trees/solutions/16147/fan-zhuan-deng-jie-er-cha-shu-by-leetcode/)
+
+<details><summary>Description</summary>
+
+```text
+For a binary tree T, we can define a flip operation as follows:
+choose any node, and swap the left and right child subtrees.
+
+A binary tree X is flip equivalent to a binary tree Y
+if and only if we can make X equal to Y after some number of flip operations.
+
+Given the roots of two binary trees root1 and root2,
+return true if the two trees are flip equivalent or false otherwise.
+
+Example 1:
+Input: root1 = [1,2,3,4,5,6,null,null,null,7,8], root2 = [1,3,2,null,6,4,5,null,null,null,null,8,7]
+Output: true
+Explanation: We flipped at nodes with values 1, 3, and 5.
+
+Example 2:
+Input: root1 = [], root2 = []
+Output: true
+
+Example 3:
+Input: root1 = [], root2 = [1]
+Output: false
+
+Constraints:
+The number of nodes in each tree is in the range [0, 100].
+Each tree will have unique node values in the range [0, 99].
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+bool flipEquiv(struct TreeNode* root1, struct TreeNode* root2) {
+    bool retVal = false;
+
+    if ((root1 == NULL) && (root2 == NULL)) {  // Both trees are empty
+        retVal = true;
+        return retVal;
+    } else if (root1 == NULL || root2 == NULL) {  // Just one of the trees is empty
+        return retVal;
+    } else if (root1->val != root2->val) {  // Corresponding values differ
+        return retVal;
+    }
+
+    // Check if corresponding subtrees are flip equivalent
+    bool noSwap = flipEquiv(root1->left, root2->left) && flipEquiv(root1->right, root2->right);
+    // Check if opposite subtrees are flip equivalent
+    bool swap = flipEquiv(root1->left, root2->right) && flipEquiv(root1->right, root2->left);
+
+    retVal = swap || noSwap;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   public:
+    bool flipEquiv(TreeNode* root1, TreeNode* root2) {
+        bool retVal = false;
+
+        if ((root1 == nullptr) && (root2 == nullptr)) {  // Both trees are empty
+            retVal = true;
+            return retVal;
+        } else if (root1 == nullptr || root2 == nullptr) {  // Just one of the trees is empty
+            return retVal;
+        } else if (root1->val != root2->val) {  // Corresponding values differ
+            return retVal;
+        }
+
+        // Check if corresponding subtrees are flip equivalent
+        bool noSwap = flipEquiv(root1->left, root2->left) && flipEquiv(root1->right, root2->right);
+        // Check if opposite subtrees are flip equivalent
+        bool swap = flipEquiv(root1->left, root2->right) && flipEquiv(root1->right, root2->left);
+
+        retVal = swap || noSwap;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def flipEquiv(self, root1: Optional[TreeNode], root2: Optional[TreeNode]) -> bool:
+        retVal = False
+
+        if (not root1) and (not root2):  # Both trees are empty
+            retVal = True
+            return retVal
+        elif (not root1) or (not root2):  # Just one of the trees is empty
+            return retVal
+        elif root1.val != root2.val:  # Corresponding values differ
+            return retVal
+
+        # Check if corresponding subtrees are flip equivalent
+        noSwap = self.flipEquiv(root1.left, root2.left)
+        noSwap &= self.flipEquiv(root1.right, root2.right)
+
+        # Check if opposite subtrees are flip equivalent
+        swap = self.flipEquiv(root1.left, root2.right)
+        swap &= self.flipEquiv(root1.right, root2.left)
+
+        retVal = noSwap or swap
+
+        return retVal
+```
+
+</details>
+
 ## [958. Check Completeness of a Binary Tree](https://leetcode.com/problems/check-completeness-of-a-binary-tree/)  1702
 
 - [Official](https://leetcode.cn/problems/check-completeness-of-a-binary-tree/solutions/18187/er-cha-shu-de-wan-quan-xing-jian-yan-by-leetcode/)
