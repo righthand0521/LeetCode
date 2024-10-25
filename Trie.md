@@ -1439,6 +1439,169 @@ class Solution {
 
 </details>
 
+## [1233. Remove Sub-Folders from the Filesystem](https://leetcode.com/problems/remove-sub-folders-from-the-filesystem/)  1544
+
+- [Official](https://leetcode.com/problems/remove-sub-folders-from-the-filesystem/editorial/)
+- [Official](https://leetcode.cn/problems/remove-sub-folders-from-the-filesystem/solutions/2097563/shan-chu-zi-wen-jian-jia-by-leetcode-sol-0x8d/)
+
+<details><summary>Description</summary>
+
+```text
+Given a list of folders folder, return the folders after removing all sub-folders in those folders.
+You may return the answer in any order.
+
+If a folder[i] is located within another folder[j], it is called a sub-folder of it.
+A sub-folder of folder[j] must start with folder[j], followed by a "/".
+For example, "/a/b" is a sub-folder of "/a", but "/b" is not a sub-folder of "/a/b/c".
+
+The format of a path is one or more concatenated strings of the form:
+'/' followed by one or more lowercase English letters.
+- For example, "/leetcode" and "/leetcode/problems" are valid paths while an empty string and "/" are not.
+
+Example 1:
+Input: folder = ["/a","/a/b","/c/d","/c/d/e","/c/f"]
+Output: ["/a","/c/d","/c/f"]
+Explanation: Folders "/a/b" is a subfolder of "/a" and "/c/d/e" is inside of folder "/c/d" in our filesystem.
+
+Example 2:
+Input: folder = ["/a","/a/b/c","/a/b/d"]
+Output: ["/a"]
+Explanation: Folders "/a/b/c" and "/a/b/d" will be removed because they are subfolders of "/a".
+
+Example 3:
+Input: folder = ["/a/b/c","/a/b/ca","/a/b/d"]
+Output: ["/a/b/c","/a/b/ca","/a/b/d"]
+
+Constraints:
+1 <= folder.length <= 4 * 10^4
+2 <= folder[i].length <= 100
+folder[i] contains only lowercase letters and '/'.
+folder[i] always starts with the character '/'.
+Each folder name is unique.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Sort the folders lexicographically.
+2. Insert the current element in an array and then loop until we get rid of all of their subfolders,
+   repeat this until no element is left.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareString(const void* str1, const void* str2) {
+    // ascending order
+    return strcmp(*(char**)str1, *(char**)str2);
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+char** removeSubfolders(char** folder, int folderSize, int* returnSize) {
+    char** pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    pRetVal = (char**)malloc(folderSize * sizeof(char*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+
+    // Sort the folders alphabetically
+    qsort(folder, folderSize, sizeof(char*), compareString);
+
+    // Initialize the retVal vector and add the first folder
+    pRetVal[(*returnSize)++] = folder[0];
+
+    // Iterate through each folder and check if it's a sub-folder of the last added folder in the retVal
+    int lastFolderSize;
+    int i;
+    for (i = 1; i < folderSize; ++i) {
+        lastFolderSize = strlen(pRetVal[(*returnSize) - 1]);
+        if (lastFolderSize < strlen(folder[i])) {
+            if (strncmp(pRetVal[(*returnSize) - 1], folder[i], lastFolderSize) == 0) {
+                if (folder[i][lastFolderSize] == '/') {
+                    continue;
+                }
+            }
+        }
+        pRetVal[(*returnSize)++] = folder[i];
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<string> removeSubfolders(vector<string>& folder) {
+        vector<string> retVal;
+
+        // Sort the folders alphabetically
+        sort(folder.begin(), folder.end());
+
+        // Initialize the retVal vector and add the first folder
+        retVal.push_back(folder[0]);
+
+        // Iterate through each folder and check if it's a sub-folder of the last added folder in the retVal
+        int folderSize = folder.size();
+        for (int i = 1; i < folderSize; i++) {
+            string lastFolder = retVal.back();
+            lastFolder += '/';
+
+            // Check if the current folder starts with the last added folder path
+            int lastFolderSize = lastFolder.size();
+            if (folder[i].compare(0, lastFolderSize, lastFolder) != 0) {
+                retVal.push_back(folder[i]);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def removeSubfolders(self, folder: List[str]) -> List[str]:
+        retVal = []
+
+        # Sort the folders alphabetically
+        folder.sort()
+
+        # Initialize the retVal list and add the first folder
+        retVal = [folder[0]]
+
+        # Iterate through each folder and check if it's a sub-folder of the last added folder in the retVal
+        folderSize = len(folder)
+        for i in range(1, folderSize):
+            lastFolder = retVal[-1]
+            lastFolder += "/"
+
+            # Check if the current folder starts with the last added folder path
+            if not folder[i].startswith(lastFolder):
+                retVal.append(folder[i])
+
+        return retVal
+```
+
+</details>
+
 ## [1268. Search Suggestions System](https://leetcode.com/problems/search-suggestions-system/)  1573
 
 - [Official](https://leetcode.com/problems/search-suggestions-system/editorial)
