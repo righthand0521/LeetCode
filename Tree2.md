@@ -4316,6 +4316,273 @@ class Solution:
 
 </details>
 
+## [2458. Height of Binary Tree After Subtree Removal Queries](https://leetcode.com/problems/height-of-binary-tree-after-subtree-removal-queries/)  2298
+
+- [Official](https://leetcode.com/problems/height-of-binary-tree-after-subtree-removal-queries/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given the root of a binary tree with n nodes. Each node is assigned a unique value from 1 to n.
+You are also given an array queries of size m.
+
+You have to perform m independent queries on the tree where in the ith query you do the following:
+- Remove the subtree rooted at the node with the value queries[i] from the tree.
+  It is guaranteed that queries[i] will not be equal to the value of the root.
+
+Return an array answer of size m where answer[i] is the height of the tree after performing the ith query.
+
+Note:
+- The queries are independent, so the tree returns to its initial state after each query.
+- The height of a tree is the number of edges in the longest simple path from the root to some node in the tree.
+
+Example 1:
+Input: root = [1,3,4,2,null,6,5,null,null,null,null,null,7], queries = [4]
+Output: [2]
+Explanation: The diagram above shows the tree after removing the subtree rooted at node with value 4.
+The height of the tree is 2 (The path 1 -> 3 -> 2).
+
+Example 2:
+Input: root = [5,8,9,2,1,3,7,4,6], queries = [3,2,4,8]
+Output: [3,2,3,2]
+Explanation: We have the following queries:
+- Removing the subtree rooted at node with value 3. The height of the tree becomes 3 (The path 5 -> 8 -> 2 -> 4).
+- Removing the subtree rooted at node with value 2. The height of the tree becomes 2 (The path 5 -> 8 -> 1).
+- Removing the subtree rooted at node with value 4. The height of the tree becomes 3 (The path 5 -> 8 -> 2 -> 6).
+- Removing the subtree rooted at node with value 8. The height of the tree becomes 2 (The path 5 -> 9 -> 3).
+
+Constraints:
+The number of nodes in the tree is n.
+2 <= n <= 10^5
+1 <= Node.val <= n
+All the values in the tree are unique.
+m == queries.length
+1 <= m <= min(n, 10^4)
+1 <= queries[i] <= n
+queries[i] != root.val
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Try pre-computing the answer for each node from 1 to n, and answer each query in O(1).
+2. The answers can be precomputed in a single tree traversal after computing the height of each subtree.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+void traverseLeftToRight(struct TreeNode* node, int currentHeight, int* maxHeightAfterRemoval, int* currentMaxHeight) {
+    if (node == NULL) {
+        return;
+    }
+
+    // Store the maximum height if this node were removed
+    maxHeightAfterRemoval[node->val] = (*currentMaxHeight);
+
+    // Update the current maximum height
+    (*currentMaxHeight) = fmax((*currentMaxHeight), currentHeight);
+
+    // Traverse left subtree first, then right
+    traverseLeftToRight(node->left, currentHeight + 1, maxHeightAfterRemoval, currentMaxHeight);
+    traverseLeftToRight(node->right, currentHeight + 1, maxHeightAfterRemoval, currentMaxHeight);
+}
+void traverseRightToLeft(struct TreeNode* node, int currentHeight, int* maxHeightAfterRemoval, int* currentMaxHeight) {
+    if (node == NULL) {
+        return;
+    }
+
+    // Update the maximum height if this node were removed
+    maxHeightAfterRemoval[node->val] = fmax(maxHeightAfterRemoval[node->val], (*currentMaxHeight));
+
+    // Update the current maximum height
+    (*currentMaxHeight) = fmax(currentHeight, (*currentMaxHeight));
+
+    // Traverse right subtree first, then left
+    traverseRightToLeft(node->right, currentHeight + 1, maxHeightAfterRemoval, currentMaxHeight);
+    traverseRightToLeft(node->left, currentHeight + 1, maxHeightAfterRemoval, currentMaxHeight);
+}
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* treeQueries(struct TreeNode* root, int* queries, int queriesSize, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    // Array to store the maximum height of the tree after removing each node
+    int* maxHeightAfterRemoval = (int*)malloc(100001 * sizeof(int));
+    if (maxHeightAfterRemoval == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(maxHeightAfterRemoval, 0, (100001 * sizeof(int)));
+    int currentMaxHeight = 0;
+    traverseLeftToRight(root, 0, maxHeightAfterRemoval, &currentMaxHeight);
+    currentMaxHeight = 0;
+    traverseRightToLeft(root, 0, maxHeightAfterRemoval, &currentMaxHeight);
+
+    pRetVal = (int*)malloc(queriesSize * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (queriesSize * sizeof(int)));
+
+    int i;
+    for (i = 0; i < queriesSize; ++i) {
+        pRetVal[(*returnSize)++] = maxHeightAfterRemoval[queries[i]];
+    }
+    free(maxHeightAfterRemoval);
+    maxHeightAfterRemoval = NULL;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   private:
+    void traverseLeftToRight(TreeNode* node, int currentHeight) {
+        if (node == nullptr) {
+            return;
+        }
+
+        // Store the maximum height if this node were removed
+        maxHeightAfterRemoval[node->val] = currentMaxHeight;
+
+        // Update the current maximum height
+        currentMaxHeight = max(currentMaxHeight, currentHeight);
+
+        // Traverse left subtree first, then right
+        traverseLeftToRight(node->left, currentHeight + 1);
+        traverseLeftToRight(node->right, currentHeight + 1);
+    }
+    void traverseRightToLeft(TreeNode* node, int currentHeight) {
+        if (node == nullptr) {
+            return;
+        }
+
+        // Update the maximum height if this node were removed
+        maxHeightAfterRemoval[node->val] = max(maxHeightAfterRemoval[node->val], currentMaxHeight);
+
+        // Update the current maximum height
+        currentMaxHeight = max(currentHeight, currentMaxHeight);
+
+        // Traverse right subtree first, then left
+        traverseRightToLeft(node->right, currentHeight + 1);
+        traverseRightToLeft(node->left, currentHeight + 1);
+    }
+
+   public:
+    int maxHeightAfterRemoval[100001];  // Array to store the maximum height of the tree after removing each node
+    int currentMaxHeight = 0;
+
+    vector<int> treeQueries(TreeNode* root, vector<int>& queries) {
+        vector<int> retVal;
+
+        currentMaxHeight = 0;
+        traverseLeftToRight(root, 0);
+        currentMaxHeight = 0;
+        traverseRightToLeft(root, 0);
+
+        for (int querie : queries) {
+            retVal.emplace_back(maxHeightAfterRemoval[querie]);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def __init__(self) -> None:
+        self.currentMaxHeight = 0
+        self.maxHeightAfterRemoval = []
+
+    def traverseLeftToRight(self, node, currentHeight):
+        if not node:
+            return
+
+        # Store the maximum height if this node were removed
+        self.maxHeightAfterRemoval[node.val] = self.currentMaxHeight
+
+        # Update the current maximum height
+        self.currentMaxHeight = max(self.currentMaxHeight, currentHeight)
+
+        # Traverse left subtree first, then right
+        self.traverseLeftToRight(node.left, currentHeight + 1)
+        self.traverseLeftToRight(node.right, currentHeight + 1)
+
+    def traverseRightToLeft(self, node, currentHeight):
+        if not node:
+            return
+
+        # Update the maximum height if this node were removed
+        self.maxHeightAfterRemoval[node.val] = max(self.maxHeightAfterRemoval[node.val], self.currentMaxHeight)
+
+        # Update the current maximum height
+        self.currentMaxHeight = max(currentHeight, self.currentMaxHeight)
+
+        # Traverse right subtree first, then left
+        self.traverseRightToLeft(node.right, currentHeight + 1)
+        self.traverseRightToLeft(node.left, currentHeight + 1)
+
+    def treeQueries(self, root: Optional[TreeNode], queries: List[int]) -> List[int]:
+        retVal = []
+
+        self.maxHeightAfterRemoval = [0] * 100001
+        self.currentMaxHeight = 0
+        self.traverseLeftToRight(root, 0)
+        self.currentMaxHeight = 0
+        self.traverseRightToLeft(root, 0)
+
+        for querie in queries:
+            retVal.append(self.maxHeightAfterRemoval[querie])
+
+        return retVal
+```
+
+</details>
+
 ## [2583. Kth Largest Sum in a Binary Tree](https://leetcode.com/problems/kth-largest-sum-in-a-binary-tree/)  1374
 
 - [Official](https://leetcode.com/problems/kth-largest-sum-in-a-binary-tree/editorial/)
