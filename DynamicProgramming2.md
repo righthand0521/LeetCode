@@ -3013,6 +3013,138 @@ class Solution:
 
 </details>
 
+## [1277. Count Square Submatrices with All Ones](https://leetcode.com/problems/count-square-submatrices-with-all-ones/)  1613
+
+- [Official](https://leetcode.com/problems/count-square-submatrices-with-all-ones/editorial/)
+- [Official](https://leetcode.cn/problems/count-square-submatrices-with-all-ones/solutions/101706/tong-ji-quan-wei-1-de-zheng-fang-xing-zi-ju-zhen-2/)
+
+<details><summary>Description</summary>
+
+```text
+Given a m * n matrix of ones and zeros, return how many square submatrices have all ones.
+
+Example 1:
+Input: matrix =
+[
+  [0,1,1,1],
+  [1,1,1,1],
+  [0,1,1,1]
+]
+Output: 15
+Explanation:
+There are 10 squares of side 1.
+There are 4 squares of side 2.
+There is  1 square of side 3.
+Total number of squares = 10 + 4 + 1 = 15.
+
+Example 2:
+Input: matrix =
+[
+  [1,0,1],
+  [1,1,0],
+  [1,1,0]
+]
+Output: 7
+Explanation:
+There are 6 squares of side 1.
+There is 1 square of side 2.
+Total number of squares = 6 + 1 = 7.
+
+Constraints:
+1 <= arr.length <= 300
+1 <= arr[0].length <= 300
+0 <= arr[i][j] <= 1
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Create an additive table that counts the sum of elements of submatrix with the superior corner at (0,0).
+2. Loop over all subsquares in O(n^3) and check if the sum make the whole array to be ones,
+   if it checks then add 1 to the answer.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int countSquares(int** matrix, int matrixSize, int* matrixColSize) {
+    int retVal = 0;
+
+    int row = matrixSize;
+    int col = matrixColSize[0];
+    int dp[row + 1][col + 1];
+    memset(dp, 0, sizeof(dp));
+    int x, y;
+    for (x = 0; x < row; ++x) {
+        for (y = 0; y < col; ++y) {
+            if (matrix[x][y] == 0) {
+                continue;
+            }
+            dp[x + 1][y + 1] = fmin(fmin(dp[x][y + 1], dp[x + 1][y]), dp[x][y]) + 1;
+            retVal += dp[x + 1][y + 1];
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int countSquares(vector<vector<int>>& matrix) {
+        int retVal = 0;
+
+        int row = matrix.size();
+        int col = matrix[0].size();
+        vector<vector<int>> dp(row + 1, vector<int>(col + 1, 0));
+        for (int x = 0; x < row; ++x) {
+            for (int y = 0; y < col; ++y) {
+                if (matrix[x][y] == 0) {
+                    continue;
+                }
+                dp[x + 1][y + 1] = min({dp[x][y + 1], dp[x + 1][y], dp[x][y]}) + 1;
+                retVal += dp[x + 1][y + 1];
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def countSquares(self, matrix: List[List[int]]) -> int:
+        retVal = 0
+
+        row = len(matrix)
+        col = len(matrix[0])
+        dp = [[0] * (col + 1) for _ in range(row + 1)]
+        for x in range(row):
+            for y in range(col):
+                if matrix[x][y] == 0:
+                    continue
+                dp[x + 1][y + 1] = (min(dp[x][y + 1], dp[x + 1][y], dp[x][y]) + 1)
+                retVal += dp[x + 1][y + 1]
+
+        return retVal
+```
+
+</details>
+
 ## [1289. Minimum Falling Path Sum II](https://leetcode.com/problems/minimum-falling-path-sum-ii/)  1697
 
 - [Official](https://leetcode.com/problems/minimum-falling-path-sum-ii/editorial/)
