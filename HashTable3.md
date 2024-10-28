@@ -3157,6 +3157,187 @@ class Solution:
 
 </details>
 
+## [2501. Longest Square Streak in an Array](https://leetcode.com/problems/longest-square-streak-in-an-array/)  1479
+
+- [Official](https://leetcode.com/problems/longest-square-streak-in-an-array/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array nums. A subsequence of nums is called a square streak if:
+- The length of the subsequence is at least 2, and
+- after sorting the subsequence, each element (except the first element) is the square of the previous number.
+
+Return the length of the longest square streak in nums, or return -1 if there is no square streak.
+
+A subsequence is an array that can be derived from another array by deleting some
+or no elements without changing the order of the remaining elements.
+
+Example 1:
+Input: nums = [4,3,6,16,8,2]
+Output: 3
+Explanation: Choose the subsequence [4,16,2]. After sorting it, it becomes [2,4,16].
+- 4 = 2 * 2.
+- 16 = 4 * 4.
+Therefore, [4,16,2] is a square streak.
+It can be shown that every subsequence of length 4 is not a square streak.
+
+Example 2:
+Input: nums = [2,3,5,6,7]
+Output: -1
+Explanation: There is no square streak in nums so return -1.
+
+Constraints:
+2 <= nums.length <= 10^5
+2 <= nums[i] <= 10^5
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. With the constraints, the length of the longest square streak possible is 5.
+2. Store the elements of nums in a set to quickly check if it exists.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *current;
+    struct hashTable *tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int compareInteger(const void *n1, const void *n2) {
+    // ascending order
+    return (*(int *)n1 > *(int *)n2);
+}
+int longestSquareStreak(int *nums, int numsSize) {
+    int retVal = 0;
+
+    qsort(nums, numsSize, sizeof(int), compareInteger);
+
+    struct hashTable *pHashTable = NULL;
+    struct hashTable *pTemp;
+    int root, squareStreak;
+    int i;
+    for (i = 0; i < numsSize; ++i) {
+        root = (int)sqrt(nums[i]);
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTable, &root, pTemp);
+        if ((root * root == nums[i]) && (pTemp != NULL)) {
+            squareStreak = pTemp->value + 1;
+        } else {
+            squareStreak = 1;
+        }
+
+        root = nums[i];
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTable, &root, pTemp);
+        if (pTemp == NULL) {
+            pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                freeAll(pHashTable);
+                return retVal;
+            }
+            pTemp->key = root;
+            pTemp->value = squareStreak;
+            HASH_ADD_INT(pHashTable, key, pTemp);
+        } else {
+            pTemp->value = squareStreak;
+        }
+    }
+
+    struct hashTable *pCurrent = NULL;
+    pTemp = NULL;
+    HASH_ITER(hh, pHashTable, pCurrent, pTemp) {
+        retVal = fmax(retVal, pHashTable->value);
+        HASH_DEL(pHashTable, pCurrent);
+        free(pCurrent);
+    }
+    if (retVal == 1) {
+        retVal = -1;  // return -1 if there is no square streak.
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int longestSquareStreak(vector<int>& nums) {
+        int retVal = 0;
+
+        sort(nums.begin(), nums.end());
+
+        unordered_map<int, int> hashTable;
+        for (int num : nums) {
+            int root = (int)sqrt(num);
+            if ((root * root == num) && (hashTable.find(root) != hashTable.end())) {
+                hashTable[num] = hashTable[root] + 1;
+            } else {
+                hashTable[num] = 1;
+            }
+        }
+
+        for (auto iterator = hashTable.begin(); iterator != hashTable.end(); ++iterator) {
+            retVal = max(retVal, iterator->second);
+        }
+        if (retVal == 1) {
+            retVal = -1;  // return -1 if there is no square streak.
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def longestSquareStreak(self, nums: List[int]) -> int:
+        retVal = 0
+
+        nums.sort()
+
+        hashTable = defaultdict(int)
+        for num in nums:
+            root = int(num ** 0.5)
+            if (root * root == num) and (root in hashTable):
+                hashTable[num] = hashTable[root] + 1
+            else:
+                hashTable[num] = 1
+
+        retVal = max(hashTable.values())
+        if retVal == 1:
+            retVal = -1  # return -1 if there is no square streak.
+
+        return retVal
+```
+
+</details>
+
 ## [2570. Merge Two 2D Arrays by Summing Values](https://leetcode.com/problems/merge-two-2d-arrays-by-summing-values/)  1281
 
 <details><summary>Description</summary>
