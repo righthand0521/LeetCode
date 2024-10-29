@@ -1369,6 +1369,170 @@ class Solution:
 
 </details>
 
+## [2684. Maximum Number of Moves in a Grid](https://leetcode.com/problems/maximum-number-of-moves-in-a-grid/)  1625
+
+- [Official](https://leetcode.com/problems/maximum-number-of-moves-in-a-grid/editorial/)
+- [Official](https://leetcode.cn/problems/maximum-number-of-moves-in-a-grid/solutions/2684036/ju-zhen-zhong-yi-dong-de-zui-da-ci-shu-b-b7jx/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed m x n matrix grid consisting of positive integers.
+
+You can start at any cell in the first column of the matrix, and traverse the grid in the following way:
+- From a cell (row, col), you can move to any of the cells:
+  (row - 1, col + 1), (row, col + 1) and (row + 1, col + 1) such that the value of the cell you move to,
+  should be strictly bigger than the value of the current cell.
+
+Return the maximum number of moves that you can perform.
+
+Example 1:
+Input: grid = [[2,4,3,5],[5,4,9,3],[3,4,2,11],[10,9,13,15]]
+Output: 3
+Explanation: We can start at the cell (0, 0) and make the following moves:
+- (0, 0) -> (0, 1).
+- (0, 1) -> (1, 2).
+- (1, 2) -> (2, 3).
+It can be shown that it is the maximum number of moves that can be made.
+
+Example 2:
+Input: grid = [[3,2,4],[2,1,9],[1,1,7]]
+Output: 0
+Explanation: Starting from any cell in the first column we cannot perform any moves.
+
+Constraints:
+m == grid.length
+n == grid[i].length
+2 <= m, n <= 1000
+4 <= m * n <= 10^5
+1 <= grid[i][j] <= 10^6
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Consider using dynamic programming to find the maximum number of moves that can be made from each cell.
+2. The final answer will be the maximum value in cells of the first column.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int maxMoves(int** grid, int gridSize, int* gridColSize) {
+    int retVal = 0;
+
+    int x, y;
+
+    int row = gridSize;
+    int col = gridColSize[0];
+    int dp[row][col];
+    memset(dp, 0, sizeof(dp));
+    for (x = 0; x < row; ++x) {  // Initialize the first column with moves as 1.
+        dp[x][0] = 1;
+    }
+
+    // Check all three possible previous cells: (x, y-1), (x-1, y-1), (x+1, y-1)
+    for (y = 1; y < col; ++y) {
+        for (x = 0; x < row; ++x) {
+            if ((grid[x][y] > grid[x][y - 1]) && (dp[x][y - 1] > 0)) {
+                dp[x][y] = fmax(dp[x][y], dp[x][y - 1] + 1);
+            }
+
+            if ((x - 1 >= 0) && (grid[x][y] > grid[x - 1][y - 1]) && (dp[x - 1][y - 1] > 0)) {
+                dp[x][y] = fmax(dp[x][y], dp[x - 1][y - 1] + 1);
+            }
+
+            if ((x + 1 < row) && (grid[x][y] > grid[x + 1][y - 1]) && (dp[x + 1][y - 1] > 0)) {
+                dp[x][y] = fmax(dp[x][y], dp[x + 1][y - 1] + 1);
+            }
+
+            retVal = fmax(retVal, dp[x][y] - 1);
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maxMoves(vector<vector<int>>& grid) {
+        int retVal = 0;
+
+        int row = grid.size();
+        int col = grid[0].size();
+        vector<vector<int>> dp(row, vector<int>(col, 0));
+        for (int x = 0; x < row; ++x) {  // Initialize the first column with moves as 1.
+            dp[x][0] = 1;
+        }
+
+        // Check all three possible previous cells: (x, y-1), (x-1, y-1), (x+1, y-1)
+        for (int y = 1; y < col; ++y) {
+            for (int x = 0; x < row; ++x) {
+                if ((grid[x][y] > grid[x][y - 1]) && (dp[x][y - 1] > 0)) {
+                    dp[x][y] = max(dp[x][y], dp[x][y - 1] + 1);
+                }
+
+                if ((x - 1 >= 0) && (grid[x][y] > grid[x - 1][y - 1]) && (dp[x - 1][y - 1] > 0)) {
+                    dp[x][y] = max(dp[x][y], dp[x - 1][y - 1] + 1);
+                }
+
+                if ((x + 1 < row) && (grid[x][y] > grid[x + 1][y - 1]) && (dp[x + 1][y - 1] > 0)) {
+                    dp[x][y] = max(dp[x][y], dp[x + 1][y - 1] + 1);
+                }
+
+                retVal = max(retVal, dp[x][y] - 1);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxMoves(self, grid: List[List[int]]) -> int:
+        retVal = 0
+
+        row = len(grid)
+        col = len(grid[0])
+        dp = [[0] * col for _ in range(row)]
+        for x in range(row):  # Initialize the first column with moves as 1.
+            dp[x][0] = 1
+
+        # Check all three possible previous cells: (x, y-1), (x-1, y-1), (x+1, y-1)
+        for y in range(1, col):
+            for x in range(row):
+                if (grid[x][y] > grid[x][y-1]) and (dp[x][y-1] > 0):
+                    dp[x][y] = max(dp[x][y], dp[x][y-1] + 1)
+
+                if ((x - 1 >= 0) and (grid[x][y] > grid[x-1][y-1]) and (dp[x-1][y-1] > 0)):
+                    dp[x][y] = max(dp[x][y], dp[x-1][y-1] + 1)
+
+                if ((x + 1 < row) and (grid[x][y] > grid[x+1][y-1]) and (dp[x+1][y-1] > 0)):
+                    dp[x][y] = max(dp[x][y], dp[x+1][y-1] + 1)
+
+                retVal = max(retVal, dp[x][y] - 1)
+
+        return retVal
+```
+
+</details>
+
 ## [2707. Extra Characters in a String](https://leetcode.com/problems/extra-characters-in-a-string/)  1735
 
 - [Official](https://leetcode.com/problems/extra-characters-in-a-string/editorial/)
