@@ -4554,6 +4554,251 @@ class Solution:
 
 </details>
 
+## [1671. Minimum Number of Removals to Make Mountain Array](https://leetcode.com/problems/minimum-number-of-removals-to-make-mountain-array/)  1912
+
+- [Official](https://leetcode.com/problems/minimum-number-of-removals-to-make-mountain-array/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-number-of-removals-to-make-mountain-array/solutions/2570598/zui-chang-di-zeng-zi-xu-lie-by-leetcode-2ipno/)
+
+<details><summary>Description</summary>
+
+```text
+You may recall that an array arr is a mountain array if and only if:
+- arr.length >= 3
+- There exists some index i (0-indexed) with 0 < i < arr.length - 1 such that:
+  - arr[0] < arr[1] < ... < arr[i - 1] < arr[i]
+  - arr[i] > arr[i + 1] > ... > arr[arr.length - 1]
+
+Given an integer array nums​​​, return the minimum number of elements to remove to make nums​​​ a mountain array.
+
+Example 1:
+Input: nums = [1,3,1]
+Output: 0
+Explanation: The array itself is a mountain array so we do not need to remove any elements.
+
+Example 2:
+Input: nums = [2,1,1,5,6,2,3,1]
+Output: 3
+Explanation: One solution is to remove the elements at indices 0, 1, and 5, making the array nums = [1,5,6,3,1].
+
+Constraints:
+3 <= nums.length <= 1000
+1 <= nums[i] <= 10^9
+It is guaranteed that you can make a mountain array out of nums.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Think the opposite direction instead of minimum elements to remove the maximum mountain subsequence
+2. Think of LIS it's kind of close
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int binarySearch(const int *seq, int seqSize, int target) {
+    int retVal = 0;
+
+    int middle;
+    int left = 0;
+    int right = seqSize;
+    while (left < right) {
+        middle = left + (right - left) / 2;
+        if (seq[middle] >= target) {
+            right = middle;
+        } else {
+            left = middle + 1;
+        }
+    }
+    retVal = left;
+
+    return retVal;
+}
+int *getLISArray(const int *nums, int numsSize) {
+    int *pRetVal = NULL;
+
+    pRetVal = (int *)malloc(numsSize * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+
+    int i;
+    for (i = 0; i < numsSize; i++) {
+        pRetVal[i] = 1;
+    }
+
+    int index;
+    int seq[numsSize];
+    int pos = 0;
+    for (i = 0; i < numsSize; ++i) {
+        index = binarySearch(seq, pos, nums[i]);
+        if (index == pos) {
+            seq[pos++] = nums[i];
+            pRetVal[i] = pos;
+        } else {
+            seq[index] = nums[i];
+            pRetVal[i] = index + 1;
+        }
+    }
+
+    return pRetVal;
+}
+void reverse(int *nums, int numsSize) {
+    int tmp;
+    int i, j;
+    for (i = 0, j = numsSize - 1; i < j; i++, j--) {
+        tmp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = tmp;
+    }
+}
+int minimumMountainRemovals(int *nums, int numsSize) {
+    int retVal = 0;
+
+    int *pre = getLISArray(nums, numsSize);
+    if (pre == NULL) {
+        free(pre);
+        pre = NULL;
+        return retVal;
+    }
+    reverse(nums, numsSize);
+
+    int *suf = getLISArray(nums, numsSize);
+    if (suf == NULL) {
+        return retVal;
+    }
+    reverse(suf, numsSize);
+
+    int i;
+    for (i = 0; i < numsSize; ++i) {
+        if ((pre[i] > 1) && (suf[i] > 1)) {
+            retVal = fmax(retVal, pre[i] + suf[i] - 1);
+        }
+    }
+    retVal = numsSize - retVal;
+
+    //
+    free(pre);
+    pre = NULL;
+    free(suf);
+    suf = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> getLongestIncreasingSubsequenceLength(vector<int>& v) {
+        vector<int> retVal;
+
+        int vSize = v.size();
+        retVal.resize(vSize, 1);
+
+        vector<int> lis = {v[0]};
+        for (int i = 1; i < vSize; i++) {
+            int index = lower_bound(lis.begin(), lis.end(), v[i]) - lis.begin();
+            int lisSize = lis.size();
+            if (index == lisSize) {
+                lis.push_back(v[i]);
+            } else {
+                lis[index] = v[i];
+            }
+
+            retVal[i] = lis.size();
+        }
+
+        return retVal;
+    }
+    int minimumMountainRemovals(vector<int>& nums) {
+        int retVal = 0;
+
+        vector<int> lisLength = getLongestIncreasingSubsequenceLength(nums);
+        reverse(nums.begin(), nums.end());
+        vector<int> ldsLength = getLongestIncreasingSubsequenceLength(nums);
+        reverse(ldsLength.begin(), ldsLength.end());
+
+        int numsSize = nums.size();
+        retVal = numeric_limits<int>::max();
+        for (int i = 0; i < numsSize; i++) {
+            if ((lisLength[i] > 1) && (ldsLength[i] > 1)) {
+                retVal = min(retVal, numsSize - lisLength[i] - ldsLength[i] + 1);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def lowerBound(self, lis: List[int], target: int) -> int:
+        retVal = 0
+
+        left = 0
+        right = len(lis)
+        while left < right:
+            mid = left + (right - left) // 2
+            if lis[mid] < target:
+                left = mid + 1
+            else:
+                right = mid
+        retVal = left
+
+        return retVal
+
+    def getLongestIncreasingSubsequenceLength(self, v: List[int]) -> List[int]:
+        retVal = None
+
+        vSize = len(v)
+        retVal = [1] * vSize
+        lis = [v[0]]
+        for i in range(1, vSize):
+            index = self.lowerBound(lis, v[i])
+            if index == len(lis):
+                lis.append(v[i])
+            else:
+                lis[index] = v[i]
+
+            retVal[i] = len(lis)
+
+        return retVal
+
+    def minimumMountainRemovals(self, nums: List[int]) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+
+        lisLength = self.getLongestIncreasingSubsequenceLength(nums)
+        nums.reverse()
+        ldsLength = self.getLongestIncreasingSubsequenceLength(nums)
+        ldsLength.reverse()
+
+        retVal = float("inf")
+        for i in range(numsSize):
+            if (lisLength[i] > 1) and (ldsLength[i] > 1):
+                retVal = min(retVal, numsSize - lisLength[i] - ldsLength[i] + 1)
+
+        return retVal
+```
+
+</details>
+
 ## [1802. Maximum Value at a Given Index in a Bounded Array](https://leetcode.com/problems/maximum-value-at-a-given-index-in-a-bounded-array/)  1929
 
 - [Official](https://leetcode.com/problems/maximum-value-at-a-given-index-in-a-bounded-array/editorial/)
