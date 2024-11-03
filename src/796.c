@@ -6,24 +6,17 @@
 bool rotateString(char* s, char* goal) {
     bool retVal = false;
 
-    int lenS = strlen(s);
-    int lenGoal = strlen(goal);
-    if (lenS != lenGoal) {
+    int sSize = strlen(s);
+    int goalSize = strlen(goal);
+    if (sSize != goalSize) {
         return retVal;
     }
 
-    char buf[lenS + 1];
-    int i;
-    for (i = 0; i < lenS; ++i) {
-        if (*(s + i) == *(goal)) {
-            memset(buf, 0, sizeof(buf));
-            strncpy(buf, s + i, lenS - i);
-            strncat(buf, s, i);
-            if (strcmp(buf, goal) == 0) {
-                retVal = true;
-                return retVal;
-            }
-        }
+    char doubleS[sSize * 2 + 1];
+    memset(doubleS, 0, sizeof(doubleS));
+    snprintf(doubleS, sizeof(doubleS), "%s%s", s, s);
+    if (strstr(doubleS, goal) != NULL) {
+        retVal = true;
     }
 
     return retVal;
@@ -40,6 +33,13 @@ int main(int argc, char** argv) {
                     {"bbbacddceeb", "ceebbbbacdd"},
                     {"waterbottle", "erbottlewat"}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: s = "abcde", goal = "cdeab"
+     *  Output: true
+     *
+     *  Input: s = "abcde", goal = "abced"
+     *  Output: false
+     */
 
     bool pAnswer = true;
     int i;

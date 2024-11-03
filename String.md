@@ -3659,6 +3659,9 @@ class Solution:
 
 ## [796. Rotate String](https://leetcode.com/problems/rotate-string/)  1167
 
+- [Official](https://leetcode.com/problems/rotate-string/editorial/)
+- [Official](https://leetcode.cn/problems/rotate-string/solutions/1398076/xuan-zhuan-zi-fu-chuan-by-leetcode-solut-4hlp/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -3688,28 +3691,62 @@ s and goal consist of lowercase English letters.
 bool rotateString(char* s, char* goal) {
     bool retVal = false;
 
-    int lenS = strlen(s);
-    int lenGoal = strlen(goal);
-    if (lenS != lenGoal) {
+    int sSize = strlen(s);
+    int goalSize = strlen(goal);
+    if (sSize != goalSize) {
         return retVal;
     }
 
-    char buf[lenS + 1];
-    int i;
-    for (i = 0; i < lenS; ++i) {
-        if (*(s + i) == *(goal)) {
-            memset(buf, 0, sizeof(buf));
-            strncpy(buf, s + i, lenS - i);
-            strncat(buf, s, i);
-            if (strcmp(buf, goal) == 0) {
-                retVal = true;
-                return retVal;
-            }
-        }
+    char doubleS[sSize * 2 + 1];
+    memset(doubleS, 0, sizeof(doubleS));
+    snprintf(doubleS, sizeof(doubleS), "%s%s", s, s);
+    if (strstr(doubleS, goal) != NULL) {
+        retVal = true;
     }
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool rotateString(string s, string goal) {
+        bool retVal = false;
+
+        if (s.size() != goal.size()) {
+            return retVal;
+        }
+
+        if ((s + s).find(goal) != string::npos) {
+            retVal = true;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def rotateString(self, s: str, goal: str) -> bool:
+        retVal = False
+
+        if len(s) != len(goal):
+            return retVal
+
+        if goal in s+s:
+            retVal = True
+
+        return retVal
 ```
 
 </details>
