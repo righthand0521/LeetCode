@@ -7809,3 +7809,135 @@ class Solution:
 ```
 
 </details>
+
+## [3163. String Compression III](https://leetcode.com/problems/string-compression-iii/)
+
+- [Official](https://leetcode.com/problems/string-compression-iii/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+Given a string word, compress it using the following algorithm:
+- Begin with an empty string comp. While word is not empty, use the following operation:
+  - Remove a maximum length prefix of word made of a single character c repeating at most 9 times.
+  - Append the length of the prefix followed by c to comp.
+
+Return the string comp.
+
+Example 1:
+Input: word = "abcde"
+Output: "1a1b1c1d1e"
+Explanation:
+Initially, comp = "".
+Apply the operation 5 times, choosing "a", "b", "c", "d", and "e" as the prefix in each operation.
+For each prefix, append "1" followed by the character to comp.
+
+Example 2:
+Input: word = "aaaaaaaaaaaaaabb"
+Output: "9a5a2b"
+Explanation:
+Initially, comp = "".
+Apply the operation 3 times, choosing "aaaaaaaaa", "aaaaa", and "bb" as the prefix in each operation.
+For prefix "aaaaaaaaa", append "9" followed by "a" to comp.
+For prefix "aaaaa", append "5" followed by "a" to comp.
+For prefix "bb", append "2" followed by "b" to comp.
+
+Constraints:
+1 <= word.length <= 2 * 10^5
+word consists only of lowercase English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Each time, just cut the same character in prefix up to at max 9 times. It’s always better to cut a bigger prefix.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+char* compressedString(char* word) {
+    char* pRetVal = NULL;
+
+    int wordSize = strlen(word);
+    int retValSize = 2 * wordSize + 1;
+    pRetVal = (char*)malloc(retValSize * sizeof(char));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (retValSize * sizeof(char)));
+
+    int idx = 0;
+    int count = 1;
+    int i;
+    for (i = 1; i < wordSize; ++i) {
+        if ((word[i] == word[i - 1]) && (count < 9)) {
+            count++;
+            continue;
+        }
+        idx += snprintf(pRetVal + idx, retValSize - idx, "%d%c", count, word[i - 1]);
+        count = 1;
+    }
+    idx += snprintf(pRetVal + idx, retValSize - idx, "%d%c", count, word[wordSize - 1]);
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    string compressedString(string word) {
+        string retVal;
+
+        int wordSize = word.size();
+
+        int count = 1;
+        for (int i = 1; i < wordSize; ++i) {
+            if ((word[i] == word[i - 1]) && (count < 9)) {
+                count++;
+                continue;
+            }
+            retVal += (to_string(count) + word[i - 1]);
+            count = 1;
+        }
+        retVal += (to_string(count) + word[wordSize - 1]);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def compressedString(self, word: str) -> str:
+        retVal = ""
+
+        wordSize = len(word)
+
+        count = 1
+        for i in range(1, wordSize):
+            if (word[i] == word[i-1]) and (count < 9):
+                count += 1
+                continue
+            retVal += (str(count) + word[i-1])
+            count = 1
+        retVal += (str(count) + word[wordSize-1])
+
+        return retVal
+```
+
+</details>
