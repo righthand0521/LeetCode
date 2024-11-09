@@ -4217,3 +4217,120 @@ class Solution:
 ```
 
 </details>
+
+## [3133. Minimum Array End](https://leetcode.com/problems/minimum-array-end/)  1934
+
+- [Official](https://leetcode.com/problems/minimum-array-end/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-array-end/solutions/2885445/shu-zu-zui-hou-yi-ge-yuan-su-de-zui-xiao-4tbz/)
+
+<details><summary>Description</summary>
+
+```text
+You are given two integers n and x.
+You have to construct an array of positive integers nums of size n
+where for every 0 <= i < n - 1, nums[i + 1] is greater than nums[i],
+and the result of the bitwise AND operation between all elements of nums is x.
+
+Return the minimum possible value of nums[n - 1].
+
+Example 1:
+Input: n = 3, x = 4
+Output: 6
+Explanation:
+nums can be [4,5,6] and its last element is 6.
+
+Example 2:
+Input: n = 2, x = 7
+Output: 15
+Explanation:
+nums can be [7,15] and its last element is 15.
+
+Constraints:
+1 <= n, x <= 10^8
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Each element of the array should be obtained by “merging” x and v where v = 0, 1, 2, …(n - 1).
+2. To merge x with another number v, keep the set bits of x untouched,
+   for all the other bits, fill the set bits of v from right to left in order one by one.
+3. So the final answer is the “merge” of x and n - 1.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+long long minEnd(int n, int x) {
+    long long retVal = x;
+
+    --n;  // Reducing n by 1 to exclude x from the iteration
+
+    // Step 1: Iterate over each bit position with mask starting at 1 and shifting left
+    long long mask;
+    for (mask = 1; n > 0; mask <<= 1) {
+        // Step 2: If the corresponding bit in x is 0
+        if ((mask & x) == 0) {
+            retVal |= ((n & 1) * mask);  // Set the bit in result based on the least significant bit of n
+            n >>= 1;                     // Shift n to the right by 1 to process the next bit
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    long long minEnd(int n, int x) {
+        long long retVal = x;
+
+        --n;  // Reducing n by 1 to exclude x from the iteration
+
+        // Step 1: Iterate over each bit position with mask starting at 1 and shifting left
+        long long mask;
+        for (mask = 1; n > 0; mask <<= 1) {
+            // Step 2: If the corresponding bit in x is 0
+            if ((mask & x) == 0) {
+                retVal |= ((n & 1) * mask);  // Set the bit in result based on the least significant bit of n
+                n >>= 1;                     // Shift n to the right by 1 to process the next bit
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minEnd(self, n: int, x: int) -> int:
+        retVal = x
+
+        n -= 1  # Reducing n by 1 to exclude x from the iteration
+        mask = 1
+        while n > 0:  # Step 1: Iterate while n > 0, using mask for bit positions
+            if (mask & x) == 0:  # Step 2: If the corresponding bit in x is 0
+                # Set the bit in result based on least significant bit of n
+                retVal |= ((n & 1) * mask)
+                # Shift n right by 1 to process next bit
+                n >>= 1
+            mask <<= 1  # Shift mask left by 1 for next iteration
+
+        return retVal
+```
+
+</details>
