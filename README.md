@@ -134,6 +134,13 @@
 
 </details>
 
+<details><summary>Shortest Subarray With OR at Least K</summary>
+
+- [3095. Shortest Subarray With OR at Least K I](https://leetcode.com/problems/shortest-subarray-with-or-at-least-k-i/)
+- [3097. Shortest Subarray With OR at Least K II](https://leetcode.com/problems/shortest-subarray-with-or-at-least-k-ii/)
+
+</details>
+
 ## Design
 
 <details><summary><a href="https://en.wikipedia.org/wiki/Cache_replacement_policies" target="_blank" style="color:gray">Cache replacement policies</a></summary>
