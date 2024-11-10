@@ -4218,6 +4218,208 @@ class Solution:
 
 </details>
 
+## [3097. Shortest Subarray With OR at Least K II](https://leetcode.com/problems/shortest-subarray-with-or-at-least-k-ii/)  1891
+
+- [Official](https://leetcode.com/problems/shortest-subarray-with-or-at-least-k-ii/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an array nums of non-negative integers and an integer k.
+
+An array is called special if the bitwise OR of all of its elements is at least k.
+
+Return the length of the shortest special non-empty subarray of nums, or return -1 if no special subarray exists.
+
+Example 1:
+Input: nums = [1,2,3], k = 2
+Output: 1
+Explanation:
+The subarray [3] has OR value of 3. Hence, we return 1.
+
+Example 2:
+Input: nums = [2,1,8], k = 10
+Output: 3
+Explanation:
+The subarray [2,1,8] has OR value of 11. Hence, we return 3.
+
+Example 3:
+Input: nums = [1,2], k = 0
+Output: 1
+Explanation:
+The subarray [1] has OR value of 1. Hence, we return 1.
+
+Constraints:
+1 <= nums.length <= 2 * 10^5
+0 <= nums[i] <= 10^9
+0 <= k <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. For each nums[i], we can maintain each subarray’s bitwise OR result ending with it.
+2. The property of bitwise OR is that it never unsets any bits and only sets new bits
+3. So the number of different results for each nums[i] is at most the number of bits 32.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+void updateBitCounts(int* bitCounts, int bitCountsSize, int number, int delta) {
+    int bitPosition;
+    for (bitPosition = 0; bitPosition < bitCountsSize; bitPosition++) {
+        if ((number >> bitPosition) & 1) {
+            bitCounts[bitPosition] += delta;
+        }
+    }
+}
+int convertBitCountsToNumber(int* bitCounts, int bitCountsSize) {
+    int retVal = 0;
+
+    int bitPosition = 0;
+    for (bitPosition = 0; bitPosition < bitCountsSize; bitPosition++) {
+        if (bitCounts[bitPosition] != 0) {
+            retVal |= (1 << bitPosition);
+        }
+    }
+
+    return retVal;
+}
+int minimumSubarrayLength(int* nums, int numsSize, int k) {
+    int retVal = -1;
+
+    int bitCountsSize = 32;
+    int* bitCounts = (int*)calloc(bitCountsSize, sizeof(int));
+    if (bitCounts == NULL) {
+        perror("calloc");
+        return retVal;
+    }
+    int minLength = INT_MAX;
+    int windowStart = 0;
+    int windowEnd;
+    for (windowEnd = 0; windowEnd < numsSize; ++windowEnd) {
+        updateBitCounts(bitCounts, bitCountsSize, nums[windowEnd], 1);
+
+        while ((windowStart <= windowEnd) && (convertBitCountsToNumber(bitCounts, bitCountsSize) >= k)) {
+            minLength = fmin(minLength, windowEnd - windowStart + 1);
+            updateBitCounts(bitCounts, bitCountsSize, nums[windowStart], -1);
+            windowStart++;
+        }
+    }
+
+    if (minLength != INT_MAX) {
+        retVal = minLength;
+    }
+
+    //
+    free(bitCounts);
+    bitCounts = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    void updateBitCounts(vector<int>& bitCounts, int number, int delta) {
+        for (int bitPosition = 0; bitPosition < 32; bitPosition++) {
+            if ((number >> bitPosition) & 1) {
+                bitCounts[bitPosition] += delta;
+            }
+        }
+    }
+    int convertBitCountsToNumber(const vector<int>& bitCounts) {
+        int retVal = 0;
+
+        for (int bitPosition = 0; bitPosition < 32; bitPosition++) {
+            if (bitCounts[bitPosition] != 0) {
+                retVal |= (1 << bitPosition);
+            }
+        }
+
+        return retVal;
+    }
+
+   public:
+    int minimumSubarrayLength(vector<int>& nums, int k) {
+        int retVal = -1;
+
+        int numsSize = nums.size();
+        int windowStart = 0;
+        vector<int> bitCounts(32, 0);
+        int minLength = numeric_limits<int>::max();
+        for (int windowEnd = 0; windowEnd < numsSize; ++windowEnd) {
+            updateBitCounts(bitCounts, nums[windowEnd], 1);
+
+            while ((windowStart <= windowEnd) && (convertBitCountsToNumber(bitCounts) >= k)) {
+                minLength = min(minLength, windowEnd - windowStart + 1);
+                updateBitCounts(bitCounts, nums[windowStart], -1);
+                windowStart++;
+            }
+        }
+
+        if (minLength != numeric_limits<int>::max()) {
+            retVal = minLength;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def updateBitCounts(self, bitCounts: list, number: int, delta: int) -> None:
+        for bitPosition in range(32):
+            if number & (1 << bitPosition):
+                bitCounts[bitPosition] += delta
+
+    def convertBitCountsToNumber(self, bitCounts: list) -> int:
+        retVal = 0
+
+        for bitPosition in range(32):
+            if bitCounts[bitPosition]:
+                retVal |= (1 << bitPosition)
+
+        return retVal
+
+    def minimumSubarrayLength(self, nums: List[int], k: int) -> int:
+        retVal = -1
+
+        numsSize = len(nums)
+        windowStart = 0
+        bitCounts = [0] * 32
+        minLength = float("inf")
+        for windowEnd in range(numsSize):
+            self.updateBitCounts(bitCounts, nums[windowEnd], 1)
+
+            while (windowStart <= windowEnd) and (self.convertBitCountsToNumber(bitCounts) >= k):
+                minLength = min(minLength, windowEnd - windowStart + 1)
+                self.updateBitCounts(bitCounts, nums[windowStart], -1)
+                windowStart += 1
+
+        if minLength != float("inf"):
+            retVal = minLength
+
+        return retVal
+```
+
+</details>
+
 ## [3133. Minimum Array End](https://leetcode.com/problems/minimum-array-end/)  1934
 
 - [Official](https://leetcode.com/problems/minimum-array-end/editorial/)
