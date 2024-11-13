@@ -4341,6 +4341,159 @@ class Solution:
 
 </details>
 
+## [2563. Count the Number of Fair Pairs](https://leetcode.com/problems/count-the-number-of-fair-pairs/)  1720
+
+- [Official](https://leetcode.com/problems/count-the-number-of-fair-pairs/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+Given a 0-indexed integer array nums of size n and two integers lower and upper, return the number of fair pairs.
+A pair (i, j) is fair if:
+- 0 <= i < j < n, and
+- lower <= nums[i] + nums[j] <= upper
+
+Example 1:
+Input: nums = [0,1,7,4,4,5], lower = 3, upper = 6
+Output: 6
+Explanation: There are 6 fair pairs: (0,3), (0,4), (0,5), (1,3), (1,4), and (1,5).
+
+Example 2:
+Input: nums = [1,7,9,2,5], lower = 11, upper = 11
+Output: 1
+Explanation: There is a single fair pair: (2,3).
+
+Constraints:
+1 <= nums.length <= 10^5
+nums.length == n
+-10^9 <= nums[i] <= 10^9
+-10^9 <= lower <= upper <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Sort the array in ascending order.
+2. For each number in the array,
+   keep track of the smallest and largest numbers in the array that can form a fair pair with this number.
+3. As you move to larger number, both boundaries move down.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+long long lowerBound(int* nums, int numsSize, int value) {
+    long long retVal = 0;
+
+    int sum;
+    int left = 0;
+    int right = numsSize - 1;
+    while (left < right) {
+        sum = nums[left] + nums[right];
+        // If sum is less than value, add the size of window to result and move to the next index.
+        // Otherwise, shift the right pointer backwards, until we get a valid window.
+        if (sum < value) {
+            retVal += (right - left);
+            left++;
+        } else {
+            right--;
+        }
+    }
+
+    return retVal;
+}
+int compareInteger(const void* n1, const void* n2) {
+    // ascending order
+    return (*(int*)n1 > *(int*)n2);
+}
+long long countFairPairs(int* nums, int numsSize, int lower, int upper) {
+    long long retVal = 0;
+
+    qsort(nums, numsSize, sizeof(int), compareInteger);
+    retVal = lowerBound(nums, numsSize, upper + 1) - lowerBound(nums, numsSize, lower);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    long long lowerBound(vector<int>& nums, int value) {
+        long long retVal = 0;
+
+        int left = 0;
+        int right = nums.size() - 1;
+        while (left < right) {
+            int sum = nums[left] + nums[right];
+            // If sum is less than value, add the size of window to result and move to the next index.
+            // Otherwise, shift the right pointer backwards, until we get a valid window.
+            if (sum < value) {
+                retVal += (right - left);
+                left++;
+            } else {
+                right--;
+            }
+        }
+
+        return retVal;
+    }
+
+   public:
+    long long countFairPairs(vector<int>& nums, int lower, int upper) {
+        long long retVal = 0;
+
+        sort(nums.begin(), nums.end());
+        retVal = lowerBound(nums, upper + 1) - lowerBound(nums, lower);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def lowerBound(self, nums: List[int], value: int) -> int:
+        retVal = 0
+
+        left = 0
+        right = len(nums) - 1
+        while left < right:
+            sum = nums[left] + nums[right]
+
+            # If sum is less than value, add the size of window to result and move to the next index.
+            # Otherwise, shift the right pointer backwards, until we get a valid window.
+            if sum < value:
+                retVal += (right - left)
+                left += 1
+            else:
+                right -= 1
+
+        return retVal
+
+    def countFairPairs(self, nums: List[int], lower: int, upper: int) -> int:
+        retVal = 0
+
+        nums.sort()
+        retVal = self.lowerBound(nums, upper + 1) - self.lowerBound(nums, lower)
+
+        return retVal
+```
+
+</details>
+
 ## [2810. Faulty Keyboard](https://leetcode.com/problems/faulty-keyboard/)  1192
 
 <details><summary>Description</summary>
