@@ -2632,6 +2632,349 @@ class Solution:
 
 </details>
 
+## [862. Shortest Subarray with Sum at Least K](https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/)  2306
+
+- [Official](https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/editorial/)
+- [Official](https://leetcode.cn/problems/shortest-subarray-with-sum-at-least-k/solutions/1923445/he-zhi-shao-wei-k-de-zui-duan-zi-shu-zu-57ffq/)
+
+<details><summary>Description</summary>
+
+```text
+Given an integer array nums and an integer k,
+return the length of the shortest non-empty subarray of nums with a sum of at least k.
+If there is no such subarray, return -1.
+
+A subarray is a contiguous part of an array.
+
+Example 1:
+Input: nums = [1], k = 1
+Output: 1
+
+Example 2:
+Input: nums = [1,2], k = 4
+Output: -1
+
+Example 3:
+Input: nums = [2,-1,2], k = 3
+Output: 3
+
+Constraints:
+1 <= nums.length <= 10^5
+-10^5 <= nums[i] <= 10^5
+1 <= k <= 10^9
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#ifndef DEQUE_H
+#define DEQUE_H
+
+typedef struct DLinkListNode {
+    int val;
+    struct DLinkListNode* prev;
+    struct DLinkListNode* next;
+} DLinkListNode;
+DLinkListNode* dLinkListNodeCreat(int val) {
+    DLinkListNode* obj = NULL;
+
+    obj = (DLinkListNode*)malloc(sizeof(DLinkListNode));
+    if (obj == NULL) {
+        perror("malloc");
+        return obj;
+    }
+    obj->val = val;
+    obj->prev = NULL;
+    obj->next = NULL;
+
+    return obj;
+}
+typedef struct {
+    int capacity;
+    DLinkListNode* head;
+    DLinkListNode* tail;
+    int size;
+} MyCircularDeque;
+MyCircularDeque* myCircularDequeCreate(int k) {
+    MyCircularDeque* obj = NULL;
+
+    obj = (MyCircularDeque*)malloc(sizeof(MyCircularDeque));
+    if (obj == NULL) {
+        perror("malloc");
+        return obj;
+    }
+    obj->capacity = k;
+    obj->head = NULL;
+    obj->tail = NULL;
+    obj->size = 0;
+
+    return obj;
+}
+bool myCircularDequeIsEmpty(MyCircularDeque* obj) {
+    bool retVal = false;
+
+    if (obj->size == 0) {
+        retVal = true;
+    }
+
+    return retVal;
+}
+bool myCircularDequeIsFull(MyCircularDeque* obj) {
+    bool retVal = false;
+
+    if (obj->size == obj->capacity) {
+        retVal = true;
+    }
+
+    return retVal;
+}
+bool myCircularDequeInsertFront(MyCircularDeque* obj, int value) {
+    bool retVal = false;
+
+    if (myCircularDequeIsFull(obj) == true) {
+        return retVal;
+    }
+
+    DLinkListNode* pNew = dLinkListNodeCreat(value);
+    if (pNew == NULL) {
+        return retVal;
+    }
+
+    if (obj->size == 0) {
+        obj->head = pNew;
+        obj->tail = pNew;
+    } else {
+        pNew->next = obj->head;
+        obj->head->prev = pNew;
+        obj->head = pNew;
+    }
+    obj->size++;
+    retVal = true;
+
+    return retVal;
+}
+bool myCircularDequeInsertLast(MyCircularDeque* obj, int value) {
+    bool retVal = false;
+
+    if (myCircularDequeIsFull(obj) == true) {
+        return retVal;
+    }
+
+    DLinkListNode* pNew = dLinkListNodeCreat(value);
+    if (pNew == NULL) {
+        return retVal;
+    }
+
+    if (obj->size == 0) {
+        obj->head = pNew;
+        obj->tail = pNew;
+    } else {
+        obj->tail->next = pNew;
+        pNew->prev = obj->tail;
+        obj->tail = pNew;
+    }
+    obj->size++;
+    retVal = true;
+
+    return retVal;
+}
+bool myCircularDequeDeleteFront(MyCircularDeque* obj) {
+    bool retVal = false;
+
+    if (myCircularDequeIsEmpty(obj) == true) {
+        return retVal;
+    }
+
+    DLinkListNode* pDelete = obj->head;
+    obj->head = obj->head->next;
+    if (obj->head != NULL) {
+        obj->head->prev = NULL;
+    }
+    free(pDelete);
+    pDelete = NULL;
+    obj->size--;
+    retVal = true;
+
+    return retVal;
+}
+bool myCircularDequeDeleteLast(MyCircularDeque* obj) {
+    bool retVal = false;
+
+    if (myCircularDequeIsEmpty(obj) == true) {
+        return retVal;
+    }
+
+    DLinkListNode* pDelete = obj->tail;
+    obj->tail = obj->tail->prev;
+    if (obj->tail != NULL) {
+        obj->tail->next = NULL;
+    }
+    free(pDelete);
+    pDelete = NULL;
+    obj->size--;
+    retVal = true;
+
+    return retVal;
+}
+int myCircularDequeGetFront(MyCircularDeque* obj) {
+    int retVal = -1;  // Returns -1 if the deque is empty.
+
+    if (myCircularDequeIsEmpty(obj) == false) {
+        retVal = obj->head->val;
+    }
+
+    return retVal;
+}
+int myCircularDequeGetRear(MyCircularDeque* obj) {
+    int retVal = -1;  // Returns -1 if the deque is empty.
+
+    if (myCircularDequeIsEmpty(obj) == false) {
+        retVal = obj->tail->val;
+    }
+
+    return retVal;
+}
+void myCircularDequeFree(MyCircularDeque* obj) {
+    DLinkListNode* pDelete = NULL;
+    while (obj->head != obj->tail) {
+        pDelete = obj->head;
+        obj->head = obj->head->next;
+        free(pDelete);
+        pDelete = NULL;
+    }
+    free(obj->head);
+    obj->head = NULL;
+
+    free(obj);
+    obj = NULL;
+}
+
+#endif  // DEQUE_H
+int shortestSubarray(int* nums, int numsSize, int k) {
+    int retVal = -1;
+
+    long long prefixSums[numsSize + 1];
+    prefixSums[0] = 0;
+    for (int i = 1; i <= numsSize; i++) {
+        prefixSums[i] = prefixSums[i - 1] + nums[i - 1];
+    }
+
+    MyCircularDeque* candidateIndices = NULL;
+    candidateIndices = myCircularDequeCreate(numsSize + 1);
+
+    int shortestSubarrayLength = INT_MAX;
+    for (int i = 0; i <= numsSize; i++) {
+        // Remove candidates from front of deque where subarray sum meets target
+        while ((myCircularDequeIsEmpty(candidateIndices) == false) &&
+               (prefixSums[i] - prefixSums[myCircularDequeGetFront(candidateIndices)] >= k)) {
+            shortestSubarrayLength = fmin(shortestSubarrayLength, i - myCircularDequeGetFront(candidateIndices));
+            myCircularDequeDeleteFront(candidateIndices);
+        }
+
+        // Maintain monotonicity by removing indices with larger prefix sums
+        while ((myCircularDequeIsEmpty(candidateIndices) == false) &&
+               (prefixSums[i] <= prefixSums[myCircularDequeGetRear(candidateIndices)])) {
+            myCircularDequeDeleteLast(candidateIndices);
+        }
+
+        // Add current index to candidates
+        myCircularDequeInsertLast(candidateIndices, i);
+    }
+    if (shortestSubarrayLength != INT_MAX) {
+        retVal = shortestSubarrayLength;
+    }
+
+    //
+    myCircularDequeFree(candidateIndices);
+    candidateIndices = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int shortestSubarray(vector<int>& nums, int k) {
+        int retVal = -1;
+
+        int numsSize = nums.size();
+
+        vector<long long> prefixSums(numsSize + 1, 0);
+        for (int i = 1; i <= numsSize; i++) {
+            prefixSums[i] = prefixSums[i - 1] + nums[i - 1];
+        }
+
+        deque<int> candidateIndices;
+        int shortestSubarrayLength = numeric_limits<int>::max();
+        for (int i = 0; i <= numsSize; i++) {
+            // Remove candidates from front of deque where subarray sum meets target
+            while ((candidateIndices.empty() == false) && (prefixSums[i] - prefixSums[candidateIndices.front()] >= k)) {
+                shortestSubarrayLength = min(shortestSubarrayLength, i - candidateIndices.front());
+                candidateIndices.pop_front();
+            }
+
+            // Maintain monotonicity by removing indices with larger prefix sums
+            while ((candidateIndices.empty() == false) && (prefixSums[i] <= prefixSums[candidateIndices.back()])) {
+                candidateIndices.pop_back();
+            }
+
+            // Add current index to candidates
+            candidateIndices.push_back(i);
+        }
+
+        if (shortestSubarrayLength != numeric_limits<int>::max()) {
+            retVal = shortestSubarrayLength;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def shortestSubarray(self, nums: List[int], k: int) -> int:
+        retVal = -1
+
+        numsSize = len(nums)
+
+        prefixSums = [0] * (numsSize + 1)
+        for i in range(1, numsSize + 1):
+            prefixSums[i] = prefixSums[i - 1] + nums[i - 1]
+
+        candidateIndices = deque()
+        shortestSubarrayLength = float("inf")
+        for i in range(numsSize + 1):
+            # Remove candidates from front of deque where subarray sum meets target
+            while ((candidateIndices) and (prefixSums[i] - prefixSums[candidateIndices[0]] >= k)):
+                shortestSubarrayLength = min(shortestSubarrayLength, i - candidateIndices.popleft())
+
+            # Maintain monotonicity by removing indices with larger prefix sums
+            while ((candidateIndices) and (prefixSums[i] <= prefixSums[candidateIndices[-1]])):
+                candidateIndices.pop()
+
+            # Add current index to candidates
+            candidateIndices.append(i)
+
+        if shortestSubarrayLength != float("inf"):
+            retVal = shortestSubarrayLength
+
+        return retVal
+```
+
+</details>
+
 ## [933. Number of Recent Calls](https://leetcode.com/problems/number-of-recent-calls/)  1337
 
 - [Official](https://leetcode.cn/problems/number-of-recent-calls/solutions/1467662/zui-jin-de-qing-qiu-ci-shu-by-leetcode-s-ncm1/)
