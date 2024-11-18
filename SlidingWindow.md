@@ -3303,6 +3303,187 @@ class Solution:
 
 </details>
 
+## [1652. Defuse the Bomb](https://leetcode.com/problems/defuse-the-bomb/)  1416
+
+- [Official](https://leetcode.com/problems/defuse-the-bomb/editorial/)
+- [Official](https://leetcode.cn/problems/defuse-the-bomb/solutions/1843157/chai-zha-dan-by-leetcode-solution-01x3/)
+
+<details><summary>Description</summary>
+
+```text
+You have a bomb to defuse, and your time is running out!
+Your informer will provide you with a circular array code of length of n and a key k.
+
+To decrypt the code, you must replace every number. All the numbers are replaced simultaneously.
+- If k > 0, replace the ith number with the sum of the next k numbers.
+- If k < 0, replace the ith number with the sum of the previous k numbers.
+- If k == 0, replace the ith number with 0.
+
+As code is circular, the next element of code[n-1] is code[0], and the previous element of code[0] is code[n-1].
+
+Given the circular array code and an integer key k, return the decrypted code to defuse the bomb!
+
+Example 1:
+Input: code = [5,7,1,4], k = 3
+Output: [12,10,16,13]
+Explanation: Each number is replaced by the sum of the next 3 numbers.
+The decrypted code is [7+1+4, 1+4+5, 4+5+7, 5+7+1]. Notice that the numbers wrap around.
+
+Example 2:
+Input: code = [1,2,3,4], k = 0
+Output: [0,0,0,0]
+Explanation: When k is zero, the numbers are replaced by 0.
+
+Example 3:
+Input: code = [2,4,9,3], k = -2
+Output: [12,5,6,13]
+Explanation: The decrypted code is [3+9, 2+3, 4+2, 9+4].
+Notice that the numbers wrap around again. If k is negative, the sum is of the previous numbers.
+
+Constraints:
+n == code.length
+1 <= n <= 100
+1 <= code[i] <= 100
+-(n - 1) <= k <= n - 1
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. As the array is circular, use modulo to find the correct index.
+2. The constraints are low enough for a brute-force solution.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *decrypt(int *code, int codeSize, int k, int *returnSize) {
+    int *pRetVal = NULL;
+
+    (*returnSize) = 0;
+    pRetVal = (int *)calloc(codeSize, sizeof(int));
+    if (pRetVal == NULL) {
+        perror("calloc");
+        return pRetVal;
+    }
+    (*returnSize) = codeSize;
+
+    if (k == 0) {
+        return pRetVal;
+    }
+
+    int start = 1;
+    int end = k;
+    if (k < 0) {  // If k < 0, the starting point will be end of the array.
+        start = codeSize - abs(k);
+        end = codeSize - 1;
+    }
+
+    int sum = 0;
+    for (int i = start; i <= end; i++) {
+        sum += code[i];
+    }
+
+    // Scan through the code array as i moving to the right, update the window sum.
+    for (int i = 0; i < codeSize; i++) {
+        pRetVal[i] = sum;
+        sum -= code[start % codeSize];
+        sum += code[(end + 1) % codeSize];
+        start++;
+        end++;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> decrypt(vector<int>& code, int k) {
+        vector<int> retVal;
+
+        int codeSize = code.size();
+
+        retVal.assign(codeSize, 0);
+        if (k == 0) {
+            return retVal;
+        }
+
+        int start = 1;
+        int end = k;
+        if (k < 0) {  // If k < 0, the starting point will be end of the array.
+            start = codeSize - abs(k);
+            end = codeSize - 1;
+        }
+
+        int sum = 0;
+        for (int i = start; i <= end; i++) {
+            sum += code[i];
+        }
+
+        // Scan through the code array as i moving to the right, update the window sum.
+        for (int i = 0; i < codeSize; i++) {
+            retVal[i] = sum;
+            sum -= code[start % codeSize];
+            sum += code[(end + 1) % codeSize];
+            start++;
+            end++;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def decrypt(self, code: List[int], k: int) -> List[int]:
+        retVal = []
+
+        codeSize = len(code)
+        retVal = [0] * codeSize
+        if k == 0:
+            return retVal
+
+        start = 1
+        end = k
+        if k < 0:  # If k < 0, the starting point will be end of the array.
+            start = codeSize - abs(k)
+            end = codeSize - 1
+
+        sum = 0
+        for i in range(start, end + 1):
+            sum += code[i]
+
+        # Scan through the code array as i moving to the right, update the window sum.
+        for i in range(codeSize):
+            retVal[i] = sum
+            sum -= code[start % codeSize]
+            sum += code[(end + 1) % codeSize]
+            start += 1
+            end += 1
+
+        return retVal
+```
+
+</details>
+
 ## [1658. Minimum Operations to Reduce X to Zero](https://leetcode.com/problems/minimum-operations-to-reduce-x-to-zero/)  1817
 
 - [Official](https://leetcode.cn/problems/minimum-operations-to-reduce-x-to-zero/solutions/2047253/jiang-x-jian-dao-0-de-zui-xiao-cao-zuo-s-hl7u/)
