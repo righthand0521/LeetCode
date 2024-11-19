@@ -4672,6 +4672,214 @@ class Solution:
 
 </details>
 
+## [2461. Maximum Sum of Distinct Subarrays With Length K](https://leetcode.com/problems/maximum-sum-of-distinct-subarrays-with-length-k/)  1552
+
+- [Official](https://leetcode.com/problems/maximum-sum-of-distinct-subarrays-with-length-k/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array nums and an integer k.
+Find the maximum subarray sum of all the subarrays of nums that meet the following conditions:
+- The length of the subarray is k, and
+- All the elements of the subarray are distinct.
+
+Return the maximum subarray sum of all the subarrays that meet the conditions.
+If no subarray meets the conditions, return 0.
+
+A subarray is a contiguous non-empty sequence of elements within an array.
+
+Example 1:
+Input: nums = [1,5,4,2,9,9,9], k = 3
+Output: 15
+Explanation: The subarrays of nums with length 3 are:
+- [1,5,4] which meets the requirements and has a sum of 10.
+- [5,4,2] which meets the requirements and has a sum of 11.
+- [4,2,9] which meets the requirements and has a sum of 15.
+- [2,9,9] which does not meet the requirements because the element 9 is repeated.
+- [9,9,9] which does not meet the requirements because the element 9 is repeated.
+We return 15 because it is the maximum subarray sum of all the subarrays that meet the conditions
+
+Example 2:
+Input: nums = [4,4,4], k = 3
+Output: 0
+Explanation: The subarrays of nums with length 3 are:
+- [4,4,4] which does not meet the requirements because the element 4 is repeated.
+We return 0 because no subarrays meet the conditions.
+
+Constraints:
+1 <= k <= nums.length <= 10^5
+1 <= nums[i] <= 10^5
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Which elements change when moving from the subarray of size k
+   that ends at index i to the subarray of size k that ends at index i + 1?
+2. Only two elements change, the element at i + 1 is added into the subarray,
+   and the element at i - k + 1 gets removed from the subarray.
+3. Iterate through each subarray of size k and keep track of the sum of the subarray
+   and the frequency of each element.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *current;
+    struct hashTable *tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+long long maximumSubarraySum(int *nums, int numsSize, int k) {
+    long long retVal = 0;
+
+    struct hashTable *numToIndex = NULL;
+    struct hashTable *pTemp;
+
+    int currNum, lastOccurrence;
+    long long currentSum = 0;
+    int begin = 0;
+    int end = 0;
+    while (end < numsSize) {
+        currNum = nums[end];
+
+        pTemp = NULL;
+        HASH_FIND_INT(numToIndex, &currNum, pTemp);
+        if (pTemp == NULL) {
+            pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                freeAll(numToIndex);
+                return retVal;
+            }
+            pTemp->key = currNum;
+            pTemp->value = -1;
+            HASH_ADD_INT(numToIndex, key, pTemp);
+        }
+        lastOccurrence = pTemp->value;
+
+        // if current window already has number or if window is too big, adjust window
+        while ((begin <= lastOccurrence) || (end - begin + 1 > k)) {
+            currentSum -= nums[begin];
+            begin++;
+        }
+
+        pTemp = NULL;
+        pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+        if (pTemp == NULL) {
+            perror("malloc");
+            freeAll(numToIndex);
+            return retVal;
+        }
+        pTemp->key = currNum;
+        pTemp->value = end;
+        HASH_ADD_INT(numToIndex, key, pTemp);
+
+        currentSum += nums[end];
+        if (end - begin + 1 == k) {
+            retVal = fmax(retVal, currentSum);
+        }
+
+        end++;
+    }
+
+    //
+    freeAll(numToIndex);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    long long maximumSubarraySum(vector<int>& nums, int k) {
+        long long retVal = 0;
+
+        int numsSize = nums.size();
+
+        unordered_map<int, int> numToIndex;
+        long long currentSum = 0;
+        int begin = 0;
+        int end = 0;
+        while (end < numsSize) {
+            int currNum = nums[end];
+            int lastOccurrence = (numToIndex.count(currNum) ? numToIndex[currNum] : -1);
+
+            // if current window already has number or if window is too big, adjust window
+            while ((begin <= lastOccurrence) || (end - begin + 1 > k)) {
+                currentSum -= nums[begin];
+                begin++;
+            }
+
+            numToIndex[currNum] = end;
+            currentSum += nums[end];
+            if (end - begin + 1 == k) {
+                retVal = max(retVal, currentSum);
+            }
+
+            end++;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maximumSubarraySum(self, nums: List[int], k: int) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+
+        numToIndex = {}
+        currentSum = 0
+        begin = 0
+        end = 0
+        while end < numsSize:
+            currNum = nums[end]
+            lastOccurrence = numToIndex.get(currNum, -1)
+
+            # if current window already has number or if window is too big, adjust window
+            while (begin <= lastOccurrence) or (end - begin + 1 > k):
+                currentSum -= nums[begin]
+                begin += 1
+
+            numToIndex[currNum] = end
+            currentSum += nums[end]
+            if end - begin + 1 == k:
+                retVal = max(retVal, currentSum)
+
+            end += 1
+
+        return retVal
+```
+
+</details>
+
 ## [2958. Length of Longest Subarray With at Most K Frequency](https://leetcode.com/problems/length-of-longest-subarray-with-at-most-k-frequency/)  1535
 
 - [Official](https://leetcode.com/problems/length-of-longest-subarray-with-at-most-k-frequency/editorial/)
