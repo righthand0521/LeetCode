@@ -4880,6 +4880,200 @@ class Solution:
 
 </details>
 
+## [2516. Take K of Each Character From Left and Right](https://leetcode.com/problems/take-k-of-each-character-from-left-and-right/)  1947
+
+- [Official](https://leetcode.com/problems/take-k-of-each-character-from-left-and-right/editorial/)
+- [Official](https://leetcode.cn/problems/take-k-of-each-character-from-left-and-right/solutions/2928177/mei-chong-zi-fu-zhi-shao-qu-k-ge-by-leet-10ct/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string s consisting of the characters 'a', 'b', and 'c' and a non-negative integer k.
+Each minute, you may take either the leftmost character of s, or the rightmost character of s.
+
+Return the minimum number of minutes needed for you to take at least k of each character,
+or return -1 if it is not possible to take k of each character.
+
+Example 1:
+Input: s = "aabaaaacaabc", k = 2
+Output: 8
+Explanation:
+Take three characters from the left of s. You now have two 'a' characters, and one 'b' character.
+Take five characters from the right of s. You now have four 'a' characters, two 'b' characters, and two 'c' characters.
+A total of 3 + 5 = 8 minutes is needed.
+It can be proven that 8 is the minimum number of minutes needed.
+
+Example 2:
+Input: s = "a", k = 1
+Output: -1
+Explanation: It is not possible to take one 'b' or 'c' so return -1.
+
+Constraints:
+1 <= s.length <= 10^5
+s consists of only the letters 'a', 'b', and 'c'.
+0 <= k <= s.length
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Start by counting the frequency of each character and checking if it is possible.
+2. If you take x characters from the left side, what is the minimum number of characters you need to take
+   from the right side? Find this for all values of x in the range 0 ≤ x ≤ s.length.
+3. Use a two-pointers approach to avoid computing the same information multiple times.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MAX_LETTERS_SIZE (3)  // s consists of only the letters 'a', 'b', and 'c'.
+int takeCharacters(char* s, int k) {
+    int retVal = -1;
+
+    int sSize = strlen(s);
+    int i;
+
+    // Count total occurrences
+    int count[MAX_LETTERS_SIZE];
+    memset(count, 0, sizeof(count));
+    for (i = 0; i < sSize; ++i) {
+        count[s[i] - 'a']++;
+    }
+
+    // Check if we have enough characters
+    for (i = 0; i < MAX_LETTERS_SIZE; i++) {
+        if (count[i] < k) {
+            return retVal;
+        }
+    }
+
+    // Find the longest window that leaves k of each character outside
+    int window[MAX_LETTERS_SIZE];
+    memset(window, 0, sizeof(window));
+    int maxWindow = 0;
+    int left = 0;
+    int right = 0;
+    for (right = 0; right < sSize; right++) {
+        window[s[right] - 'a']++;
+
+        // Shrink window if we take too many characters
+        while ((left <= right) &&
+               ((count[0] - window[0] < k) || (count[1] - window[1] < k) || (count[2] - window[2] < k))) {
+            window[s[left] - 'a']--;
+            left++;
+        }
+
+        maxWindow = fmax(maxWindow, right - left + 1);
+    }
+
+    retVal = sSize - maxWindow;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int lettersSize = 3;  // s consists of only the letters 'a', 'b', and 'c'.
+
+   public:
+    int takeCharacters(string s, int k) {
+        int retVal = -1;
+
+        int sSize = s.length();
+
+        // Count total occurrences
+        vector<int> count(lettersSize, 0);
+        for (char c : s) {
+            count[c - 'a']++;
+        }
+
+        // Check if we have enough characters
+        for (int i = 0; i < lettersSize; i++) {
+            if (count[i] < k) {
+                return retVal;
+            }
+        }
+
+        // Find the longest window that leaves k of each character outside
+        vector<int> window(lettersSize, 0);
+        int maxWindow = 0;
+        int left = 0;
+        for (int right = 0; right < sSize; right++) {
+            window[s[right] - 'a']++;
+
+            // Shrink window if we take too many characters
+            while ((left <= right) &&
+                   ((count[0] - window[0] < k) || (count[1] - window[1] < k) || (count[2] - window[2] < k))) {
+                window[s[left] - 'a']--;
+                left++;
+            }
+
+            maxWindow = max(maxWindow, right - left + 1);
+        }
+
+        retVal = sSize - maxWindow;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.letters = 3  # s consists of only the letters 'a', 'b', and 'c'.
+
+    def takeCharacters(self, s: str, k: int) -> int:
+        retVal = -1
+
+        sSize = len(s)
+
+        # Count total occurrences
+        count = [0] * self.letters
+        for c in s:
+            count[ord(c) - ord("a")] += 1
+
+        # Check if we have enough characters
+        for i in range(self.letters):
+            if count[i] < k:
+                return retVal
+
+        # Find the longest window that leaves k of each character outside
+        window = [0] * self.letters
+        maxWindow = 0
+        left = 0
+        for right in range(sSize):
+            window[ord(s[right]) - ord("a")] += 1
+
+            # Shrink window if we take too many characters
+            while ((left <= right) and
+                   ((count[0] - window[0] < k) or (count[1] - window[1] < k) or (count[2] - window[2] < k))):
+                window[ord(s[left]) - ord("a")] -= 1
+                left += 1
+
+            maxWindow = max(maxWindow, right - left + 1)
+
+        retVal = sSize - maxWindow
+
+        return retVal
+```
+
+</details>
+
 ## [2958. Length of Longest Subarray With at Most K Frequency](https://leetcode.com/problems/length-of-longest-subarray-with-at-most-k-frequency/)  1535
 
 - [Official](https://leetcode.com/problems/length-of-longest-subarray-with-at-most-k-frequency/editorial/)
