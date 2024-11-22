@@ -272,6 +272,198 @@ class Solution:
 
 </details>
 
+## [1072. Flip Columns For Maximum Number of Equal Rows](https://leetcode.com/problems/flip-columns-for-maximum-number-of-equal-rows/)  1797
+
+- [Official](https://leetcode.com/problems/flip-columns-for-maximum-number-of-equal-rows/editorial/)
+- [Official](https://leetcode.cn/problems/flip-columns-for-maximum-number-of-equal-rows/solutions/2267115/an-lie-fan-zhuan-de-dao-zui-da-zhi-deng-teeig/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an m x n binary matrix matrix.
+
+You can choose any number of columns in the matrix and flip every cell in that column
+(i.e., Change the value of the cell from 0 to 1 or vice versa).
+
+Return the maximum number of rows that have all values equal after some number of flips.
+
+Example 1:
+Input: matrix = [[0,1],[1,1]]
+Output: 1
+Explanation: After flipping no values, 1 row has all values equal.
+
+Example 2:
+Input: matrix = [[0,1],[1,0]]
+Output: 2
+Explanation: After flipping values in the first column, both rows have equal values.
+
+Example 3:
+Input: matrix = [[0,0,0],[0,0,1],[1,1,0]]
+Output: 2
+Explanation: After flipping values in the first two columns, the last two rows have equal values.
+
+Constraints:
+m == matrix.length
+n == matrix[i].length
+1 <= m, n <= 300
+matrix[i][j] is either 0 or 1.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Flipping a subset of columns is like doing a bitwise XOR of some number K onto each row.
+   We want rows X with X ^ K = all 0s or all 1s.
+   This is the same as X = X^K ^K = (all 0s or all 1s) ^ K, so we want to count rows that have opposite bits set.
+   For example, if K = 1, then we count rows X = (00000...001, or 1111....110).
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MAX_KEY_SIZE (300 + 4)  // m == matrix.length, n == matrix[i].length, 1 <= m, n <= 300
+struct hashTable {
+    char key[MAX_KEY_SIZE];
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable* pFree) {
+    struct hashTable* current;
+    struct hashTable* tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%s: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int maxEqualRowsAfterFlips(int** matrix, int matrixSize, int* matrixColSize) {
+    int retVal = 0;
+
+    struct hashTable* pPatternFrequency = NULL;  // Map to store frequency of each pattern
+    struct hashTable* pTmp;
+    char patternBuilder[MAX_KEY_SIZE];
+    for (int row = 0; row < matrixSize; ++row) {
+        memset(patternBuilder, 0, sizeof(patternBuilder));
+
+        // Convert row to pattern relative to its first element
+        for (int col = 0; col < matrixColSize[row]; col++) {
+            // 'T' if current element matches first element, 'F' otherwise
+            if (matrix[row][0] == matrix[row][col]) {
+                strcat(patternBuilder, "T");
+            } else {
+                strcat(patternBuilder, "F");
+            }
+        }
+
+        // Convert pattern to string and update its frequency in map
+        pTmp = NULL;
+        HASH_FIND_STR(pPatternFrequency, patternBuilder, pTmp);
+        if (pTmp == NULL) {
+            pTmp = (struct hashTable*)malloc(sizeof(struct hashTable));
+            if (pTmp == NULL) {
+                perror("malloc");
+                freeAll(pPatternFrequency);
+                pPatternFrequency = NULL;
+                return retVal;
+            }
+            snprintf(pTmp->key, MAX_KEY_SIZE, "%s", patternBuilder);
+            pTmp->value = 0;
+            HASH_ADD_STR(pPatternFrequency, key, pTmp);
+        }
+        pTmp->value++;
+    }
+
+    // Find the pattern with maximum frequency
+    struct hashTable* pFree = NULL;
+    pTmp = NULL;
+    HASH_ITER(hh, pPatternFrequency, pFree, pTmp) {
+        // printf("%s: %d\n", pPatternFrequency->key, pPatternFrequency->value);
+        retVal = fmax(pPatternFrequency->value, retVal);
+        HASH_DEL(pPatternFrequency, pFree);
+        free(pFree);
+        pFree = NULL;
+    }
+    pPatternFrequency = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maxEqualRowsAfterFlips(vector<vector<int>>& matrix) {
+        int retVal = 0;
+
+        unordered_map<string, int> patternFrequency;  // Map to store frequency of each pattern
+        for (auto& currentRow : matrix) {
+            string patternBuilder = "";
+
+            // Convert row to pattern relative to its first element
+            int currentRowSize = currentRow.size();
+            for (int col = 0; col < currentRowSize; col++) {
+                // 'T' if current element matches first element, 'F' otherwise
+                if (currentRow[0] == currentRow[col]) {
+                    patternBuilder += "T";
+                } else {
+                    patternBuilder += "F";
+                }
+            }
+
+            // Convert pattern to string and update its frequency in map
+            patternFrequency[patternBuilder]++;
+        }
+
+        // Find the pattern with maximum frequency
+        for (auto& entry : patternFrequency) {
+            retVal = max(entry.second, retVal);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxEqualRowsAfterFlips(self, matrix: List[List[int]]) -> int:
+        retVal = 0
+
+        patternFrequency = {}  # Dictionary to store frequency of each pattern
+        for currentRow in matrix:
+            patternBuilder = ""
+
+            # Convert row to pattern using list comprehension and
+            # join 'T' if element matches first element, 'F' otherwise
+            for cell in currentRow:
+                if cell == currentRow[0]:
+                    patternBuilder += "T"
+                else:
+                    patternBuilder += "F"
+
+            # Update pattern frequency using dict.get() with default value
+            patternFrequency[patternBuilder] = patternFrequency.get(patternBuilder, 0) + 1
+
+        # Return maximum frequency using max() with default of 0
+        retVal = max(patternFrequency.values(), default=0)
+
+        return retVal
+```
+
+</details>
+
 ## [1074. Number of Submatrices That Sum to Target](https://leetcode.com/problems/number-of-submatrices-that-sum-to-target/)  2189
 
 - [Official](https://leetcode.cn/problems/number-of-submatrices-that-sum-to-target/solutions/798061/yuan-su-he-wei-mu-biao-zhi-de-zi-ju-zhen-8ym2/)
