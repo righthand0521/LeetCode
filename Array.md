@@ -7704,6 +7704,230 @@ impl Solution {
 
 </details>
 
+## [1861. Rotating the Box](https://leetcode.com/problems/rotating-the-box/)  1536
+
+- [Official](https://leetcode.com/problems/rotating-the-box/editorial/)
+- [Official](https://leetcode.cn/problems/rotating-the-box/solutions/779199/xuan-zhuan-he-zi-by-leetcode-solution-us55/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an m x n matrix of characters box representing a side-view of a box.
+Each cell of the box is one of the following:
+- A stone '#'
+- A stationary obstacle '*'
+- Empty '.'
+
+The box is rotated 90 degrees clockwise, causing some of the stones to fall due to gravity.
+Each stone falls down until it lands on an obstacle, another stone, or the bottom of the box.
+Gravity does not affect the obstacles' positions,
+and the inertia from the box's rotation does not affect the stones' horizontal positions.
+
+It is guaranteed that each stone in box rests on an obstacle, another stone, or the bottom of the box.
+
+Return an n x m matrix representing the box after the rotation described above.
+
+Example 1:
+Input: box = [["#",".","#"]]
+Output: [["."],
+         ["#"],
+         ["#"]]
+
+Example 2:
+Input: box = [["#",".","*","."],
+              ["#","#","*","."]]
+Output: [["#","."],
+         ["#","#"],
+         ["*","*"],
+         [".","."]]
+
+Example 3:
+Input: box = [["#","#","*",".","*","."],
+              ["#","#","#","*",".","."],
+              ["#","#","#",".","#","."]]
+Output: [[".","#","#"],
+         [".","#","#"],
+         ["#","#","*"],
+         ["#","*","."],
+         ["#",".","*"],
+         ["#",".","."]]
+
+Constraints:
+m == box.length
+n == box[i].length
+1 <= m, n <= 500
+box[i][j] is either '#', '*', or '.'.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Rotate the box using the relation rotatedBox[i][j] = box[m - 1 - j][i].
+2. Start iterating from the bottom of the box
+   and for each empty cell check if there is any stone above it with no obstacles between them.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+char** rotateTheBox(char** box, int boxSize, int* boxColSize, int* returnSize, int** returnColumnSizes) {
+    char** pRetVal = NULL;
+
+    (*returnSize) = 0;
+    (*returnColumnSizes) = NULL;
+
+    int i, j;
+
+    (*returnColumnSizes) = (int*)malloc(boxColSize[0] * sizeof(int));
+    if ((*returnColumnSizes) == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    pRetVal = (char**)malloc(boxColSize[0] * sizeof(char*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        free((*returnColumnSizes));
+        (*returnColumnSizes) = NULL;
+        return pRetVal;
+    }
+    for (i = 0; i < boxColSize[0]; ++i) {
+        pRetVal[i] = (char*)malloc(boxSize * sizeof(char));
+        if (pRetVal[i] == NULL) {
+            perror("malloc");
+            for (j = 0; j < i; ++j) {
+                free(pRetVal[j]);
+                pRetVal[j] = NULL;
+            }
+            free(pRetVal);
+            pRetVal = NULL;
+            free((*returnColumnSizes));
+            (*returnColumnSizes) = NULL;
+            return pRetVal;
+        }
+    }
+    for (i = 0; i < boxColSize[0]; ++i) {
+        for (j = 0; j < boxSize; ++j) {
+            pRetVal[i][j] = '.';
+        }
+        (*returnColumnSizes)[i] = boxSize;
+    }
+    (*returnSize) = boxColSize[0];
+
+    // Apply gravity to let stones fall to the lowest possible empty cell in each column
+    int lowestRowWithEmptyCell;
+    for (i = 0; i < boxSize; i++) {
+        lowestRowWithEmptyCell = boxColSize[0] - 1;
+
+        // Process each cell in row 'i' in reversed order
+        for (j = boxColSize[0] - 1; j >= 0; j--) {
+            // Found a stone - let it fall to the lowest empty cell
+            if (box[i][j] == '#') {
+                // Place it in the correct position in the rotated grid
+                pRetVal[lowestRowWithEmptyCell][boxSize - i - 1] = '#';
+                // (Optional - already initialized to '.') pRetVal[j][boxSize - i - 1] = '.';
+                lowestRowWithEmptyCell--;
+            }
+
+            // Found an obstacle - reset 'lowestRowWithEmptyCell' to the row directly above it
+            if (box[i][j] == '*') {
+                // Place the obstacle in the correct position in the rotated grid
+                pRetVal[j][boxSize - i - 1] = '*';
+                lowestRowWithEmptyCell = j - 1;
+            }
+        }
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<vector<char>> rotateTheBox(vector<vector<char>>& box) {
+        vector<vector<char>> retVal;
+
+        int boxSize = box.size();
+        int boxColSize = box[0].size();
+        retVal.resize(boxColSize, vector<char>(boxSize, '.'));
+
+        // Apply gravity to let stones fall to the lowest possible empty cell in each column
+        for (int i = 0; i < boxSize; i++) {
+            int lowestRowWithEmptyCell = boxColSize - 1;
+
+            // Process each cell in row 'i' in reversed order
+            for (int j = boxColSize - 1; j >= 0; j--) {
+                // Found a stone - let it fall to the lowest empty cell
+                if (box[i][j] == '#') {
+                    // Place it in the correct position in the rotated grid
+                    retVal[lowestRowWithEmptyCell][boxSize - i - 1] = '#';
+                    // (Optional - already initialized to '.') retVal[j][boxSize - i - 1] = '.';
+                    lowestRowWithEmptyCell--;
+                }
+
+                // Found an obstacle - reset 'lowestRowWithEmptyCell' to the row directly above it
+                if (box[i][j] == '*') {
+                    // Place the obstacle in the correct position in the rotated grid
+                    retVal[j][boxSize - i - 1] = '*';
+                    lowestRowWithEmptyCell = j - 1;
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def rotateTheBox(self, box: List[List[str]]) -> List[List[str]]:
+        retVal = []
+
+        boxSize = len(box)
+        boxColSize = len(box[0])
+        retVal = [["." for _ in range(boxSize)] for _ in range(boxColSize)]
+
+        # Apply gravity to let stones fall to the lowest possible empty cell in each column
+        for i in range(boxSize):
+            lowestRowWithEmptyCell = boxColSize - 1
+
+            # Process each cell in row 'i' in reversed order
+            for j in range(boxColSize - 1, -1, -1):
+                # Found a stone - let it fall to the lowest empty cell
+                if box[i][j] == "#":
+                    # Place it in the correct position in the rotated grid
+                    retVal[lowestRowWithEmptyCell][boxSize - i - 1] = "#"
+                    lowestRowWithEmptyCell -= 1
+
+                # Found an obstacle - reset 'lowestRowWithEmptyCell' to the row directly above it
+                if box[i][j] == "*":
+                    # Place the obstacle in the correct position in the rotated grid
+                    retVal[j][boxSize - i - 1] = "*"
+                    lowestRowWithEmptyCell = j - 1
+
+        return retVal
+```
+
+</details>
+
 ## [1913. Maximum Product Difference Between Two Pairs](https://leetcode.com/problems/maximum-product-difference-between-two-pairs/)  1144
 
 - [Official](https://leetcode.com/problems/maximum-product-difference-between-two-pairs/editorial/)
