@@ -5435,6 +5435,137 @@ class Solution:
 
 </details>
 
+## [1975. Maximum Matrix Sum](https://leetcode.com/problems/maximum-matrix-sum/)  1648
+
+- [Official](https://leetcode.com/problems/maximum-matrix-sum/editorial/)
+- [Official](https://leetcode.cn/problems/maximum-matrix-sum/solutions/951896/zui-da-fang-zhen-he-by-leetcode-solution-5xnx/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an n x n integer matrix. You can do the following operation any number of times:
+- Choose any two adjacent elements of matrix and multiply each of them by -1.
+
+Two elements are considered adjacent if and only if they share a border.
+
+Your goal is to maximize the summation of the matrix's elements.
+Return the maximum sum of the matrix's elements using the operation mentioned above.
+
+Example 1:
+Input: matrix = [[1,-1],[-1,1]]
+Output: 4
+Explanation: We can follow the following steps to reach sum equals 4:
+- Multiply the 2 elements in the first row by -1.
+- Multiply the 2 elements in the first column by -1.
+
+Example 2:
+Input: matrix = [[1,2,3],[-1,-2,-3],[1,2,3]]
+Output: 16
+Explanation: We can follow the following step to reach sum equals 16:
+- Multiply the 2 last elements in the second row by -1.
+
+Constraints:
+n == matrix.length == matrix[i].length
+2 <= n <= 250
+-10^5 <= matrix[i][j] <= 10^5
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Try to use the operation so that each row has only one negative number.
+2. If you have only one negative element you cannot convert it to positive.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+long long maxMatrixSum(int** matrix, int matrixSize, int* matrixColSize) {
+    long long retVal = 0;
+
+    int minAbsVal = INT_MAX;
+    int negativeCount = 0;
+    int row, col, value;
+    for (row = 0; row < matrixSize; ++row) {
+        for (col = 0; col < matrixColSize[row]; ++col) {
+            value = matrix[row][col];
+            retVal += abs(value);
+            if (value < 0) {
+                negativeCount++;
+            }
+            minAbsVal = fmin(minAbsVal, abs(value));
+        }
+    }
+
+    if (negativeCount % 2 != 0) {
+        retVal -= (2 * minAbsVal);
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    long long maxMatrixSum(vector<vector<int>>& matrix) {
+        long long retVal = 0;
+
+        int minAbsVal = numeric_limits<int>::max();
+        int negativeCount = 0;
+        for (auto& rows : matrix) {
+            for (int cell : rows) {
+                retVal += abs(cell);
+                if (cell < 0) {
+                    negativeCount++;
+                }
+                minAbsVal = min(minAbsVal, abs(cell));
+            }
+        }
+
+        if (negativeCount % 2 != 0) {
+            retVal -= (2 * minAbsVal);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxMatrixSum(self, matrix: List[List[int]]) -> int:
+        retVal = 0
+
+        minAbsVal = float("inf")
+        negativeCount = 0
+        for rows in matrix:
+            for cell in rows:
+                retVal += abs(cell)
+                if cell < 0:
+                    negativeCount += 1
+                minAbsVal = min(minAbsVal, abs(cell))
+
+        if negativeCount % 2 != 0:
+            retVal -= (2 * minAbsVal)
+
+        return retVal
+```
+
+</details>
+
 ## [2027. Minimum Moves to Convert String](https://leetcode.com/problems/minimum-moves-to-convert-string/)  1346
 
 - [Official](https://leetcode.cn/problems/minimum-moves-to-convert-string/solutions/2032769/zhuan-huan-zi-fu-chuan-de-zui-shao-cao-z-cji1/)
