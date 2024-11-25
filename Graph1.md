@@ -3839,6 +3839,361 @@ class Solution:
 
 </details>
 
+## [773. Sliding Puzzle](https://leetcode.com/problems/sliding-puzzle/)  1815
+
+- [Official](https://leetcode.cn/problems/sliding-puzzle/solutions/845064/hua-dong-mi-ti-by-leetcode-solution-q8dn/)
+
+<details><summary>Description</summary>
+
+```text
+On an 2 x 3 board, there are five tiles labeled from 1 to 5, and an empty square represented by 0.
+A move consists of choosing 0 and a 4-directionally adjacent number and swapping it.
+
+The state of the board is solved if and only if the board is [[1,2,3],[4,5,0]].
+
+Given the puzzle board board, return the least number of moves required so that the state of the board is solved.
+If it is impossible for the state of the board to be solved, return -1.
+
+Example 1:
+Input: board = [[1,2,3],[4,0,5]]
+Output: 1
+Explanation: Swap the 0 and the 5 in one move.
+
+Example 2:
+Input: board = [[1,2,3],[5,4,0]]
+Output: -1
+Explanation: No number of moves will make the board solved.
+
+Example 3:
+Input: board = [[4,1,2],[5,0,3]]
+Output: 5
+Explanation: 5 is the smallest number of moves that solves the board.
+An example path:
+After move 0: [[4,1,2],[5,0,3]]
+After move 1: [[4,1,2],[0,5,3]]
+After move 2: [[0,1,2],[4,5,3]]
+After move 3: [[1,0,2],[4,5,3]]
+After move 4: [[1,2,0],[4,5,3]]
+After move 5: [[1,2,3],[4,5,0]]
+
+Constraints:
+board.length == 2
+board[i].length == 3
+0 <= board[i][j] <= 5
+Each value board[i][j] is unique.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Perform a breadth-first-search, where the nodes are the puzzle boards and edges are
+   if two puzzle boards can be transformed into one another with one move.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MAX_ROW (2)                           // board.length == 2
+#define MAX_COL (3)                           // board[i].length == 3
+#define MAX_STR_SIZE (MAX_ROW * MAX_COL + 1)  // 0 <= board[i][j] <= 5.
+struct hashTable {
+    char key[MAX_STR_SIZE];
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable* pFree) {
+    struct hashTable* current;
+    struct hashTable* tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%s\n", pFree->key);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+void swap(char* x, char* y) {
+    char tmp = *x;
+    *x = *y;
+    *y = tmp;
+}
+char** getNextStatus(char* status, int* returnSize) {
+    char** pRetVal;
+
+    (*returnSize) = 0;
+
+    int x = 0;
+    while (status[x] != '0') {
+        x++;
+    }
+
+    pRetVal = (char**)malloc(MAX_COL * sizeof(char*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+
+    const int neighbors[6][3] = {{1, 3, -1}, {0, 2, 4}, {1, 5, -1}, {0, 4, -1}, {1, 3, 5}, {2, 4, -1}};
+    int y;
+    int i, j;
+    for (i = 0; i < MAX_COL && neighbors[x][i] != -1; ++i) {
+        y = neighbors[x][i];
+        swap(&status[x], &status[y]);
+
+        pRetVal[(*returnSize)] = (char*)malloc(MAX_STR_SIZE * sizeof(char));
+        if (pRetVal[(*returnSize)] == NULL) {
+            perror("malloc");
+            for (j = 0; j < (*returnSize); ++j) {
+                free(pRetVal[j]);
+                pRetVal[j] = NULL;
+            }
+            free(pRetVal);
+            pRetVal = NULL;
+            (*returnSize) = 0;
+            return pRetVal;
+        }
+
+        strcpy(pRetVal[(*returnSize)], status);
+        (*returnSize)++;
+
+        swap(&status[x], &status[y]);
+    }
+
+    return pRetVal;
+}
+int slidingPuzzle(int** board, int boardSize, int* boardColSize) {
+    int retVal = 0;
+
+    int i, j;
+
+    const char target[] = "123450";
+
+    char startState[MAX_STR_SIZE];
+    memset(startState, 0, sizeof(startState));
+    for (i = 0; i < MAX_ROW; ++i) {
+        for (int j = 0; j < MAX_COL; ++j) {
+            startState[i * MAX_COL + j] = (char)(board[i][j] + '0');
+        }
+    }
+    startState[MAX_STR_SIZE - 1] = '\0';
+    if (strcmp(startState, target) == 0) {
+        return retVal;
+    }
+
+#define MAX_QUEUE_SIZE (10001)
+    int bfsQueueHead = 0;
+    int bfsQueueTail = 0;
+    struct bfsQueueNode {
+        char key[MAX_STR_SIZE];
+        int value;
+    } bfsQueue[MAX_QUEUE_SIZE];
+    strcpy(bfsQueue[bfsQueueTail].key, startState);
+    bfsQueue[bfsQueueTail].value = 0;
+    bfsQueueTail++;
+
+    struct hashTable* visited = NULL;
+    struct hashTable* pTemp = NULL;
+    pTemp = (struct hashTable*)malloc(sizeof(struct hashTable));
+    if (pTemp == NULL) {
+        perror("malloc");
+        return retVal;
+    }
+    strcpy(pTemp->key, startState);
+    HASH_ADD(hh, visited, key, MAX_STR_SIZE * sizeof(char), pTemp);
+
+    int nextStatusSize;
+    char** nextStatus;
+    char* status;
+    int step;
+    while (bfsQueueHead < bfsQueueTail) {
+        status = bfsQueue[bfsQueueHead].key;
+        step = bfsQueue[bfsQueueHead].value;
+        bfsQueueHead++;
+
+        nextStatusSize = 0;
+        nextStatus = getNextStatus(status, &nextStatusSize);
+        if (nextStatus == NULL) {
+            perror("malloc");
+            break;
+        }
+        for (i = 0; i < nextStatusSize; i++) {
+            pTemp = NULL;
+            HASH_FIND(hh, visited, nextStatus[i], 5 * sizeof(char), pTemp);
+            if (pTemp != NULL) {
+                continue;
+            }
+
+            if (strcmp(nextStatus[i], target) == 0) {
+                for (j = 0; j < nextStatusSize; j++) {
+                    free(nextStatus[j]);
+                    nextStatus[j] = NULL;
+                }
+                free(nextStatus);
+                nextStatus = NULL;
+                freeAll(visited);
+                visited = NULL;
+
+                retVal = step + 1;
+
+                return retVal;
+            }
+
+            strcpy(bfsQueue[bfsQueueTail].key, nextStatus[i]);
+            bfsQueue[bfsQueueTail].value = step + 1;
+            bfsQueueTail++;
+
+            pTemp = NULL;
+            pTemp = (struct hashTable*)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                for (j = 0; j < nextStatusSize; j++) {
+                    free(nextStatus[j]);
+                    nextStatus[j] = NULL;
+                }
+                free(nextStatus);
+                nextStatus = NULL;
+                freeAll(visited);
+                visited = NULL;
+                return retVal;
+            }
+            strcpy(pTemp->key, nextStatus[i]);
+            HASH_ADD(hh, visited, key, 5 * sizeof(char), pTemp);
+        }
+
+        //
+        for (j = 0; j < nextStatusSize; j++) {
+            free(nextStatus[j]);
+            nextStatus[j] = NULL;
+        }
+        free(nextStatus);
+        nextStatus = NULL;
+    }
+    retVal = -1;
+
+    //
+    freeAll(visited);
+    visited = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int slidingPuzzle(vector<vector<int>>& board) {
+        int retVal = 0;
+
+        // Direction map for zero's possible moves in a 1D representation of the 2x3 board
+        vector<vector<int>> directions = {{1, 3}, {0, 2, 4}, {1, 5}, {0, 4}, {1, 3, 5}, {2, 4}};
+        string target = "123450";
+
+        string startState;
+        int boardSize = board.size();
+        int boardColSize = board[0].size();
+        for (int i = 0; i < boardSize; i++) {  // Convert the 2D board into a string representation
+            for (int j = 0; j < boardColSize; j++) {
+                startState += to_string(board[i][j]);
+            }
+        }
+        queue<string> bfsQueue;
+        bfsQueue.push(startState);
+        unordered_set<string> visited;  // To store visited states
+        visited.insert(startState);
+
+        // BFS to find the minimum number of moves
+        while (bfsQueue.empty() == false) {
+            int bfsQueueSize = bfsQueue.size();
+            while (bfsQueueSize-- > 0) {
+                string currentState = bfsQueue.front();
+                bfsQueue.pop();
+                if (currentState == target) {  // Check if we reached the target solved state
+                    return retVal;
+                }
+
+                int zeroPos = currentState.find('0');
+                for (int newPos : directions[zeroPos]) {
+                    string nextState = currentState;
+                    swap(nextState[zeroPos], nextState[newPos]);
+                    if (visited.count(nextState)) {  // Skip if this state has been visited
+                        continue;
+                    }
+
+                    // Mark the new state as visited and add it to the queue
+                    bfsQueue.push(nextState);
+                    visited.insert(nextState);
+                }
+            }
+            retVal++;
+        }
+        retVal = -1;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def swap(self, state, i, j) -> str:
+        retVal = ""
+
+        stateList = list(state)
+        stateList[i], stateList[j] = stateList[j], stateList[i]
+        retVal = "".join(stateList)
+
+        return retVal
+
+    def slidingPuzzle(self, board: List[List[int]]) -> int:
+        retVal = 0
+
+        # Direction map for zero's possible moves in a 1D representation of the 2x3 board
+        directions = [[1, 3], [0, 2, 4], [1, 5], [0, 4], [1, 3, 5], [2, 4],]
+        target = "123450"
+
+        startState = ""
+        for rows in board:
+            for cell in rows:
+                startState += str(cell)
+        bfsQueue = deque([startState])
+        visited = set()  # To store visited states
+        visited.add(startState)
+
+        while bfsQueue:  # BFS to find the minimum number of moves
+            queueSize = len(bfsQueue)
+            for _ in range(queueSize):
+                currentState = bfsQueue.popleft()
+                if currentState == target:  # Check if we reached the target solved state
+                    return retVal
+
+                zeroPos = currentState.index("0")
+                for newPos in directions[zeroPos]:
+                    nextState = self.swap(currentState, zeroPos, newPos)
+                    if nextState in visited:  # Skip if this state has been visited
+                        continue
+
+                    # Mark the new state as visited and add it to the bfsQueue
+                    bfsQueue.append(nextState)
+                    visited.add(nextState)
+
+            retVal += 1
+
+        retVal = -1
+
+        return retVal
+```
+
+</details>
+
 ## [785. Is Graph Bipartite?](https://leetcode.com/problems/is-graph-bipartite/)  1624
 
 - [Official](https://leetcode.cn/problems/is-graph-bipartite/solutions/332229/pan-duan-er-fen-tu-by-leetcode-solution/)
