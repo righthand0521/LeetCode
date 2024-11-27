@@ -5179,3 +5179,243 @@ class Solution:
 ```
 
 </details>
+
+## [3243. Shortest Distance After Road Addition Queries I](https://leetcode.com/problems/shortest-distance-after-road-addition-queries-i/)  1567
+
+- [Official](https://leetcode.com/problems/shortest-distance-after-road-addition-queries-i/editorial/)
+- [Official](https://leetcode.cn/problems/shortest-distance-after-road-addition-queries-i/solutions/2984418/xin-zeng-dao-lu-cha-xun-hou-de-zui-duan-9smce/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer n and a 2D integer array queries.
+
+There are n cities numbered from 0 to n - 1.
+Initially, there is a unidirectional road from city i to city i + 1 for all 0 <= i < n - 1.
+
+queries[i] = [ui, vi] represents the addition of a new unidirectional road from city ui to city vi.
+After each query, you need to find the length of the shortest path from city 0 to city n - 1.
+
+Return an array answer where for each i in the range [0, queries.length - 1],
+answer[i] is the length of the shortest path from city 0 to city n - 1 after processing the first i + 1 queries.
+
+Example 1:
+Input: n = 5, queries = [[2,4],[0,2],[0,4]]
+Output: [3,2,1]
+Explanation:
+After the addition of the road from 2 to 4, the length of the shortest path from 0 to 4 is 3.
+After the addition of the road from 0 to 2, the length of the shortest path from 0 to 4 is 2.
+After the addition of the road from 0 to 4, the length of the shortest path from 0 to 4 is 1.
+
+Example 2:
+Input: n = 4, queries = [[0,3],[0,2]]
+Output: [1,1]
+Explanation:
+After the addition of the road from 0 to 3, the length of the shortest path from 0 to 3 is 1.
+After the addition of the road from 0 to 2, the length of the shortest path remains 1.
+
+Constraints:
+3 <= n <= 500
+1 <= queries.length <= 500
+queries[i].length == 2
+0 <= queries[i][0] < queries[i][1] < n
+1 < queries[i][1] - queries[i][0]
+There are no repeated roads among the queries.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Maintain the graph and use an efficient shortest path algorithm after each update.
+2. We use BFS/Dijkstra for each query.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+typedef struct Node {
+    int val;
+    struct Node *next;
+} Node;
+typedef struct List {
+    Node *node;
+} List;
+int push(List *pObj, int val) {
+    int retVal = EXIT_SUCCESS;
+
+    Node *pNew = (Node *)malloc(sizeof(Node));
+    if (pNew == NULL) {
+        perror("malloc");
+        retVal = EXIT_FAILURE;
+        return retVal;
+    }
+    pNew->next = pObj->node;
+    pNew->val = val;
+
+    pObj->node = pNew;
+
+    return retVal;
+}
+void freeList(List *pObj) {
+    Node *pFree;
+    Node *pCurrent;
+    for (pCurrent = pObj->node; pCurrent != NULL;) {
+        pFree = pCurrent;
+        pCurrent = pCurrent->next;
+        free(pFree);
+        pFree = NULL;
+    }
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *shortestDistanceAfterQueries(int n, int **queries, int queriesSize, int *queriesColSize, int *returnSize) {
+    int *pRetVal = NULL;
+
+    (*returnSize) = 0;
+    int i, j;
+
+    List *adjacency = (List *)malloc(n * sizeof(List));
+    if (adjacency == NULL) {
+        perror("malloc");
+        goto exit;
+    }
+    memset(adjacency, 0, n * sizeof(List));
+
+    int *dp = (int *)malloc(n * sizeof(int));
+    if (dp == NULL) {
+        perror("malloc");
+        goto exit_adjacency;
+    }
+    memset(dp, 0, n * sizeof(int));
+
+    for (i = 1; i < n; ++i) {
+        if (push(&adjacency[i], i - 1) == EXIT_FAILURE) {
+            goto exit_dp;
+        }
+        dp[i] = i;
+    }
+
+    pRetVal = (int *)malloc(queriesSize * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        goto exit_dp;
+    }
+
+    Node *pCurrent;
+    for (i = 0; i < queriesSize; ++i) {
+        if (push(&adjacency[queries[i][1]], queries[i][0]) == EXIT_FAILURE) {
+            i = n;
+            goto exit_dp;
+        }
+
+        for (j = queries[i][1]; j < n; ++j) {
+            for (pCurrent = adjacency[j].node; pCurrent != NULL; pCurrent = pCurrent->next) {
+                dp[j] = fmin(dp[j], dp[pCurrent->val] + 1);
+            }
+        }
+        pRetVal[i] = dp[n - 1];
+    }
+    (*returnSize) = queriesSize;
+    i = n;
+
+exit_dp:
+    free(dp);
+    dp = NULL;
+
+    for (j = 0; j < i; ++j) {
+        freeList(&adjacency[j]);
+    }
+
+exit_adjacency:
+    free(adjacency);
+    adjacency = NULL;
+
+exit:
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int findMinDistance(vector<vector<int>>& adjList, int n) {
+        int retVal = 0;
+
+        vector<int> dp(n);
+        dp[n - 1] = 0;
+        for (int currentNode = n - 2; currentNode >= 0; currentNode--) {
+            int minDistance = n;
+            for (auto neighbor : adjList[currentNode]) {
+                minDistance = min(minDistance, dp[neighbor] + 1);
+            }
+            dp[currentNode] = minDistance;
+        }
+        retVal = dp[0];
+
+        return retVal;
+    }
+    vector<int> shortestDistanceAfterQueries(int n, vector<vector<int>>& queries) {
+        vector<int> retVal;
+
+        vector<vector<int>> adjacency(n, vector<int>(0));
+        for (int i = 0; i < n - 1; i++) {
+            adjacency[i].push_back(i + 1);
+        }
+
+        for (auto& road : queries) {
+            int src = road[0];
+            int dst = road[1];
+            adjacency[src].push_back(dst);
+
+            retVal.push_back(findMinDistance(adjacency, n));
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def findMinDistance(self, adjacency: List[List[int]], n: int) -> int:
+        retVal = 0
+
+        dp = [0] * n
+        dp[n - 1] = 0
+        for currentNode in range(n - 2, -1, -1):
+            minDistance = n
+            for neighbor in adjacency[currentNode]:
+                minDistance = min(minDistance, dp[neighbor] + 1)
+            dp[currentNode] = minDistance
+        retVal = dp[0]
+
+        return retVal
+
+    def shortestDistanceAfterQueries(self, n: int, queries: List[List[int]]) -> List[int]:
+        retVal = []
+
+        adjacency = [[] for _ in range(n)]
+        for i in range(n - 1):
+            adjacency[i].append(i + 1)
+
+        for src, dst in queries:
+            adjacency[src].append(dst)
+            retVal.append(self.findMinDistance(adjacency, n))
+
+        return retVal
+```
+
+</details>
