@@ -1878,6 +1878,417 @@ class Solution:
 
 </details>
 
+## [2290. Minimum Obstacle Removal to Reach Corner](https://leetcode.com/problems/minimum-obstacle-removal-to-reach-corner/)  2137
+
+- [Official](https://leetcode.com/problems/minimum-obstacle-removal-to-reach-corner/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed 2D integer array grid of size m x n. Each cell has one of two values:
+- 0 represents an empty cell,
+- 1 represents an obstacle that may be removed.
+
+You can move up, down, left, or right from and to an empty cell.
+
+Return the minimum number of obstacles to remove
+so you can move from the upper left corner (0, 0) to the lower right corner (m - 1, n - 1).
+
+Example 1:
+Input: grid = [[0,1,1],[1,1,0],[1,1,0]]
+Output: 2
+Explanation: We can remove the obstacles at (0, 1) and (0, 2) to create a path from (0, 0) to (2, 2).
+It can be shown that we need to remove at least 2 obstacles, so we return 2.
+Note that there may be other ways to remove 2 obstacles to create a path.
+
+Example 2:
+Input: grid = [[0,1,0,0,0],[0,1,0,1,0],[0,0,0,1,0]]
+Output: 0
+Explanation: We can move from (0, 0) to (2, 4) without removing any obstacles, so we return 0.
+
+Constraints:
+m == grid.length
+n == grid[i].length
+1 <= m, n <= 10^5
+2 <= m * n <= 10^5
+grid[i][j] is either 0 or 1.
+grid[0][0] == grid[m - 1][n - 1] == 0
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Model the grid as a graph where cells are nodes and edges are between adjacent cells.
+   Edges to cells with obstacles have a cost of 1 and all other edges have a cost of 0.
+2. Could you use 0-1 Breadth-First Search or Dijkstra’s algorithm?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#ifndef DEQUE_H
+#define DEQUE_H
+
+typedef struct DLinkListNode {
+    int obstacles;
+    int row;
+    int col;
+    struct DLinkListNode* prev;
+    struct DLinkListNode* next;
+} DLinkListNode;
+DLinkListNode* dLinkListNodeCreat(int obstacles, int row, int col) {
+    DLinkListNode* obj = NULL;
+
+    obj = (DLinkListNode*)malloc(sizeof(DLinkListNode));
+    if (obj == NULL) {
+        perror("malloc");
+        return obj;
+    }
+    obj->obstacles = obstacles;
+    obj->row = row;
+    obj->col = col;
+    obj->prev = NULL;
+    obj->next = NULL;
+
+    return obj;
+}
+typedef struct {
+    int capacity;
+    DLinkListNode* head;
+    DLinkListNode* tail;
+    int size;
+} MyCircularDeque;
+MyCircularDeque* myCircularDequeCreate(int k) {
+    MyCircularDeque* obj = NULL;
+
+    obj = (MyCircularDeque*)malloc(sizeof(MyCircularDeque));
+    if (obj == NULL) {
+        perror("malloc");
+        return obj;
+    }
+    obj->capacity = k;
+    obj->head = NULL;
+    obj->tail = NULL;
+    obj->size = 0;
+
+    return obj;
+}
+bool myCircularDequeIsEmpty(MyCircularDeque* obj) {
+    bool retVal = false;
+
+    if (obj->size == 0) {
+        retVal = true;
+    }
+
+    return retVal;
+}
+bool myCircularDequeIsFull(MyCircularDeque* obj) {
+    bool retVal = false;
+
+    if (obj->size == obj->capacity) {
+        retVal = true;
+    }
+
+    return retVal;
+}
+bool myCircularDequeInsertFront(MyCircularDeque* obj, int obstacles, int row, int col) {
+    bool retVal = false;
+
+    if (myCircularDequeIsFull(obj) == true) {
+        return retVal;
+    }
+
+    DLinkListNode* pNew = dLinkListNodeCreat(obstacles, row, col);
+    if (pNew == NULL) {
+        return retVal;
+    }
+
+    if (obj->size == 0) {
+        obj->head = pNew;
+        obj->tail = pNew;
+    } else {
+        pNew->next = obj->head;
+        obj->head->prev = pNew;
+        obj->head = pNew;
+    }
+    obj->size++;
+    retVal = true;
+
+    return retVal;
+}
+bool myCircularDequeInsertLast(MyCircularDeque* obj, int obstacles, int row, int col) {
+    bool retVal = false;
+
+    if (myCircularDequeIsFull(obj) == true) {
+        return retVal;
+    }
+
+    DLinkListNode* pNew = dLinkListNodeCreat(obstacles, row, col);
+    if (pNew == NULL) {
+        return retVal;
+    }
+
+    if (obj->size == 0) {
+        obj->head = pNew;
+        obj->tail = pNew;
+    } else {
+        obj->tail->next = pNew;
+        pNew->prev = obj->tail;
+        obj->tail = pNew;
+    }
+    obj->size++;
+    retVal = true;
+
+    return retVal;
+}
+bool myCircularDequeDeleteFront(MyCircularDeque* obj) {
+    bool retVal = false;
+
+    if (myCircularDequeIsEmpty(obj) == true) {
+        return retVal;
+    }
+
+    DLinkListNode* pDelete = obj->head;
+    obj->head = obj->head->next;
+    if (obj->head != NULL) {
+        obj->head->prev = NULL;
+    }
+    free(pDelete);
+    pDelete = NULL;
+    obj->size--;
+    retVal = true;
+
+    return retVal;
+}
+bool myCircularDequeDeleteLast(MyCircularDeque* obj) {
+    bool retVal = false;
+
+    if (myCircularDequeIsEmpty(obj) == true) {
+        return retVal;
+    }
+
+    DLinkListNode* pDelete = obj->tail;
+    obj->tail = obj->tail->prev;
+    if (obj->tail != NULL) {
+        obj->tail->next = NULL;
+    }
+    free(pDelete);
+    pDelete = NULL;
+    obj->size--;
+    retVal = true;
+
+    return retVal;
+}
+void myCircularDequeFree(MyCircularDeque* obj) {
+    DLinkListNode* pDelete = NULL;
+    while (obj->head != obj->tail) {
+        pDelete = obj->head;
+        obj->head = obj->head->next;
+        free(pDelete);
+        pDelete = NULL;
+    }
+    free(obj->head);
+    obj->head = NULL;
+
+    free(obj);
+    obj = NULL;
+}
+
+#endif  // DEQUE_H
+bool isValid(int gridSize, int gridColSize, int row, int col) {
+    bool retVal = true;
+
+    if (row < 0) {
+        retVal = false;
+    } else if (row >= gridSize) {
+        retVal = false;
+    } else if (col < 0) {
+        retVal = false;
+    } else if (col >= gridColSize) {
+        retVal = false;
+    }
+
+    return retVal;
+}
+int minimumObstacles(int** grid, int gridSize, int* gridColSize) {
+    int retVal = 0;
+
+    int rowSize = gridSize;
+    int colSize = gridColSize[0];
+    int minObstacles[rowSize][colSize];
+    memset(minObstacles, 0, sizeof(minObstacles));
+    for (int i = 0; i < rowSize; ++i) {
+        for (int j = 0; j < colSize; ++j) {
+            minObstacles[i][j] = INT_MAX;
+        }
+    }
+    minObstacles[0][0] = 0;
+
+    MyCircularDeque* deque = NULL;
+    deque = myCircularDequeCreate(rowSize * colSize + 1);
+    myCircularDequeInsertLast(deque, 0, 0, 0);
+
+    const int directions[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+    int obstacles, row, col;
+    int newRow, newCol;
+    while (myCircularDequeIsEmpty(deque) == false) {
+        obstacles = deque->head->obstacles;
+        row = deque->head->row;
+        col = deque->head->col;
+        myCircularDequeDeleteFront(deque);
+
+        for (int i = 0; i < 4; ++i) {
+            newRow = row + directions[i][0];
+            newCol = col + directions[i][1];
+            if (isValid(rowSize, colSize, newRow, newCol) == false) {
+                continue;
+            } else if (minObstacles[newRow][newCol] != INT_MAX) {
+                continue;
+            }
+
+            if (grid[newRow][newCol] == 1) {
+                minObstacles[newRow][newCol] = obstacles + 1;
+                myCircularDequeInsertLast(deque, obstacles + 1, newRow, newCol);
+            } else {
+                minObstacles[newRow][newCol] = obstacles;
+                myCircularDequeInsertFront(deque, obstacles, newRow, newCol);
+            }
+        }
+    }
+    retVal = minObstacles[rowSize - 1][colSize - 1];
+
+    //
+    free(deque);
+    deque = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    vector<vector<int>> directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+
+    bool isValid(int gridSize, int gridColSize, int row, int col) {
+        bool retVal = true;
+
+        if (row < 0) {
+            retVal = false;
+        } else if (row >= gridSize) {
+            retVal = false;
+        } else if (col < 0) {
+            retVal = false;
+        } else if (col >= gridColSize) {
+            retVal = false;
+        }
+
+        return retVal;
+    }
+
+   public:
+    int minimumObstacles(vector<vector<int>>& grid) {
+        int retVal = 0;
+
+        int gridSize = grid.size();
+        int gridColSize = grid[0].size();
+
+        vector<vector<int>> minObstacles(gridSize, vector<int>(gridColSize, numeric_limits<int>::max()));
+        minObstacles[0][0] = grid[0][0];
+
+        priority_queue<vector<int>, vector<vector<int>>, greater<vector<int>>> pq;
+        pq.push({minObstacles[0][0], 0, 0});
+        while (pq.empty() == false) {
+            vector<int> current = pq.top();
+            pq.pop();
+            int obstacles = current[0];
+            int row = current[1];
+            int col = current[2];
+            if ((row == gridSize - 1) && (col == gridColSize - 1)) {
+                retVal = obstacles;
+                return retVal;
+            }
+
+            for (vector<int>& dir : directions) {
+                int newRow = row + dir[0];
+                int newCol = col + dir[1];
+                if (isValid(gridSize, gridColSize, newRow, newCol) == false) {
+                    continue;
+                }
+
+                int newObstacles = obstacles + grid[newRow][newCol];
+                if (newObstacles < minObstacles[newRow][newCol]) {
+                    minObstacles[newRow][newCol] = newObstacles;
+                    pq.push({newObstacles, newRow, newCol});
+                }
+            }
+        }
+        retVal = minObstacles[gridSize - 1][gridColSize - 1];
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+
+    def isValid(self, gridSize: int, gridColSize: int, row: int, col: int) -> bool:
+        retVal = False
+
+        if (0 <= row < gridSize) and (0 <= col < gridColSize):
+            retVal = True
+
+        return retVal
+
+    def minimumObstacles(self, grid: List[List[int]]) -> int:
+        retVal = 0
+
+        gridSize = len(grid)
+        gridColSize = len(grid[0])
+
+        minObstacles = [[float("inf")] * gridColSize for _ in range(gridSize)]
+        minObstacles[0][0] = grid[0][0]
+
+        priorityQueue = [(minObstacles[0][0], 0, 0)]
+        while priorityQueue:
+            obstacles, row, col = heappop(priorityQueue)
+            if (row == gridSize - 1) and (col == gridColSize - 1):
+                retVal = obstacles
+                return retVal
+
+            for x, y in self.directions:
+                newRow = row + x
+                newCol = col + y
+                if self.isValid(gridSize, gridColSize, newRow, newCol) == False:
+                    continue
+
+                newObstacles = obstacles + grid[newRow][newCol]
+                if newObstacles < minObstacles[newRow][newCol]:
+                    minObstacles[newRow][newCol] = newObstacles
+                    heappush(priorityQueue, (newObstacles, newRow, newCol))
+
+        retVal = minObstacles[gridSize - 1][gridColSize - 1]
+
+        return retVal
+```
+
+</details>
+
 ## [2316. Count Unreachable Pairs of Nodes in an Undirected Graph](https://leetcode.com/problems/count-unreachable-pairs-of-nodes-in-an-undirected-graph/)  1604
 
 <details><summary>Description</summary>
