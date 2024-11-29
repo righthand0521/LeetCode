@@ -3780,6 +3780,328 @@ class Solution:
 
 </details>
 
+## [2577. Minimum Time to Visit a Cell In a Grid](https://leetcode.com/problems/minimum-time-to-visit-a-cell-in-a-grid/)  2381
+
+- [Official](https://leetcode.com/problems/minimum-time-to-visit-a-cell-in-a-grid/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a m x n matrix grid consisting of non-negative integers
+where grid[row][col] represents the minimum time required to be able to visit the cell (row, col),
+which means you can visit the cell (row, col) only
+when the time you visit it is greater than or equal to grid[row][col].
+
+You are standing in the top-left cell of the matrix in the 0th second,
+and you must move to any adjacent cell in the four directions: up, down, left, and right.
+Each move you make takes 1 second.
+
+Return the minimum time required in which you can visit the bottom-right cell of the matrix.
+If you cannot visit the bottom-right cell, then return -1.
+
+Example 1:
+Input: grid = [[0,1,3,2],[5,1,2,5],[4,3,8,6]]
+Output: 7
+Explanation: One of the paths that we can take is the following:
+- at t = 0, we are on the cell (0,0).
+- at t = 1, we move to the cell (0,1). It is possible because grid[0][1] <= 1.
+- at t = 2, we move to the cell (1,1). It is possible because grid[1][1] <= 2.
+- at t = 3, we move to the cell (1,2). It is possible because grid[1][2] <= 3.
+- at t = 4, we move to the cell (1,1). It is possible because grid[1][1] <= 4.
+- at t = 5, we move to the cell (1,2). It is possible because grid[1][2] <= 5.
+- at t = 6, we move to the cell (1,3). It is possible because grid[1][3] <= 6.
+- at t = 7, we move to the cell (2,3). It is possible because grid[2][3] <= 7.
+The final time is 7. It can be shown that it is the minimum time possible.
+
+Example 2:
+Input: grid = [[0,2,4],[3,2,1],[1,0,4]]
+Output: -1
+Explanation: There is no path from the top left to the bottom-right cell.
+
+Constraints:
+m == grid.length
+n == grid[i].length
+2 <= m, n <= 1000
+4 <= m * n <= 10^5
+0 <= grid[i][j] <= 10^5
+grid[0][0] == 0
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Try using some algorithm that can find the shortest paths on a graph.
+2. Consider the case where you have to go back and forth between two cells of the matrix to unlock some other cells.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// https://leetcode.cn/problems/minimum-time-to-visit-a-cell-in-a-grid/solutions/2521039/zai-wang-ge-tu-zhong-fang-wen-yi-ge-ge-z-l4jw/
+#ifndef HEAP_H
+#define HEAP_H
+
+#define MERGE_LONG(t, x, y) ((long long)(t) << 32 | (long long)(x) << 16 | (long long)(y))
+#define ROW_INT(l) ((l) >> 16 & 0xFFFF)
+#define COL_INT(l) ((l) & 0xFFFF)
+#define FATHER_NODE(i) (0 == (i) ? -1 : (((i) - 1) >> 1))
+#define LEFT_NODE(i) (((i) << 1) + 1)
+#define RIGHT_NODE(i) (((i) << 1) + 2)
+
+typedef struct {
+    long long *arr;
+    int arrSize;
+} PriorityQueue;
+
+static void queuePush(PriorityQueue *queue, long long value) {
+    int son = queue->arrSize;
+    int father = FATHER_NODE(son);
+
+    queue->arrSize++;
+    while ((-1 != father) && (value < queue->arr[father])) {
+        queue->arr[son] = queue->arr[father];
+        son = father;
+        father = FATHER_NODE(son);
+    }
+    queue->arr[son] = value;
+}
+static void queuePop(PriorityQueue *queue) {
+    int father = 0;
+    int left = LEFT_NODE(father);
+    int right = RIGHT_NODE(father);
+    int son = 0;
+
+    queue->arrSize--;
+    while (((queue->arrSize > left) && (queue->arr[queue->arrSize] > queue->arr[left])) ||
+           ((queue->arrSize > right) && (queue->arr[queue->arrSize] > queue->arr[right]))) {
+        son = (queue->arrSize > right && queue->arr[left] > queue->arr[right]) ? right : left;
+        queue->arr[father] = queue->arr[son];
+        father = son;
+        left = LEFT_NODE(father);
+        right = RIGHT_NODE(father);
+    }
+    queue->arr[father] = queue->arr[queue->arrSize];
+}
+
+#endif  // HEAP_H
+int minimumTime(int **grid, int gridSize, int *gridColSize) {
+    int retVal = -1;
+
+    if ((1 < grid[0][1]) && (1 < grid[1][0])) {
+        return retVal;
+    }
+
+    int rowSize = gridSize;
+    int colSize = gridColSize[0];
+
+    int arrive[rowSize][colSize];
+    memset(arrive, -1, sizeof(arrive));
+    arrive[0][0] = 0;
+
+    int totalSize = rowSize * colSize;
+    long long arr[totalSize];
+    PriorityQueue queue;
+    queue.arr = arr;
+    queue.arrSize = 0;
+    queuePush(&queue, MERGE_LONG(arrive[0][0], 0, 0));
+
+    const int directions[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+    int x, y, nextRow, nextCol;
+    while ((0 < queue.arrSize) && (-1 == arrive[rowSize - 1][colSize - 1])) {
+        x = ROW_INT(queue.arr[0]);
+        y = COL_INT(queue.arr[0]);
+        queuePop(&queue);
+
+        for (int i = 0; ((i < 4) && (-1 == arrive[rowSize - 1][colSize - 1])); ++i) {
+            nextRow = x + directions[i][0];
+            nextCol = y + directions[i][1];
+            if (nextRow < 0) {
+                continue;
+            } else if (nextRow >= rowSize) {
+                continue;
+            } else if (nextCol < 0) {
+                continue;
+            } else if (nextCol >= colSize) {
+                continue;
+            } else if (arrive[nextRow][nextCol] != -1) {
+                continue;
+            }
+
+            if (arrive[x][y] + 1 >= grid[nextRow][nextCol]) {
+                arrive[nextRow][nextCol] = arrive[x][y] + 1;
+            } else {
+                arrive[nextRow][nextCol] = grid[nextRow][nextCol] + ((grid[nextRow][nextCol] - arrive[x][y] + 1) & 1);
+            }
+            queuePush(&queue, MERGE_LONG(arrive[nextRow][nextCol], nextRow, nextCol));
+        }
+    }
+    retVal = arrive[rowSize - 1][colSize - 1];
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    bool isValid(vector<vector<bool>>& visited, int row, int col) {
+        bool retVal = true;
+
+        int visitedSize = visited.size();
+        int visitedColSize = visited[0].size();
+        if (row < 0) {
+            retVal = false;
+        } else if (row >= visitedSize) {
+            retVal = false;
+        } else if (col < 0) {
+            retVal = false;
+        } else if (col >= visitedColSize) {
+            retVal = false;
+        } else if (visited[row][col] == true) {
+            retVal = false;
+        }
+
+        return retVal;
+    }
+
+   public:
+    int minimumTime(vector<vector<int>>& grid) {
+        int retVal = -1;
+
+        // If both initial moves require more than 1 second, impossible to proceed
+        if ((grid[0][1] > 1) && (grid[1][0] > 1)) {
+            return retVal;
+        }
+
+        vector<vector<int>> directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        int gridSize = grid.size();
+        int gridColSize = grid[0].size();
+
+        // Possible movements: down, up, right, left
+        vector<vector<bool>> visited(gridSize, vector<bool>(gridColSize, false));
+
+        // Priority queue stores {time, row, col}, Ordered by minimum time to reach each cell.
+        priority_queue<vector<int>, vector<vector<int>>, greater<>> priorityQueue;
+        priorityQueue.push({grid[0][0], 0, 0});
+
+        while (priorityQueue.empty() == false) {
+            auto curr = priorityQueue.top();
+            priorityQueue.pop();
+
+            int time = curr[0];
+            int row = curr[1];
+            int col = curr[2];
+            if ((row == gridSize - 1) && (col == gridColSize - 1)) {  // Check if reached target
+                retVal = time;
+                return retVal;
+            }
+
+            // Skip if cell already visited
+            if (visited[row][col]) {
+                continue;
+            }
+            visited[row][col] = true;
+
+            // Try all four directions
+            for (auto& d : directions) {
+                int nextRow = row + d[0];
+                int nextCol = col + d[1];
+                if (isValid(visited, nextRow, nextCol) == false) {
+                    continue;
+                }
+
+                // Calculate the wait time needed to move to next cell
+                int waitTime = ((grid[nextRow][nextCol] - time) % 2 == 0) ? 1 : 0;
+                int nextTime = max(grid[nextRow][nextCol] + waitTime, time + 1);
+                priorityQueue.push({nextTime, nextRow, nextCol});
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+
+    def isValid(self, visited: set, row: int, col: int, gridSize: int, gridColSize: int) -> bool:
+        retVal = True
+
+        if (row, col) in visited:
+            retVal = False
+        elif row < 0:
+            retVal = False
+        elif row >= gridSize:
+            retVal = False
+        elif col < 0:
+            retVal = False
+        elif col >= gridColSize:
+            retVal = False
+
+        return retVal
+
+    def minimumTime(self, grid: List[List[int]]) -> int:
+        retVal = -1
+
+        # If both initial moves require more than 1 second, impossible to proceed
+        if (grid[0][1] > 1) and (grid[1][0] > 1):
+            return retVal
+
+        gridSize = len(grid)
+        gridColSize = len(grid[0])
+
+        visited = set()
+
+        # Priority queue stores (time, row, col), Ordered by minimum time to reach each cell.
+        priorityQueue = [(grid[0][0], 0, 0)]
+        while priorityQueue:
+            time, row, col = heappop(priorityQueue)
+
+            # Check if reached target
+            if (row, col) == (gridSize - 1, gridColSize - 1):
+                retVal = time
+                return retVal
+
+            # Skip if cell already visited
+            if (row, col) in visited:
+                continue
+            visited.add((row, col))
+
+            # Try all four directions
+            for dx, dy in self.directions:
+                nextRow = row + dx
+                nextCol = col + dy
+                if self.isValid(visited, nextRow, nextCol, gridSize, gridColSize) == False:
+                    continue
+
+                # Calculate the wait time needed to move to next cell
+                waitTime = 0
+                if (grid[nextRow][nextCol] - time) % 2 == 0:
+                    waitTime = 1
+
+                nextTime = max(grid[nextRow][nextCol] + waitTime, time + 1)
+                heappush(priorityQueue, (nextTime, nextRow, nextCol))
+
+        return retVal
+```
+
+</details>
+
 ## [2642. Design Graph With Shortest Path Calculator](https://leetcode.com/problems/design-graph-with-shortest-path-calculator/description/)  1810
 
 - [Official](https://leetcode.com/problems/design-graph-with-shortest-path-calculator/editorial/)
