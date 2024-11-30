@@ -855,6 +855,417 @@ class Solution:
 
 </details>
 
+## [2097. Valid Arrangement of Pairs](https://leetcode.com/problems/valid-arrangement-of-pairs/)  2650
+
+- [Official](https://leetcode.com/problems/valid-arrangement-of-pairs/editorial/)
+- [Official](https://leetcode.cn/problems/valid-arrangement-of-pairs/solutions/1140776/he-fa-zhong-xin-pai-lie-shu-dui-by-leetc-h8rl/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed 2D integer array pairs where pairs[i] = [starti, endi].
+An arrangement of pairs is valid if for every index i where 1 <= i < pairs.length, we have endi-1 == starti.
+
+Return any valid arrangement of pairs.
+
+Note: The inputs will be generated such that there exists a valid arrangement of pairs.
+
+Example 1:
+Input: pairs = [[5,1],[4,5],[11,9],[9,4]]
+Output: [[11,9],[9,4],[4,5],[5,1]]
+Explanation:
+This is a valid arrangement since endi-1 always equals starti.
+end0 = 9 == 9 = start1
+end1 = 4 == 4 = start2
+end2 = 5 == 5 = start3
+
+Example 2:
+Input: pairs = [[1,3],[3,2],[2,1]]
+Output: [[1,3],[3,2],[2,1]]
+Explanation:
+This is a valid arrangement since endi-1 always equals starti.
+end0 = 3 == 3 = start1
+end1 = 2 == 2 = start2
+The arrangements [[2,1],[1,3],[3,2]] and [[3,2],[2,1],[1,3]] are also valid.
+
+Example 3:
+Input: pairs = [[1,2],[1,3],[2,1]]
+Output: [[1,2],[2,1],[1,3]]
+Explanation:
+This is a valid arrangement since endi-1 always equals starti.
+end0 = 2 == 2 = start1
+end1 = 1 == 1 = start2
+
+Constraints:
+1 <= pairs.length <= 10^5
+pairs[i].length == 2
+0 <= starti, endi <= 10^9
+starti != endi
+No two pairs are exactly the same.
+There exists a valid arrangement of pairs.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Could you convert this into a graph problem?
+2. Consider the pairs as edges and each number as a node.
+3. We have to find an Eulerian path of this graph. Hierholzer’s algorithm can be used.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// https://leetcode.cn/problems/valid-arrangement-of-pairs/solutions/1175305/qing-cha-shou-ben-ti-de-di-yi-ge-cyu-yan-sru0/
+struct hashTable {
+    int key;
+    int id;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *current;
+    struct hashTable *tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->id);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+void dfs(int x, int **edges, int **edgesColSize, int **answer, int *answerSize) {
+    int y;
+    while ((*edgesColSize)[x] > 0) {
+        y = edges[x][(*edgesColSize)[x] - 1];
+        (*edgesColSize)[x]--;
+
+        dfs(y, edges, edgesColSize, answer, answerSize);
+
+        answer[(*answerSize)][0] = x;
+        answer[(*answerSize)][1] = y;
+        (*answerSize)++;
+    }
+}
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int **validArrangement(int **pairs, int pairsSize, int *pairsColSize, int *returnSize, int **returnColumnSizes) {
+    int **pRetVal = NULL;
+
+    (*returnSize) = 0;
+    (*returnColumnSizes) = NULL;
+
+    int i, j;
+
+    //
+    (*returnColumnSizes) = (int *)calloc(pairsSize, sizeof(int));
+    if ((*returnColumnSizes) == NULL) {
+        perror("calloc");
+        return pRetVal;
+    }
+    pRetVal = (int **)malloc(sizeof(int *) * pairsSize);
+    if (pRetVal == NULL) {
+        perror("malloc");
+        goto exit_returnColumnSizes;
+    }
+    for (i = 0; i < pairsSize; ++i) {
+        (*returnColumnSizes)[i] = 2;
+        pRetVal[i] = (int *)calloc((*returnColumnSizes)[i], sizeof(int));
+        if (pRetVal[i] == NULL) {
+            perror("calloc");
+            goto exit_returnSize;
+        }
+    }
+
+    //
+    int *basicSize = (int *)calloc((pairsSize + 1), sizeof(int));
+    if (basicSize == NULL) {
+        perror("calloc");
+        goto exit_returnSize;
+    }
+    int *edgesColSize = (int *)calloc((pairsSize + 1), sizeof(int));
+    if (edgesColSize == NULL) {
+        perror("calloc");
+        goto exit_basicSize;
+    }
+    int **edges = (int **)malloc((pairsSize + 1) * sizeof(int *));
+    if (edges == NULL) {
+        perror("calloc");
+        goto exit_edgesColSize;
+    }
+    for (i = 0; i < pairsSize + 1; i++) {
+        edgesColSize[i] = 0;
+        basicSize[i] = 8;
+        edges[i] = (int *)calloc(basicSize[i], sizeof(int));
+        if (edges[i] == NULL) {
+            perror("calloc");
+            goto exit_edges;
+        }
+    }
+    //
+    int *inDegree = (int *)calloc((pairsSize + 1), sizeof(int));
+    if (inDegree == NULL) {
+        perror("calloc");
+        goto exit_edges;
+    }
+    int *outDegree = (int *)calloc((pairsSize + 1), sizeof(int));
+    if (outDegree == NULL) {
+        perror("calloc");
+        goto exit_inDegree;
+    }
+    int *sign = (int *)calloc((pairsSize + 1), sizeof(int));
+    if (sign == NULL) {
+        perror("calloc");
+        goto exit_outDegree;
+    }
+    //
+
+    struct hashTable *pUser = NULL;
+    struct hashTable *pTmp;
+    int x, y, indexX, indexY;
+    int count = 0;
+    for (j = 0; j < pairsSize; ++j) {
+        x = pairs[j][0];
+        y = pairs[j][1];
+
+        pTmp = NULL;
+        HASH_FIND_INT(pUser, &x, pTmp);
+        if (pTmp == NULL) {
+            indexX = count;
+            sign[indexX] = x;
+            pTmp = (struct hashTable *)malloc(sizeof(struct hashTable));
+            if (pTmp == NULL) {
+                perror("malloc");
+                goto exit_hashTable;
+            }
+            pTmp->key = x;
+            pTmp->id = count++;
+            HASH_ADD_INT(pUser, key, pTmp);
+        } else {
+            indexX = pTmp->id;
+        }
+
+        pTmp = NULL;
+        HASH_FIND_INT(pUser, &y, pTmp);
+        if (pTmp == NULL) {
+            indexY = count;
+            sign[indexY] = y;
+            pTmp = (struct hashTable *)malloc(sizeof(struct hashTable));
+            if (pTmp == NULL) {
+                perror("malloc");
+                goto exit_hashTable;
+            }
+            pTmp->key = y;
+            pTmp->id = count++;
+            HASH_ADD_INT(pUser, key, pTmp);
+        } else {
+            indexY = pTmp->id;
+        }
+
+        outDegree[indexX]++;
+        inDegree[indexY]++;
+        edgesColSize[indexX]++;
+        if (edgesColSize[indexX] == basicSize[indexX]) {
+            basicSize[indexX] *= 2;
+            edges[indexX] = (int *)realloc(edges[indexX], basicSize[indexX] * sizeof(int));
+            if (edges[indexX] == NULL) {
+                perror("realloc");
+                goto exit_hashTable;
+            }
+        }
+        edges[indexX][edgesColSize[indexX] - 1] = indexY;
+    }
+
+    int start = 0;
+    for (j = 0; j < count; ++j) {
+        if (inDegree[j] == outDegree[j] - 1) {
+            start = j;
+        }
+    }
+
+    dfs(start, edges, &edgesColSize, pRetVal, returnSize);
+
+    int temp0, temp1;
+    for (j = 0; j < (*returnSize) / 2; ++j) {
+        temp0 = pRetVal[j][0];
+        temp1 = pRetVal[j][1];
+
+        pRetVal[j][0] = sign[pRetVal[(*returnSize) - j - 1][0]];
+        pRetVal[j][1] = sign[pRetVal[(*returnSize) - j - 1][1]];
+
+        pRetVal[(*returnSize) - j - 1][0] = sign[temp0];
+        pRetVal[(*returnSize) - j - 1][1] = sign[temp1];
+    }
+
+    if ((*returnSize) % 2 == 1) {
+        j = (*returnSize) / 2;
+        pRetVal[j][0] = sign[pRetVal[j][0]];
+        pRetVal[j][1] = sign[pRetVal[j][1]];
+    }
+
+    (*returnSize) = pairsSize;
+
+exit_hashTable:
+    freeAll(pUser);
+    pUser = NULL;
+    // exit_sign:
+    free(sign);
+    sign = NULL;
+exit_outDegree:
+    free(outDegree);
+    outDegree = NULL;
+exit_inDegree:
+    free(inDegree);
+    inDegree = NULL;
+exit_edges:
+    for (j = 0; j < i; ++j) {
+        free(edges[j]);
+        edges[j] = NULL;
+    }
+    i = pairsSize;
+    free(edges);
+    edges = NULL;
+exit_edgesColSize:
+    free(edgesColSize);
+    edgesColSize = NULL;
+exit_basicSize:
+    free(basicSize);
+    basicSize = NULL;
+exit_returnSize:
+    if ((*returnSize) == 0) {
+        for (j = 0; j < i; ++j) {
+            free(pRetVal[j]);
+            pRetVal[j] = NULL;
+        }
+        free(pRetVal);
+        pRetVal = NULL;
+    }
+exit_returnColumnSizes:
+    if ((*returnSize) == 0) {
+        free((*returnColumnSizes));
+        (*returnColumnSizes) = NULL;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<vector<int>> validArrangement(vector<vector<int>>& pairs) {
+        vector<vector<int>> retVal;
+
+        // Build the adjacency list and track in-degrees and out-degrees
+        unordered_map<int, deque<int>> adjacencyMatrix;
+        unordered_map<int, int> inDegree;
+        unordered_map<int, int> outDegree;
+        for (const auto& pair : pairs) {
+            int start = pair[0];
+            int end = pair[1];
+            adjacencyMatrix[start].push_back(end);
+            outDegree[start]++;
+            inDegree[end]++;
+        }
+
+        // Find the start node (outDegree == inDegree + 1)
+        int startNode = -1;
+        for (const auto& entry : outDegree) {
+            int node = entry.first;
+            if (outDegree[node] == inDegree[node] + 1) {
+                startNode = node;
+                break;
+            }
+        }
+        if (startNode == -1) {  // If no such node exists, start from the first pair's first element
+            startNode = pairs[0][0];
+        }
+
+        vector<int> result;
+        // Iterative DFS using stack
+        stack<int> nodeStack;
+        nodeStack.push(startNode);
+        while (nodeStack.empty() == false) {
+            int node = nodeStack.top();
+            if (adjacencyMatrix[node].empty() == false) {  // Visit the next node
+                int nextNode = adjacencyMatrix[node].front();
+                adjacencyMatrix[node].pop_front();
+                nodeStack.push(nextNode);
+            } else {  // No more neighbors to visit, add node to result
+                result.push_back(node);
+                nodeStack.pop();
+            }
+        }
+        reverse(result.begin(), result.end());  // Reverse the result since we collected nodes in reverse order
+
+        // Construct the result pairs
+        int resultSize = result.size();
+        for (int i = 1; i < resultSize; ++i) {
+            retVal.push_back({result[i - 1], result[i]});
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def validArrangement(self, pairs: List[List[int]]) -> List[List[int]]:
+        retVal = []
+
+        # Build the adjacency list and track in-degrees and out-degrees
+        adjacencyMatrix = defaultdict(list)
+        inDegree = defaultdict(int)
+        outDegree = defaultdict(int)
+        for start, end in pairs:
+            adjacencyMatrix[start].append(end)
+            outDegree[start] += 1
+            inDegree[end] += 1
+
+        # Find the start node (outDegree == inDegree + 1)
+        startNode = -1
+        for node in outDegree:
+            if outDegree[node] == inDegree[node] + 1:
+                startNode = node
+                break
+        if startNode == -1:  # If no such node exists, start from the first pair's first element
+            startNode = pairs[0][0]
+
+        result = []
+        # Iterative DFS using stack
+        nodeStack = [startNode]
+        while nodeStack:
+            node = nodeStack[-1]
+            if adjacencyMatrix[node]:  # Visit the next node
+                nextNode = adjacencyMatrix[node].pop(0)
+                nodeStack.append(nextNode)
+            else:  # No more neighbors to visit, add node to result
+                result.append(node)
+                nodeStack.pop()
+        result.reverse()  # Reverse the result since we collected nodes in reverse order
+
+        # Construct the result pairs
+        for i in range(1, len(result)):
+            retVal.append([result[i - 1], result[i]])
+
+        return retVal
+```
+
+</details>
+
 ## [2101. Detonate the Maximum Bombs](https://leetcode.com/problems/detonate-the-maximum-bombs/)  1880
 
 - [Official](https://leetcode.com/problems/detonate-the-maximum-bombs/editorial/)
