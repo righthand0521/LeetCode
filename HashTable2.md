@@ -1251,6 +1251,9 @@ class Solution:
 
 ## [1346. Check If N and Its Double Exist](https://leetcode.com/problems/check-if-n-and-its-double-exist/)  1225
 
+- [Official](https://leetcode.com/problems/check-if-n-and-its-double-exist/editorial/)
+- [Official](https://leetcode.cn/problems/check-if-n-and-its-double-exist/solutions/101742/jian-cha-zheng-shu-ji-qi-liang-bei-shu-shi-fou-cun/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -1274,37 +1277,89 @@ Constraints:
 -10^3 <= arr[i] <= 10^3
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. Loop from i = 0 to arr.length, maintaining in a hashTable the array elements from [0, i - 1].
+2. On each step of the loop check if we have seen the element 2 * arr[i] so far.
+3. Also check if we have seen arr[i] / 2 in case arr[i] % 2 == 0.
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
 
 ```c
-bool checkIfExist(int* arr, int arrSize) {
+struct hashTable {
+    int value;
+    int count;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *pCurrent;
+    struct hashTable *pTemp;
+    HASH_ITER(hh, pFree, pCurrent, pTemp) {
+        // printf("%d: %d\n", pFree->value, pFree->count);
+        HASH_DEL(pFree, pCurrent);
+        free(pCurrent);
+    }
+}
+bool checkIfExist(int *arr, int arrSize) {
     bool retVal = false;
 
-    /* -10^3 <= arr[i] <= 10^3
-     *          arr[i]:  -1000 ...   0  ... 1000
-     *  HashTable[idx]: 0~1999 ... 2000 ... 2001~4000
-     */
-#define HASHTABLE_IDX_SHIFT (2000)
-#define HASHTABLE_MAX_SIZE (HASHTABLE_IDX_SHIFT + 1 + HASHTABLE_IDX_SHIFT)
-    int HashTable[HASHTABLE_MAX_SIZE];
-    memset(HashTable, 0, sizeof(HashTable));
-
+    struct hashTable *pHashTable = NULL;
+    struct hashTable *pTemp;
+    int value;
     int i;
     for (i = 0; i < arrSize; ++i) {
-        if (HashTable[arr[i] * 2 + HASHTABLE_IDX_SHIFT] != 0) {
-            retVal = true;
-            break;
-        }
+        value = arr[i];
 
-        if ((arr[i] % 2 == 0) && (HashTable[arr[i] / 2 + HASHTABLE_IDX_SHIFT] != 0)) {
-            retVal = true;
-            break;
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTable, &value, pTemp);
+        if (pTemp == NULL) {
+            pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                goto _exit;
+            }
+            pTemp->value = value;
+            pTemp->count = 1;
+            HASH_ADD_INT(pHashTable, value, pTemp);
+        } else {
+            pTemp->count += 1;
         }
-
-        ++HashTable[arr[i] + HASHTABLE_IDX_SHIFT];
     }
+
+    for (i = 0; i < arrSize; ++i) {
+        value = arr[i];
+
+        pTemp = NULL;
+        if (value == 0) {
+            HASH_FIND_INT(pHashTable, &value, pTemp);
+            if (pTemp == NULL) {
+                break;
+            }
+
+            if (pTemp->count > 1) {
+                retVal = true;
+                break;
+            }
+        } else if (value != 0) {
+            value *= 2;
+
+            HASH_FIND_INT(pHashTable, &value, pTemp);
+            if (pTemp != NULL) {
+                retVal = true;
+                break;
+            }
+        }
+    }
+
+_exit:
+    freeAll(pHashTable);
+    pHashTable = NULL;
 
     return retVal;
 }
@@ -1321,23 +1376,47 @@ class Solution {
         bool retVal = false;
 
         unordered_map<int, int> hashTable;
-        for (auto i : arr) {
-            if (hashTable.count(i * 2) != 0) {
+        for (int value : arr) {
+            hashTable[value]++;
+        }
+
+        for (int value : arr) {
+            if ((value == 0) && (hashTable[value] > 1)) {
+                retVal = true;
+                break;
+            } else if ((value != 0) && (hashTable.count(2 * value) != 0)) {
                 retVal = true;
                 break;
             }
-
-            if ((i % 2 == 0) && (hashTable.count(i / 2) != 0)) {
-                retVal = true;
-                break;
-            }
-
-            ++hashTable[i];
         }
 
         return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def checkIfExist(self, arr: List[int]) -> bool:
+        retVal = False
+
+        hashTable = defaultdict(int)
+        for value in arr:
+            hashTable[value] += 1
+
+        for value in arr:
+            if (value == 0) and (hashTable[value] > 1):
+                retVal = True
+                break
+            elif (value != 0) and ((2*value) in hashTable):
+                retVal = True
+                break
+
+        return retVal
 ```
 
 </details>

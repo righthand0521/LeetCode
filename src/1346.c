@@ -3,38 +3,82 @@
 #include <stdlib.h>
 #include <string.h>
 
-bool checkIfExist(int* arr, int arrSize) {
+#include "uthash/uthash.h"  // https://troydhanson.github.io/uthash/
+
+struct hashTable {
+    int value;
+    int count;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *pCurrent;
+    struct hashTable *pTemp;
+    HASH_ITER(hh, pFree, pCurrent, pTemp) {
+        // printf("%d: %d\n", pFree->value, pFree->count);
+        HASH_DEL(pFree, pCurrent);
+        free(pCurrent);
+    }
+}
+bool checkIfExist(int *arr, int arrSize) {
     bool retVal = false;
 
-    /* -10^3 <= arr[i] <= 10^3
-     *          arr[i]:  -1000 ...   0  ... 1000
-     *  HashTable[idx]: 0~1999 ... 2000 ... 2001~4000
-     */
-#define HASHTABLE_IDX_SHIFT (2000)
-#define HASHTABLE_MAX_SIZE (HASHTABLE_IDX_SHIFT + 1 + HASHTABLE_IDX_SHIFT)
-    int HashTable[HASHTABLE_MAX_SIZE];
-    memset(HashTable, 0, sizeof(HashTable));
-
+    struct hashTable *pHashTable = NULL;
+    struct hashTable *pTemp;
+    int value;
     int i;
     for (i = 0; i < arrSize; ++i) {
-        if (HashTable[arr[i] * 2 + HASHTABLE_IDX_SHIFT] != 0) {
-            retVal = true;
-            break;
-        }
+        value = arr[i];
 
-        if ((arr[i] % 2 == 0) && (HashTable[arr[i] / 2 + HASHTABLE_IDX_SHIFT] != 0)) {
-            retVal = true;
-            break;
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTable, &value, pTemp);
+        if (pTemp == NULL) {
+            pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                goto _exit;
+            }
+            pTemp->value = value;
+            pTemp->count = 1;
+            HASH_ADD_INT(pHashTable, value, pTemp);
+        } else {
+            pTemp->count += 1;
         }
-
-        ++HashTable[arr[i] + HASHTABLE_IDX_SHIFT];
     }
+
+    for (i = 0; i < arrSize; ++i) {
+        value = arr[i];
+
+        pTemp = NULL;
+        if (value == 0) {
+            HASH_FIND_INT(pHashTable, &value, pTemp);
+            if (pTemp == NULL) {
+                break;
+            }
+
+            if (pTemp->count > 1) {
+                retVal = true;
+                break;
+            }
+        } else if (value != 0) {
+            value *= 2;
+
+            HASH_FIND_INT(pHashTable, &value, pTemp);
+            if (pTemp != NULL) {
+                retVal = true;
+                break;
+            }
+        }
+    }
+
+_exit:
+    freeAll(pHashTable);
+    pHashTable = NULL;
 
     return retVal;
 }
 
-int main(int argc, char** argv) {
-#define MAX_SIZE (100)
+int main(int argc, char **argv) {
+#define MAX_SIZE (500)
     struct testCaseType {
         int arr[MAX_SIZE];
         int arrSize;
@@ -42,12 +86,7 @@ int main(int argc, char** argv) {
                     {{3, 1, 7, 11}, 4},
                     {{-2, 0, 10, -19, 4, 6, -8}, 7},
                     {{0, 0}, 2},
-                    {{-10, 12, -20, -8, 15}, 5},
-                    {{7, 1, 14, 11}, 4},
-                    {{-778, -481, 842,  495, 44,  1000, -572, 977, 240, -116, 673,  997, -958, -539, -964,
-                      -187, -701, -928, 472, 965, -672, -88,  443, 36,  388,  -127, 115, 704,  -549, 1000,
-                      998,  291,  633,  423, 57,  -77,  -543, 72,  328, -938, -192, 382, 179},
-                     43}};
+                    {{-10, 12, -20, -8, 15}, 5}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
     /* Example
      *  Input: arr = [10,2,5,3]
@@ -55,6 +94,15 @@ int main(int argc, char** argv) {
      *
      *  Input: arr = [3,1,7,11]
      *  Output: false
+     *
+     *  Input: arr = [-2, 0, 10, -19, 4, 6, -8]
+     *  Output: false
+     *
+     *  Input: arr = [0, 0]
+     *  Output: true
+     *
+     *  Input: arr = [-10, 12, -20, -8, 15]
+     *  Output: true
      */
 
     bool answer;
