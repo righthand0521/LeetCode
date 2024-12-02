@@ -4611,6 +4611,7 @@ class Solution:
 
 ## [1455. Check If a Word Occurs As a Prefix of Any Word in a Sentence](https://leetcode.com/problems/check-if-a-word-occurs-as-a-prefix-of-any-word-in-a-sentence/)  1125
 
+- [Official](https://leetcode.com/problems/check-if-a-word-occurs-as-a-prefix-of-any-word-in-a-sentence/editorial/)
 - [Official](https://leetcode.cn/problems/check-if-a-word-occurs-as-a-prefix-of-any-word-in-a-sentence/solutions/1761732/jian-cha-dan-ci-shi-fou-wei-ju-zhong-qi-pqpu2/)
 
 <details><summary>Description</summary>
@@ -4648,6 +4649,16 @@ sentence consists of lowercase English letters and spaces.
 searchWord consists of lowercase English letters.
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. First extract the words of the sentence.
+2. Check for each word if searchWord occurs at index 0, if so return the index of this word (1-indexed)
+3. If searchWord doesn't exist as a prefix of any word return the default value (-1).
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
@@ -4672,6 +4683,65 @@ int isPrefixOfWord(char* sentence, char* searchWord) {
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int isPrefixOfWord(string sentence, string searchWord) {
+        int retVal = -1;
+
+        int idx = 0;
+        int searchWordSize = searchWord.size();
+        int searchWordIdx = 0;
+        bool startSearch = true;
+        for (char c : sentence) {
+            if (c == ' ') {
+                idx++;
+                searchWordIdx = 0;
+                startSearch = true;
+                continue;
+            } else if (startSearch == false) {
+                continue;
+            }
+
+            if (c == searchWord[searchWordIdx]) {
+                searchWordIdx++;
+                if (searchWordIdx == searchWordSize) {
+                    retVal = idx + 1;
+                    break;
+                }
+            } else {
+                searchWordIdx = 0;
+                startSearch = false;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def isPrefixOfWord(self, sentence: str, searchWord: str) -> int:
+        retVal = -1
+
+        words = sentence.split()
+        for idx, word in enumerate(words):
+            if word.startswith(searchWord):
+                retVal = idx + 1
+                break
+
+        return retVal
 ```
 
 </details>

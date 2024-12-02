@@ -31,6 +31,16 @@ int main(int argc, char** argv) {
     } testCase[] = {
         {"i love eating burger", "burg"}, {"this problem is an easy problem", "pro"}, {"i am tired", "you"}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: sentence = "i love eating burger", searchWord = "burg"
+     *  Output: 4
+     *
+     *  Input: sentence = "this problem is an easy problem", searchWord = "pro"
+     *  Output: 2
+     *
+     *  Input: sentence = "i am tired", searchWord = "you"
+     *  Output: -1
+     */
 
     int answer = 0;
     int i;
