@@ -3338,6 +3338,192 @@ class Solution:
 
 </details>
 
+## [2554. Maximum Number of Integers to Choose From a Range I](https://leetcode.com/problems/maximum-number-of-integers-to-choose-from-a-range-i/)  1333
+
+- [Official](https://leetcode.com/problems/maximum-number-of-integers-to-choose-from-a-range-i/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array banned and two integers n and maxSum.
+You are choosing some number of integers following the below rules:
+- The chosen integers have to be in the range [1, n].
+- Each integer can be chosen at most once.
+- The chosen integers should not be in the array banned.
+- The sum of the chosen integers should not exceed maxSum.
+
+Return the maximum number of integers you can choose following the mentioned rules.
+
+Example 1:
+Input: banned = [1,6,5], n = 5, maxSum = 6
+Output: 2
+Explanation: You can choose the integers 2 and 4.
+2 and 4 are from the range [1, 5], both did not appear in banned, and their sum is 6, which did not exceed maxSum.
+
+Example 2:
+Input: banned = [1,2,3,4,5,6,7], n = 8, maxSum = 1
+Output: 0
+Explanation: You cannot choose any integer while following the mentioned conditions.
+
+Example 3:
+Input: banned = [11], n = 7, maxSum = 50
+Output: 7
+Explanation: You can choose the integers 1, 2, 3, 4, 5, 6, and 7.
+They are from the range [1, 7], all did not appear in banned, and their sum is 28, which did not exceed maxSum.
+
+Constraints:
+1 <= banned.length <= 10^4
+1 <= banned[i], n <= 10^4
+1 <= maxSum <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Keep the banned numbers that are less than n in a set.
+2. Loop over the numbers from 1 to n and if the number is not banned, use it.
+3. Keep adding numbers while they are not banned, and their sum is less than k.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *current;
+    struct hashTable *tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int maxCount(int *banned, int bannedSize, int n, int maxSum) {
+    int retVal = 0;
+
+    // Store banned numbers in an unordered_set
+    struct hashTable *pHashTable = NULL;
+    struct hashTable *pTemp;
+    int key;
+    int i;
+    for (i = 0; i < bannedSize; ++i) {
+        key = banned[i];
+
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTable, &key, pTemp);
+        if (pTemp == NULL) {
+            pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                freeAll(pHashTable);
+                return retVal;
+            }
+            pTemp->key = key;
+            pTemp->value = 1;
+            HASH_ADD_INT(pHashTable, key, pTemp);
+        } else {
+            pTemp->value += 1;
+        }
+    }
+
+    for (i = 1; i <= n; ++i) {
+        // Skip banned numbers
+        key = i;
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTable, &key, pTemp);
+        if (pTemp != NULL) {
+            continue;
+        }
+
+        // Return if adding current number exceeds maxSum
+        if (maxSum - i < 0) {
+            break;
+        }
+
+        // Include current number
+        maxSum -= i;
+        retVal++;
+    }
+
+    //
+    freeAll(pHashTable);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maxCount(vector<int>& banned, int n, int maxSum) {
+        int retVal = 0;
+
+        // Store banned numbers in an unordered_set
+        unordered_set<int> bannedSet(banned.begin(), banned.end());
+
+        for (int num = 1; num <= n; num++) {
+            // Skip banned numbers
+            if (bannedSet.count(num) != 0) {
+                continue;
+            }
+
+            // Return if adding current number exceeds maxSum
+            if (maxSum - num < 0) {
+                break;
+            }
+
+            // Include current number
+            maxSum -= num;
+            retVal++;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxCount(self, banned: List[int], n: int, maxSum: int) -> int:
+        retVal = 0
+
+        # Store banned numbers in a set for quick lookup
+        bannedSet = set(banned)
+
+        for num in range(1, n + 1):
+            # Skip banned numbers
+            if num in bannedSet:
+                continue
+
+            # Return if adding the current number exceeds maxSum
+            if maxSum - num < 0:
+                break
+
+            # Include current number
+            maxSum -= num
+            retVal += 1
+
+        return retVal
+```
+
+</details>
+
 ## [2570. Merge Two 2D Arrays by Summing Values](https://leetcode.com/problems/merge-two-2d-arrays-by-summing-values/)  1281
 
 <details><summary>Description</summary>
