@@ -4799,6 +4799,206 @@ class Solution:
 
 </details>
 
+## [1760. Minimum Limit of Balls in a Bag](https://leetcode.com/problems/minimum-limit-of-balls-in-a-bag/)  1939
+
+- [Official](https://leetcode.com/problems/minimum-limit-of-balls-in-a-bag/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-limit-of-balls-in-a-bag/solutions/2025611/dai-zi-li-zui-shao-shu-mu-de-qiu-by-leet-boay/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array nums where the ith bag contains nums[i] balls.
+You are also given an integer maxOperations.
+
+You can perform the following operation at most maxOperations times:
+- Take any bag of balls and divide it into two new bags with a positive number of balls.
+  - For example, a bag of 5 balls can become two new bags of 1 and 4 balls, or two new bags of 2 and 3 balls.
+
+Your penalty is the maximum number of balls in a bag. You want to minimize your penalty after the operations.
+
+Return the minimum possible penalty after performing the operations.
+
+Example 1:
+Input: nums = [9], maxOperations = 2
+Output: 3
+Explanation:
+- Divide the bag with 9 balls into two bags of sizes 6 and 3. [9] -> [6,3].
+- Divide the bag with 6 balls into two bags of sizes 3 and 3. [6,3] -> [3,3,3].
+The bag with the most number of balls has 3 balls, so your penalty is 3 and you should return 3.
+
+Example 2:
+Input: nums = [2,4,8,2], maxOperations = 4
+Output: 2
+Explanation:
+- Divide the bag with 8 balls into two bags of sizes 4 and 4. [2,4,8,2] -> [2,4,4,4,2].
+- Divide the bag with 4 balls into two bags of sizes 2 and 2. [2,4,4,4,2] -> [2,2,2,4,4,2].
+- Divide the bag with 4 balls into two bags of sizes 2 and 2. [2,2,2,4,4,2] -> [2,2,2,2,2,4,2].
+- Divide the bag with 4 balls into two bags of sizes 2 and 2. [2,2,2,2,2,4,2] -> [2,2,2,2,2,2,2,2].
+The bag with the most number of balls has 2 balls, so your penalty is 2, and you should return 2.
+
+Constraints:
+1 <= nums.length <= 10^5
+1 <= maxOperations, nums[i] <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Let's change the question if we know the maximum size of a bag what is the minimum number of bags you can make
+2. note that as the maximum size increases the minimum number of bags decreases so we can binary search the maximum size
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool isPossible(int maxBallsInBag, int* nums, int numsSize, int maxOperations) {
+    bool retVal = true;  // We can split the balls within the allowed operations, return true
+
+    int operations;
+    int totalOperations = 0;
+    for (int i = 0; i < numsSize; ++i) {
+        // Calculate the number of operations needed to split this bag
+        operations = ceil(nums[i] / (double)maxBallsInBag) - 1;
+        totalOperations += operations;
+
+        // Total operations exceed maxOperations, return false
+        if (totalOperations > maxOperations) {
+            retVal = false;
+            break;
+        }
+    }
+
+    return retVal;
+}
+int minimumSize(int* nums, int numsSize, int maxOperations) {
+    int retVal = 0;
+
+    // Perform binary search to find the optimal maxBallsInBag
+    int left = 1;
+    int right = 0;
+    for (int i = 0; i < numsSize; ++i) {
+        right = fmax(right, nums[i]);
+    }
+    int middle;
+    while (left < right) {
+        middle = (left + right) / 2;
+
+        // Check if a valid distribution is possible with the current middle value
+        if (isPossible(middle, nums, numsSize, maxOperations)) {
+            right = middle;  // If possible, try a smaller value (shift right to middle)
+        } else {
+            left = middle + 1;  // If not possible, try a larger value (shift left to middle + 1)
+        }
+    }
+    retVal = left;  // Return the smallest possible value for maxBallsInBag
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    bool isPossible(int maxBallsInBag, vector<int>& nums, int maxOperations) {
+        bool retVal = true;  // We can split the balls within the allowed operations, return true
+
+        int totalOperations = 0;
+        for (int num : nums) {
+            // Calculate the number of operations needed to split this bag
+            int operations = ceil(num / (double)maxBallsInBag) - 1;
+            totalOperations += operations;
+
+            // Total operations exceed maxOperations, return false
+            if (totalOperations > maxOperations) {
+                retVal = false;
+                break;
+            }
+        }
+
+        return retVal;
+    }
+
+   public:
+    int minimumSize(vector<int>& nums, int maxOperations) {
+        int retVal = 0;
+
+        // Perform binary search to find the optimal maxBallsInBag
+        int left = 1;
+        int right = 0;
+        for (auto num : nums) {
+            right = max(right, num);
+        }
+        while (left < right) {
+            int middle = (left + right) / 2;
+
+            // Check if a valid distribution is possible with the current middle value
+            if (isPossible(middle, nums, maxOperations)) {
+                right = middle;  // If possible, try a smaller value (shift right to middle)
+            } else {
+                left = middle + 1;  // If not possible, try a larger value (shift left to middle + 1)
+            }
+        }
+        retVal = left;  // Return the smallest possible value for maxBallsInBag
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def isPossible(self, maxBallsInBag, nums, maxOperations) -> bool:
+        retVal = True  # We can split the balls within the allowed operations, return True
+
+        totalOperations = 0
+        for num in nums:
+            # Calculate the number of operations needed to split this bag
+            operations = ceil(num / maxBallsInBag) - 1
+            totalOperations += operations
+
+            # If total operations exceed maxOperations, return False
+            if totalOperations > maxOperations:
+                retVal = False
+                break
+
+        return retVal
+
+    def minimumSize(self, nums: List[int], maxOperations: int) -> int:
+        retVal = 0
+
+        # Perform binary search to find the optimal maxBallsInBag
+        left = 1
+        right = max(nums)
+        while left < right:
+            middle = (left + right) // 2
+
+            # Check if a valid distribution is possible with the current middle value
+            if self.isPossible(middle, nums, maxOperations):
+                # If possible, try a smaller value (shift right to middle)
+                right = middle
+            else:
+                # If not possible, try a larger value (shift left to middle + 1)
+                left = middle + 1
+
+        retVal = left  # Return the smallest possible value for maxBallsInBag
+
+        return retVal
+```
+
+</details>
+
 ## [1802. Maximum Value at a Given Index in a Bounded Array](https://leetcode.com/problems/maximum-value-at-a-given-index-in-a-bounded-array/)  1929
 
 - [Official](https://leetcode.com/problems/maximum-value-at-a-given-index-in-a-bounded-array/editorial/)
