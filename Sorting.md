@@ -3563,6 +3563,168 @@ class Solution:
 
 </details>
 
+## [2054. Two Best Non-Overlapping Events](https://leetcode.com/problems/two-best-non-overlapping-events/)  1883
+
+- [Official](https://leetcode.com/problems/two-best-non-overlapping-events/editorial/)
+- [Official](https://leetcode.cn/problems/two-best-non-overlapping-events/solutions/1077100/liang-ge-zui-hao-de-bu-zhong-die-huo-don-urq5/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed 2D integer array of events where events[i] = [startTimei, endTimei, valuei].
+The ith event starts at startTimei and ends at endTimei,
+and if you attend this event, you will receive a value of valuei.
+You can choose at most two non-overlapping events to attend such that the sum of their values is maximized.
+
+Return this maximum sum.
+
+Note that the start time and end time is inclusive:
+that is, you cannot attend two events where one of them starts and the other ends at the same time.
+More specifically, if you attend an event with end time t, the next event must start at or after t + 1.
+
+Example 1:
+Input: events = [[1,3,2],[4,5,2],[2,4,3]]
+Output: 4
+Explanation: Choose the green events, 0 and 1 for a sum of 2 + 2 = 4.
+
+Example 2:
+Input: events = [[1,3,2],[4,5,2],[1,5,5]]
+Output: 5
+Explanation: Choose event 2 for a sum of 5.
+
+Example 3:
+Input: events = [[1,5,3],[1,5,1],[6,6,5]]
+Output: 8
+Explanation: Choose events 0 and 2 for a sum of 3 + 5 = 8.
+
+Constraints:
+2 <= events.length <= 10^5
+events[i].length == 3
+1 <= startTimei <= endTimei <= 10^9
+1 <= valuei <= 10^6
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. How can sorting the events on the basis of their start times help? How about end times?
+2. How can we quickly get the maximum score of an interval not intersecting with the interval we chose?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareIntArray(const void* a1, const void* a2) {
+    int* p1 = (int*)a1;
+    int* p2 = (int*)a2;
+
+    // ascending order
+    if (p1[0] == p2[0]) {
+        if (p1[1] == p2[1]) {
+            return (p1[2] > p2[2]);
+        }
+        return (p1[1] > p2[1]);
+    }
+
+    return (p1[0] > p2[0]);
+}
+int maxTwoEvents(int** events, int eventsSize, int* eventsColSize) {
+    int retVal = 0;
+
+    int timesIndex = 0;
+    int timesSize = eventsSize * 2;
+    int times[timesSize][3];
+    memset(times, 0, sizeof(times));
+    for (int i = 0; i < eventsSize; ++i) {
+        times[timesIndex][0] = events[i][0];
+        times[timesIndex][1] = 1;  // 1 denotes start time.
+        times[timesIndex][2] = events[i][2];
+        timesIndex++;
+        times[timesIndex][0] = events[i][1] + 1;
+        times[timesIndex][1] = 0;  // 0 denotes end time.
+        times[timesIndex][2] = events[i][2];
+        timesIndex++;
+    }
+    qsort(times, timesSize, sizeof(times[0]), compareIntArray);
+
+    int maxValue = 0;
+    for (int i = 0; i < timesSize; ++i) {
+        // If current time is a start time, find maximum sum of maximum end time till now.
+        if (times[i][1]) {
+            retVal = fmax(retVal, times[i][2] + maxValue);
+        } else {
+            maxValue = fmax(maxValue, times[i][2]);
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maxTwoEvents(vector<vector<int>>& events) {
+        int retVal = 0;
+
+        vector<array<int, 3>> times;
+        for (auto& event : events) {
+            times.push_back({event[0], 1, event[2]});      // 1 denotes start time.
+            times.push_back({event[1] + 1, 0, event[2]});  // 0 denotes end time.
+        }
+        sort(begin(times), end(times));
+
+        int maxValue = 0;
+        for (auto& timeValue : times) {
+            // If current time is a start time, find maximum sum of maximum end time till now.
+            if (timeValue[1]) {
+                retVal = max(retVal, timeValue[2] + maxValue);
+            } else {
+                maxValue = max(maxValue, timeValue[2]);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxTwoEvents(self, events: List[List[int]]) -> int:
+        retVal = 0
+
+        times = []
+        for event in events:
+            times.append([event[0], 1, event[2]])  # 1 denotes start time.
+            times.append([event[1] + 1, 0, event[2]])  # 0 denotes end time.
+        times.sort()
+
+        maxValue = 0
+        for timeValue in times:
+            # If current time is a start time, find maximum sum of maximum end time till now.
+            if timeValue[1]:
+                retVal = max(retVal, timeValue[2] + maxValue)
+            else:
+                maxValue = max(maxValue, timeValue[2])
+
+        return retVal
+```
+
+</details>
+
 ## [2070. Most Beautiful Item for Each Query](https://leetcode.com/problems/most-beautiful-item-for-each-query/)  1724
 
 - [Official](https://leetcode.com/problems/most-beautiful-item-for-each-query/editorial/)
