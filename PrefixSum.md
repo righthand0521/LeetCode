@@ -2319,3 +2319,151 @@ class Solution:
 ```
 
 </details>
+
+## [3152. Special Array II](https://leetcode.com/problems/special-array-ii/)  1523
+
+- [Official](https://leetcode.com/problems/special-array-ii/editorial/)
+- [Official](https://leetcode.cn/problems/special-array-ii/solutions/2877223/te-shu-shu-zu-ii-by-leetcode-solution-ozu1/)
+
+<details><summary>Description</summary>
+
+```text
+An array is considered special if every pair of its adjacent elements contains two numbers with different parity.
+
+You are given an array of integer nums and a 2D integer matrix queries,
+where for queries[i] = [fromi, toi] your task is to check that subarray nums[fromi..toi] is special or not.
+
+Return an array of booleans answer such that answer[i] is true if nums[fromi..toi] is special.
+
+Example 1:
+Input: nums = [3,4,1,2,6], queries = [[0,4]]
+Output: [false]
+Explanation:
+The subarray is [3,4,1,2,6]. 2 and 6 are both even.
+
+Example 2:
+Input: nums = [4,3,1,6], queries = [[0,2],[2,3]]
+Output: [false,true]
+Explanation:
+The subarray is [4,3,1]. 3 and 1 are both odd. So the answer to this query is false.
+The subarray is [1,6]. There is only one pair: (1,6) and it contains numbers with different parity.
+So the answer to this query is true.
+
+Constraints:
+1 <= nums.length <= 10^5
+1 <= nums[i] <= 10^5
+1 <= queries.length <= 10^5
+queries[i].length == 2
+0 <= queries[i][0] <= queries[i][1] <= nums.length - 1
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Try to split the array into some non-intersected continuous special subarrays.
+2. For each query check that the first and the last elements of that query are in the same subarray or not.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+bool* isArraySpecial(int* nums, int numsSize, int** queries, int queriesSize, int* queriesColSize, int* returnSize) {
+    bool* pRetVal = NULL;
+
+    (*returnSize) = 0;
+    pRetVal = (bool*)malloc(queriesSize * sizeof(bool));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (queriesSize) * sizeof(bool));
+
+    int prefix[numsSize];
+    memset(prefix, 0, sizeof(prefix));
+    for (int i = 1; i < numsSize; ++i) {
+        if (nums[i] % 2 == nums[i - 1] % 2) {
+            prefix[i] = prefix[i - 1] + 1;  // new violative index found
+        } else {
+            prefix[i] = prefix[i - 1];
+        }
+    }
+
+    bool value;
+    int start, end;
+    for (int i = 0; i < queriesSize; ++i) {
+        start = queries[i][0];
+        end = queries[i][1];
+        value = (prefix[end] - prefix[start] == 0);
+        pRetVal[(*returnSize)] = value;
+        (*returnSize) += 1;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+
+class Solution {
+   public:
+    vector<bool> isArraySpecial(vector<int>& nums, vector<vector<int>>& queries) {
+        vector<bool> retVal;
+
+        int numsSize = nums.size();
+        vector<int> prefix(numsSize, 0);
+        for (int i = 1; i < numsSize; ++i) {
+            if (nums[i] % 2 == nums[i - 1] % 2) {
+                prefix[i] = prefix[i - 1] + 1;  // new violative index found
+            } else {
+                prefix[i] = prefix[i - 1];
+            }
+        }
+
+        for (auto& query : queries) {
+            int start = query[0];
+            int end = query[1];
+            bool value = (prefix[end] - prefix[start] == 0);
+            retVal.emplace_back(value);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def isArraySpecial(self, nums: List[int], queries: List[List[int]]) -> List[bool]:
+        retVal = []
+
+        numsSize = len(nums)
+        prefix = [0] * numsSize
+        for i in range(1, numsSize):
+            if nums[i] % 2 == nums[i - 1] % 2:
+                prefix[i] = prefix[i - 1] + 1  # new violative index found
+            else:
+                prefix[i] = prefix[i - 1]
+
+        for start, end in queries:
+            value = (prefix[end] - prefix[start] == 0)
+            retVal.append(value)
+
+        return retVal
+```
+
+</details>
