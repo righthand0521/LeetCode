@@ -3967,6 +3967,223 @@ class Solution:
 
 </details>
 
+## [2981. Find Longest Special Substring That Occurs Thrice I](https://leetcode.com/problems/find-longest-special-substring-that-occurs-thrice-i/)  1505
+
+- [Official](https://leetcode.com/problems/find-longest-special-substring-that-occurs-thrice-i/editorial/)
+- [Official](https://leetcode.cn/problems/find-longest-special-substring-that-occurs-thrice-i/solutions/2787295/zhao-chu-chu-xian-zhi-shao-san-ci-de-zui-a109/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string s that consists of lowercase English letters.
+
+A string is called special if it is made up of only a single character.
+For example, the string "abc" is not special, whereas the strings "ddd", "zz", and "f" are special.
+
+Return the length of the longest special substring of s which occurs at least thrice,
+or -1 if no special substring occurs at least thrice.
+
+A substring is a contiguous non-empty sequence of characters within a string.
+
+Example 1:
+Input: s = "aaaa"
+Output: 2
+Explanation: The longest special substring which occurs thrice is "aa": substrings "aaaa", "aaaa", and "aaaa".
+It can be shown that the maximum length achievable is 2.
+
+Example 2:
+Input: s = "abcdef"
+Output: -1
+Explanation: There exists no special substring which occurs at least thrice. Hence return -1.
+
+Example 3:
+Input: s = "abcaba"
+Output: 1
+Explanation: The longest special substring which occurs thrice is "a": substrings "abcaba", "abcaba", and "abcaba".
+It can be shown that the maximum length achievable is 1.
+
+Constraints:
+3 <= s.length <= 50
+s consists of only lowercase English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. The constraints are small.
+2. Brute force checking all substrings.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MAX_KEY_SIZE (32)  // 3 <= s.length <= 50
+struct hashTable {
+    char key[MAX_KEY_SIZE];
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable* pFree) {
+    struct hashTable* current;
+    struct hashTable* tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%s: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int maximumLength(char* s) {
+    int retVal = 0;
+
+    struct hashTable* pHashTable = NULL;
+    char character;
+    int substringLength;
+    int count;
+
+    struct hashTable* pTmp;
+    char key[MAX_KEY_SIZE];
+    int sSize = strlen(s);
+    int start, end;
+    for (start = 0; start < sSize; ++start) {
+        character = s[start];
+        substringLength = 0;
+        for (end = start; end < sSize; ++end) {
+            // If the string is empty, or the current character is equal to the previously added character,
+            // then add it to the map. Otherwise, break the iteration.
+            if (character != s[end]) {
+                break;
+            }
+            substringLength++;
+
+            // s consists of only lowercase English letters.
+            memset(key, 0, sizeof(key));
+            snprintf(key, sizeof(key), "%c%d", character, substringLength);
+
+            pTmp = NULL;
+            HASH_FIND_STR(pHashTable, key, pTmp);
+            if (pTmp == NULL) {
+                pTmp = (struct hashTable*)malloc(sizeof(struct hashTable));
+                if (pTmp == NULL) {
+                    perror("malloc");
+                    freeAll(pHashTable);
+                    pHashTable = NULL;
+                    return retVal;
+                }
+                strcpy(pTmp->key, key);
+                pTmp->value = 0;
+                HASH_ADD_STR(pHashTable, key, pTmp);
+            }
+            pTmp->value++;
+        }
+    }
+
+    struct hashTable* pCurrent = NULL;
+    pTmp = NULL;
+    HASH_ITER(hh, pHashTable, pCurrent, pTmp) {
+        sscanf(pHashTable->key, "%c%d", &character, &substringLength);
+        count = pHashTable->value;
+        if ((count >= 3) && (substringLength > retVal)) {
+            retVal = substringLength;
+        }
+
+        HASH_DEL(pHashTable, pCurrent);
+        free(pCurrent);
+        pCurrent = NULL;
+    }
+    pHashTable = NULL;
+    if (retVal == 0) {
+        retVal = -1;
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maximumLength(string s) {
+        int retVal = 0;
+
+        map<pair<char, int>, int> hashTable;
+        char character;
+        int substringLength;
+        int count;
+
+        int sSize = s.size();
+        substringLength = 0;
+        for (int start = 0; start < sSize; start++) {
+            character = s[start];
+            substringLength = 0;
+            for (int end = start; end < sSize; end++) {
+                // If the string is empty, or the current character is equal to the previously added character,
+                // then add it to the map. Otherwise, break the iteration.
+                if (character != s[end]) {
+                    break;
+                }
+                substringLength++;
+                hashTable[{character, substringLength}]++;
+            }
+        }
+
+        for (auto iterator : hashTable) {
+            character = iterator.first.first;
+            substringLength = iterator.first.second;
+            count = iterator.second;
+            if ((count >= 3) && (substringLength > retVal)) {
+                retVal = substringLength;
+            }
+        }
+        if (retVal == 0) {
+            retVal = -1;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maximumLength(self, s: str) -> int:
+        retVal = 0
+
+        sSize = len(s)
+        hashTable = {}
+        for start in range(sSize):
+            character = s[start]
+            substringLength = 0
+            for end in range(start, sSize):
+                # If the string is empty, or the current character is equal to the previously added character,
+                # then add it to the map. Otherwise, break the iteration.
+                if character != s[end]:
+                    break
+                substringLength += 1
+                hashTable[(character, substringLength)] = hashTable.get((character, substringLength), 0) + 1
+
+        for (character, substringLength), count in hashTable.items():
+            if (count >= 3) and (substringLength > retVal):
+                retVal = substringLength
+        if retVal == 0:
+            retVal = - 1
+
+        return retVal
+```
+
+</details>
+
 ## [3005. Count Elements With Maximum Frequency](https://leetcode.com/problems/count-elements-with-maximum-frequency/)  1216
 
 - [Official](https://leetcode.com/problems/count-elements-with-maximum-frequency/editorial/)
