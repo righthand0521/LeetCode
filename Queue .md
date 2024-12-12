@@ -5967,3 +5967,236 @@ class Solution:
 ```
 
 </details>
+
+## [2558. Take Gifts From the Richest Pile](https://leetcode.com/problems/take-gifts-from-the-richest-pile/)  1276
+
+- [Official](https://leetcode.com/problems/take-gifts-from-the-richest-pile/editorial/)
+- [Official](https://leetcode.cn/problems/take-gifts-from-the-richest-pile/solutions/2477680/cong-shu-liang-zui-duo-de-dui-qu-zou-li-kt246/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array gifts denoting the number of gifts in various piles. Every second, you do the following:
+- Choose the pile with the maximum number of gifts.
+- If there is more than one pile with the maximum number of gifts, choose any.
+- Leave behind the floor of the square root of the number of gifts in the pile. Take the rest of the gifts.
+
+Return the number of gifts remaining after k seconds.
+
+Example 1:
+Input: gifts = [25,64,9,4,100], k = 4
+Output: 29
+Explanation:
+The gifts are taken in the following way:
+- In the first second, the last pile is chosen and 10 gifts are left behind.
+- Then the second pile is chosen and 8 gifts are left behind.
+- After that the first pile is chosen and 5 gifts are left behind.
+- Finally, the last pile is chosen again and 3 gifts are left behind.
+The final remaining gifts are [5,8,9,4,3], so the total number of gifts remaining is 29.
+
+Example 2:
+Input: gifts = [1,1,1,1], k = 4
+Output: 4
+Explanation:
+In this case, regardless which pile you choose, you have to leave behind 1 gift in each pile.
+That is, you can't take any pile with you.
+So, the total gifts remaining are 4.
+
+Constraints:
+1 <= gifts.length <= 10^3
+1 <= gifts[i] <= 10^9
+1 <= k <= 10^3
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. How can you keep track of the largest gifts in the array
+2. What is an efficient way to find the square root of a number?
+3. Can you keep adding up the values of the gifts while ensuring they are in a certain order?
+4. Can we use a priority queue or heap here?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#ifndef HEAP_H
+#define HEAP_H
+
+void swap(int* x, int* y) {
+    int temp = *x;
+    *x = *y;
+    *y = temp;
+}
+typedef struct {
+    int* data;     // Array to store the heap elements
+    int size;      // Current size of the heap
+    int capacity;  // Maximum capacity of the heap
+} MaxHeap;
+MaxHeap* createMaxHeap(int capacity) {
+    MaxHeap* pObj = NULL;
+
+    pObj = (MaxHeap*)malloc(sizeof(MaxHeap));
+    if (pObj == NULL) {
+        perror("malloc");
+        return pObj;
+    }
+
+    pObj->data = (int*)malloc(capacity * sizeof(int));
+    if (pObj == NULL) {
+        perror("malloc");
+        free(pObj);
+        pObj = NULL;
+        return pObj;
+    }
+    pObj->size = 0;
+    pObj->capacity = capacity;
+
+    return pObj;
+}
+void heapifyMaxHeap(MaxHeap* pObj, int index) {
+    int biggest = index;
+    int left = 2 * index + 1;
+    int right = 2 * index + 2;
+
+    // Function to heapify the heap starting from the given index
+    if ((left < pObj->size) && (pObj->data[left] > pObj->data[biggest])) {
+        biggest = left;
+    }
+
+    if ((right < pObj->size) && (pObj->data[right] > pObj->data[biggest])) {
+        biggest = right;
+    }
+
+    if (biggest != index) {
+        swap(&pObj->data[index], &pObj->data[biggest]);
+        heapifyMaxHeap(pObj, biggest);
+    }
+}
+void pushMaxHeap(MaxHeap* pObj, int value) {
+    if (pObj->size == pObj->capacity) {
+        printf("Heap is full. Cannot insert more elements.\n");
+        return;
+    }
+
+    int index = pObj->size++;
+    pObj->data[index] = value;
+
+    // Fix the max heap property by comparing the value with its parent
+    while ((index != 0) && (pObj->data[(index - 1) / 2] < pObj->data[index])) {
+        swap(&pObj->data[(index - 1) / 2], &pObj->data[index]);
+        index = (index - 1) / 2;
+    }
+}
+int popMaxHeap(MaxHeap* pObj) {
+    int retVal = -1;
+
+    if (pObj->size == 0) {
+        printf("Heap is empty. Cannot remove elements.\n");
+        return retVal;
+    }
+
+    retVal = pObj->data[0];
+    pObj->data[0] = pObj->data[pObj->size - 1];
+    pObj->size--;
+    heapifyMaxHeap(pObj, 0);
+
+    return retVal;
+}
+void printMaxHeap(MaxHeap* pObj) {
+    printf("Max Heap: ");
+    for (int i = 0; i < pObj->size; i++) {
+        printf("%d ", pObj->data[i]);
+    }
+    printf("\n");
+}
+void freeMaxHeap(MaxHeap* pObj) {
+    free(pObj->data);
+    pObj->data = NULL;
+    free(pObj);
+    pObj = NULL;
+}
+
+#endif  // HEAP_H
+long long pickGifts(int* gifts, int giftsSize, int k) {
+    long long retVal = 0;
+
+    MaxHeap* pGiftsHeap = createMaxHeap(giftsSize);
+    if (pGiftsHeap == NULL) {
+        return retVal;
+    }
+    for (int i = 0; i < giftsSize; ++i) {
+        pushMaxHeap(pGiftsHeap, gifts[i]);
+    }
+
+    int maxElement;
+    for (int i = 0; i < k; ++i) {
+        maxElement = popMaxHeap(pGiftsHeap);
+        pushMaxHeap(pGiftsHeap, sqrt(maxElement));
+    }
+
+    for (int i = 0; i < pGiftsHeap->size; ++i) {
+        retVal += pGiftsHeap->data[i];
+    }
+
+    //
+    freeMaxHeap(pGiftsHeap);
+    pGiftsHeap = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    long long pickGifts(vector<int>& gifts, int k) {
+        long long retVal = 0;
+
+        priority_queue<int> giftsHeap(gifts.begin(), gifts.end());
+        for (int i = 0; i < k; i++) {
+            int maxElement = giftsHeap.top();
+            giftsHeap.pop();
+            giftsHeap.push(sqrt(maxElement));
+        }
+
+        while (giftsHeap.empty() == false) {
+            retVal += giftsHeap.top();
+            giftsHeap.pop();
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def pickGifts(self, gifts: List[int], k: int) -> int:
+        retVal = 0
+
+        giftsHeap = [-gift for gift in gifts]
+        heapify(giftsHeap)
+        for _ in range(k):
+            maxElement = -heappop(giftsHeap)
+            heappush(giftsHeap, -floor(sqrt(maxElement)))
+
+        while giftsHeap:
+            retVal -= heappop(giftsHeap)
+
+        return retVal
+```
+
+</details>
