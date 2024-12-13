@@ -6200,3 +6200,194 @@ class Solution:
 ```
 
 </details>
+
+## [2593. Find Score of an Array After Marking All Elements](https://leetcode.com/problems/find-score-of-an-array-after-marking-all-elements/)  1665
+
+- [Official](https://leetcode.com/problems/find-score-of-an-array-after-marking-all-elements/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an array nums consisting of positive integers.
+
+Starting with score = 0, apply the following algorithm:
+- Choose the smallest integer of the array that is not marked.
+  If there is a tie, choose the one with the smallest index.
+- Add the value of the chosen integer to score.
+- Mark the chosen element and its two adjacent elements if they exist.
+- Repeat until all the array elements are marked.
+
+Return the score you get after applying the above algorithm.
+
+Example 1:
+Input: nums = [2,1,3,4,5,2]
+Output: 7
+Explanation: We mark the elements as follows:
+- 1 is the smallest unmarked element, so we mark it and its two adjacent elements: [2,1,3,4,5,2].
+- 2 is the smallest unmarked element, so we mark it and its left adjacent element: [2,1,3,4,5,2].
+- 4 is the only remaining unmarked element, so we mark it: [2,1,3,4,5,2].
+Our score is 1 + 2 + 4 = 7.
+
+Example 2:
+Input: nums = [2,3,5,1,3,2]
+Output: 5
+Explanation: We mark the elements as follows:
+- 1 is the smallest unmarked element, so we mark it and its two adjacent elements: [2,3,5,1,3,2].
+- 2 is the smallest unmarked element, since there are two of them, we choose the left-most one,
+  so we mark the one at index 0 and its right adjacent element: [2,3,5,1,3,2].
+- 2 is the only remaining unmarked element, so we mark it: [2,3,5,1,3,2].
+Our score is 1 + 2 + 2 = 5.
+
+Constraints:
+1 <= nums.length <= 10^5
+1 <= nums[i] <= 10^6
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Try simulating the process of marking the elements and their adjacent.
+2. If there is an element that was already marked, then you skip it.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareIntArray(const void* a1, const void* a2) {
+    int* p1 = (int*)a1;
+    int* p2 = (int*)a2;
+
+    // ascending order
+    if (p1[0] == p2[0]) {
+        return (p1[1] > p2[1]);
+    }
+
+    return (p1[0] > p2[0]);
+}
+long long findScore(int* nums, int numsSize) {
+    long long retVal = 0;
+
+    int sorted[numsSize][2];
+    memset(sorted, 0, sizeof(sorted));
+    for (int i = 0; i < numsSize; ++i) {
+        sorted[i][0] = nums[i];
+        sorted[i][1] = i;
+    }
+    qsort(sorted, numsSize, sizeof(sorted[0]), compareIntArray);
+
+    int marked[numsSize];
+    memset(marked, false, sizeof(marked));
+    int num, index;
+    for (int i = 0; i < numsSize; i++) {
+        num = sorted[i][0];
+        index = sorted[i][1];
+
+        if (marked[index] == true) {
+            continue;
+        }
+
+        retVal += num;
+
+        marked[index] = true;
+        // mark adjacent elements if they exist
+        if (index - 1 >= 0) {
+            marked[index - 1] = true;
+        }
+        if (index + 1 < numsSize) {
+            marked[index + 1] = true;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    long long findScore(vector<int>& nums) {
+        long long retVal = 0;
+
+        int numsSize = nums.size();
+
+        auto cmp = [](pair<int, int>& pair1, pair<int, int>& pair2) {
+            if (pair1.first != pair2.first) {
+                return pair1.first > pair2.first;
+            }
+            return pair1.second > pair2.second;
+        };
+        priority_queue<pair<int, int>, vector<pair<int, int>>, decltype(cmp)> heap(cmp);
+        for (int i = 0; i < numsSize; ++i) {
+            heap.push(make_pair(nums[i], i));
+        }
+
+        vector<bool> marked(numsSize);
+        while (heap.empty() == false) {
+            pair<int, int> element = heap.top();
+            heap.pop();
+            int num = element.first;
+            int index = element.second;
+
+            if (marked[index] == true) {
+                continue;
+            }
+
+            retVal += num;
+
+            marked[index] = true;
+            // mark adjacent elements if they exist
+            if (index - 1 >= 0) {
+                marked[index - 1] = true;
+            }
+            if (index + 1 < numsSize) {
+                marked[index + 1] = true;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def findScore(self, nums):
+        retVal = 0
+
+        numsSize = len(nums)
+
+        heap = []
+        for index, num in enumerate(nums):
+            heappush(heap, (num, index))
+
+        marked = [False] * numsSize
+        while heap:
+            num, index = heappop(heap)
+
+            if marked[index] == True:
+                continue
+
+            retVal += num
+            marked[index] = True
+            # mark adjacent elements if they exist
+            if index - 1 >= 0:
+                marked[index - 1] = True
+            if index + 1 < numsSize:
+                marked[index + 1] = True
+
+        return retVal
+```
+
+</details>
