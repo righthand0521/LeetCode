@@ -5074,6 +5074,202 @@ class Solution:
 
 </details>
 
+## [2762. Continuous Subarrays](https://leetcode.com/problems/continuous-subarrays/)  1940
+
+- [Official](https://leetcode.com/problems/continuous-subarrays/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed integer array nums. A subarray of nums is called continuous if:
+- Let i, i + 1, ..., j be the indices in the subarray.
+  Then, for each pair of indices i <= i1, i2 <= j, 0 <= |nums[i1] - nums[i2]| <= 2.
+
+Return the total number of continuous subarrays.
+
+A subarray is a contiguous non-empty sequence of elements within an array.
+
+Example 1:
+Input: nums = [5,4,2,4]
+Output: 8
+Explanation:
+Continuous subarray of size 1: [5], [4], [2], [4].
+Continuous subarray of size 2: [5,4], [4,2], [2,4].
+Continuous subarray of size 3: [4,2,4].
+Thereare no subarrys of size 4.
+Total continuous subarrays = 4 + 3 + 1 = 8.
+It can be shown that there are no more continuous subarrays.
+
+Example 2:
+Input: nums = [1,2,3]
+Output: 6
+Explanation:
+Continuous subarray of size 1: [1], [2], [3].
+Continuous subarray of size 2: [1,2], [2,3].
+Continuous subarray of size 3: [1,2,3].
+Total continuous subarrays = 3 + 2 + 1 = 6.
+
+Constraints:
+1 <= nums.length <= 10^5
+1 <= nums[i] <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Try using the sliding window technique.
+2. Use a set or map to keep track of the maximum and minimum of subarrays.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+long long continuousSubarrays(int* nums, int numsSize) {
+    long long retVal = 0;
+
+    int right = 0;
+    int left = 0;
+    int curMin = nums[right];
+    int curMax = nums[right];
+    long long windowLen = 0;
+    for (right = 0; right < numsSize; right++) {
+        curMin = fmin(curMin, nums[right]);
+        curMax = fmax(curMax, nums[right]);
+        if (curMax - curMin <= 2) {
+            continue;
+        }
+
+        // Add subarrays from the previous valid window
+        windowLen = (right - left);
+        retVal += (windowLen * (windowLen + 1) / 2);
+        // Start a new window at the current position
+        left = right;
+        curMin = curMax = nums[right];
+        // Expand left boundary while maintaining the condition
+        while ((left > 0) && (abs(nums[right] - nums[left - 1]) <= 2)) {
+            left--;
+            curMin = fmin(curMin, nums[left]);
+            curMax = fmax(curMax, nums[left]);
+        }
+        // Remove overcounted subarrays if left boundary expanded
+        if (left < right) {
+            windowLen = right - left;
+            retVal -= (windowLen * (windowLen + 1) / 2);
+        }
+    }
+
+    // Add subarrays from the final window
+    windowLen = right - left;
+    retVal += (windowLen * (windowLen + 1) / 2);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    long long continuousSubarrays(vector<int>& nums) {
+        long long retVal = 0;
+
+        int numsSize = nums.size();
+
+        int right = 0;
+        int left = 0;
+        int curMin = nums[right];
+        int curMax = nums[right];
+        long long windowLen = 0;
+        for (right = 0; right < numsSize; right++) {
+            curMin = min(curMin, nums[right]);
+            curMax = max(curMax, nums[right]);
+            if (curMax - curMin <= 2) {
+                continue;
+            }
+
+            // Add subarrays from the previous valid window
+            windowLen = (right - left);
+            retVal += (windowLen * (windowLen + 1) / 2);
+            // Start a new window at the current position
+            left = right;
+            curMin = curMax = nums[right];
+            // Expand left boundary while maintaining the condition
+            while ((left > 0) && (abs(nums[right] - nums[left - 1]) <= 2)) {
+                left--;
+                curMin = min(curMin, nums[left]);
+                curMax = max(curMax, nums[left]);
+            }
+            // Remove overcounted subarrays if left boundary expanded
+            if (left < right) {
+                windowLen = right - left;
+                retVal -= (windowLen * (windowLen + 1) / 2);
+            }
+        }
+
+        // Add subarrays from the final window
+        windowLen = right - left;
+        retVal += (windowLen * (windowLen + 1) / 2);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def continuousSubarrays(self, nums: List[int]) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+
+        right = 0
+        left = 0
+        curMin = nums[right]
+        curMax = nums[right]
+        windowLen = 0
+        for right in range(numsSize):
+            curMin = min(curMin, nums[right])
+            curMax = max(curMax, nums[right])
+            if curMax - curMin <= 2:
+                continue
+
+            # Add subarrays from previous valid window
+            windowLen = right - left
+            retVal += windowLen * (windowLen + 1) // 2
+            # Start new window at current position
+            left = right
+            curMin = nums[right]
+            curMax = nums[right]
+            # Expand left boundary while maintaining condition
+            while (left > 0) and (abs(nums[right] - nums[left - 1]) <= 2):
+                left -= 1
+                curMin = min(curMin, nums[left])
+                curMax = max(curMax, nums[left])
+            # Remove overcounted subarrays if left boundary expanded
+            if left < right:
+                windowLen = right - left
+                retVal -= windowLen * (windowLen + 1) // 2
+
+        # Add subarrays from final window
+        windowLen = right - left + 1
+        retVal += windowLen * (windowLen + 1) // 2
+
+        return retVal
+```
+
+</details>
+
 ## [2958. Length of Longest Subarray With at Most K Frequency](https://leetcode.com/problems/length-of-longest-subarray-with-at-most-k-frequency/)  1535
 
 - [Official](https://leetcode.com/problems/length-of-longest-subarray-with-at-most-k-frequency/editorial/)
