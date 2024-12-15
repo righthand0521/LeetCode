@@ -24,7 +24,7 @@ MinHeap* createMinHeap(int capacity) {
     }
 
     pObj->data = (int*)malloc(capacity * sizeof(int));
-    if (pObj == NULL) {
+    if (pObj->data == NULL) {
         perror("malloc");
         free(pObj);
         pObj = NULL;
@@ -114,7 +114,7 @@ MaxHeap* createMaxHeap(int capacity) {
     }
 
     pObj->data = (int*)malloc(capacity * sizeof(int));
-    if (pObj == NULL) {
+    if (pObj->data == NULL) {
         perror("malloc");
         free(pObj);
         pObj = NULL;

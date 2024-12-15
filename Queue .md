@@ -4041,6 +4041,332 @@ class Solution {
 
 </details>
 
+## [1792. Maximum Average Pass Ratio](https://leetcode.com/problems/maximum-average-pass-ratio/)  1817
+
+- [Official](https://leetcode.com/problems/maximum-average-pass-ratio/editorial/)
+- [Official](https://leetcode.cn/problems/maximum-average-pass-ratio/solutions/2118606/zui-da-ping-jun-tong-guo-lu-by-leetcode-dm7y3/)
+
+<details><summary>Description</summary>
+
+```text
+There is a school that has classes of students and each class will be having a final exam.
+You are given a 2D integer array classes, where classes[i] = [passi, totali].
+You know beforehand that in the ith class, there are totali total students,
+but only passi number of students will pass the exam.
+
+You are also given an integer extraStudents.
+There are another extraStudents brilliant students
+that are guaranteed to pass the exam of any class they are assigned to.
+You want to assign each of the extraStudents students to a class in a way
+that maximizes the average pass ratio across all the classes.
+
+The pass ratio of a class is equal to the number of students of the class
+that will pass the exam divided by the total number of students of the class.
+The average pass ratio is the sum of pass ratios of all the classes divided by the number of the classes.
+
+Return the maximum possible average pass ratio after assigning the extraStudents students.
+Answers within 10-5 of the actual answer will be accepted.
+
+Example 1:
+Input: classes = [[1,2],[3,5],[2,2]], extraStudents = 2
+Output: 0.78333
+Explanation: You can assign the two extra students to the first class.
+The average pass ratio will be equal to (3/4 + 3/5 + 2/2) / 3 = 0.78333.
+
+Example 2:
+Input: classes = [[2,4],[3,9],[4,5],[2,10]], extraStudents = 4
+Output: 0.53485
+
+Constraints:
+1 <= classes.length <= 10^5
+classes[i].length == 2
+1 <= passi <= totali <= 10^5
+1 <= extraStudents <= 10^5
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Pay attention to how much the pass ratio changes when you add a student to the class.
+   If you keep adding students, what happens to the change in pass ratio?
+   The more students you add to a class, the smaller the change in pass ratio becomes.
+2. Since the change in the pass ratio is always decreasing with the more students you add,
+   then the very first student you add to each class is the one that makes the biggest change in the pass ratio.
+3. Because each class's pass ratio is weighted equally, it's always optimal to
+   put the student in the class that makes the biggest change among all the other classes.
+4. Keep a max heap of the current class sizes and order them by the change in pass ratio.
+   For each extra student, take the top of the heap, update the class size, and put it back in the heap.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// https://leetcode.cn/problems/maximum-average-pass-ratio/solutions/1413598/by-goodgoodday-sl2o/
+#ifndef HEAP_H
+#define HEAP_H
+
+//
+void swapDouble(double* pLeft, double* pRight) {
+    double temp = *pLeft;
+    *pLeft = *pRight;
+    *pRight = temp;
+}
+void swapInt(int* pLeft, int* pRight) {
+    int temp = *pLeft;
+    *pLeft = *pRight;
+    *pRight = temp;
+}
+//
+typedef struct {
+    double* gain;
+    int* classes;
+    int size;      // Current size of the heap
+    int capacity;  // Maximum capacity of the heap
+} MaxHeap;
+MaxHeap* createMaxHeap(int capacity) {
+    MaxHeap* pObj = NULL;
+
+    pObj = (MaxHeap*)malloc(sizeof(MaxHeap));
+    if (pObj == NULL) {
+        perror("malloc");
+        return pObj;
+    }
+
+    pObj->gain = (double*)malloc(sizeof(double) * capacity);
+    if (pObj->gain == NULL) {
+        perror("malloc");
+        free(pObj);
+        pObj = NULL;
+        return pObj;
+    }
+    pObj->classes = (int*)malloc(sizeof(int) * capacity);
+    if (pObj->classes == NULL) {
+        perror("malloc");
+        free(pObj->gain);
+        pObj->gain = NULL;
+        free(pObj);
+        pObj = NULL;
+        return pObj;
+    }
+    pObj->size = 1;
+    pObj->capacity = capacity;
+
+    return pObj;
+}
+void HeapAdjustDown(MaxHeap* pObj, int parent) {
+    int child = 2 * parent;
+    int size = pObj->size;
+    while (child < size) {
+        if ((child + 1 < size) && (pObj->gain[child] < pObj->gain[child + 1])) {
+            child = child + 1;
+        }
+
+        if (pObj->gain[child] > pObj->gain[parent]) {
+            swapDouble(&pObj->gain[child], &pObj->gain[parent]);
+            swapInt(&pObj->classes[child], &pObj->classes[parent]);
+            parent = child;
+            child = parent << 1;
+        } else {
+            break;
+        }
+    }
+}
+void HeapAdjustUp(MaxHeap* pObj, int child) {
+    int parent = child / 2;
+    while (child > 1) {
+        if (pObj->gain[child] > pObj->gain[parent]) {
+            swapDouble(&pObj->gain[child], &pObj->gain[parent]);
+            swapInt(&pObj->classes[child], &pObj->classes[parent]);
+            child = parent;
+            parent = child / 2;
+        } else {
+            break;
+        }
+    }
+}
+void pushMaxHeap(MaxHeap* pObj, double gain, int classes) {
+    if (pObj->size == pObj->capacity) {
+        printf("MaxHeap is full. Cannot insert more elements.\n");
+        return;
+    }
+
+    int index = pObj->size++;
+    pObj->gain[index] = gain;
+    pObj->classes[index] = classes;
+
+    HeapAdjustUp(pObj, pObj->size - 1);
+}
+void popMaxHeap(MaxHeap* pObj) {
+    if (pObj->size == 1) {
+        printf("MaxHeap is empty. Cannot remove elements.\n");
+        return;
+    }
+
+    pObj->gain[1] = pObj->gain[pObj->size - 1];
+    pObj->classes[1] = pObj->classes[pObj->size - 1];
+    pObj->size--;
+
+    HeapAdjustDown(pObj, 1);
+}
+void printMaxHeap(MaxHeap* pObj) {
+    printf("Max Heap: ");
+    for (int i = 1; i < pObj->size; i++) {
+        printf("(%f,%d) ", pObj->gain[i], pObj->classes[i]);
+    }
+    printf("\n");
+}
+void freeMaxHeap(MaxHeap* pObj) {
+    free(pObj->gain);
+    pObj->gain = NULL;
+    free(pObj->classes);
+    pObj->classes = NULL;
+    free(pObj);
+    pObj = NULL;
+}
+
+#endif  // HEAP_H
+double calculateGain(int passes, int totalStudents) {
+    double retVal = 0;
+
+    retVal = (double)(passes + 1) / (totalStudents + 1) - (double)passes / totalStudents;
+
+    return retVal;
+};
+double maxAverageRatio(int** classes, int classesSize, int* classesColSize, int extraStudents) {
+    double retVal = 0;
+
+    // Max heap to store (-gain, passes, totalStudents)
+    MaxHeap* pMaxHeap = createMaxHeap(classesSize + 1);
+    if (pMaxHeap == NULL) {
+        return retVal;
+    }
+    double gain = 0;
+    for (int i = 0; i < classesSize; i++) {
+        gain = calculateGain(classes[i][0], classes[i][1]);
+        pushMaxHeap(pMaxHeap, gain, i);
+    }
+    // printMaxHeap(pMaxHeap);
+
+    // Distribute extra students
+    int topIndex;
+    while (extraStudents--) {
+        topIndex = pMaxHeap->classes[1];
+        popMaxHeap(pMaxHeap);
+
+        classes[topIndex][0]++;
+        classes[topIndex][1]++;
+        gain = calculateGain(classes[topIndex][0], classes[topIndex][1]);
+        pushMaxHeap(pMaxHeap, gain, topIndex);
+    }
+    // printMaxHeap(pMaxHeap);
+
+    // Calculate the final average pass ratio
+    double totalPassRatio = 0;
+    for (int i = 0; i < classesSize; i++) {
+        totalPassRatio += ((double)classes[i][0] / classes[i][1]);
+    }
+    retVal = totalPassRatio / classesSize;
+
+    //
+    freeMaxHeap(pMaxHeap);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    double calculateGain(int passes, int totalStudents) {
+        double retVal = 0;
+
+        retVal = (double)(passes + 1) / (totalStudents + 1) - (double)passes / totalStudents;
+
+        return retVal;
+    };
+
+   public:
+    double maxAverageRatio(vector<vector<int>>& classes, int extraStudents) {
+        double retVal = 0;
+
+        // Max heap to store (-gain, passes, totalStudents)
+        priority_queue<pair<double, pair<int, int>>> maxHeap;
+        for (const auto& singleClass : classes) {
+            maxHeap.push({calculateGain(singleClass[0], singleClass[1]), {singleClass[0], singleClass[1]}});
+        }
+
+        // Distribute extra students
+        while (extraStudents--) {
+            auto [currentGain, classInfo] = maxHeap.top();
+            maxHeap.pop();
+            int passes = classInfo.first;
+            int totalStudents = classInfo.second;
+            maxHeap.push({calculateGain(passes + 1, totalStudents + 1), {passes + 1, totalStudents + 1}});
+        }
+
+        // Calculate the final average pass ratio
+        double totalPassRatio = 0;
+        while (maxHeap.empty() == false) {
+            auto [_, classInfo] = maxHeap.top();
+            maxHeap.pop();
+            totalPassRatio += (double)classInfo.first / classInfo.second;
+        }
+        int classesSize = classes.size();
+        retVal = totalPassRatio / classesSize;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def calculateGain(self, passes, totalStudents) -> float:
+        retVal = 0
+
+        retVal = (passes + 1) / (totalStudents + 1) - passes / totalStudents
+
+        return retVal
+
+    def maxAverageRatio(self, classes: List[List[int]], extraStudents: int) -> float:
+        retVal = 0
+
+        # Max heap to store (-gain, passes, totalStudents)
+        maxHeap = []
+        for passes, totalStudents in classes:
+            gain = self.calculateGain(passes, totalStudents)
+            heappush(maxHeap, (-gain, passes, totalStudents))
+
+        # Distribute extra students
+        for _ in range(extraStudents):
+            _, passes, totalStudents = heappop(maxHeap)
+            gain = self.calculateGain(passes + 1, totalStudents + 1)
+            heappush(maxHeap, (-gain, passes + 1, totalStudents + 1,))
+
+        # Calculate the final average pass ratio
+        totalPassRatio = 0
+        while maxHeap:
+            _, passes, totalStudents = heappop(maxHeap)
+            totalPassRatio += (passes / totalStudents)
+        retVal = totalPassRatio / len(classes)
+
+        return retVal
+```
+
+</details>
+
 ## [1834. Single-Threaded CPU](https://leetcode.com/problems/single-threaded-cpu/)  1797
 
 - [Official](https://leetcode.com/problems/single-threaded-cpu/solutions/2216661/single-threaded-cpu/)
