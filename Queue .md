@@ -6717,3 +6717,153 @@ class Solution:
 ```
 
 </details>
+
+## [3264. Final Array State After K Multiplication Operations I](https://leetcode.com/problems/final-array-state-after-k-multiplication-operations-i/)  1177
+
+- [Official](https://leetcode.com/problems/final-array-state-after-k-multiplication-operations-i/editorial/)
+- [Official](https://leetcode.cn/problems/final-array-state-after-k-multiplication-operations-i/solutions/3014792/k-ci-cheng-yun-suan-hou-de-zui-zhong-shu-8i7p/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array nums, an integer k, and an integer multiplier.
+
+You need to perform k operations on nums. In each operation:
+- Find the minimum value x in nums.
+  If there are multiple occurrences of the minimum value, select the one that appears first.
+- Replace the selected minimum value x with x * multiplier.
+
+Return an integer array denoting the final state of nums after performing all k operations.
+
+Example 1:
+Input: nums = [2,1,3,5,6], k = 5, multiplier = 2
+Output: [8,4,6,5,6]
+Explanation:
+Operation Result
+After operation 1 [2, 2, 3, 5, 6]
+After operation 2 [4, 2, 3, 5, 6]
+After operation 3 [4, 4, 3, 5, 6]
+After operation 4 [4, 4, 6, 5, 6]
+After operation 5 [8, 4, 6, 5, 6]
+
+Example 2:
+Input: nums = [1,2], k = 3, multiplier = 4
+Output: [16,8]
+Explanation:
+Operation Result
+After operation 1 [4, 2]
+After operation 2 [4, 8]
+After operation 3 [16, 8]
+
+Constraints:
+1 <= nums.length <= 100
+1 <= nums[i] <= 100
+1 <= k <= 10
+1 <= multiplier <= 5
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Maintain sorted pairs (nums[index], index) in a priority queue.
+2. Simulate the operation k times.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* getFinalState(int* nums, int numsSize, int k, int multiplier, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+    pRetVal = (int*)malloc(numsSize * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (numsSize * sizeof(int)));
+    memcpy(pRetVal, nums, (numsSize * sizeof(int)));
+    (*returnSize) = numsSize;
+
+    int minIndex;
+    while (k--) {
+        minIndex = 0;
+        for (int i = 0; i < numsSize; ++i) {
+            if (pRetVal[i] < pRetVal[minIndex]) {
+                minIndex = i;
+            }
+        }
+        pRetVal[minIndex] *= multiplier;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> getFinalState(vector<int>& nums, int k, int multiplier) {
+        vector<int> retVal;
+
+        retVal.assign(nums.begin(), nums.end());
+
+        auto cmp = [](pair<int, int>& pair1, pair<int, int>& pair2) {
+            if (pair1.first != pair2.first) {
+                return pair1.first > pair2.first;
+            }
+            return pair1.second > pair2.second;
+        };
+        priority_queue<pair<int, int>, vector<pair<int, int>>, decltype(cmp)> minHeap(cmp);
+        int numsSize = retVal.size();
+        for (int i = 0; i < numsSize; ++i) {
+            minHeap.push(make_pair(retVal[i], i));
+        }
+
+        for (int i = 0; i < k; ++i) {
+            pair<int, int> element = minHeap.top();
+            minHeap.pop();
+            int idx = element.second;
+            retVal[idx] *= multiplier;
+            minHeap.push(make_pair(retVal[idx], idx));
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def getFinalState(self, nums: List[int], k: int, multiplier: int) -> List[int]:
+        retVal = nums
+
+        minHeap = []
+        for idx, num in enumerate(retVal):
+            minHeap.append((num, idx))
+        heapify(minHeap)
+
+        for _ in range(k):
+            num, idx = heappop(minHeap)
+            retVal[idx] *= multiplier
+            heappush(minHeap, (retVal[idx], idx))
+
+        return retVal
+```
+
+</details>
