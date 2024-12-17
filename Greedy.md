@@ -6068,6 +6068,309 @@ class Solution:
 
 </details>
 
+## [2182. Construct String With Repeat Limit](https://leetcode.com/problems/construct-string-with-repeat-limit/)  1680
+
+- [Official](https://leetcode.com/problems/construct-string-with-repeat-limit/editorial/)
+- [Official](https://leetcode.cn/problems/construct-string-with-repeat-limit/solutions/1300982/gou-zao-xian-zhi-zhong-fu-de-zi-fu-chuan-v02s/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string s and an integer repeatLimit.
+Construct a new string repeatLimitedString using the characters of s
+such that no letter appears more than repeatLimit times in a row.
+You do not have to use all characters from s.
+
+Return the lexicographically largest repeatLimitedString possible.
+
+A string a is lexicographically larger than a string b if in the first position where a and b differ,
+string a has a letter that appears later in the alphabet than the corresponding letter in b.
+If the first min(a.length, b.length) characters do not differ,
+then the longer string is the lexicographically larger one.
+
+Example 1:
+Input: s = "cczazcc", repeatLimit = 3
+Output: "zzcccac"
+Explanation: We use all of the characters from s to construct the repeatLimitedString "zzcccac".
+The letter 'a' appears at most 1 time in a row.
+The letter 'c' appears at most 3 times in a row.
+The letter 'z' appears at most 2 times in a row.
+Hence, no letter appears more than repeatLimit times in a row and the string is a valid repeatLimitedString.
+The string is the lexicographically largest repeatLimitedString possible so we return "zzcccac".
+Note that the string "zzcccca" is lexicographically larger but the letter 'c' appears more than 3 times in a row,
+so it is not a valid repeatLimitedString.
+
+Example 2:
+Input: s = "aababab", repeatLimit = 2
+Output: "bbabaa"
+Explanation: We use only some of the characters from s to construct the repeatLimitedString "bbabaa".
+The letter 'a' appears at most 2 times in a row.
+The letter 'b' appears at most 2 times in a row.
+Hence, no letter appears more than repeatLimit times in a row and the string is a valid repeatLimitedString.
+The string is the lexicographically largest repeatLimitedString possible so we return "bbabaa".
+Note that the string "bbabaaa" is lexicographically larger but the letter 'a' appears more than 2 times in a row,
+so it is not a valid repeatLimitedString.
+
+Constraints:
+1 <= repeatLimit <= s.length <= 10^5
+s consists of lowercase English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Start constructing the string in descending order of characters.
+2. When repeatLimit is reached, pick the next largest character.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#ifndef HEAP_H
+#define HEAP_H
+
+void swap(int* x, int* y) {
+    int temp = *x;
+    *x = *y;
+    *y = temp;
+}
+typedef struct {
+    int* data;     // Array to store the heap elements
+    int size;      // Current size of the heap
+    int capacity;  // Maximum capacity of the heap
+} MaxHeap;
+MaxHeap* createMaxHeap(int capacity) {
+    MaxHeap* pObj = NULL;
+
+    pObj = (MaxHeap*)malloc(sizeof(MaxHeap));
+    if (pObj == NULL) {
+        perror("malloc");
+        return pObj;
+    }
+
+    pObj->data = (int*)malloc(capacity * sizeof(int));
+    if (pObj == NULL) {
+        perror("malloc");
+        free(pObj);
+        pObj = NULL;
+        return pObj;
+    }
+    pObj->size = 0;
+    pObj->capacity = capacity;
+
+    return pObj;
+}
+void heapifyMaxHeap(MaxHeap* pObj, int index) {
+    int biggest = index;
+    int left = 2 * index + 1;
+    int right = 2 * index + 2;
+
+    // Function to heapify the heap starting from the given index
+    if ((left < pObj->size) && (pObj->data[left] > pObj->data[biggest])) {
+        biggest = left;
+    }
+
+    if ((right < pObj->size) && (pObj->data[right] > pObj->data[biggest])) {
+        biggest = right;
+    }
+
+    if (biggest != index) {
+        swap(&pObj->data[index], &pObj->data[biggest]);
+        heapifyMaxHeap(pObj, biggest);
+    }
+}
+void pushMaxHeap(MaxHeap* pObj, int value) {
+    if (pObj->size == pObj->capacity) {
+        printf("Heap is full. Cannot insert more elements.\n");
+        return;
+    }
+
+    int index = pObj->size++;
+    pObj->data[index] = value;
+
+    // Fix the max heap property by comparing the value with its parent
+    while ((index != 0) && (pObj->data[(index - 1) / 2] < pObj->data[index])) {
+        swap(&pObj->data[(index - 1) / 2], &pObj->data[index]);
+        index = (index - 1) / 2;
+    }
+}
+int popMaxHeap(MaxHeap* pObj) {
+    int retVal = -1;
+
+    if (pObj->size == 0) {
+        printf("Heap is empty. Cannot remove elements.\n");
+        return retVal;
+    }
+
+    retVal = pObj->data[0];
+    pObj->data[0] = pObj->data[pObj->size - 1];
+    pObj->size--;
+    heapifyMaxHeap(pObj, 0);
+
+    return retVal;
+}
+void printMaxHeap(MaxHeap* pObj) {
+    printf("Max Heap: ");
+    for (int i = 0; i < pObj->size; i++) {
+        printf("%d ", pObj->data[i]);
+    }
+    printf("\n");
+}
+void freeMaxHeap(MaxHeap* pObj) {
+    free(pObj->data);
+    pObj->data = NULL;
+    free(pObj);
+    pObj = NULL;
+}
+
+#endif  // HEAP_H
+char* repeatLimitedString(char* s, int repeatLimit) {
+    char* pRetVal = NULL;
+
+    int sSize = strlen(s);
+    int i;
+
+    int returnSize = sSize + 1;
+    pRetVal = (char*)calloc(returnSize, sizeof(char));
+    if (pRetVal == NULL) {
+        perror("calloc");
+        return pRetVal;
+    }
+
+    int frequencySize = 26;  // s consists of lowercase English letters.
+    int frequency[frequencySize];
+    memset(frequency, 0, sizeof(frequency));
+    for (i = 0; i < sSize; ++i) {
+        frequency[s[i] - 'a']++;
+    }
+
+    MaxHeap* pMaxHeap = createMaxHeap(frequencySize);
+    if (pMaxHeap == NULL) {
+        return pRetVal;
+    }
+    for (i = 0; i < frequencySize; ++i) {
+        if (frequency[i] != 0) {
+            pushMaxHeap(pMaxHeap, i);
+        }
+    }
+
+    returnSize = 0;
+    int charInt, nextCharInt;
+    int count, use;
+    while (pMaxHeap->size > 0) {
+        charInt = popMaxHeap(pMaxHeap);
+
+        count = frequency[charInt];
+        use = fmin(count, repeatLimit);
+        for (i = 0; i < use; ++i) {
+            pRetVal[returnSize++] = charInt + 'a';
+        }
+        frequency[charInt] -= use;
+        if ((frequency[charInt] > 0) && (pMaxHeap->size > 0)) {
+            nextCharInt = popMaxHeap(pMaxHeap);
+
+            pRetVal[returnSize++] = nextCharInt + 'a';
+            frequency[nextCharInt]--;
+            if (frequency[nextCharInt] > 0) {
+                pushMaxHeap(pMaxHeap, nextCharInt);
+            }
+
+            pushMaxHeap(pMaxHeap, charInt);
+        }
+    }
+
+    //
+    freeMaxHeap(pMaxHeap);
+    pMaxHeap = NULL;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    string repeatLimitedString(string s, int repeatLimit) {
+        string retVal;
+
+        unordered_map<char, int> frequency;
+        for (char ch : s) {
+            frequency[ch]++;
+        }
+
+        priority_queue<char> maxHeap;
+        for (auto& [ch, count] : frequency) {
+            maxHeap.push(ch);
+        }
+
+        while (maxHeap.empty() == false) {
+            char ch = maxHeap.top();
+            maxHeap.pop();
+
+            int count = frequency[ch];
+            int use = min(count, repeatLimit);
+            retVal.append(use, ch);
+            frequency[ch] -= use;
+            if ((frequency[ch] > 0) && (maxHeap.empty() == false)) {
+                char nextCh = maxHeap.top();
+                maxHeap.pop();
+
+                retVal.push_back(nextCh);
+                frequency[nextCh]--;
+                if (frequency[nextCh] > 0) {
+                    maxHeap.push(nextCh);
+                }
+
+                maxHeap.push(ch);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def repeatLimitedString(self, s: str, repeatLimit: int) -> str:
+        retVal = ""
+
+        frequency = Counter(s)
+        maxHeap = []
+        for char, count in frequency.items():
+            maxHeap.append((-ord(char), count))
+        heapify(maxHeap)
+
+        while maxHeap:
+            char, count = heappop(maxHeap)
+            char = chr(-char)
+            use = min(count, repeatLimit)
+            retVal += (char * use)
+
+            if (count > use) and maxHeap:
+                nextChar, nextCount = heappop(maxHeap)
+                retVal += chr(-nextChar)
+                if nextCount > 1:
+                    heappush(maxHeap, (nextChar, nextCount - 1))
+                heappush(maxHeap, (-ord(char), count - use))
+
+        return retVal
+```
+
+</details>
+
 ## [2244. Minimum Rounds to Complete All Tasks](https://leetcode.com/problems/minimum-rounds-to-complete-all-tasks/)  1371
 
 <details><summary>Description</summary>
