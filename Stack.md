@@ -5660,6 +5660,153 @@ class Solution:
 
 </details>
 
+## [1475. Final Prices With a Special Discount in a Shop](https://leetcode.com/problems/final-prices-with-a-special-discount-in-a-shop/)  1212
+
+- [Official](https://leetcode.com/problems/final-prices-with-a-special-discount-in-a-shop/editorial/)
+- [Official](https://leetcode.cn/problems/final-prices-with-a-special-discount-in-a-shop/solutions/1788169/shang-pin-zhe-kou-hou-de-zui-zhong-jie-g-ind3/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array prices where prices[i] is the price of the ith item in a shop.
+
+There is a special discount for items in the shop.
+If you buy the ith item, then you will receive a discount equivalent to prices[j]
+where j is the minimum index such that j > i and prices[j] <= prices[i].
+Otherwise, you will not receive any discount at all.
+
+Return an integer array answer where answer[i] is the final price you will pay for the ith item of the shop,
+considering the special discount.
+
+Example 1:
+Input: prices = [8,4,6,2,3]
+Output: [4,2,4,2,3]
+Explanation:
+For item 0 with price[0]=8 you will receive a discount equivalent to prices[1]=4,
+therefore, the final price you will pay is 8 - 4 = 4.
+For item 1 with price[1]=4 you will receive a discount equivalent to prices[3]=2,
+therefore, the final price you will pay is 4 - 2 = 2.
+For item 2 with price[2]=6 you will receive a discount equivalent to prices[3]=2,
+therefore, the final price you will pay is 6 - 2 = 4.
+For items 3 and 4 you will not receive any discount at all.
+
+Example 2:
+Input: prices = [1,2,3,4,5]
+Output: [1,2,3,4,5]
+Explanation: In this case, for all items, you will not receive any discount at all.
+
+Example 3:
+Input: prices = [10,1,1,6]
+Output: [9,0,1,6]
+
+Constraints:
+1 <= prices.length <= 500
+1 <= prices[i] <= 1000
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use brute force: For the ith item in the shop with a loop find the first position j satisfying the conditions
+   and apply the discount, otherwise, the discount is 0.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *finalPrices(int *prices, int pricesSize, int *returnSize) {
+    int *pRetVal = NULL;
+
+    (*returnSize) = 0;
+    pRetVal = (int *)malloc(pricesSize * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (pricesSize * sizeof(int)));
+    memcpy(pRetVal, prices, (pricesSize * sizeof(int)));
+    (*returnSize) = pricesSize;
+
+    int monotonicStackTop = -1;
+    int monotonicStack[pricesSize];
+    memset(monotonicStack, 0, sizeof(monotonicStack));
+    for (int i = 0; i < pricesSize; ++i) {
+        // Process items that can be discounted by current price
+        while ((monotonicStackTop != -1) && (prices[monotonicStack[monotonicStackTop]] >= prices[i])) {
+            // Apply discount to previous item using current price
+            pRetVal[monotonicStack[monotonicStackTop]] -= prices[i];
+            monotonicStack[monotonicStackTop--] = 0;
+        }
+
+        // Add current index to monotonicStack
+        monotonicStack[++monotonicStackTop] = i;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> finalPrices(vector<int>& prices) {
+        vector<int> retVal = prices;
+
+        stack<int> monotonicStack;
+        int pricesSize = prices.size();
+        for (int i = 0; i < pricesSize; ++i) {
+            // Process items that can be discounted by current price
+            while ((monotonicStack.empty() == false) && (prices[monotonicStack.top()] >= prices[i])) {
+                // Apply discount to previous item using current price
+                retVal[monotonicStack.top()] -= prices[i];
+                monotonicStack.pop();
+            }
+
+            // Add current index to monotonicStack
+            monotonicStack.push(i);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def finalPrices(self, prices: List[int]) -> List[int]:
+        retVal = prices
+
+        monotonicStack = deque()
+        priceSize = len(prices)
+        for i in range(priceSize):
+            # Process items that can be discounted by current price
+            while monotonicStack and (prices[monotonicStack[-1]] >= prices[i]):
+                # Apply discount to previous item using current price
+                retVal[monotonicStack.pop()] -= prices[i]
+
+            # Add current index to monotonicStack
+            monotonicStack.append(i)
+
+        return retVal
+```
+
+</details>
+
 ## [1544. Make The String Great](https://leetcode.com/problems/make-the-string-great/)  1344
 
 - [Official](https://leetcode.cn/problems/make-the-string-great/solutions/382513/zheng-li-zi-fu-chuan-by-leetcode-solution/)
