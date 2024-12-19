@@ -2236,6 +2236,119 @@ class Solution:
 
 </details>
 
+## [769. Max Chunks To Make Sorted](https://leetcode.com/problems/max-chunks-to-make-sorted/)  1566
+
+- [Official](https://leetcode.com/problems/max-chunks-to-make-sorted/editorial/)
+- [Official](https://leetcode.cn/problems/max-chunks-to-make-sorted/solutions/1886333/zui-duo-neng-wan-cheng-pai-xu-de-kuai-by-gc4k/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array arr of length n that represents a permutation of the integers in the range [0, n - 1].
+
+We split arr into some number of chunks (i.e., partitions), and individually sort each chunk.
+After concatenating them, the result should equal the sorted array.
+
+Return the largest number of chunks we can make to sort the array.
+
+Example 1:
+Input: arr = [4,3,2,1,0]
+Output: 1
+Explanation:
+Splitting into two or more chunks will not return the required result.
+For example, splitting into [4, 3], [2, 1, 0] will result in [3, 4, 0, 1, 2], which isn't sorted.
+
+Example 2:
+Input: arr = [1,0,2,3,4]
+Output: 4
+Explanation:
+We can split into two chunks, such as [1, 0], [2, 3, 4].
+However, splitting into [1, 0], [2], [3], [4] is the highest number of chunks possible.
+
+Constraints:
+n == arr.length
+1 <= n <= 10
+0 <= arr[i] < n
+All the elements of arr are unique.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. The first chunk can be found as the smallest k for which A[:k+1] == [0, 1, 2, ...k]; then we repeat this process.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int maxChunksToSorted(int* arr, int arrSize) {
+    int retVal = 0;
+
+    int maxElement = 0;
+    int i;
+    for (i = 0; i < arrSize; i++) {
+        maxElement = fmax(maxElement, arr[i]);
+        // All values in range [0, i] belong to the prefix arr[0:i]; a new chunk can be formed
+        if (maxElement == i) {
+            retVal++;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maxChunksToSorted(vector<int>& arr) {
+        int retVal = 0;
+
+        int arrSize = arr.size();
+        int maxElement = 0;
+        for (int i = 0; i < arrSize; i++) {
+            maxElement = max(maxElement, arr[i]);
+            // All values in range [0, i] belong to the prefix arr[0:i]; a new chunk can be formed
+            if (maxElement == i) {
+                retVal++;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxChunksToSorted(self, arr: List[int]) -> int:
+        retVal = 0
+
+        arrSize = len(arr)
+        maxElement = 0
+        for i in range(arrSize):
+            maxElement = max(maxElement, arr[i])
+            # All values in range [0, i] belong to the prefix arr[0:i]; a chunk can be formed
+            if maxElement == i:
+                retVal += 1
+
+        return retVal
+```
+
+</details>
+
 ## [826. Most Profit Assigning Work](https://leetcode.com/problems/most-profit-assigning-work/)  1708
 
 - [Official](https://leetcode.cn/problems/most-profit-assigning-work/solutions/22424/an-pai-gong-zuo-yi-da-dao-zui-da-shou-yi-by-leetco/)
