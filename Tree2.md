@@ -4316,6 +4316,246 @@ class Solution:
 
 </details>
 
+## [2415. Reverse Odd Levels of Binary Tree](https://leetcode.com/problems/reverse-odd-levels-of-binary-tree/)  1431
+
+- [Official](https://leetcode.com/problems/reverse-odd-levels-of-binary-tree/editorial/)
+- [Official](https://leetcode.cn/problems/reverse-odd-levels-of-binary-tree/solutions/2562073/fan-zhuan-er-cha-shu-de-qi-shu-ceng-by-l-n034/)
+
+<details><summary>Description</summary>
+
+```text
+Given the root of a perfect binary tree, reverse the node values at each odd level of the tree.
+- For example, suppose the node values at level 3 are [2,1,3,4,7,11,29,18], then it should become [18,29,11,7,4,3,1,2].
+
+Return the root of the reversed tree.
+
+A binary tree is perfect if all parent nodes have two children and all leaves are on the same level.
+The level of a node is the number of edges along the path between it and the root node.
+
+Example 1:
+     2              2
+   /   \          /   \
+  3     5        5     3
+ /\     /\      /\     /\
+8  13 21  34   8  13 21  34
+Input: root = [2,3,5,8,13,21,34]
+Output: [2,5,3,8,13,21,34]
+Explanation:
+The tree has only one odd level.
+The nodes at level 1 are 3, 5 respectively, which are reversed and become 5, 3.
+
+Example 2:
+   7         7
+  / \       / \
+13   11   11   13
+Input: root = [7,13,11]
+Output: [7,11,13]
+Explanation:
+The nodes at level 1 are 13, 11, which are reversed and become 11, 13.
+
+Example 3:
+Input: root = [0,1,2,0,0,0,0,1,1,1,1,2,2,2,2]
+Output: [0,2,1,0,0,0,0,2,2,2,2,1,1,1,1]
+Explanation:
+The odd levels have non-zero values.
+The nodes at level 1 were 1, 2, and are 2, 1 after the reversal.
+The nodes at level 3 were 1, 1, 1, 1, 2, 2, 2, 2, and are 2, 2, 2, 2, 1, 1, 1, 1 after the reversal.
+
+Constraints:
+The number of nodes in the tree is in the range [1, 2^14].
+0 <= Node.val <= 10^5
+root is a perfect binary tree.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Try to solve recursively for each level independently.
+2. While performing a depth-first search, pass the left and right nodes (which should be paired) to the next level.
+   If the current level is odd, then reverse their values, or else recursively move to the next level.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+struct TreeNode* reverseOddLevels(struct TreeNode* root) {
+    struct TreeNode* pRetVal = root;
+
+    if (pRetVal == NULL) {
+        return pRetVal;
+    }
+
+    int bfsQueueSize = 1 << 14;  // The number of nodes in the tree is in the range [1, 2^14].
+    struct TreeNode* bfsQueue[bfsQueueSize];
+    int bfsQueueHead = 0;
+    int bfsQueueTail = 0;
+    bfsQueue[bfsQueueTail++] = pRetVal;
+
+    int left, right, temp;
+    struct TreeNode* pNode;
+    int currentLevelNodesSize;
+    int level = 0;
+    while (bfsQueueTail > bfsQueueHead) {
+        currentLevelNodesSize = bfsQueueTail - bfsQueueHead;
+        struct TreeNode* currentLevelNodes[currentLevelNodesSize];
+        for (int i = 0; i < currentLevelNodesSize; i++) {
+            pNode = bfsQueue[bfsQueueHead++];
+
+            currentLevelNodes[i] = pNode;
+            if (pNode->left) {
+                bfsQueue[bfsQueueTail++] = pNode->left;
+            }
+            if (pNode->right) {
+                bfsQueue[bfsQueueTail++] = pNode->right;
+            }
+        }
+
+        if (level % 2 == 1) {
+            left = 0;
+            right = currentLevelNodesSize - 1;
+            while (left < right) {
+                temp = currentLevelNodes[left]->val;
+                currentLevelNodes[left]->val = currentLevelNodes[right]->val;
+                currentLevelNodes[right]->val = temp;
+                left++;
+                right--;
+            }
+        }
+
+        level++;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   public:
+    TreeNode* reverseOddLevels(TreeNode* root) {
+        TreeNode* retVal = root;
+
+        if (retVal == nullptr) {
+            return retVal;
+        }
+
+        queue<TreeNode*> bfsQueue;
+        bfsQueue.push(retVal);
+
+        int level = 0;
+        while (bfsQueue.empty() == false) {
+            vector<TreeNode*> currentLevelNodes;
+            int bfsQueueSize = bfsQueue.size();
+            for (int i = 0; i < bfsQueueSize; i++) {
+                TreeNode* node = bfsQueue.front();
+                bfsQueue.pop();
+
+                currentLevelNodes.push_back(node);
+                if (node->left) {
+                    bfsQueue.push(node->left);
+                }
+                if (node->right) {
+                    bfsQueue.push(node->right);
+                }
+            }
+
+            if (level % 2 == 1) {
+                int left = 0;
+                int right = currentLevelNodes.size() - 1;
+                while (left < right) {
+                    int temp = currentLevelNodes[left]->val;
+                    currentLevelNodes[left]->val = currentLevelNodes[right]->val;
+                    currentLevelNodes[right]->val = temp;
+                    left++;
+                    right--;
+                }
+            }
+
+            level++;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def reverseOddLevels(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        retVal = root
+
+        if not retVal:
+            return retVal
+
+        bfsQueue = [retVal]
+
+        level = 0
+        while bfsQueue:
+            currentLevelNodes = []
+            bfsQueueSize = len(bfsQueue)
+            for _ in range(bfsQueueSize):
+                node = bfsQueue.pop(0)
+
+                currentLevelNodes.append(node)
+                if node.left:
+                    bfsQueue.append(node.left)
+                if node.right:
+                    bfsQueue.append(node.right)
+
+            if level % 2 == 1:
+                left = 0
+                right = len(currentLevelNodes) - 1
+                while left < right:
+                    tmp = currentLevelNodes[left].val
+                    currentLevelNodes[left].val = currentLevelNodes[right].val
+                    currentLevelNodes[right].val = tmp
+                    left += 1
+                    right -= 1
+
+            level += 1
+
+        return retVal
+```
+
+</details>
+
 ## [2458. Height of Binary Tree After Subtree Removal Queries](https://leetcode.com/problems/height-of-binary-tree-after-subtree-removal-queries/)  2298
 
 - [Official](https://leetcode.com/problems/height-of-binary-tree-after-subtree-removal-queries/editorial/)
