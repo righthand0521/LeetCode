@@ -5311,3 +5311,266 @@ class Solution:
 ```
 
 </details>
+
+## [2872. Maximum Number of K-Divisible Components](https://leetcode.com/problems/maximum-number-of-k-divisible-components/)  1967
+
+- [Official](https://leetcode.com/problems/maximum-number-of-k-divisible-components/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+There is an undirected tree with n nodes labeled from 0 to n - 1.
+You are given the integer n and a 2D integer array edges of length n - 1,
+where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the tree.
+
+You are also given a 0-indexed integer array values of length n,
+where values[i] is the value associated with the ith node, and an integer k.
+
+A valid split of the tree is obtained by removing any set of edges, possibly empty,
+from the tree such that the resulting components all have values that are divisible by k,
+where the value of a connected component is the sum of the values of its nodes.
+
+Return the maximum number of components in any valid split.
+
+Example 1:
+    1            1
+   / \            \
+  2   3  =>    2   3
+ / \          / \
+4   0        4   0
+Input: n = 5, edges = [[0,2],[1,2],[1,3],[2,4]], values = [1,8,1,4,4], k = 6
+Output: 2
+Explanation: We remove the edge connecting node 1 with 2. The resulting split is valid because:
+- The value of the component containing nodes 1 and 3 is values[1] + values[3] = 12.
+- The value of the component containing nodes 0, 2, and 4 is values[0] + values[2] + values[4] = 6.
+It can be shown that no other valid split has more than 2 connected components.
+
+Example 2:
+     0                0
+   /   \
+  2     1   =>     2     1
+ / \   / \        / \   / \
+6   5 4   3      6   5 4   3
+Input: n = 7, edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]], values = [3,0,6,1,5,2,1], k = 3
+Output: 3
+Explanation: We remove the edge connecting node 0 with 2, and the edge connecting node 0 with 1.
+The resulting split is valid because:
+- The value of the component containing node 0 is values[0] = 3.
+- The value of the component containing nodes 2, 5, and 6 is values[2] + values[5] + values[6] = 9.
+- The value of the component containing nodes 1, 3, and 4 is values[1] + values[3] + values[4] = 6.
+It can be shown that no other valid split has more than 3 connected components.
+
+Constraints:
+1 <= n <= 3 * 10^4
+edges.length == n - 1
+edges[i].length == 2
+0 <= ai, bi < n
+values.length == n
+0 <= values[i] <= 10^9
+1 <= k <= 10^9
+Sum of values is divisible by k.
+The input is generated such that edges represents a valid tree.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Root the tree at node 0.
+2. If a leaf node is not divisible by k,
+   it must be in the same component as its parent node so we merge it with its parent node.
+3. If a leaf node is divisible by k, it will be in its own components so we separate it from its parent node.
+4. In each step, we either cut a leaf node down or merge a leaf node.
+   The number of nodes on the tree reduces by one. Repeat this process until only one node is left.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// https://leetcode.cn/problems/maximum-number-of-k-divisible-components/solutions/2464541/ke-yi-bei-k-zheng-chu-lian-tong-kuai-de-o8jw6/
+struct ChildNode {
+    int child;
+    struct ChildNode* next;
+};
+long long dfs(struct ChildNode** head, int* values, int root, int father, int k, int* result) {
+    long long retVal = values[root];
+
+    long long subSum = 0;
+    struct ChildNode* node = NULL;
+    for (node = head[root]; NULL != node; node = node->next) {
+        if (father != node->child) {
+            subSum = dfs(head, values, node->child, root, k, result);
+            retVal += subSum;
+        }
+    }
+    if (0 == retVal % k) {
+        (*result)++;
+    }
+
+    return retVal;
+}
+int maxKDivisibleComponents(int n, int** edges, int edgesSize, int* edgesColSize, int* values, int valuesSize, int k) {
+    int retVal = 0;
+
+    int buffSize = n << 1;
+    struct ChildNode buff[buffSize];
+    memset(buff, 0, sizeof(buff));
+
+    struct ChildNode* head[n];
+    memset(head, 0, sizeof(head));
+
+    int x = 0, y = 0;
+    for (x = 0; edgesSize > x; x++) {
+        buff[y].child = edges[x][1];
+        buff[y].next = head[edges[x][0]];
+        head[edges[x][0]] = &buff[y];
+        y++;
+
+        buff[y].child = edges[x][0];
+        buff[y].next = head[edges[x][1]];
+        head[edges[x][1]] = &buff[y];
+        y++;
+    }
+
+    int root = 0;
+    dfs(head, values, root, -1, k, &retVal);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maxKDivisibleComponents(int n, vector<vector<int>>& edges, vector<int>& values, int k) {
+        int retVal = 1;
+
+        // Base case: if there are less than 2 nodes, return 1
+        if (n < 2) {
+            return retVal;
+        }
+
+        // Step 1: Build the graph
+        unordered_map<int, unordered_set<int>> graph;
+        for (const auto& edge : edges) {
+            int node1 = edge[0];
+            int node2 = edge[1];
+            graph[node1].insert(node2);
+            graph[node2].insert(node1);
+        }
+
+        // Convert values to long long to prevent overflow
+        vector<long long> longValues(values.begin(), values.end());
+
+        // Step 2: Initialize the BFS queue with leaf nodes (nodes with only one connection)
+        queue<int> bfsQueue;
+        for (const auto& [node, neighbors] : graph) {
+            if (neighbors.size() == 1) {
+                bfsQueue.push(node);
+            }
+        }
+
+        // Step 3: Process nodes in BFS order
+        int componentCount = 0;
+        while (bfsQueue.empty() == false) {
+            int currentNode = bfsQueue.front();
+            bfsQueue.pop();
+
+            // Find the neighbor node
+            int neighborNode = -1;
+            if (graph[currentNode].empty() == false) {
+                neighborNode = *graph[currentNode].begin();
+            }
+
+            // Remove the edge between current and neighbor
+            if (neighborNode >= 0) {
+                graph[neighborNode].erase(currentNode);
+                graph[currentNode].erase(neighborNode);
+            }
+
+            // Check divisibility of the current node's value
+            if (longValues[currentNode] % k == 0) {
+                componentCount++;
+            } else if (neighborNode >= 0) {
+                // Add current node's value to the neighbor
+                longValues[neighborNode] += longValues[currentNode];
+            }
+
+            // If the neighbor becomes a leaf node, add it to the BFS queue
+            int graphNeighborNodeSize = graph[neighborNode].size();
+            if ((neighborNode >= 0) && (graphNeighborNodeSize == 1)) {
+                bfsQueue.push(neighborNode);
+            }
+        }
+
+        retVal = componentCount;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxKDivisibleComponents(self, n: int, edges: List[List[int]], values: List[int], k: int) -> int:
+        retVal = 1
+
+        # Base case: if there are less than 2 nodes, return 1
+        if n < 2:
+            return retVal
+
+        # Step 1: Build the graph
+        graph = defaultdict(set)
+        for node1, node2 in edges:
+            graph[node1].add(node2)
+            graph[node2].add(node1)
+
+        # Step 2: Initialize the BFS queue with leaf nodes (nodes with only one connection)
+        nodes = []
+        for node, neighbors in graph.items():
+            if len(neighbors) == 1:
+                nodes.append(node)
+        bfsQueue = deque(nodes)
+
+        # Step 3: Process nodes in BFS order
+        componentCount = 0
+        while bfsQueue:
+            currentNode = bfsQueue.popleft()
+
+            # Find the neighbor node
+            neighborNode = -1
+            if graph[currentNode]:
+                neighborNode = next(iter(graph[currentNode]))
+
+            # Remove the edge between current and neighbor
+            if neighborNode >= 0:
+                graph[neighborNode].remove(currentNode)
+
+            # Check divisibility of the current node's value
+            if values[currentNode] % k == 0:
+                componentCount += 1
+            else:
+                # Add current node's value to the neighbor
+                values[neighborNode] += values[currentNode]
+
+            # If the neighbor becomes a leaf node, add it to the BFS queue
+            if (neighborNode >= 0) and (len(graph[neighborNode]) == 1):
+                bfsQueue.append(neighborNode)
+
+        retVal = componentCount
+
+        return retVal
+```
+
+</details>
