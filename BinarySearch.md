@@ -7452,3 +7452,308 @@ class Solution:
 ```
 
 </details>
+
+## [2940. Find Building Where Alice and Bob Can Meet](https://leetcode.com/problems/find-building-where-alice-and-bob-can-meet/)  2327
+
+- [Official](https://leetcode.com/problems/find-building-where-alice-and-bob-can-meet/editorial/)
+- [Official](https://leetcode.cn/problems/find-building-where-alice-and-bob-can-meet/solutions/2872957/zhao-dao-alice-he-bob-ke-yi-xiang-yu-de-x5i0t/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed array heights of positive integers,
+where heights[i] represents the height of the ith building.
+
+If a person is in building i, they can move to any other building j if and only if i < j and heights[i] < heights[j].
+
+You are also given another array queries where queries[i] = [ai, bi].
+On the ith query, Alice is in building ai while Bob is in building bi.
+
+Return an array ans where ans[i] is the index of the leftmost building where Alice and Bob can meet on the ith query.
+If Alice and Bob cannot move to a common building on query i, set ans[i] to -1.
+
+Example 1:
+Input: heights = [6,4,8,5,2,7], queries = [[0,1],[0,3],[2,4],[3,4],[2,2]]
+Output: [2,5,-1,5,2]
+Explanation:
+In the first query, Alice and Bob can move to building 2 since heights[0] < heights[2] and heights[1] < heights[2].
+In the second query, Alice and Bob can move to building 5 since heights[0] < heights[5] and heights[3] < heights[5].
+In the third query, Alice cannot meet Bob since Alice cannot move to any other building.
+In the fourth query, Alice and Bob can move to building 5 since heights[3] < heights[5] and heights[4] < heights[5].
+In the fifth query, Alice and Bob are already in the same building.
+For ans[i] != -1, It can be shown that ans[i] is the leftmost building where Alice and Bob can meet.
+For ans[i] == -1, It can be shown that there is no building where Alice and Bob can meet.
+
+Example 2:
+Input: heights = [5,3,8,2,6,1,4,6], queries = [[0,7],[3,5],[5,2],[3,0],[1,6]]
+Output: [7,6,-1,4,6]
+Explanation:
+In the first query, Alice can directly move to Bob's building since heights[0] < heights[7].
+In the second query, Alice and Bob can move to building 6 since heights[3] < heights[6] and heights[5] < heights[6].
+In the third query, Alice cannot meet Bob since Bob cannot move to any other building.
+In the fourth query, Alice and Bob can move to building 4 since heights[3] < heights[4] and heights[0] < heights[4].
+In the fifth query, Alice can directly move to Bob's building since heights[1] < heights[6].
+For ans[i] != -1, It can be shown that ans[i] is the leftmost building where Alice and Bob can meet.
+For ans[i] == -1, It can be shown that there is no building where Alice and Bob can meet.
+
+Constraints:
+1 <= heights.length <= 5 * 10^4
+1 <= heights[i] <= 10^9
+1 <= queries.length <= 5 * 10^4
+queries[i] = [ai, bi]
+0 <= ai, bi <= heights.length - 1
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. For each query [x, y], if x > y, swap x and y. Now, we can assume that x <= y.
+2. For each query [x, y], if x == y or heights[x] < heights[y], then the answer is y since x ≤ y.
+3. Otherwise, we need to find the smallest index t such that y < t and heights[x] < heights[t].
+   Note that heights[y] <= heights[x], so heights[x] < heights[t] is a sufficient condition.
+4. To find index t for each query, sort the queries in descending order of y.
+   Iterate over the queries while maintaining a monotonic stack which we can binary search over to find index t.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+void swap(int* a, int* b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* leftmostBuildingQueries(int* heights, int heightsSize, int** queries, int queriesSize, int* queriesColSize,
+                             int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    //
+    pRetVal = (int*)malloc(queriesSize * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (queriesSize * sizeof(int)));
+    (*returnSize) = queriesSize;
+
+    //
+    int querySize[heightsSize];
+    memset(querySize, 0, sizeof(querySize));
+    for (int i = 0; i < queriesSize; i++) {
+        int a = queries[i][0];
+        int b = queries[i][1];
+        if (a > b) {
+            swap(&a, &b);
+        }
+
+        if ((a == b) || (heights[a] < heights[b])) {
+            pRetVal[i] = b;
+            continue;
+        }
+
+        querySize[b]++;
+    }
+
+    //
+    struct Pair {
+        int first;
+        int second;
+    };
+    struct Pair* newQueries[heightsSize];
+    for (int i = 0; i < heightsSize; i++) {
+        newQueries[i] = (struct Pair*)malloc(querySize[i] * sizeof(struct Pair));
+    }
+    int newQueriesIdx[heightsSize];
+    memset(newQueriesIdx, 0, sizeof(newQueriesIdx));
+    for (int i = 0; i < queriesSize; i++) {
+        int a = queries[i][0];
+        int b = queries[i][1];
+        if (a > b) {
+            swap(&a, &b);
+        }
+
+        if (!((a == b) || (heights[a] < heights[b]))) {
+            newQueries[b][newQueriesIdx[b]].first = i;
+            newQueries[b][newQueriesIdx[b]].second = heights[a];
+            newQueriesIdx[b]++;
+        }
+    }
+
+    //
+    int monoStackTop = -1;
+    int* monoStack = (int*)malloc(heightsSize * sizeof(int));
+    for (int i = heightsSize - 1; i >= 0; i--) {
+        for (int j = 0; j < querySize[i]; j++) {
+            int q = newQueries[i][j].first;
+            int val = newQueries[i][j].second;
+            if ((monoStackTop == -1) || (heights[monoStack[0]] <= val)) {
+                pRetVal[q] = -1;
+                continue;
+            }
+
+            int left = 0;
+            int right = monoStackTop;
+            while (left <= right) {
+                int middle = (left + right) / 2;
+                if (heights[monoStack[middle]] > val) {
+                    left = middle + 1;
+                } else {
+                    right = middle - 1;
+                }
+            }
+            pRetVal[q] = monoStack[right];
+        }
+
+        while ((monoStackTop >= 0) && (heights[monoStack[monoStackTop]] <= heights[i])) {
+            monoStackTop--;
+        }
+
+        monoStack[++monoStackTop] = i;
+    }
+
+    //
+    free(monoStack);
+    for (int i = 0; i < heightsSize; i++) {
+        free(newQueries[i]);
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int search(int height, vector<pair<int, int>>& monoStack) {
+        int retVal = -1;
+
+        int left = 0;
+        int right = monoStack.size() - 1;
+        while (left <= right) {
+            int middle = (left + right) / 2;
+            if (monoStack[middle].first > height) {
+                retVal = max(retVal, middle);
+                left = middle + 1;
+            } else {
+                right = middle - 1;
+            }
+        }
+
+        return retVal;
+    }
+
+   public:
+    vector<int> leftmostBuildingQueries(vector<int>& heights, vector<vector<int>>& queries) {
+        vector<int> retVal;
+
+        int queriesSize = queries.size();
+        retVal.assign(queriesSize, -1);
+
+        int heightsSize = heights.size();
+        vector<vector<pair<int, int>>> newQueries(heightsSize);
+
+        for (int i = 0; i < queriesSize; i++) {
+            int a = queries[i][0];
+            int b = queries[i][1];
+            if (a > b) {
+                swap(a, b);
+            }
+
+            if ((heights[b] > heights[a]) || (a == b)) {
+                retVal[i] = b;
+            } else {
+                newQueries[b].push_back({heights[a], i});
+            }
+        }
+
+        vector<pair<int, int>> monoStack;
+        for (int i = heightsSize - 1; i >= 0; i--) {
+            int monoStackSize = monoStack.size();
+            for (auto& [a, b] : newQueries[i]) {
+                int position = search(a, monoStack);
+                if ((position < monoStackSize) && (position >= 0)) {
+                    retVal[b] = monoStack[position].second;
+                }
+            }
+
+            while ((monoStack.empty() == false) && (monoStack.back().first <= heights[i])) {
+                monoStack.pop_back();
+            }
+            monoStack.push_back({heights[i], i});
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def search(self, height, monoStack):
+        retVal = -1
+
+        left = 0
+        right = len(monoStack) - 1
+        while left <= right:
+            middle = (left + right) // 2
+            if monoStack[middle][0] > height:
+                retVal = max(retVal, middle)
+                left = middle + 1
+            else:
+                right = middle - 1
+
+        return retVal
+
+    def leftmostBuildingQueries(self, heights: List[int], queries: List[List[int]]) -> List[int]:
+        retVal = []
+
+        queriesSize = len(queries)
+        retVal = [-1 for _ in range(queriesSize)]
+
+        heightsSize = len(heights)
+        newQueries = [[] for _ in range(heightsSize)]
+
+        for i in range(queriesSize):
+            a = queries[i][0]
+            b = queries[i][1]
+            if a > b:
+                a, b = b, a
+
+            if (heights[b] > heights[a]) or (a == b):
+                retVal[i] = b
+            else:
+                newQueries[b].append((heights[a], i))
+
+        monoStack = []
+        for i in range(heightsSize - 1, -1, -1):
+            monoStackSize = len(monoStack)
+            for a, b in newQueries[i]:
+                position = self.search(a, monoStack)
+                if (position < monoStackSize) and (position >= 0):
+                    retVal[b] = monoStack[position][1]
+
+            while monoStack and (monoStack[-1][0] <= heights[i]):
+                monoStack.pop()
+            monoStack.append((heights[i], i))
+
+        return retVal
+```
+
+</details>
