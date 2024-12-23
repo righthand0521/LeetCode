@@ -4823,6 +4823,287 @@ class Solution:
 
 </details>
 
+## [2471. Minimum Number of Operations to Sort a Binary Tree by Level](https://leetcode.com/problems/minimum-number-of-operations-to-sort-a-binary-tree-by-level/)  1635
+
+- [Official](https://leetcode.com/problems/minimum-number-of-operations-to-sort-a-binary-tree-by-level/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given the root of a binary tree with unique values.
+
+In one operation, you can choose any two nodes at the same level and swap their values.
+
+Return the minimum number of operations needed to make the values at each level sorted in a strictly increasing order.
+
+The level of a node is the number of edges along the path between it and the root node.
+
+Example 1:
+      1
+   /     \
+  4       3
+ / \     / \
+7   6   8   5
+       /   /
+      9  10
+Input: root = [1,4,3,7,6,8,5,null,null,null,null,9,null,10]
+Output: 3
+Explanation:
+- Swap 4 and 3. The 2nd level becomes [3,4].
+- Swap 7 and 5. The 3rd level becomes [5,6,8,7].
+- Swap 8 and 7. The 3rd level becomes [5,6,7,8].
+We used 3 operations so return 3.
+It can be proven that 3 is the minimum number of operations needed.
+
+Example 2:
+     1
+   /   \
+  2     3
+ / \   / \
+7   6 5   4
+Input: root = [1,3,2,7,6,5,4]
+Output: 3
+Explanation:
+- Swap 3 and 2. The 2nd level becomes [2,3].
+- Swap 7 and 4. The 3rd level becomes [4,6,5,7].
+- Swap 6 and 5. The 3rd level becomes [4,5,6,7].
+We used 3 operations so return 3.
+It can be proven that 3 is the minimum number of operations needed.
+
+Example 3:
+     1
+   /   \
+  2     3
+ / \   /
+4   5 6
+Input: root = [1,2,3,4,5,6]
+Output: 0
+Explanation: Each level is already sorted in increasing order so return 0.
+
+Constraints:
+The number of nodes in the tree is in the range [1, 10^5].
+1 <= Node.val <= 10^5
+All the values of the tree are unique.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. We can group the values level by level and solve each group independently.
+2. Do BFS to group the value level by level.
+3. Find the minimum number of swaps to sort the array of each level.
+4. While iterating over the array, check the current element, and if not in the correct index,
+   replace that element with the index of the element which should have come.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareLongLong(const void* n1, const void* n2) {
+    // ascending order
+    return (*(long long*)n1 > *(long long*)n2);
+}
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+int minimumOperations(struct TreeNode* root) {
+    int retVal = 0;
+
+    const int MAX_NODE_SIZE = (1e5);  // The number of nodes in the tree is in the range [1, 10^5].
+    const int SHIFT = 20;
+    const int MASK = 0xFFFFF;
+
+    // Process tree level by level using BFS
+    int bfsQueueHead = 0;
+    int bfsQueueTail = 0;
+    struct TreeNode* bfsQueue[MAX_NODE_SIZE];
+    bfsQueue[bfsQueueTail++] = root;
+
+    int tmp;
+    int origPos;
+    struct TreeNode* pTmp;
+    long long* pNodes = NULL;
+    int levelSize;
+    while (bfsQueueTail > bfsQueueHead) {
+        levelSize = bfsQueueTail - bfsQueueHead;
+        pNodes = (long long*)calloc(levelSize, sizeof(long long));
+        if (pNodes == NULL) {
+            perror("calloc");
+            return retVal;
+        }
+
+        // Store node values with encoded positions
+        for (int i = 0; i < levelSize; i++) {
+            pTmp = bfsQueue[bfsQueueHead++];
+
+            // Encode value and index: high 20 bits = value, low 20 bits = index
+            pNodes[i] = ((long long)(pTmp->val) << SHIFT) + i;
+
+            if (pTmp->left != NULL) {
+                bfsQueue[bfsQueueTail++] = pTmp->left;
+            }
+            if (pTmp->right != NULL) {
+                bfsQueue[bfsQueueTail++] = pTmp->right;
+            }
+        }
+
+        // Sort nodes by their values (high 20 bits)
+        qsort(pNodes, levelSize, sizeof(long long), compareLongLong);
+
+        // Count swaps needed to match indices with original positions
+        for (int i = 0; i < levelSize; i++) {
+            origPos = (int)(pNodes[i] & MASK);
+            if (origPos != i) {
+                // Swap nodes and decrement i to recheck current position
+                tmp = pNodes[i];
+                pNodes[i] = pNodes[origPos];
+                pNodes[origPos] = tmp;
+
+                retVal++;
+                i--;
+            }
+        }
+
+        //
+        free(pNodes);
+        pNodes = NULL;
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   private:
+    const int SHIFT = 20;
+    const int MASK = 0xFFFFF;
+
+   public:
+    int minimumOperations(TreeNode* root) {
+        int retVal = 0;
+
+        // Process tree level by level using BFS
+        queue<TreeNode*> queue;
+        queue.push(root);
+        while (queue.empty() == false) {
+            int levelSize = queue.size();
+            vector<long long> nodes(levelSize);
+
+            // Store node values with encoded positions
+            for (int i = 0; i < levelSize; i++) {
+                TreeNode* node = queue.front();
+                queue.pop();
+                // Encode value and index: high 20 bits = value, low 20 bits = index
+                nodes[i] = (static_cast<long long>(node->val) << SHIFT) + i;
+
+                if (node->left != nullptr) {
+                    queue.push(node->left);
+                }
+                if (node->right != nullptr) {
+                    queue.push(node->right);
+                }
+            }
+
+            // Sort nodes by their values (high 20 bits)
+            sort(nodes.begin(), nodes.end());
+
+            // Count swaps needed to match indices with original positions
+            for (int i = 0; i < levelSize; i++) {
+                int origPos = static_cast<int>(nodes[i] & MASK);
+                if (origPos != i) {
+                    // Swap nodes and decrement i to recheck current position
+                    swap(nodes[i], nodes[origPos]);
+                    retVal++;
+                    i--;
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def __init__(self) -> None:
+        self.shift = 20
+        self.mask = 0xFFFFF
+
+    def minimumOperations(self, root: Optional[TreeNode]) -> int:
+        retVal = 0
+
+        # Process tree level by level using BFS
+        queue = deque([root])
+        while queue:
+            level_size = len(queue)
+            nodes = []
+
+            # Store node values with encoded positions
+            for i in range(level_size):
+                node = queue.popleft()
+                # Encode value and index: high 20 bits = value, low 20 bits = index
+                nodes.append((node.val << self.shift) + i)
+
+                if node.left:
+                    queue.append(node.left)
+                if node.right:
+                    queue.append(node.right)
+
+            # Sort nodes by their values (high 20 bits)
+            nodes.sort()
+
+            # Count swaps needed to match indices with original positions
+            i = 0
+            while i < level_size:
+                origPos = nodes[i] & self.mask
+                if origPos != i:
+                    # Swap nodes and decrement i to recheck current position
+                    nodes[i], nodes[origPos] = nodes[origPos], nodes[i]
+                    retVal += 1
+                    i -= 1
+                i += 1
+
+        return retVal
+```
+
+</details>
+
 ## [2583. Kth Largest Sum in a Binary Tree](https://leetcode.com/problems/kth-largest-sum-in-a-binary-tree/)  1374
 
 - [Official](https://leetcode.com/problems/kth-largest-sum-in-a-binary-tree/editorial/)
