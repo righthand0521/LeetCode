@@ -6324,6 +6324,353 @@ class Solution:
 
 </details>
 
+## [3203. Find Minimum Diameter After Merging Two Trees](https://leetcode.com/problems/find-minimum-diameter-after-merging-two-trees/)  2266
+
+- [Official](https://leetcode.com/problems/find-minimum-diameter-after-merging-two-trees/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+There exist two undirected trees with n and m nodes, numbered from 0 to n - 1 and from 0 to m - 1, respectively.
+You are given two 2D integer arrays edges1 and edges2 of lengths n - 1 and m - 1,
+respectively, where edges1[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the first tree and
+edges2[i] = [ui, vi] indicates that there is an edge between nodes ui and vi in the second tree.
+
+You must connect one node from the first tree with another node from the second tree with an edge.
+
+Return the minimum possible diameter of the resulting tree.
+
+The diameter of a tree is the length of the longest path between any two nodes in the tree.
+
+Example 1:
+Input: edges1 = [[0,1],[0,2],[0,3]], edges2 = [[0,1]]
+Output: 3
+Explanation:
+We can obtain a tree of diameter 3 by connecting node 0 from the first tree with any node from the second tree.
+
+Example 2:
+Input: edges1 = [[0,1],[0,2],[0,3],[2,4],[2,5],[3,6],[2,7]], edges2 = [[0,1],[0,2],[0,3],[2,4],[2,5],[3,6],[2,7]]
+Output: 5
+Explanation:
+We can obtain a tree of diameter 5 by connecting node 0 from the first tree with node 0 from the second tree.
+
+Constraints:
+1 <= n, m <= 10^5
+edges1.length == n - 1
+edges2.length == m - 1
+edges1[i].length == edges2[i].length == 2
+edges1[i] = [ai, bi]
+0 <= ai, bi < n
+edges2[i] = [ui, vi]
+0 <= ui, vi < m
+The input is generated such that edges1 and edges2 represent valid trees.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Suppose that we connected node a in tree1 with node b in tree2.
+   The diameter length of the resulting tree will be the largest of the following 3 values:
+   - The diameter of tree 1.
+   - The diameter of tree 2.
+   - The length of the longest path that starts at node a and
+     that is completely within Tree 1 + The length of the longest path
+     that starts at node b and that is completely within Tree 2 + 1.
+   The added one in the third value is due to the additional edge that we have added between trees 1 and 2.
+2. Values 1 and 2 are constant regardless of our choice of a and b.
+   Therefore, we need to pick a and b in such a way that minimizes value 3.
+3. If we pick a and b optimally, they will be in the diameters of Tree 1 and Tree 2, respectively.
+   Exactly which nodes of the diameter should we pick?
+4. a is the center of the diameter of tree 1, and b is the center of the diameter of tree 2.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int** buildAdjList(int** edges, int edgesSize, int* edgesColSize, int** returnColSize) {
+    int** pRetVal = NULL;
+
+    int returnSize = edgesSize + 1;
+
+    (*returnColSize) = (int*)malloc(returnSize * sizeof(int));
+    if ((*returnColSize) == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset((*returnColSize), 0, (returnSize * sizeof(int)));
+    for (int i = 0; i < edgesSize; ++i) {
+        (*returnColSize)[edges[i][0]]++;
+        (*returnColSize)[edges[i][1]]++;
+    }
+
+    pRetVal = (int**)malloc(returnSize * sizeof(int*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        free((*returnColSize));
+        (*returnColSize) = NULL;
+        return pRetVal;
+    }
+    for (int i = 0; i < returnSize; ++i) {
+        pRetVal[i] = (int*)malloc((*returnColSize)[i] * sizeof(int));
+        if (pRetVal[i] == NULL) {
+            perror("malloc");
+            free((*returnColSize));
+            (*returnColSize) = NULL;
+            for (int j = 0; j < i; ++j) {
+                free(pRetVal[j]);
+                pRetVal[j] = NULL;
+            }
+            free(pRetVal);
+            pRetVal = NULL;
+            return pRetVal;
+        }
+        memset(pRetVal[i], 0, ((*returnColSize)[i] * sizeof(int)));
+    }
+
+    memset((*returnColSize), 0, (returnSize * sizeof(int)));
+    int src, dst;
+    for (int i = 0; i < edgesSize; ++i) {
+        src = edges[i][0];
+        dst = edges[i][1];
+        pRetVal[src][(*returnColSize)[src]++] = dst;
+        pRetVal[dst][(*returnColSize)[dst]++] = src;
+    }
+
+    return pRetVal;
+};
+void findDiameter(int** adjList, int* adjListColSize, int node, int parent, int* first, int* second) {
+    (*first) = 0;
+    (*second) = 0;
+
+    int childDiameter, depth;
+    int maxDepth1 = 0;
+    int maxDepth2 = 0;
+    int diameter = 0;
+    for (int i = 0; i < adjListColSize[node]; ++i) {
+        // Skip the parent to avoid cycles
+        if (adjList[node][i] == parent) {
+            continue;
+        }
+
+        // Recursively calculate the diameter and depth of the neighbor's subtree
+        findDiameter(adjList, adjListColSize, adjList[node][i], node, first, second);
+        childDiameter = (*first);
+        depth = (*second);
+
+        // Update the maximum diameter of the subtree
+        diameter = fmax(diameter, childDiameter);
+
+        // Increment the depth to include the edge to this neighbor
+        depth++;
+
+        // Update the two largest depths from the current node
+        if (depth > maxDepth1) {
+            maxDepth2 = maxDepth1;
+            maxDepth1 = depth;
+        } else if (depth > maxDepth2) {
+            maxDepth2 = depth;
+        }
+    }
+
+    // Update the diameter to include the path through the current node
+    diameter = fmax(diameter, maxDepth1 + maxDepth2);
+
+    (*first) = diameter;
+    (*second) = maxDepth1;
+}
+int minimumDiameterAfterMerge(int** edges1, int edges1Size, int* edges1ColSize, int** edges2, int edges2Size,
+                              int* edges2ColSize) {
+    int retVal = 0;
+
+    int* adjListColSize1 = NULL;
+    int** adjList1 = buildAdjList(edges1, edges1Size, edges1ColSize, &adjListColSize1);
+    int diameter1 = 0;
+    findDiameter(adjList1, adjListColSize1, 0, -1, &diameter1, &retVal);
+
+    int* adjListColSize2 = NULL;
+    int** adjList2 = buildAdjList(edges2, edges2Size, edges2ColSize, &adjListColSize2);
+    int diameter2 = 0;
+    findDiameter(adjList2, adjListColSize2, 0, -1, &diameter2, &retVal);
+
+    int combinedDiameter = ceil(diameter1 / 2.0) + ceil(diameter2 / 2.0) + 1;
+
+    retVal = diameter1;
+    retVal = fmax(retVal, diameter2);
+    retVal = fmax(retVal, combinedDiameter);
+
+    //
+    free(adjListColSize1);
+    adjListColSize1 = NULL;
+    for (int i = 0; i <= edges1Size; ++i) {
+        free(adjList1[i]);
+        adjList1[i] = NULL;
+    }
+    free(adjList1);
+    adjList1 = NULL;
+    free(adjListColSize2);
+    adjListColSize2 = NULL;
+    for (int i = 0; i <= edges2Size; ++i) {
+        free(adjList2[i]);
+        adjList2[i] = NULL;
+    }
+    free(adjList2);
+    adjList2 = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    vector<vector<int>> buildAdjList(int size, vector<vector<int>>& edges) {
+        vector<vector<int>> retVal(size);
+
+        for (auto& edge : edges) {
+            retVal[edge[0]].push_back(edge[1]);
+            retVal[edge[1]].push_back(edge[0]);
+        }
+
+        return retVal;
+    };
+
+    pair<int, int> findDiameter(vector<vector<int>>& adjList, int node, int parent) {
+        pair<int, int> retVal = {0, 0};
+
+        int maxDepth1 = 0;
+        int maxDepth2 = 0;
+        int diameter = 0;
+        for (int neighbor : adjList[node]) {
+            // Skip the parent to avoid cycles
+            if (neighbor == parent) {
+                continue;
+            }
+
+            // Recursively calculate the diameter and depth of the neighbor's subtree
+            auto [childDiameter, depth] = findDiameter(adjList, neighbor, node);
+
+            // Update the maximum diameter of the subtree
+            diameter = max(diameter, childDiameter);
+
+            // Increment the depth to include the edge to this neighbor
+            depth++;
+
+            // Update the two largest depths from the current node
+            if (depth > maxDepth1) {
+                maxDepth2 = maxDepth1;
+                maxDepth1 = depth;
+            } else if (depth > maxDepth2) {
+                maxDepth2 = depth;
+            }
+        }
+
+        // Update the diameter to include the path through the current node
+        diameter = max(diameter, maxDepth1 + maxDepth2);
+
+        retVal = {diameter, maxDepth1};
+
+        return retVal;
+    }
+
+   public:
+    int minimumDiameterAfterMerge(vector<vector<int>>& edges1, vector<vector<int>>& edges2) {
+        int retVal = 0;
+
+        int edges1Size = edges1.size() + 1;
+        vector<vector<int>> adjList1 = buildAdjList(edges1Size, edges1);
+        int diameter1 = findDiameter(adjList1, 0, -1).first;
+
+        int edges2Size = edges2.size() + 1;
+        vector<vector<int>> adjList2 = buildAdjList(edges2Size, edges2);
+        int diameter2 = findDiameter(adjList2, 0, -1).first;
+
+        int combinedDiameter = ceil(diameter1 / 2.0) + ceil(diameter2 / 2.0) + 1;
+
+        retVal = max({diameter1, diameter2, combinedDiameter});
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def buildAdjList(self, size: int, edges: list[list[int]]) -> list[list[int]]:
+        retVal = [[] for _ in range(size)]
+
+        for edge in edges:
+            retVal[edge[0]].append(edge[1])
+            retVal[edge[1]].append(edge[0])
+
+        return retVal
+
+    def findDiameter(self, adjList: list[list[int]], node: int, parent: int) -> tuple[int, int]:
+        retVal = 0, 0
+
+        maxDepth1 = 0
+        maxDepth2 = 0
+        diameter = 0
+        for neighbor in adjList[node]:
+            # Skip the parent to avoid cycles
+            if neighbor == parent:
+                continue
+
+            # Recursively calculate the diameter and depth of the neighbor's subtree
+            childDiameter, depth = self.findDiameter(adjList, neighbor, node)
+
+            # Increment depth to include edge to neighbor
+            depth += 1
+
+            # Update the maximum diameter of the subtree
+            diameter = max(diameter, childDiameter)
+
+            # Update the two largest depths from the current node
+            if depth > maxDepth1:
+                maxDepth2 = maxDepth1
+                maxDepth1 = depth
+            elif depth > maxDepth2:
+                maxDepth2 = depth
+
+        # Update the diameter to include the path through the current node
+        diameter = max(diameter, maxDepth1 + maxDepth2)
+
+        # Return the diameter and the longest depth
+        retVal = diameter, maxDepth1
+
+        return retVal
+
+    def minimumDiameterAfterMerge(self, edges1: List[List[int]], edges2: List[List[int]]) -> int:
+        retVal = 0
+
+        edges1Size = len(edges1) + 1
+        adjList1 = self.buildAdjList(edges1Size, edges1)
+        diameter1, _ = self.findDiameter(adjList1, 0, -1)
+
+        edges2Size = len(edges2) + 1
+        adjList2 = self.buildAdjList(edges2Size, edges2)
+        diameter2, _ = self.findDiameter(adjList2, 0, -1)
+
+        combinedDiameter = ceil(diameter1 / 2) + ceil(diameter2 / 2) + 1
+
+        retVal = max(diameter1, diameter2, combinedDiameter)
+
+        return retVal
+```
+
+</details>
+
 ## [3243. Shortest Distance After Road Addition Queries I](https://leetcode.com/problems/shortest-distance-after-road-addition-queries-i/)  1567
 
 - [Official](https://leetcode.com/problems/shortest-distance-after-road-addition-queries-i/editorial/)
