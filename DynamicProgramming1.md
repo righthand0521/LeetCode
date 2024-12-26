@@ -6211,6 +6211,159 @@ class Solution:
 
 </details>
 
+## [494. Target Sum](https://leetcode.com/problems/target-sum/)
+
+- [Official](https://leetcode.com/problems/target-sum/editorial/)
+- [Official](https://leetcode.cn/problems/target-sum/solutions/816361/mu-biao-he-by-leetcode-solution-o0cp/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array nums and an integer target.
+
+You want to build an expression out of nums by adding one of the symbols '+' and '-'
+before each integer in nums and then concatenate all the integers.
+
+For example, if nums = [2, 1], you can add a '+' before 2 and a '-'
+before 1 and concatenate them to build the expression "+2-1".
+Return the number of different expressions that you can build, which evaluates to target.
+
+Example 1:
+Input: nums = [1,1,1,1,1], target = 3
+Output: 5
+Explanation: There are 5 ways to assign symbols to make the sum of nums be target 3.
+-1 + 1 + 1 + 1 + 1 = 3
++1 - 1 + 1 + 1 + 1 = 3
++1 + 1 - 1 + 1 + 1 = 3
++1 + 1 + 1 - 1 + 1 = 3
++1 + 1 + 1 + 1 - 1 = 3
+
+Example 2:
+Input: nums = [1], target = 1
+Output: 1
+
+Constraints:
+1 <= nums.length <= 20
+0 <= nums[i] <= 1000
+0 <= sum(nums[i]) <= 1000
+-1000 <= target <= 1000
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int findTargetSumWays(int* nums, int numsSize, int target) {
+    int retVal = 0;
+
+    int totalSum = 0;
+    for (int i = 0; i < numsSize; ++i) {
+        totalSum += nums[i];
+    }
+
+    int dpSize = 2 * totalSum + 1;
+    int dp[dpSize];
+    memset(dp, 0, sizeof(dp));
+    dp[nums[0] + totalSum] = 1;    // Adding nums[0]
+    dp[-nums[0] + totalSum] += 1;  // Subtracting nums[0]
+
+    int next[dpSize];
+    int index;
+    for (index = 1; index < numsSize; index++) {
+        memset(next, 0, sizeof(next));
+        for (int sum = -totalSum; sum <= totalSum; sum++) {
+            if (dp[sum + totalSum] <= 0) {
+                continue;
+            }
+            next[sum + nums[index] + totalSum] += dp[sum + totalSum];
+            next[sum - nums[index] + totalSum] += dp[sum + totalSum];
+        }
+        memcpy(dp, next, sizeof(dp));
+    }
+
+    // Return the result if the target is within the valid range
+    if (abs(target) <= totalSum) {
+        retVal = dp[target + totalSum];
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int findTargetSumWays(vector<int>& nums, int target) {
+        int retVal = 0;
+
+        int totalSum = accumulate(nums.begin(), nums.end(), 0);
+
+        vector<int> dp(2 * totalSum + 1, 0);
+        dp[nums[0] + totalSum] = 1;    // Adding nums[0]
+        dp[-nums[0] + totalSum] += 1;  // Subtracting nums[0]
+
+        int numsSize = nums.size();
+        for (int index = 1; index < numsSize; index++) {
+            vector<int> next(2 * totalSum + 1, 0);
+            for (int sum = -totalSum; sum <= totalSum; sum++) {
+                if (dp[sum + totalSum] <= 0) {
+                    continue;
+                }
+                next[sum + nums[index] + totalSum] += dp[sum + totalSum];
+                next[sum - nums[index] + totalSum] += dp[sum + totalSum];
+            }
+            dp = next;
+        }
+
+        // Return the result if the target is within the valid range
+        if (abs(target) <= totalSum) {
+            retVal = dp[target + totalSum];
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def findTargetSumWays(self, nums: List[int], target: int) -> int:
+        retVal = 0
+
+        totalSum = sum(nums)
+
+        dp = [0] * (2 * totalSum + 1)
+        dp[nums[0] + totalSum] = 1  # Adding nums[0]
+        dp[-nums[0] + totalSum] += 1  # Subtracting nums[0]
+
+        numsSize = len(nums)
+        for index in range(1, numsSize):
+            nextDp = [0] * (2 * totalSum + 1)
+            for value in range(-totalSum, totalSum + 1):
+                if dp[value + totalSum] <= 0:
+                    continue
+                nextDp[value + nums[index] + totalSum] += dp[value + totalSum]
+                nextDp[value - nums[index] + totalSum] += dp[value + totalSum]
+            dp = nextDp
+
+        # Return the result if the target is within the valid range
+        if abs(target) <= totalSum:
+            retVal = dp[target + totalSum]
+
+        return retVal
+```
+
+</details>
+
 ## [509. Fibonacci Number](https://leetcode.com/problems/fibonacci-number/)
 
 - [Official](https://leetcode.cn/problems/fibonacci-number/solutions/545049/fei-bo-na-qi-shu-by-leetcode-solution-o4ze/)
