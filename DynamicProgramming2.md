@@ -2,6 +2,7 @@
 
 ## [1014. Best Sightseeing Pair](https://leetcode.com/problems/best-sightseeing-pair/)  1730
 
+- [Official](https://leetcode.com/problems/best-sightseeing-pair/editorial/)
 - [Official](https://leetcode.cn/problems/best-sightseeing-pair/solutions/291380/zui-jia-guan-guang-zu-he-by-leetcode-solution/)
 
 <details><summary>Description</summary>
