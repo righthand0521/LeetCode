@@ -8334,6 +8334,275 @@ class Solution:
 
 </details>
 
+## [689. Maximum Sum of 3 Non-Overlapping Subarrays](https://leetcode.com/problems/maximum-sum-of-3-non-overlapping-subarrays/)
+
+- [Official](https://leetcode.com/problems/maximum-sum-of-3-non-overlapping-subarrays/editorial/)
+- [Official](https://leetcode.cn/problems/maximum-sum-of-3-non-overlapping-subarrays/solutions/1145000/san-ge-wu-zhong-die-zi-shu-zu-de-zui-da-4a8lb/)
+
+<details><summary>Description</summary>
+
+```text
+Given an integer array nums and an integer k,
+find three non-overlapping subarrays of length k with maximum sum and return them.
+
+Return the result as a list of indices representing the starting position of each interval (0-indexed).
+If there are multiple answers, return the lexicographically smallest one.
+
+Example 1:
+Input: nums = [1,2,1,2,6,7,5,1], k = 2
+Output: [0,3,5]
+Explanation: Subarrays [1, 2], [2, 6], [7, 5] correspond to the starting indices [0, 3, 5].
+We could have also taken [2, 1], but an answer of [1, 3, 5] would be lexicographically larger.
+
+Example 2:
+Input: nums = [1,2,1,2,1,2,1,2,1], k = 2
+Output: [0,2,4]
+
+Constraints:
+1 <= nums.length <= 2 * 10^4
+1 <= nums[i] < 2^16
+1 <= k <= floor(nums.length / 3)
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *maxSumOfThreeSubarrays(int *nums, int numsSize, int k, int *returnSize) {
+    int *pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    // Variables to track the best indices for one, two, and three subarray configurations
+    int bestSingleStart = 0;
+    int bestDoubleStart[2] = {0, k};
+    int bestTripleStart[3] = {0, k, k * 2};
+
+    // Compute the initial sums for the first three subarrays
+    int currentWindowSumSingle = 0;
+    for (int i = 0; i < k; i++) {
+        currentWindowSumSingle += nums[i];
+    }
+    int currentWindowSumDouble = 0;
+    for (int i = k; i < k * 2; i++) {
+        currentWindowSumDouble += nums[i];
+    }
+    int currentWindowSumTriple = 0;
+    for (int i = k * 2; i < k * 3; i++) {
+        currentWindowSumTriple += nums[i];
+    }
+
+    // Track the best sums found so far
+    int bestSingleSum = currentWindowSumSingle;
+    int bestDoubleSum = currentWindowSumSingle + currentWindowSumDouble;
+    int bestTripleSum = currentWindowSumSingle + currentWindowSumDouble + currentWindowSumTriple;
+
+    // Sliding window pointers for the subarrays
+    int singleStartIndex = 1;
+    int doubleStartIndex = k + 1;
+    int tripleStartIndex = k * 2 + 1;
+
+    while (tripleStartIndex <= numsSize - k) {
+        // Update the sums using the sliding window technique
+        currentWindowSumSingle = currentWindowSumSingle - nums[singleStartIndex - 1] + nums[singleStartIndex + k - 1];
+        currentWindowSumDouble = currentWindowSumDouble - nums[doubleStartIndex - 1] + nums[doubleStartIndex + k - 1];
+        currentWindowSumTriple = currentWindowSumTriple - nums[tripleStartIndex - 1] + nums[tripleStartIndex + k - 1];
+
+        // Update the best single subarray start index if a better sum is found
+        if (currentWindowSumSingle > bestSingleSum) {
+            bestSingleStart = singleStartIndex;
+            bestSingleSum = currentWindowSumSingle;
+        }
+
+        // Update the best double subarray start indices if a better sum is found
+        if (currentWindowSumDouble + bestSingleSum > bestDoubleSum) {
+            bestDoubleStart[0] = bestSingleStart;
+            bestDoubleStart[1] = doubleStartIndex;
+            bestDoubleSum = currentWindowSumDouble + bestSingleSum;
+        }
+
+        // Update the best triple subarray start indices if a better sum is found
+        if (currentWindowSumTriple + bestDoubleSum > bestTripleSum) {
+            bestTripleStart[0] = bestDoubleStart[0];
+            bestTripleStart[1] = bestDoubleStart[1];
+            bestTripleStart[2] = tripleStartIndex;
+            bestTripleSum = currentWindowSumTriple + bestDoubleSum;
+        }
+
+        // Move the sliding windows forward
+        singleStartIndex += 1;
+        doubleStartIndex += 1;
+        tripleStartIndex += 1;
+    }
+
+    // Return the starting indices of the three subarrays with the maximum sum
+    pRetVal = (int *)calloc(3, sizeof(int));
+    if (pRetVal == NULL) {
+        perror("calloc");
+        return pRetVal;
+    }
+    memcpy(pRetVal, bestTripleStart, (3 * sizeof(int)));
+    (*returnSize) = 3;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> maxSumOfThreeSubarrays(vector<int>& nums, int k) {
+        vector<int> retVal;
+
+        // Variables to track the best indices for one, two, and three subarray configurations
+        int bestSingleStart = 0;
+        vector<int> bestDoubleStart = {0, k};
+        vector<int> bestTripleStart = {0, k, k * 2};
+
+        // Compute the initial sums for the first three subarrays
+        int currentWindowSumSingle = 0;
+        for (int i = 0; i < k; i++) {
+            currentWindowSumSingle += nums[i];
+        }
+        int currentWindowSumDouble = 0;
+        for (int i = k; i < k * 2; i++) {
+            currentWindowSumDouble += nums[i];
+        }
+        int currentWindowSumTriple = 0;
+        for (int i = k * 2; i < k * 3; i++) {
+            currentWindowSumTriple += nums[i];
+        }
+
+        // Track the best sums found so far
+        int bestSingleSum = currentWindowSumSingle;
+        int bestDoubleSum = currentWindowSumSingle + currentWindowSumDouble;
+        int bestTripleSum = currentWindowSumSingle + currentWindowSumDouble + currentWindowSumTriple;
+
+        // Sliding window pointers for the subarrays
+        int singleStartIndex = 1;
+        int doubleStartIndex = k + 1;
+        int tripleStartIndex = k * 2 + 1;
+
+        int numsSize = nums.size();
+        while (tripleStartIndex <= numsSize - k) {
+            // Update the sums using the sliding window technique
+            currentWindowSumSingle =
+                currentWindowSumSingle - nums[singleStartIndex - 1] + nums[singleStartIndex + k - 1];
+            currentWindowSumDouble =
+                currentWindowSumDouble - nums[doubleStartIndex - 1] + nums[doubleStartIndex + k - 1];
+            currentWindowSumTriple =
+                currentWindowSumTriple - nums[tripleStartIndex - 1] + nums[tripleStartIndex + k - 1];
+
+            // Update the best single subarray start index if a better sum is found
+            if (currentWindowSumSingle > bestSingleSum) {
+                bestSingleStart = singleStartIndex;
+                bestSingleSum = currentWindowSumSingle;
+            }
+
+            // Update the best double subarray start indices if a better sum is found
+            if (currentWindowSumDouble + bestSingleSum > bestDoubleSum) {
+                bestDoubleStart[0] = bestSingleStart;
+                bestDoubleStart[1] = doubleStartIndex;
+                bestDoubleSum = currentWindowSumDouble + bestSingleSum;
+            }
+
+            // Update the best triple subarray start indices if a better sum is found
+            if (currentWindowSumTriple + bestDoubleSum > bestTripleSum) {
+                bestTripleStart[0] = bestDoubleStart[0];
+                bestTripleStart[1] = bestDoubleStart[1];
+                bestTripleStart[2] = tripleStartIndex;
+                bestTripleSum = currentWindowSumTriple + bestDoubleSum;
+            }
+
+            // Move the sliding windows forward
+            singleStartIndex += 1;
+            doubleStartIndex += 1;
+            tripleStartIndex += 1;
+        }
+
+        // Return the starting indices of the three subarrays with the maximum sum
+        retVal = bestTripleStart;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxSumOfThreeSubarrays(self, nums: List[int], k: int) -> List[int]:
+        retVal = []
+
+        # Variables to track the best indices for one, two, and three subarray configurations
+        bestSingleStart = 0
+        bestDoubleStart = [0, k]
+        bestTripleStart = [0, k, k * 2]
+
+        # Compute the initial sums for the first three subarrays
+        currentWindowSumSingle = sum(nums[:k])
+        currentWindowSumDouble = sum(nums[k: k * 2])
+        currentWindowSumTriple = sum(nums[k * 2: k * 3])
+
+        # Track the best sums found so far
+        bestSingleSum = currentWindowSumSingle
+        bestDoubleSum = currentWindowSumSingle + currentWindowSumDouble
+        bestTripleSum = currentWindowSumSingle + currentWindowSumDouble + currentWindowSumTriple
+
+        # Sliding window pointers for the subarrays
+        singleStartIndex = 1
+        doubleStartIndex = k + 1
+        tripleStartIndex = k * 2 + 1
+
+        numsSize = len(nums)
+        while tripleStartIndex <= numsSize - k:
+            # Update the sums using the sliding window technique
+            currentWindowSumSingle = currentWindowSumSingle - nums[singleStartIndex - 1] + nums[singleStartIndex + k - 1]
+            currentWindowSumDouble = currentWindowSumDouble - nums[doubleStartIndex - 1] + nums[doubleStartIndex + k - 1]
+            currentWindowSumTriple = currentWindowSumTriple - nums[tripleStartIndex - 1] + nums[tripleStartIndex + k - 1]
+
+            # Update the best single subarray start index if a better sum is found
+            if currentWindowSumSingle > bestSingleSum:
+                bestSingleStart = singleStartIndex
+                bestSingleSum = currentWindowSumSingle
+
+            # Update the best double subarray start indices if a better sum is found
+            if currentWindowSumDouble + bestSingleSum > bestDoubleSum:
+                bestDoubleStart[0] = bestSingleStart
+                bestDoubleStart[1] = doubleStartIndex
+                bestDoubleSum = currentWindowSumDouble + bestSingleSum
+
+            # Update the best triple subarray start indices if a better sum is found
+            if currentWindowSumTriple + bestDoubleSum > bestTripleSum:
+                bestTripleStart[0] = bestDoubleStart[0]
+                bestTripleStart[1] = bestDoubleStart[1]
+                bestTripleStart[2] = tripleStartIndex
+                bestTripleSum = currentWindowSumTriple + bestDoubleSum
+
+            # Move the sliding windows forward
+            singleStartIndex += 1
+            doubleStartIndex += 1
+            tripleStartIndex += 1
+
+        # Return the starting indices of the three subarrays with the maximum sum
+        retVal = bestTripleStart
+
+        return retVal
+```
+
+</details>
+
 ## [698. Partition to K Equal Sum Subsets](https://leetcode.com/problems/partition-to-k-equal-sum-subsets/)
 
 - [Official](https://leetcode.cn/problems/partition-to-k-equal-sum-subsets/solutions/1833777/hua-fen-wei-kge-xiang-deng-de-zi-ji-by-l-v66o/)
