@@ -30,8 +30,7 @@ class Solution:
             if i != days[idx]:
                 dp[i] = dp[i-1]
                 continue
-            dp[i] = min(dp[max(0, i - 1)] + costs[0], dp[max(0, i - 7)
-                                                         ] + costs[1], dp[max(0, i - 30)] + costs[2])
+            dp[i] = min(dp[max(0, i - 1)] + costs[0], dp[max(0, i - 7)] + costs[1], dp[max(0, i - 30)] + costs[2])
             idx += 1
         retVal = dp[-1]
 

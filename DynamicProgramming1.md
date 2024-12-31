@@ -11438,6 +11438,7 @@ class Solution:
 
 ## [983. Minimum Cost For Tickets](https://leetcode.com/problems/minimum-cost-for-tickets/)  1786
 
+- [Official](https://leetcode.com/problems/minimum-cost-for-tickets/editorial/)
 - [Official](https://leetcode.cn/problems/minimum-cost-for-tickets/solutions/233810/zui-di-piao-jie-by-leetcode-solution/)
 
 <details><summary>Description</summary>
