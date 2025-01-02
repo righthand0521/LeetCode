@@ -2320,6 +2320,178 @@ class Solution:
 
 </details>
 
+## [2559. Count Vowel Strings in Ranges](https://leetcode.com/problems/count-vowel-strings-in-ranges/description/)  1435
+
+- [Official](https://leetcode.com/problems/count-vowel-strings-in-ranges/editorial/)
+- [Official](https://leetcode.cn/problems/count-vowel-strings-in-ranges/solutions/2289469/tong-ji-fan-wei-nei-de-yuan-yin-zi-fu-ch-5k8q/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed array of strings words and a 2D array of integers queries.
+
+Each query queries[i] = [li, ri] asks us to find the number of strings
+present in the range li to ri (both inclusive) of words that start and end with a vowel.
+
+Return an array ans of size queries.length, where ans[i] is the answer to the ith query.
+
+Note that the vowel letters are 'a', 'e', 'i', 'o', and 'u'.
+
+Example 1:
+Input: words = ["aba","bcb","ece","aa","e"], queries = [[0,2],[1,4],[1,1]]
+Output: [2,3,0]
+Explanation: The strings starting and ending with a vowel are "aba", "ece", "aa" and "e".
+The answer to the query [0,2] is 2 (strings "aba" and "ece").
+to query [1,4] is 3 (strings "ece", "aa", "e").
+to query [1,1] is 0.
+We return [2,3,0].
+
+Example 2:
+Input: words = ["a","e","i"], queries = [[0,2],[0,1],[2,2]]
+Output: [3,2,1]
+Explanation: Every string satisfies the conditions, so we return [3,2,1].
+
+Constraints:
+1 <= words.length <= 10^5
+1 <= words[i].length <= 40
+words[i] consists only of lowercase English letters.
+sum(words[i].length) <= 3 * 10^5
+1 <= queries.length <= 10^5
+0 <= li <= ri < words.length
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Precompute the prefix sum of strings that start and end with vowels.
+2. Use unordered_set to store vowels.
+3. Check if the first and last characters of the string are present in the vowels set.
+4. Subtract prefix sum for range [l-1, r] to find the number of strings starting and ending with vowels.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* vowelStrings(char** words, int wordsSize, int** queries, int queriesSize, int* queriesColSize, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    pRetVal = (int*)calloc(queriesSize, sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    (*returnSize) = queriesSize;
+
+    int prefixSum[wordsSize];
+    memset(prefixSum, 0, sizeof(prefixSum));
+
+    char start, end;
+    int vowelCount = 0;
+    for (int i = 0; i < wordsSize; i++) {
+        start = words[i][0];
+        end = words[i][strlen(words[i]) - 1];
+        if ((start == 'a') || (start == 'e') || (start == 'i') || (start == 'o') || (start == 'u')) {
+            if ((end == 'a') || (end == 'e') || (end == 'i') || (end == 'o') || (end == 'u')) {
+                vowelCount++;
+            }
+        }
+        prefixSum[i] = vowelCount;
+    }
+
+    for (int i = 0; i < queriesSize; i++) {
+        pRetVal[i] = prefixSum[queries[i][1]];
+        if (queries[i][0] != 0) {
+            pRetVal[i] -= prefixSum[queries[i][0] - 1];
+        }
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> vowelStrings(vector<string>& words, vector<vector<int>>& queries) {
+        vector<int> retVal;
+
+        int queriesSize = queries.size();
+        retVal.assign(queriesSize, 0);
+
+        int wordsSize = words.size();
+        vector<int> prefixSum(wordsSize, 0);
+
+        unordered_set<char> vowels{'a', 'e', 'i', 'o', 'u'};
+        int vowelCount = 0;
+        for (int i = 0; i < wordsSize; i++) {
+            string word = words[i];
+            int wordSize = word.size();
+            if ((vowels.count(word[0])) && (vowels.count(word[wordSize - 1]))) {
+                vowelCount++;
+            }
+            prefixSum[i] = vowelCount;
+        }
+
+        for (int i = 0; i < queriesSize; i++) {
+            vector<int> query = queries[i];
+            retVal[i] = prefixSum[query[1]];
+            if (query[0] != 0) {
+                retVal[i] -= prefixSum[query[0] - 1];
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def vowelStrings(self, words: List[str], queries: List[List[int]]) -> List[int]:
+        retVal = None
+
+        queriesSize = len(queries)
+        retVal = [0] * queriesSize
+
+        wordsSize = len(words)
+        prefixSum = [0] * wordsSize
+
+        vowels = {"a", "e", "i", "o", "u"}
+        vowelCount = 0
+        for i in range(wordsSize):
+            word = words[i]
+            if (word[0] in vowels) and (word[-1] in vowels):
+                vowelCount += 1
+            prefixSum[i] = vowelCount
+
+        for i in range(queriesSize):
+            query = queries[i]
+            retVal[i] = prefixSum[query[1]]
+            if query[0] != 0:
+                retVal[i] -= prefixSum[query[0] - 1]
+
+        return retVal
+```
+
+</details>
+
 ## [2779. Maximum Beauty of an Array After Applying Operation](https://leetcode.com/problems/maximum-beauty-of-an-array-after-applying-operation/)  2779
 
 - [Official](https://leetcode.com/problems/maximum-beauty-of-an-array-after-applying-operation/editorial/)
