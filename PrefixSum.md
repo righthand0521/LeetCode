@@ -1964,6 +1964,140 @@ int minimumAverageDifference(int* nums, int numsSize) {
 
 </details>
 
+## [2270. Number of Ways to Split Array](https://leetcode.com/problems/number-of-ways-to-split-array/)  1334
+
+- [Official](https://leetcode.com/problems/number-of-ways-to-split-array/editorial/)
+- [Official](https://leetcode.cn/problems/number-of-ways-to-split-array/solutions/1501536/fen-ge-shu-zu-de-fang-an-shu-by-leetcode-3ygv/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed integer array nums of length n.
+
+nums contains a valid split at index i if the following are true:
+- The sum of the first i + 1 elements is greater than or equal to the sum of the last n - i - 1 elements.
+- There is at least one element to the right of i. That is, 0 <= i < n - 1.
+
+Return the number of valid splits in nums.
+
+Example 1:
+Input: nums = [10,4,-8,7]
+Output: 2
+Explanation:
+There are three ways of splitting nums into two non-empty parts:
+- Split nums at index 0. Then, the first part is [10], and its sum is 10.
+  The second part is [4,-8,7], and its sum is 3. Since 10 >= 3, i = 0 is a valid split.
+- Split nums at index 1. Then, the first part is [10,4], and its sum is 14.
+  The second part is [-8,7], and its sum is -1. Since 14 >= -1, i = 1 is a valid split.
+- Split nums at index 2. Then, the first part is [10,4,-8], and its sum is 6.
+  The second part is [7], and its sum is 7. Since 6 < 7, i = 2 is not a valid split.
+Thus, the number of valid splits in nums is 2.
+
+Example 2:
+Input: nums = [2,3,1,0]
+Output: 2
+Explanation:
+There are two valid splits in nums:
+- Split nums at index 1. Then, the first part is [2,3], and its sum is 5.
+  The second part is [1,0], and its sum is 1. Since 5 >= 1, i = 1 is a valid split.
+- Split nums at index 2. Then, the first part is [2,3,1], and its sum is 6.
+  The second part is [0], and its sum is 0. Since 6 >= 0, i = 2 is a valid split.
+
+Constraints:
+2 <= nums.length <= 10^5
+-10^5 <= nums[i] <= 10^5
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. For any index i, how can we find the sum of the first (i+1) elements from the sum of the first i elements?
+2. If the total sum of the array is known,
+   how can we check if the sum of the first (i+1) elements greater than or equal to the remaining elements?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int waysToSplitArray(int* nums, int numsSize) {
+    int retVal = 0;
+
+    long long leftSum = 0;
+    long long rightSum = 0;
+    for (int i = 0; i < numsSize; ++i) {
+        rightSum += nums[i];
+    }
+
+    for (int i = 0; i < numsSize - 1; ++i) {
+        leftSum += nums[i];
+        rightSum -= nums[i];
+        if (leftSum >= rightSum) {
+            retVal++;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int waysToSplitArray(vector<int>& nums) {
+        int retVal = 0;
+
+        long long leftSum = 0;
+        long long rightSum = 0;
+        for (int num : nums) {
+            rightSum += num;
+        }
+
+        int numsSize = nums.size();
+        for (int i = 0; i < numsSize - 1; i++) {
+            leftSum += nums[i];
+            rightSum -= nums[i];
+            if (leftSum >= rightSum) {
+                retVal++;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def waysToSplitArray(self, nums: list[int]) -> int:
+        retVal = 0
+
+        leftSum = 0
+        rightSum = sum(nums)
+
+        numsSize = len(nums)
+        for i in range(numsSize - 1):
+            leftSum += nums[i]
+            rightSum -= nums[i]
+            if leftSum >= rightSum:
+                retVal += 1
+
+        return retVal
+```
+
+</details>
+
 ## [2391. Minimum Amount of Time to Collect Garbage](https://leetcode.com/problems/minimum-amount-of-time-to-collect-garbage/)  1455
 
 - [Official](https://leetcode.com/problems/minimum-amount-of-time-to-collect-garbage/editorial/)
