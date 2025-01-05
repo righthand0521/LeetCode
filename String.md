@@ -7285,6 +7285,170 @@ impl Solution {
 
 </details>
 
+## [2381. Shifting Letters II](https://leetcode.com/problems/shifting-letters-ii/)  1793
+
+- [Official](https://leetcode.com/problems/shifting-letters-ii/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string s of lowercase English letters
+and a 2D integer array shifts where shifts[i] = [starti, endi, directioni].
+For every i, shift the characters in s from the index starti to the index endi (inclusive) forward if directioni = 1,
+or shift the characters backward if directioni = 0.
+
+Shifting a character forward means
+replacing it with the next letter in the alphabet (wrapping around so that 'z' becomes 'a').
+Similarly, shifting a character backward means
+replacing it with the previous letter in the alphabet (wrapping around so that 'a' becomes 'z').
+
+Return the final string after all such shifts to s are applied.
+
+Example 1:
+Input: s = "abc", shifts = [[0,1,0],[1,2,1],[0,2,1]]
+Output: "ace"
+Explanation: Firstly, shift the characters from index 0 to index 1 backward. Now s = "zac".
+Secondly, shift the characters from index 1 to index 2 forward. Now s = "zbd".
+Finally, shift the characters from index 0 to index 2 forward. Now s = "ace".
+
+Example 2:
+Input: s = "dztz", shifts = [[0,0,0],[1,1,1]]
+Output: "catz"
+Explanation: Firstly, shift the characters from index 0 to index 0 backward. Now s = "cztz".
+Finally, shift the characters from index 1 to index 1 forward. Now s = "catz".
+
+Constraints:
+1 <= s.length, shifts.length <= 5 * 10^4
+shifts[i].length == 3
+0 <= starti <= endi < s.length
+0 <= directioni <= 1
+s consists of lowercase English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Instead of shifting every character in each shift,
+   could you keep track of which characters are shifted and by how much across all shifts?
+2. Try marking the start and ends of each shift, then perform a prefix sum of the shifts.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+char* shiftingLetters(char* s, int** shifts, int shiftsSize, int* shiftsColSize) {
+    char* pRetVal = s;
+
+    int sSize = strlen(s);
+
+    int diffArray[sSize];
+    memset(diffArray, 0, sizeof(diffArray));
+    for (int i = 0; i < shiftsSize; i++) {
+        if (shifts[i][2] == 1) {
+            diffArray[shifts[i][0]]++;
+            if (shifts[i][1] + 1 < sSize) {
+                diffArray[shifts[i][1] + 1]--;
+            }
+        } else {
+            diffArray[shifts[i][0]]--;
+            if (shifts[i][1] + 1 < sSize) {
+                diffArray[shifts[i][1] + 1]++;
+            }
+        }
+    }
+
+    int numberOfShifts = 0;
+    for (int i = 0; i < sSize; i++) {
+        numberOfShifts = (numberOfShifts + diffArray[i]) % 26;
+        if (numberOfShifts < 0) {
+            numberOfShifts += 26;
+        }
+        pRetVal[i] = 'a' + (s[i] - 'a' + numberOfShifts) % 26;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    string shiftingLetters(string s, vector<vector<int>>& shifts) {
+        string retVal = s;
+
+        int sSize = s.size();
+
+        vector<int> diffArray(sSize, 0);
+        for (auto shift : shifts) {
+            if (shift[2] == 1) {
+                diffArray[shift[0]]++;
+                if (shift[1] + 1 < sSize) {
+                    diffArray[shift[1] + 1]--;
+                }
+            } else {
+                diffArray[shift[0]]--;
+                if (shift[1] + 1 < sSize) {
+                    diffArray[shift[1] + 1]++;
+                }
+            }
+        }
+
+        int numberOfShifts = 0;
+        for (int i = 0; i < sSize; i++) {
+            numberOfShifts = (numberOfShifts + diffArray[i]) % 26;
+            if (numberOfShifts < 0) {
+                numberOfShifts += 26;
+            }
+            retVal[i] = 'a' + (s[i] - 'a' + numberOfShifts) % 26;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def shiftingLetters(self, s: str, shifts: List[List[int]]) -> str:
+        retVal = ""
+
+        sSize = len(s)
+
+        diffArray = [0] * sSize
+        for start, end, direction in shifts:
+            if direction == 1:
+                diffArray[start] += 1
+                if end + 1 < sSize:
+                    diffArray[end + 1] -= 1
+            else:
+                diffArray[start] -= 1
+                if end + 1 < sSize:
+                    diffArray[end + 1] += 1
+
+        numberOfShifts = 0
+        for i in range(sSize):
+            numberOfShifts = (numberOfShifts + diffArray[i]) % 26
+            if numberOfShifts < 0:
+                numberOfShifts += 26
+            retVal += chr((ord(s[i]) - ord("a") + numberOfShifts) % 26 + ord("a"))
+
+        return retVal
+```
+
+</details>
+
 ## [2414. Length of the Longest Alphabetical Continuous Substring](https://leetcode.com/problems/length-of-the-longest-alphabetical-continuous-substring/)  1221
 
 <details><summary>Description</summary>
