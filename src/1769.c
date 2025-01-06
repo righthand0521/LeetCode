@@ -8,25 +8,32 @@
 int* minOperations(char* boxes, int* returnSize) {
     int* pRetVal = NULL;
 
-    // malloc return array
-    (*returnSize) = strlen(boxes);
-    pRetVal = (int*)malloc((*returnSize) * sizeof(int));
+    (*returnSize) = 0;
+
+    int boxesSize = strlen(boxes);
+    pRetVal = (int*)calloc(boxesSize, sizeof(int));
     if (pRetVal == NULL) {
-        perror("malloc");
-        (*returnSize) = 0;
+        perror("calloc");
         return pRetVal;
     }
-    memset(pRetVal, 0, ((*returnSize) * sizeof(int)));
+    (*returnSize) = boxesSize;
 
-    // count moving steps
+    int ballsToLeft = 0;
+    int movesToLeft = 0;
+    int ballsToRight = 0;
+    int movesToRight = 0;
     int i, j;
-    for (i = 0; i < (*returnSize); ++i) {
-        for (j = 0; j < (*returnSize); ++j) {
-            if ((i == j) || (boxes[j] == '0')) {
-                continue;
-            }
-            pRetVal[i] += (abs(j - i));
-        }
+    for (i = 0; i < boxesSize; i++) {
+        // Left pass
+        pRetVal[i] += movesToLeft;
+        ballsToLeft += boxes[i] - '0';
+        movesToLeft += ballsToLeft;
+
+        // Right pass
+        j = boxesSize - 1 - i;
+        pRetVal[j] += movesToRight;
+        ballsToRight += boxes[j] - '0';
+        movesToRight += ballsToRight;
     }
 
     return pRetVal;
@@ -38,6 +45,13 @@ int main(int argc, char** argv) {
         int returnSize;
     } testCase[] = {{"110", 0}, {"001011", 0}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: boxes = "110"
+     *  Output: [1,1,3]
+     *
+     *  Input: boxes = "001011"
+     *  Output: [11,8,5,4,3,4]
+     */
 
     int* pAnswer = NULL;
     int i, j;

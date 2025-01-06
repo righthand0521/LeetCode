@@ -2800,6 +2800,9 @@ class Solution {
 
 <details><summary>Description</summary>
 
+- [Official](https://leetcode.com/problems/minimum-number-of-operations-to-move-all-balls-to-each-box/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-number-of-operations-to-move-all-balls-to-each-box/solutions/2000188/yi-dong-suo-you-qiu-dao-mei-ge-he-zi-suo-y50e/)
+
 ```text
 You have n boxes.
 You are given a binary string boxes of length n,
@@ -2833,6 +2836,16 @@ n == boxes.length
 boxes[i] is either '0' or '1'.
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. If you want to move a ball from box i to box j, you'll need abs(i-j) moves.
+2. To move all balls to some box, you can move them one by one.
+3. For each box i, iterate on each ball in a box j, and add abs(i-j) to answers[i].
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
@@ -2844,29 +2857,102 @@ boxes[i] is either '0' or '1'.
 int* minOperations(char* boxes, int* returnSize) {
     int* pRetVal = NULL;
 
-    // malloc return array
-    (*returnSize) = strlen(boxes);
-    pRetVal = (int*)malloc((*returnSize)*sizeof(int));
+    (*returnSize) = 0;
+
+    int boxesSize = strlen(boxes);
+    pRetVal = (int*)calloc(boxesSize, sizeof(int));
     if (pRetVal == NULL) {
-        perror("malloc");
-        (*returnSize) = 0;
+        perror("calloc");
         return pRetVal;
     }
-    memset(pRetVal, 0, ((*returnSize)*sizeof(int)));
+    (*returnSize) = boxesSize;
 
-    // count moving steps
+    int ballsToLeft = 0;
+    int movesToLeft = 0;
+    int ballsToRight = 0;
+    int movesToRight = 0;
     int i, j;
-    for (i = 0; i < (*returnSize); ++i) {
-        for (j = 0; j < (*returnSize); ++j) {
-            if ((i == j) || (boxes[j] == '0')) {
-                continue;
-            }
-            pRetVal[i] += (abs(j - i));
-        }
+    for (i = 0; i < boxesSize; i++) {
+        // Left pass
+        pRetVal[i] += movesToLeft;
+        ballsToLeft += boxes[i] - '0';
+        movesToLeft += ballsToLeft;
+
+        // Right pass
+        j = boxesSize - 1 - i;
+        pRetVal[j] += movesToRight;
+        ballsToRight += boxes[j] - '0';
+        movesToRight += ballsToRight;
     }
 
     return pRetVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> minOperations(string boxes) {
+        vector<int> retVal;
+
+        int boxesSize = boxes.size();
+        retVal.assign(boxesSize, 0);
+
+        int ballsToLeft = 0;
+        int movesToLeft = 0;
+        int ballsToRight = 0;
+        int movesToRight = 0;
+        for (int i = 0; i < boxesSize; i++) {
+            // Left pass
+            retVal[i] += movesToLeft;
+            ballsToLeft += boxes[i] - '0';
+            movesToLeft += ballsToLeft;
+
+            // Right pass
+            int j = boxesSize - 1 - i;
+            retVal[j] += movesToRight;
+            ballsToRight += boxes[j] - '0';
+            movesToRight += ballsToRight;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minOperations(self, boxes: str) -> List[int]:
+        retVal = []
+
+        boxesSize = len(boxes)
+        retVal = [0] * boxesSize
+
+        ballsToLeft = 0
+        movesToLeft = 0
+        ballsToRight = 0
+        movesToRight = 0
+        for i in range(boxesSize):
+            # Left pass
+            retVal[i] += movesToLeft
+            ballsToLeft += int(boxes[i])
+            movesToLeft += ballsToLeft
+
+            # Right pass
+            j = boxesSize - 1 - i
+            retVal[j] += movesToRight
+            ballsToRight += int(boxes[j])
+            movesToRight += ballsToRight
+
+        return retVal
 ```
 
 </details>
