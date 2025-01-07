@@ -4461,6 +4461,308 @@ char * breakPalindrome(char * palindrome){
 
 </details>
 
+## [1408. String Matching in an Array](https://leetcode.com/problems/string-matching-in-an-array/)  1223
+
+- [Official](https://leetcode.com/problems/string-matching-in-an-array/editorial/)
+- [Official](https://leetcode.cn/problems/string-matching-in-an-array/solutions/1723228/shu-zu-zhong-de-zi-fu-chuan-pi-pei-by-le-rpmt/)
+
+<details><summary>Description</summary>
+
+```text
+Given an array of string words, return all strings in words that is a substring of another word.
+You can return the answer in any order.
+
+A substring is a contiguous sequence of characters within a string
+
+Example 1:
+Input: words = ["mass","as","hero","superhero"]
+Output: ["as","hero"]
+Explanation: "as" is substring of "mass" and "hero" is substring of "superhero".
+["hero","as"] is also a valid answer.
+
+Example 2:
+Input: words = ["leetcode","et","code"]
+Output: ["et","code"]
+Explanation: "et", "code" are substring of "leetcode".
+
+Example 3:
+Input: words = ["blue","green","bu"]
+Output: []
+Explanation: No string of words is substring of another string.
+
+Constraints:
+1 <= words.length <= 100
+1 <= words[i].length <= 30
+words[i] contains only lowercase English letters.
+All the strings of words are unique.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Bruteforce to find if one string is substring of another or use KMP algorithm.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+void computeLPSArray(char* substring, int substringSize, int* lps) {
+    int length = 0;
+    int currentIndex = 1;
+    while (currentIndex < substringSize) {
+        if (substring[currentIndex] == substring[length]) {
+            length++;
+            lps[currentIndex] = length;
+            currentIndex++;
+            continue;
+        }
+
+        if (length > 0) {
+            length = lps[length - 1];  // Backtrack using LPS array to find a shorter match.
+        } else {
+            currentIndex++;
+        }
+    }
+}
+bool isSubstringOf(char* substring, int substringSize, char* main, int mainSize, int* lps) {
+    bool retVal = false;
+
+    int mainIndex = 0;
+    int substringIndex = 0;
+    while (mainIndex < mainSize) {
+        if (main[mainIndex] == substring[substringIndex]) {
+            substringIndex++;
+            mainIndex++;
+            if (substringIndex == substringSize) {
+                retVal = true;
+                return retVal;
+            }
+            continue;
+        }
+
+        if (substringIndex > 0) {
+            substringIndex = lps[substringIndex - 1];  // Use the LPS to skip unnecessary comparisons.
+        } else {
+            mainIndex++;
+        }
+    }
+
+    return retVal;
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+char** stringMatching(char** words, int wordsSize, int* returnSize) {
+    char** pRetVal = NULL;
+
+    (*returnSize) = 0;
+    pRetVal = (char**)malloc(sizeof(char*) * wordsSize);
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+
+    int* pLPS = NULL;
+    int currentWordSize, otherWordSize;
+    int currentWordIndex, otherWordIndex;
+    for (currentWordIndex = 0; currentWordIndex < wordsSize; currentWordIndex++) {
+        currentWordSize = strlen(words[currentWordIndex]);
+        pLPS = (int*)calloc(currentWordSize, sizeof(int));
+        if (pLPS == NULL) {
+            perror("calloc");
+            return pRetVal;
+        }
+        computeLPSArray(words[currentWordIndex], currentWordSize, pLPS);
+
+        // Compare the current word with all other words.
+        for (otherWordIndex = 0; otherWordIndex < wordsSize; otherWordIndex++) {
+            if (currentWordIndex == otherWordIndex) {
+                continue;  // Skip comparing the word with itself.
+            }
+
+            // Check if the current word is a substring of another word.
+            currentWordSize = strlen(words[currentWordIndex]);
+            otherWordSize = strlen(words[otherWordIndex]);
+            if (isSubstringOf(words[currentWordIndex], currentWordSize, words[otherWordIndex], otherWordSize, pLPS) ==
+                true) {
+                pRetVal[(*returnSize)++] = words[currentWordIndex];
+                break;  // No need to check further for this word.
+            }
+        }
+
+        free(pLPS);
+        pLPS = NULL;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    vector<int> computeLPSArray(string &substring) {
+        vector<int> retVal;
+
+        int substringSize = substring.size();
+        retVal.assign(substringSize, 0);
+
+        int length = 0;
+        int currentIndex = 1;
+        while (currentIndex < substringSize) {
+            if (substring[currentIndex] == substring[length]) {
+                length++;
+                retVal[currentIndex] = length;
+                currentIndex++;
+                continue;
+            }
+
+            if (length > 0) {
+                length = retVal[length - 1];  // Backtrack using LPS array to find a shorter match.
+            } else {
+                currentIndex++;
+            }
+        }
+
+        return retVal;
+    }
+    bool isSubstringOf(string &substring, string &main, vector<int> &lps) {
+        bool retVal = false;
+
+        int mainSize = main.size();
+        int substringSize = substring.size();
+        int mainIndex = 0;
+        int substringIndex = 0;
+        while (mainIndex < mainSize) {
+            if (main[mainIndex] == substring[substringIndex]) {
+                substringIndex++;
+                mainIndex++;
+                if (substringIndex == substringSize) {
+                    retVal = true;
+                    return retVal;
+                }
+                continue;
+            }
+
+            if (substringIndex > 0) {
+                substringIndex = lps[substringIndex - 1];  // Use the LPS to skip unnecessary comparisons.
+            } else {
+                mainIndex++;
+            }
+        }
+
+        return retVal;
+    }
+
+   public:
+    vector<string> stringMatching(vector<string> &words) {
+        vector<string> retVal;
+
+        int wordsSize = words.size();
+        for (int currentWordIndex = 0; currentWordIndex < wordsSize; currentWordIndex++) {
+            vector<int> lps = computeLPSArray(words[currentWordIndex]);
+
+            // Compare the current word with all other words.
+            for (int otherWordIndex = 0; otherWordIndex < wordsSize; otherWordIndex++) {
+                if (currentWordIndex == otherWordIndex) {
+                    continue;  // Skip comparing the word with itself.
+                }
+
+                // Check if the current word is a substring of another word.
+                if (isSubstringOf(words[currentWordIndex], words[otherWordIndex], lps) == true) {
+                    retVal.emplace_back(words[currentWordIndex]);
+                    break;  // No need to check further for this word.
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def computeLPSArray(self, substring: str) -> List[int]:
+        retVal = []
+
+        substringSize = len(substring)
+        retVal = [0] * substringSize
+
+        length = 0
+        currentIndex = 1
+        while currentIndex < substringSize:
+            if substring[currentIndex] == substring[length]:
+                length += 1
+                retVal[currentIndex] = length
+                currentIndex += 1
+                continue
+
+            if length > 0:  # Backtrack using Longest Prefix Suffix Array to find a shorter match.
+                length = retVal[length - 1]
+            else:
+                currentIndex += 1
+
+        return retVal
+
+    def isSubstringOf(self, substring: str, main: str, lps) -> bool:
+        retVal = False
+
+        mainSize = len(main)
+        substringSize = len(substring)
+        mainIndex = 0
+        substringIndex = 0
+        while mainIndex < mainSize:
+            if main[mainIndex] == substring[substringIndex]:
+                mainIndex += 1
+                substringIndex += 1
+                if substringIndex == substringSize:
+                    retVal = True
+                    return retVal
+                continue
+
+            if substringIndex > 0:
+                # Use the Longest Prefix Suffix to skip unnecessary comparisons.
+                substringIndex = lps[substringIndex - 1]
+            else:
+                mainIndex += 1
+
+        return retVal
+
+    def stringMatching(self, words: List[str]) -> List[str]:
+        retVal = []
+
+        wordsSize = len(words)
+        for currentWordIndex in range(wordsSize):
+            lps = self.computeLPSArray(words[currentWordIndex])
+
+            # Compare the current word with all other words.
+            for otherWordIndex in range(wordsSize):
+                if currentWordIndex == otherWordIndex:
+                    continue  # Skip comparing the word with itself.
+
+                # Check if the current word is a substring of another word.
+                if self.isSubstringOf(words[currentWordIndex], words[otherWordIndex], lps) == True:
+                    retVal.append(words[currentWordIndex])
+                    break  # No need to check further for this word.
+
+        return retVal
+```
+
+</details>
+
 ## [1422. Maximum Score After Splitting a String](https://leetcode.com/problems/maximum-score-after-splitting-a-string/)  1237
 
 - [Official](https://leetcode.com/problems/maximum-score-after-splitting-a-string/editorial/)
