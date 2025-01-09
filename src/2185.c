@@ -25,6 +25,13 @@ int main(int argc, char** argv) {
     } testCase[] = {{{"pay", "attention", "practice", "attend"}, 4, "at"},
                     {{"leetcode", "win", "loops", "success"}, 4, "code"}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: words = ["pay","attention","practice","attend"], pref = "at"
+     *  Output: 2
+     *
+     *  Input: words = ["leetcode","win","loops","success"], pref = "code"
+     *  Output: 0
+     */
 
     int answer;
     int i, j;

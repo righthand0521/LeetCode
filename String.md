@@ -6539,6 +6539,7 @@ char* capitalizeTitle(char* title) {
 
 ## [2185. Counting Words With a Given Prefix](https://leetcode.com/problems/counting-words-with-a-given-prefix/)  1167
 
+- [Official](https://leetcode.com/problems/counting-words-with-a-given-prefix/editorial/)
 - [Official](https://leetcode.cn/problems/counting-words-with-a-given-prefix/solutions/2047256/tong-ji-bao-han-gei-ding-qian-zhui-de-zi-aaq7/)
 
 <details><summary>Description</summary>
@@ -6566,6 +6567,14 @@ Constraints:
 words[i] and pref consist of lowercase English letters.
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. Go through each word in words and increment the answer if pref is a prefix of the word.
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
@@ -6584,6 +6593,43 @@ int prefixCount(char** words, int wordsSize, char* pref) {
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int prefixCount(vector<string>& words, string pref) {
+        int retVal = 0;
+
+        for (string& word : words) {
+            if (word.compare(0, pref.size(), pref) == 0) {
+                ++retVal;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def prefixCount(self, words: List[str], pref: str) -> int:
+        retVal = 0
+
+        for word in words:
+            if word.startswith(pref):
+                retVal += 1
+
+        return retVal
 ```
 
 </details>
