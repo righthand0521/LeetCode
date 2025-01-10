@@ -3959,6 +3959,194 @@ class Solution:
 
 </details>
 
+## [916. Word Subsets](https://leetcode.com/problems/word-subsets/)  1624
+
+- [Official](https://leetcode.com/problems/word-subsets/editorial/)
+- [Official](https://leetcode.cn/problems/word-subsets/solutions/21315/dan-ci-zi-ji-by-leetcode/)
+
+<details><summary>Description</summary>
+
+```text
+You are given two string arrays words1 and words2.
+
+A string b is a subset of string a if every letter in b occurs in a including multiplicity.
+- For example, "wrr" is a subset of "warrior" but is not a subset of "world".
+
+A string a from words1 is universal if for every string b in words2, b is a subset of a.
+
+Return an array of all the universal strings in words1. You may return the answer in any order.
+
+Example 1:
+Input: words1 = ["amazon","apple","facebook","google","leetcode"], words2 = ["e","o"]
+Output: ["facebook","google","leetcode"]
+
+Example 2:
+Input: words1 = ["amazon","apple","facebook","google","leetcode"], words2 = ["l","e"]
+Output: ["apple","google","leetcode"]
+
+Constraints:
+1 <= words1.length, words2.length <= 10^4
+1 <= words1[i].length, words2[i].length <= 10
+words1[i] and words2[i] consist only of lowercase English letters.
+All the strings of words1 are unique.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MAX_LETTER (26)
+void count(char* word, int* pReturnCountArray) {
+    int wordSize = strlen(word);
+    for (int i = 0; i < wordSize; ++i) {
+        pReturnCountArray[word[i] - 'a'] += 1;
+    }
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+char** wordSubsets(char** words1, int words1Size, char** words2, int words2Size, int* returnSize) {
+    char** pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    int* pCountArray = (int*)malloc(sizeof(int) * MAX_LETTER);
+    if (pCountArray == NULL) {
+        return pRetVal;
+    }
+    int i, j;
+
+    int bmax[MAX_LETTER];
+    memset(bmax, 0, sizeof(bmax));
+    for (i = 0; i < words2Size; ++i) {
+        memset(pCountArray, 0, (sizeof(int) * MAX_LETTER));
+        count(words2[i], pCountArray);
+        for (j = 0; j < MAX_LETTER; ++j) {
+            bmax[j] = fmax(bmax[j], pCountArray[j]);
+        }
+    }
+
+    pRetVal = (char**)malloc(sizeof(char*) * words1Size);
+    if (pRetVal == NULL) {
+        free(pCountArray);
+        pCountArray = NULL;
+        return pRetVal;
+    }
+
+    int x, y;
+    for (i = 0; i < words1Size; ++i) {
+        memset(pCountArray, 0, (sizeof(int) * MAX_LETTER));
+        count(words1[i], pCountArray);
+        for (j = 0; j < MAX_LETTER; ++j) {
+            x = pCountArray[j];
+            y = bmax[j];
+            if (x < y) {
+                break;
+            }
+        }
+        if (j == MAX_LETTER) {
+            pRetVal[(*returnSize)++] = words1[i];
+        }
+    }
+
+    free(pCountArray);
+    pCountArray = NULL;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int letter = 26;
+    vector<int> count(string word) {
+        vector<int> retVal(letter, 0);
+
+        for (char c : word) {
+            retVal[c - 'a'] += 1;
+        }
+
+        return retVal;
+    }
+
+   public:
+    vector<string> wordSubsets(vector<string> &words1, vector<string> &words2) {
+        vector<string> retVal;
+
+        vector<int> bmax(letter, 0);
+        for (string word : words2) {
+            vector<int> countResult = count(word);
+            for (int i = 0; i < letter; ++i) {
+                bmax[i] = max(bmax[i], countResult[i]);
+            }
+        }
+
+        for (string word : words1) {
+            vector<int> countResult = count(word);
+            int i;
+            for (i = 0; i < letter; ++i) {
+                int x = countResult[i];
+                int y = bmax[i];
+                if (x < y) {
+                    break;
+                }
+            }
+            if (i == letter) {
+                retVal.emplace_back(word);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.letter = 26
+
+    def count(self, word) -> List[int]:
+        retVal = []
+
+        retVal = [0] * self.letter
+        for letter in word:
+            retVal[ord(letter) - ord('a')] += 1
+
+        return retVal
+
+    def wordSubsets(self, words1: List[str], words2: List[str]) -> List[str]:
+        retVal = []
+
+        bmax = [0] * self.letter
+        for word in words2:
+            for i, c in enumerate(self.count(word)):
+                bmax[i] = max(bmax[i], c)
+
+        for word in words1:
+            flag = True
+            for x, y in zip(self.count(word), bmax):
+                if x < y:
+                    flag = False
+                    break
+            if flag == True:
+                retVal.append(word)
+
+        return retVal
+```
+
+</details>
+
 ## [953. Verifying an Alien Dictionary](https://leetcode.com/problems/verifying-an-alien-dictionary/)  1299
 
 - [Official](https://leetcode.com/problems/verifying-an-alien-dictionary/solutions/1130430/verifying-an-alien-dictionary/)
