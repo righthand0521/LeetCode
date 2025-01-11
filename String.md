@@ -4649,6 +4649,160 @@ char * breakPalindrome(char * palindrome){
 
 </details>
 
+## [1400. Construct K Palindrome Strings](https://leetcode.com/problems/construct-k-palindrome-strings/)  1530
+
+- [Official](https://leetcode.com/problems/construct-k-palindrome-strings/editorial/)
+- [Official](https://leetcode.cn/problems/construct-k-palindrome-strings/solutions/198217/gou-zao-k-ge-hui-wen-zi-fu-chuan-by-leetcode-solut/)
+
+<details><summary>Description</summary>
+
+```text
+Given a string s and an integer k,
+return true if you can use all the characters in s to construct k palindrome strings or false otherwise.
+
+Example 1:
+Input: s = "annabelle", k = 2
+Output: true
+Explanation: You can construct two palindromes using all characters in s.
+Some possible constructions "anna" + "elble", "anbna" + "elle", "anellena" + "b"
+
+Example 2:
+Input: s = "leetcode", k = 3
+Output: false
+Explanation: It is impossible to construct 3 palindromes using all the characters of s.
+
+Example 3:
+Input: s = "true", k = 4
+Output: true
+Explanation: The only possible solution is to put each character in a separate string.
+
+Constraints:
+1 <= s.length <= 10^5
+s consists of lowercase English letters.
+1 <= k <= 10^5
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. If the s.length < k we cannot construct k strings from s and answer is false.
+2. If the number of characters that have odd counts is > k
+   then the minimum number of palindrome strings we can construct is > k and answer is false.
+3. Otherwise you can construct exactly k palindrome strings and answer is true (why ?).
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool canConstruct(char* s, int k) {
+    bool retVal = false;
+
+    int sSize = strlen(s);
+    if (sSize < k) {
+        return retVal;
+    } else if (sSize == k) {
+        retVal = true;
+        return retVal;
+    }
+
+    int frequencySize = 26;  // s consists of lowercase English letters.
+    int frequency[frequencySize];
+    memset(frequency, 0, sizeof(frequency));
+    for (int i = 0; i < sSize; ++i) {
+        frequency[s[i] - 'a']++;
+    }
+
+    int oddCount = 0;
+    for (int i = 0; i < frequencySize; ++i) {
+        if (frequency[i] % 2 == 1) {
+            oddCount++;
+        }
+    }
+
+    if (oddCount <= k) {
+        retVal = true;
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool canConstruct(string s, int k) {
+        int retVal = false;
+
+        int sSize = s.size();
+        if (sSize < k) {
+            return retVal;
+        } else if (sSize == k) {
+            retVal = true;
+            return retVal;
+        }
+
+        vector<int> frequency(26, 0);  // s consists of lowercase English letters.
+        for (auto& chr : s) {
+            frequency[chr - 'a']++;
+        }
+
+        int oddCount = 0;
+        for (auto count : frequency) {
+            if (count % 2 == 1) {
+                oddCount++;
+            }
+        }
+
+        if (oddCount <= k) {
+            retVal = true;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def canConstruct(self, s: str, k: int) -> bool:
+        retVal = False
+
+        sSize = len(s)
+        if sSize < k:
+            return retVal
+        elif sSize == k:
+            retVal = True
+            return retVal
+
+        frequency = [0] * 26  # s consists of lowercase English letters.
+        for c in s:
+            frequency[ord(c) - ord("a")] += 1
+
+        oddCount = 0
+        for count in frequency:
+            if count % 2 == 1:
+                oddCount += 1
+
+        if oddCount <= k:
+            retVal = True
+
+        return retVal
+```
+
+</details>
+
 ## [1408. String Matching in an Array](https://leetcode.com/problems/string-matching-in-an-array/)  1223
 
 - [Official](https://leetcode.com/problems/string-matching-in-an-array/editorial/)
