@@ -6467,6 +6467,198 @@ class Solution:
 
 </details>
 
+## [2116. Check if a Parentheses String Can Be Valid](https://leetcode.com/problems/check-if-a-parentheses-string-can-be-valid/)  2037
+
+- [Official](https://leetcode.com/problems/check-if-a-parentheses-string-can-be-valid/editorial/)
+- [Official](https://leetcode.cn/problems/check-if-a-parentheses-string-can-be-valid/solutions/1179134/pan-duan-yi-ge-gua-hao-zi-fu-chuan-shi-f-0s47/)
+
+<details><summary>Description</summary>
+
+```text
+A parentheses string is a non-empty string consisting only of '(' and ')'.
+It is valid if any of the following conditions is true:
+- It is ().
+- It can be written as AB (A concatenated with B), where A and B are valid parentheses strings.
+- It can be written as (A), where A is a valid parentheses string.
+
+You are given a parentheses string s and a string locked, both of length n.
+locked is a binary string consisting only of '0's and '1's. For each index i of locked,
+- If locked[i] is '1', you cannot change s[i].
+- But if locked[i] is '0', you can change s[i] to either '(' or ')'.
+
+Return true if you can make s a valid parentheses string. Otherwise, return false.
+
+Example 1:
+Input: s = "))()))", locked = "010100"
+Output: true
+Explanation: locked[1] == '1' and locked[3] == '1', so we cannot change s[1] or s[3].
+We change s[0] and s[4] to '(' while leaving s[2] and s[5] unchanged to make s valid.
+
+Example 2:
+Input: s = "()()", locked = "0000"
+Output: true
+Explanation: We do not need to make any changes because s is already valid.
+
+Example 3:
+Input: s = ")", locked = "0"
+Output: false
+Explanation: locked permits us to change s[0].
+Changing s[0] to either '(' or ')' will not make s valid.
+
+Constraints:
+n == s.length == locked.length
+1 <= n <= 10^5
+s[i] is either '(' or ')'.
+locked[i] is either '0' or '1'.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Can an odd length string ever be valid?
+2. From left to right, if a locked ')' is encountered,
+   it must be balanced with either a locked '(' or an unlocked index on its left.
+   If neither exist, what conclusion can be drawn? If both exist, which one is more preferable to use?
+3. After the above, we may have locked indices of '(' and additional unlocked indices.
+   How can you balance out the locked '(' now? What if you cannot balance any locked '('?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool canBeValid(char* s, char* locked) {
+    bool retVal = false;
+
+    int sSize = strlen(s);
+    if (sSize % 2 == 1) {
+        return retVal;
+    }
+
+    int openBracketsStackTop = -1;
+    int openBracketsStack[sSize];
+    memset(openBracketsStack, -1, sizeof(openBracketsStack));
+    int unlockedStackTop = -1;
+    int unlockedStack[sSize];
+    memset(unlockedStack, -1, sizeof(unlockedStack));
+    for (int i = 0; i < sSize; i++) {
+        if (locked[i] == '0') {
+            unlockedStack[++unlockedStackTop] = i;
+        } else if (s[i] == '(') {
+            openBracketsStack[++openBracketsStackTop] = i;
+        } else if (s[i] == ')') {
+            if (openBracketsStackTop != -1) {
+                openBracketsStack[openBracketsStackTop--] = 0;
+            } else if (unlockedStackTop != -1) {
+                unlockedStack[unlockedStackTop--] = 0;
+            } else {
+                return retVal;
+            }
+        }
+    }
+
+    while ((openBracketsStackTop != -1) && (unlockedStackTop != -1) &&
+           (openBracketsStack[openBracketsStackTop] < unlockedStack[unlockedStackTop])) {
+        openBracketsStack[openBracketsStackTop--] = 0;
+        unlockedStack[unlockedStackTop--] = 0;
+    }
+    if (openBracketsStackTop == -1) {
+        retVal = true;
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool canBeValid(string s, string locked) {
+        bool retVal = false;
+
+        int sSize = s.size();
+        if (sSize % 2 == 1) {
+            return retVal;
+        }
+
+        stack<int> openBrackets;
+        stack<int> unlocked;
+        for (int i = 0; i < sSize; i++) {
+            if (locked[i] == '0') {
+                unlocked.push(i);
+            } else if (s[i] == '(') {
+                openBrackets.push(i);
+            } else if (s[i] == ')') {
+                if (openBrackets.empty() == false) {
+                    openBrackets.pop();
+                } else if (unlocked.empty() == false) {
+                    unlocked.pop();
+                } else {
+                    return retVal;
+                }
+            }
+        }
+
+        while ((openBrackets.empty() == false) && (unlocked.empty() == false) &&
+               (openBrackets.top() < unlocked.top())) {
+            openBrackets.pop();
+            unlocked.pop();
+        }
+        if (openBrackets.empty() == true) {
+            retVal = true;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def canBeValid(self, s: str, locked: str) -> bool:
+        retVal = False
+
+        sSize = len(s)
+        if sSize % 2 == 1:
+            return retVal
+
+        openBrackets = []
+        unlocked = []
+        for i in range(sSize):
+            if locked[i] == "0":
+                unlocked.append(i)
+            elif s[i] == "(":
+                openBrackets.append(i)
+            elif s[i] == ")":
+                if openBrackets:
+                    openBrackets.pop()
+                elif unlocked:
+                    unlocked.pop()
+                else:
+                    return retVal
+
+        while openBrackets and unlocked and openBrackets[-1] < unlocked[-1]:
+            openBrackets.pop()
+            unlocked.pop()
+        if not openBrackets:
+            retVal = True
+
+        return retVal
+```
+
+</details>
+
 ## [2211. Count Collisions on a Road](https://leetcode.com/problems/count-collisions-on-a-road/)  1581
 
 <details><summary>Description</summary>
