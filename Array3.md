@@ -2460,6 +2460,158 @@ int* separateDigits(int* nums, int numsSize, int* returnSize) {
 
 </details>
 
+## [2657. Find the Prefix Common Array of Two Arrays](https://leetcode.com/problems/find-the-prefix-common-array-of-two-arrays/)  1304
+
+- [Official](https://leetcode.com/problems/find-the-prefix-common-array-of-two-arrays/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given two 0-indexed integer permutations A and B of length n.
+
+A prefix common array of A and B is an array C
+such that C[i] is equal to the count of numbers that are present at or before the index i in both A and B.
+
+Return the prefix common array of A and B.
+
+A sequence of n integers is called a permutation if it contains all integers from 1 to n exactly once.
+
+Example 1:
+Input: A = [1,3,2,4], B = [3,1,2,4]
+Output: [0,2,3,4]
+Explanation: At i = 0: no number is common, so C[0] = 0.
+At i = 1: 1 and 3 are common in A and B, so C[1] = 2.
+At i = 2: 1, 2, and 3 are common in A and B, so C[2] = 3.
+At i = 3: 1, 2, 3, and 4 are common in A and B, so C[3] = 4.
+
+Example 2:
+Input: A = [2,3,1], B = [3,1,2]
+Output: [0,1,3]
+Explanation: At i = 0: no number is common, so C[0] = 0.
+At i = 1: only 3 is common in A and B, so C[1] = 1.
+At i = 2: 1, 2, and 3 are common in A and B, so C[2] = 3.
+
+Constraints:
+1 <= A.length == B.length == n <= 50
+1 <= A[i], B[i] <= n
+It is guaranteed that A and B are both a permutation of n integers.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Consider keeping a frequency array that stores the count of occurrences of each number till index i.
+2. If a number occurred two times,
+   it means it occurred in both A and B since they’re both permutations so add one to the answer.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* findThePrefixCommonArray(int* A, int ASize, int* B, int BSize, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    pRetVal = (int*)calloc(ASize, sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malcallocloc");
+        return pRetVal;
+    }
+    (*returnSize) = ASize;
+
+    int frequency[ASize + 1];
+    memset(frequency, 0, sizeof(frequency));
+    int commonCount = 0;
+    for (int currentIndex = 0; currentIndex < ASize; ++currentIndex) {
+        frequency[A[currentIndex]]++;
+        if (frequency[A[currentIndex]] == 2) {
+            ++commonCount;
+        }
+
+        frequency[B[currentIndex]]++;
+        if (frequency[B[currentIndex]] == 2) {
+            ++commonCount;
+        }
+
+        pRetVal[currentIndex] = commonCount;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> findThePrefixCommonArray(vector<int>& A, vector<int>& B) {
+        vector<int> retVal;
+
+        int ASize = A.size();
+        retVal.resize(ASize, 0);
+
+        vector<int> frequency(ASize + 1, 0);
+        int commonCount = 0;
+        for (int currentIndex = 0; currentIndex < ASize; ++currentIndex) {
+            frequency[A[currentIndex]]++;
+            if (frequency[A[currentIndex]] == 2) {
+                ++commonCount;
+            }
+
+            frequency[B[currentIndex]]++;
+            if (frequency[B[currentIndex]] == 2) {
+                ++commonCount;
+            }
+
+            retVal[currentIndex] = commonCount;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def findThePrefixCommonArray(self, A: List[int], B: List[int]) -> List[int]:
+        retVal = None
+
+        ASize = len(A)
+        retVal = [0] * ASize
+
+        frequency = [0] * (ASize+1)
+        commonCount = 0
+        for currentIndex in range(ASize):
+            frequency[A[currentIndex]] += 1
+            if frequency[A[currentIndex]] == 2:
+                commonCount += 1
+
+            frequency[B[currentIndex]] += 1
+            if frequency[B[currentIndex]] == 2:
+                commonCount += 1
+
+            retVal[currentIndex] = commonCount
+
+        return retVal
+```
+
+</details>
+
 ## [2923. Find Champion I](https://leetcode.com/problems/find-champion-i/)  1235
 
 - [Official](https://leetcode.cn/problems/find-champion-i/description/)
