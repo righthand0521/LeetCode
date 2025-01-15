@@ -3839,6 +3839,194 @@ class Solution:
 
 </details>
 
+## [2429. Minimize XOR](https://leetcode.com/problems/minimize-xor/)  1532
+
+- [Official](https://leetcode.com/problems/minimize-xor/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+Given two positive integers num1 and num2, find the positive integer x such that:
+- x has the same number of set bits as num2, and
+- The value x XOR num1 is minimal.
+
+Note that XOR is the bitwise XOR operation.
+
+Return the integer x. The test cases are generated such that x is uniquely determined.
+
+The number of set bits of an integer is the number of 1's in its binary representation.
+
+Example 1:
+Input: num1 = 3, num2 = 5
+Output: 3
+Explanation:
+The binary representations of num1 and num2 are 0011 and 0101, respectively.
+The integer 3 has the same number of set bits as num2, and the value 3 XOR 3 = 0 is minimal.
+
+Example 2:
+Input: num1 = 1, num2 = 12
+Output: 3
+Explanation:
+The binary representations of num1 and num2 are 0001 and 1100, respectively.
+The integer 3 has the same number of set bits as num2, and the value 3 XOR 1 = 2 is minimal.
+
+Constraints:
+1 <= num1, num2 <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. To arrive at a small xor, try to turn off some bits from num1
+2. If there are still left bits to set, try to set them from the least significant bit
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool isSet(int x, int bit) {
+    bool retVal = x & (1 << bit);
+
+    return retVal;
+}
+int setBit(int x, int bit) {
+    int retVal = x | (1 << bit);
+
+    return retVal;
+}
+int unsetBit(int x, int bit) {
+    int retVal = x & (~(1 << bit));
+
+    return retVal;
+}
+int minimizeXor(int num1, int num2) {
+    int retVal = num1;
+
+    int targetSetBitsCount = __builtin_popcount(num2);
+    int setBitsCount = __builtin_popcount(retVal);
+    int currentBit = 0;
+
+    while (setBitsCount < targetSetBitsCount) {
+        if (isSet(retVal, currentBit) == false) {
+            retVal = setBit(retVal, currentBit);
+            setBitsCount++;
+        }
+        currentBit++;
+    }
+
+    while (setBitsCount > targetSetBitsCount) {
+        if (isSet(retVal, currentBit) == true) {
+            retVal = unsetBit(retVal, currentBit);
+            setBitsCount--;
+        }
+        currentBit++;
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    bool isSet(int x, int bit) {
+        bool retVal = x & (1 << bit);
+
+        return retVal;
+    }
+    int setBit(int x, int bit) {
+        int retVal = x | (1 << bit);
+
+        return retVal;
+    }
+    int unsetBit(int x, int bit) {
+        int retVal = x & (~(1 << bit));
+
+        return retVal;
+    }
+
+   public:
+    int minimizeXor(int num1, int num2) {
+        int retVal = num1;
+
+        int targetSetBitsCount = __builtin_popcount(num2);
+        int setBitsCount = __builtin_popcount(retVal);
+        int currentBit = 0;
+
+        while (setBitsCount < targetSetBitsCount) {
+            if (isSet(retVal, currentBit) == false) {
+                retVal = setBit(retVal, currentBit);
+                setBitsCount++;
+            }
+            currentBit++;
+        }
+
+        while (setBitsCount > targetSetBitsCount) {
+            if (isSet(retVal, currentBit) == true) {
+                retVal = unsetBit(retVal, currentBit);
+                setBitsCount--;
+            }
+            currentBit++;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def isSet(self, x: int, bit: int) -> bool:
+        retVal = ((x & (1 << bit)) != 0)
+
+        return retVal
+
+    def setBit(self, x: int, bit: int) -> int:
+        retVal = (x | (1 << bit))
+
+        return retVal
+
+    def unsetBit(self, x: int, bit: int) -> int:
+        retVal = (x & ~(1 << bit))
+
+        return retVal
+
+    def minimizeXor(self, num1: int, num2: int) -> int:
+        retVal = num1
+
+        targetSetBitsCount = bin(num2).count("1")
+        setBitsCount = bin(retVal).count("1")
+        currentBit = 0
+
+        while setBitsCount < targetSetBitsCount:
+            if self.isSet(retVal, currentBit) == False:
+                retVal = self.setBit(retVal, currentBit)
+                setBitsCount += 1
+            currentBit += 1
+
+        while setBitsCount > targetSetBitsCount:
+            if self.isSet(retVal, currentBit) == True:
+                retVal = self.unsetBit(retVal, currentBit)
+                setBitsCount -= 1
+            currentBit += 1
+
+        return retVal
+```
+
+</details>
+
 ## [2433. Find The Original Array of Prefix Xor](https://leetcode.com/problems/find-the-original-array-of-prefix-xor/)  1366
 
 - [Official](https://leetcode.com/problems/find-the-original-array-of-prefix-xor/editorial/)
