@@ -3839,6 +3839,141 @@ class Solution:
 
 </details>
 
+## [2425. Bitwise XOR of All Pairings](https://leetcode.com/problems/bitwise-xor-of-all-pairings/)  1622
+
+- [Official](https://leetcode.com/problems/bitwise-xor-of-all-pairings/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given two 0-indexed arrays, nums1 and nums2, consisting of non-negative integers.
+There exists another array, nums3, which contains the bitwise XOR of all pairings of integers between nums1 and nums2
+(every integer in nums1 is paired with every integer in nums2 exactly once).
+
+Return the bitwise XOR of all integers in nums3.
+
+Example 1:
+Input: nums1 = [2,1,3], nums2 = [10,2,5,0]
+Output: 13
+Explanation:
+A possible nums3 array is [8,0,7,2,11,3,4,1,9,1,6,3].
+The bitwise XOR of all these numbers is 13, so we return 13.
+
+Example 2:
+Input: nums1 = [1,2], nums2 = [3,4]
+Output: 0
+Explanation:
+All possible pairs of bitwise XORs are nums1[0] ^ nums2[0], nums1[0] ^ nums2[1], nums1[1] ^ nums2[0],
+and nums1[1] ^ nums2[1].
+Thus, one possible nums3 array is [2,5,1,6].
+2 ^ 5 ^ 1 ^ 6 = 0, so we return 0.
+
+Constraints:
+1 <= nums1.length, nums2.length <= 10^5
+0 <= nums1[i], nums2[j] <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Think how the count of each individual integer affects the final answer.
+2. If the length of nums1 is m and the length of nums2 is n,
+   then each number in nums1 is repeated n times and each number in nums2 is repeated m times.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int xorAllNums(int* nums1, int nums1Size, int* nums2, int nums2Size) {
+    int retVal = 0;
+
+    int xor1 = 0;
+    if (nums2Size % 2 != 0) {
+        for (int i = 0; i < nums1Size; i++) {
+            xor1 ^= nums1[i];
+        }
+    }
+
+    int xor2 = 0;
+    if (nums1Size % 2 != 0) {
+        for (int i = 0; i < nums2Size; i++) {
+            xor2 ^= nums2[i];
+        }
+    }
+
+    retVal = xor1 ^ xor2;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int xorAllNums(vector<int>& nums1, vector<int>& nums2) {
+        int retVal = 0;
+
+        int nums1Size = nums1.size();
+        int nums2Size = nums2.size();
+
+        int xor1 = 0;
+        if (nums2Size % 2 != 0) {
+            for (int num : nums1) {
+                xor1 ^= num;
+            }
+        }
+
+        int xor2 = 0;
+        if (nums1Size % 2 != 0) {
+            for (int num : nums2) {
+                xor2 ^= num;
+            }
+        }
+
+        retVal = xor1 ^ xor2;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def xorAllNums(self, nums1: List[int], nums2: List[int]) -> int:
+        retVal = 0
+
+        nums1Size = len(nums1)
+        nums2Size = len(nums2)
+
+        xor1 = 0
+        if nums2Size % 2:
+            for num in nums1:
+                xor1 ^= num
+
+        xor2 = 0
+        if nums1Size % 2:
+            for num in nums2:
+                xor2 ^= num
+
+        retVal = xor1 ^ xor2
+
+        return retVal
+```
+
+</details>
+
 ## [2429. Minimize XOR](https://leetcode.com/problems/minimize-xor/)  1532
 
 - [Official](https://leetcode.com/problems/minimize-xor/editorial/)
