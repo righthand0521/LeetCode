@@ -2819,6 +2819,246 @@ class Solution:
 
 </details>
 
+## [1368. Minimum Cost to Make at Least One Valid Path in a Grid](https://leetcode.com/problems/minimum-cost-to-make-at-least-one-valid-path-in-a-grid/)  2068
+
+- [Official](https://leetcode.com/problems/minimum-cost-to-make-at-least-one-valid-path-in-a-grid/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-cost-to-make-at-least-one-valid-path-in-a-grid/solutions/123916/shi-wang-ge-tu-zhi-shao-you-yi-tiao-you-xiao-lu-2/)
+
+<details><summary>Description</summary>
+
+```text
+Given an m x n grid. Each cell of the grid has a sign pointing to the next cell
+you should visit if you are currently in this cell.
+The sign of grid[i][j] can be:
+- 1 which means go to the cell to the right. (i.e go from grid[i][j] to grid[i][j + 1])
+- 2 which means go to the cell to the left. (i.e go from grid[i][j] to grid[i][j - 1])
+- 3 which means go to the lower cell. (i.e go from grid[i][j] to grid[i + 1][j])
+- 4 which means go to the upper cell. (i.e go from grid[i][j] to grid[i - 1][j])
+
+Notice that there could be some signs on the cells of the grid that point outside the grid.
+
+You will initially start at the upper left cell (0, 0).
+A valid path in the grid is a path that starts
+from the upper left cell (0, 0) and ends at the bottom-right cell (m - 1, n - 1) following the signs on the grid.
+The valid path does not have to be the shortest.
+
+You can modify the sign on a cell with cost = 1. You can modify the sign on a cell one time only.
+
+Return the minimum cost to make the grid have at least one valid path.
+
+Example 1:
+Input: grid = [[1,1,1,1],[2,2,2,2],[1,1,1,1],[2,2,2,2]]
+Output: 3
+Explanation: You will start at point (0, 0).
+The path to (3, 3) is as follows.
+(0, 0) --> (0, 1) --> (0, 2) --> (0, 3) change the arrow to down with cost = 1
+--> (1, 3) --> (1, 2) --> (1, 1) --> (1, 0) change the arrow to down with cost = 1
+--> (2, 0) --> (2, 1) --> (2, 2) --> (2, 3) change the arrow to down with cost = 1
+--> (3, 3)
+The total cost = 3.
+
+Example 2:
+Input: grid = [[1,1,3],[3,2,2],[1,1,4]]
+Output: 0
+Explanation: You can follow the path from (0, 0) to (2, 2).
+
+Example 3:
+Input: grid = [[1,2],[4,3]]
+Output: 1
+
+Constraints:
+m == grid.length
+n == grid[i].length
+1 <= m, n <= 100
+1 <= grid[i][j] <= 4
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Build a graph where grid[i][j] is connected to all the four side-adjacent cells with weighted edge.
+   the weight is 0 if the sign is pointing to the adjacent cell or 1 otherwise.
+2. Do BFS from (0, 0) visit all edges with weight = 0 first. the answer is the distance to (m -1, n - 1).
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int minCost(int** grid, int gridSize, int* gridColSize) {
+    int retVal = 0;
+
+    int rowSize = gridSize;
+    int colSize = gridColSize[0];
+
+    // Track minimum cost to reach each cell
+    int minCost[rowSize][colSize];
+    memset(minCost, 0, sizeof(minCost));
+    for (int i = 0; i < rowSize; i++) {
+        for (int j = 0; j < colSize; j++) {
+            minCost[i][j] = INT_MAX;
+        }
+    }
+    minCost[0][0] = 0;
+
+    // Direction vectors: right, left, down, up (matching grid values 1,2,3,4)
+    int direction[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+
+    // Use deque for 0-1 BFS - add zero cost moves to front, cost=1 to back
+    int bfsQueueFront = rowSize * colSize;
+    int bfsQueueBack = rowSize * colSize;
+    int bfsQueueSize = bfsQueueFront + bfsQueueBack + 1;
+    int bfsQueue[bfsQueueSize][2];
+    memset(bfsQueue, 0, sizeof(bfsQueue));
+    bfsQueueFront--;
+    bfsQueue[bfsQueueFront][0] = 0;
+    bfsQueue[bfsQueueFront][1] = 0;
+
+    int row, col, newRow, newCol, cost;
+    while (bfsQueueFront != bfsQueueBack) {
+        row = bfsQueue[bfsQueueFront][0];
+        col = bfsQueue[bfsQueueFront][1];
+        bfsQueueFront++;
+
+        for (int dir = 0; dir < 4; dir++) {
+            newRow = row + direction[dir][0];
+            newCol = col + direction[dir][1];
+            if ((newRow < 0) || (newRow >= rowSize) || (newCol < 0) || (newCol >= colSize)) {
+                continue;
+            }
+
+            cost = (grid[row][col] != (dir + 1)) ? (1) : (0);
+            if (minCost[row][col] + cost >= minCost[newRow][newCol]) {
+                continue;
+            }
+
+            minCost[newRow][newCol] = minCost[row][col] + cost;
+
+            // Add to back if cost=1, front if cost=0
+            if (cost == 1) {
+                bfsQueueBack++;
+                bfsQueue[bfsQueueBack][0] = newRow;
+                bfsQueue[bfsQueueBack][1] = newCol;
+            } else {
+                bfsQueueFront--;
+                bfsQueue[bfsQueueFront][0] = newRow;
+                bfsQueue[bfsQueueFront][1] = newCol;
+            }
+        }
+    }
+
+    retVal = minCost[rowSize - 1][colSize - 1];
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minCost(vector<vector<int>>& grid) {
+        int retVal = 0;
+
+        int gridSize = grid.size();
+        int gridColSize = grid[0].size();
+
+        // Track minimum cost to reach each cell
+        vector<vector<int>> minCost(gridSize, vector<int>(gridColSize, numeric_limits<int>::max()));
+        minCost[0][0] = 0;
+        // Direction vectors: right, left, down, up (matching grid values 1,2,3,4)
+        vector<vector<int>> direction = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+        // Use deque for 0-1 BFS - add zero cost moves to front, cost=1 to back
+        deque<pair<int, int>> bfsQueue;
+        bfsQueue.push_front({0, 0});
+        while (bfsQueue.empty() == false) {
+            auto [row, col] = bfsQueue.front();
+            bfsQueue.pop_front();
+
+            for (int dir = 0; dir < 4; dir++) {
+                int newRow = row + direction[dir][0];
+                int newCol = col + direction[dir][1];
+                if ((newRow < 0) || (newRow >= gridSize) || (newCol < 0) || (newCol >= gridColSize)) {
+                    continue;
+                }
+
+                int cost = (grid[row][col] != (dir + 1)) ? (1) : (0);
+                if (minCost[row][col] + cost >= minCost[newRow][newCol]) {
+                    continue;
+                }
+
+                minCost[newRow][newCol] = minCost[row][col] + cost;
+
+                // Add to back if cost=1, front if cost=0
+                if (cost == 1) {
+                    bfsQueue.push_back({newRow, newCol});
+                } else {
+                    bfsQueue.push_front({newRow, newCol});
+                }
+            }
+        }
+        retVal = minCost[gridSize - 1][gridColSize - 1];
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minCost(self, grid: List[List[int]]) -> int:
+        retVal = 0
+
+        gridSize = len(grid)
+        gridColSize = len(grid[0])
+
+        minCost = [[float("inf")] * gridColSize for _ in range(gridSize)]
+        minCost[0][0] = 0
+
+        # Direction vectors: right, left, down, up (matching grid values 1,2,3,4)
+        direction = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+        # Use deque for 0-1 BFS - add zero cost moves to front, cost=1 to back
+        bfsQueue = deque([(0, 0)])
+        while bfsQueue:
+            row, col = bfsQueue.popleft()
+
+            for idx, (dx, dy) in enumerate(direction):
+                newRow = row + dx
+                newCol = col + dy
+                if (newRow < 0) or (newRow >= gridSize) or (newCol < 0) or (newCol >= gridColSize):
+                    continue
+
+                cost = 1
+                if grid[row][col] == idx + 1:
+                    cost = 0
+                if minCost[row][col] + cost >= minCost[newRow][newCol]:
+                    continue
+
+                minCost[newRow][newCol] = minCost[row][col] + cost
+
+                # Add to back if cost=1, front if cost=0
+                if cost == 1:
+                    bfsQueue.append((newRow, newCol))
+                else:
+                    bfsQueue.appendleft((newRow, newCol))
+
+        retVal = minCost[gridSize - 1][gridColSize - 1]
+
+        return retVal
+```
+
+</details>
+
 ## [1376. Time Needed to Inform All Employees](https://leetcode.com/problems/time-needed-to-inform-all-employees/)  1561
 
 - [Official](https://leetcode.com/problems/time-needed-to-inform-all-employees/editorial/)
