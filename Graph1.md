@@ -2410,6 +2410,224 @@ class Solution:
 
 </details>
 
+## [407. Trapping Rain Water II](https://leetcode.com/problems/trapping-rain-water-ii/)
+
+- [Official](https://leetcode.com/problems/trapping-rain-water-ii/editorial/)
+- [Official](https://leetcode.cn/problems/trapping-rain-water-ii/solutions/1079738/jie-yu-shui-ii-by-leetcode-solution-vlj3/)
+
+<details><summary>Description</summary>
+
+```text
+Given an m x n integer matrix heightMap representing the height of each unit cell in a 2D elevation map,
+return the volume of water it can trap after raining.
+
+Example 1:
+Input: heightMap = [[1,4,3,1,3,2],[3,2,1,3,2,4],[2,3,3,2,3,1]]
+Output: 4
+Explanation: After the rain, water is trapped between the blocks.
+We have two small ponds 1 and 3 units trapped.
+The total volume of water trapped is 4.
+
+Example 2:
+Input: heightMap = [[3,3,3,3,3],[3,2,2,2,3],[3,2,1,2,3],[3,2,2,2,3],[3,3,3,3,3]]
+Output: 10
+
+Constraints:
+m == heightMap.length
+n == heightMap[i].length
+1 <= m, n <= 200
+0 <= heightMap[i][j] <= 2 * 10^4
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int trapRainWater(int** heightMap, int heightMapSize, int* heightMapColSize) {
+    int retVal = 0;
+
+    int rowSize = heightMapSize;
+    int colSize = heightMapColSize[0];
+    int i, j;
+
+    int maxHeight = 0;
+    for (i = 0; i < rowSize; ++i) {
+        for (j = 0; j < colSize; ++j) {
+            maxHeight = fmax(maxHeight, heightMap[i][j]);
+        }
+    }
+
+    int water[rowSize][colSize];
+    memset(water, 0, sizeof(water));
+    for (i = 0; i < rowSize; ++i) {
+        for (j = 0; j < colSize; ++j) {
+            water[i][j] = maxHeight;
+        }
+    }
+
+    int bfsQueueHead = 0;
+    int bfsQueueTail = 0;
+    int bfsQueueSize = rowSize * colSize * 8;
+    int bfsQueue[bfsQueueSize][2];
+    memset(bfsQueue, 0, sizeof(bfsQueue));
+    for (i = 0; i < rowSize; ++i) {
+        for (j = 0; j < colSize; ++j) {
+            if ((i != 0) && (i != rowSize - 1) && (j != 0) && (j != colSize - 1)) {
+                continue;
+            }
+
+            if (water[i][j] > heightMap[i][j]) {
+                water[i][j] = heightMap[i][j];
+                bfsQueue[bfsQueueTail][0] = i;
+                bfsQueue[bfsQueueTail][1] = j;
+                bfsQueueTail++;
+            }
+        }
+    }
+
+    int direction[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+    int x, y, nx, ny;
+    while (bfsQueueHead < bfsQueueTail) {
+        x = bfsQueue[bfsQueueHead][0];
+        y = bfsQueue[bfsQueueHead][1];
+        bfsQueueHead++;
+
+        for (i = 0; i < 4; ++i) {
+            nx = x + direction[i][0];
+            ny = y + direction[i][1];
+            if ((nx < 0) || (nx >= rowSize) || (ny < 0) || (ny >= colSize)) {
+                continue;
+            }
+
+            if ((water[x][y] < water[nx][ny]) && (water[nx][ny] > heightMap[nx][ny])) {
+                water[nx][ny] = fmax(water[x][y], heightMap[nx][ny]);
+                bfsQueue[bfsQueueTail][0] = nx;
+                bfsQueue[bfsQueueTail][1] = ny;
+                bfsQueueTail++;
+            }
+        }
+    }
+
+    for (i = 0; i < rowSize; ++i) {
+        for (j = 0; j < colSize; ++j) {
+            retVal = retVal + water[i][j] - heightMap[i][j];
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int trapRainWater(vector<vector<int>>& heightMap) {
+        int retVal = 0;
+
+        int heightMapSize = heightMap.size();
+        int heightMapColSize = heightMap[0].size();
+
+        int maxHeight = 0;
+        for (int i = 0; i < heightMapSize; ++i) {
+            maxHeight = max(maxHeight, *max_element(heightMap[i].begin(), heightMap[i].end()));
+        }
+        vector<vector<int>> water(heightMapSize, vector<int>(heightMapColSize, maxHeight));
+        queue<pair<int, int>> bfsQueue;
+        for (int i = 0; i < heightMapSize; ++i) {
+            for (int j = 0; j < heightMapColSize; ++j) {
+                if ((i != 0) && (i != heightMapSize - 1) && (j != 0) && (j != heightMapColSize - 1)) {
+                    continue;
+                }
+
+                if (water[i][j] > heightMap[i][j]) {
+                    water[i][j] = heightMap[i][j];
+                    bfsQueue.push(make_pair(i, j));
+                }
+            }
+        }
+
+        vector<vector<int>> direction = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+        while (bfsQueue.empty() == false) {
+            int x = bfsQueue.front().first;
+            int y = bfsQueue.front().second;
+            bfsQueue.pop();
+
+            for (int dir = 0; dir < 4; dir++) {
+                int nx = x + direction[dir][0];
+                int ny = y + direction[dir][1];
+                if ((nx < 0) || (nx >= heightMapSize) || (ny < 0) || (ny >= heightMapColSize)) {
+                    continue;
+                }
+
+                if ((water[x][y] < water[nx][ny]) && (water[nx][ny] > heightMap[nx][ny])) {
+                    water[nx][ny] = max(water[x][y], heightMap[nx][ny]);
+                    bfsQueue.push(make_pair(nx, ny));
+                }
+            }
+        }
+
+        for (int i = 0; i < heightMapSize; ++i) {
+            for (int j = 0; j < heightMapColSize; ++j) {
+                retVal = retVal + water[i][j] - heightMap[i][j];
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def trapRainWater(self, heightMap: List[List[int]]) -> int:
+        retVal = 0
+
+        heightMapSize = len(heightMap)
+        heightMapColSize = len(heightMap[0])
+
+        maxHeight = max(max(row) for row in heightMap)
+        water = [[maxHeight for _ in range(heightMapColSize)] for _ in range(heightMapSize)]
+        bfsQueue = []
+        for i in range(heightMapSize):
+            for j in range(heightMapColSize):
+                if i != 0 and i != heightMapSize - 1 and j != 0 and j != heightMapColSize - 1:
+                    continue
+
+                if water[i][j] > heightMap[i][j]:
+                    water[i][j] = heightMap[i][j]
+                    bfsQueue.append([i, j])
+
+        direction = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+        while bfsQueue:
+            [x, y] = bfsQueue.pop(0)
+            for dx, dy in direction:
+                nx = x + dx
+                ny = y + dy
+                if (nx < 0) or (nx >= heightMapSize) or (ny < 0) or (ny >= heightMapColSize):
+                    continue
+
+                if (water[x][y] < water[nx][ny]) and (water[nx][ny] > heightMap[nx][ny]):
+                    water[nx][ny] = max(water[x][y], heightMap[nx][ny])
+                    bfsQueue.append([nx, ny])
+
+        for i in range(heightMapSize):
+            for j in range(heightMapColSize):
+                retVal = retVal + water[i][j] - heightMap[i][j]
+
+        return retVal
+```
+
+</details>
+
 ## [433. Minimum Genetic Mutation](https://leetcode.com/problems/minimum-genetic-mutation/)
 
 - [Official](https://leetcode.cn/problems/minimum-genetic-mutation/solutions/1470943/zui-xiao-ji-yin-bian-hua-by-leetcode-sol-lhwy/)
