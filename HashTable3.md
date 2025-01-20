@@ -3967,6 +3967,214 @@ class Solution:
 
 </details>
 
+## [2661. First Completely Painted Row or Column](https://leetcode.com/problems/first-completely-painted-row-or-column/)  1502
+
+- [Official](https://leetcode.com/problems/first-completely-painted-row-or-column/editorial/)
+- [Official](https://leetcode.cn/problems/first-completely-painted-row-or-column/solutions/2546583/zhao-dao-die-tu-yuan-su-by-leetcode-solu-8pz6/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed integer array arr, and an m x n integer matrix mat.
+arr and mat both contain all the integers in the range [1, m * n].
+
+Go through each index i in arr starting from index 0 and paint the cell in mat containing the integer arr[i].
+
+Return the smallest index i at which either a row or a column will be completely painted in mat.
+
+Example 1:
+Input: arr = [1,3,4,2], mat = [[1,4],[2,3]]
+Output: 2
+Explanation: The moves are shown in order,
+and both the first row and second column of the matrix become fully painted at arr[2].
+
+Example 2:
+Input: arr = [2,8,7,4,1,3,5,6,9], mat = [[3,2,5],[1,4,6],[8,7,9]]
+Output: 3
+Explanation: The second column becomes fully painted at arr[3].
+
+Constraints:
+m == mat.length
+n = mat[i].length
+arr.length == m * n
+1 <= m, n <= 10^5
+1 <= m * n <= 10^5
+1 <= arr[i], mat[r][c] <= m * n
+All the integers of arr are unique.
+All the integers of mat are unique.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Can we use a frequency array?
+2. Pre-process the positions of the values in the matrix.
+3. Traverse the array and increment the corresponding row and column frequency using the pre-processed positions.
+4. If the row frequency becomes equal to the number of columns, or vice-versa return the current index.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable* pFree) {
+    struct hashTable* current;
+    struct hashTable* tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int firstCompleteIndex(int* arr, int arrSize, int** mat, int matSize, int* matColSize) {
+    int retVal = 0;
+
+    struct hashTable* pHashTable = NULL;
+    struct hashTable* pTemp;
+    int key;
+    for (int i = 0; i < arrSize; ++i) {
+        key = arr[i];
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTable, &key, pTemp);
+        if (pTemp == NULL) {
+            pTemp = (struct hashTable*)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                freeAll(pHashTable);
+                return retVal;
+            }
+            pTemp->key = key;
+            pTemp->value = i;
+            HASH_ADD_INT(pHashTable, key, pTemp);
+        } else {
+            pTemp->value = i;
+        }
+    }
+
+    int rowSize = matSize;
+    int colSize = matColSize[0];
+    retVal = INT_MAX;
+    int lastElementIndex, indexVal;
+    for (int row = 0; row < rowSize; row++) {
+        lastElementIndex = INT_MIN;
+        for (int col = 0; col < colSize; col++) {
+            indexVal = lastElementIndex;
+            key = mat[row][col];
+            pTemp = NULL;
+            HASH_FIND_INT(pHashTable, &key, pTemp);
+            if (pTemp != NULL) {
+                indexVal = pTemp->value;
+            }
+            lastElementIndex = fmax(lastElementIndex, indexVal);
+        }
+        retVal = fmin(retVal, lastElementIndex);
+    }
+    for (int col = 0; col < colSize; col++) {
+        lastElementIndex = INT_MIN;
+        for (int row = 0; row < rowSize; row++) {
+            indexVal = lastElementIndex;
+            key = mat[row][col];
+            pTemp = NULL;
+            HASH_FIND_INT(pHashTable, &key, pTemp);
+            if (pTemp != NULL) {
+                indexVal = pTemp->value;
+            }
+            lastElementIndex = fmax(lastElementIndex, indexVal);
+        }
+        retVal = fmin(retVal, lastElementIndex);
+    }
+
+    //
+    freeAll(pHashTable);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int firstCompleteIndex(vector<int>& arr, vector<vector<int>>& mat) {
+        int retVal = 0;
+
+        int arrSize = arr.size();
+        unordered_map<int, int> numToIndex;
+        for (int i = 0; i < arrSize; i++) {
+            numToIndex[arr[i]] = i;
+        }
+
+        int matRowSize = mat.size();
+        int matColSize = mat[0].size();
+        retVal = numeric_limits<int>::max();
+        for (int row = 0; row < matRowSize; row++) {
+            int lastElementIndex = numeric_limits<int>::min();
+            for (int col = 0; col < matColSize; col++) {
+                int indexVal = numToIndex[mat[row][col]];
+                lastElementIndex = max(lastElementIndex, indexVal);
+            }
+            retVal = min(retVal, lastElementIndex);
+        }
+        for (int col = 0; col < matColSize; col++) {
+            int lastElementIndex = numeric_limits<int>::min();
+            for (int row = 0; row < matRowSize; row++) {
+                int indexVal = numToIndex[mat[row][col]];
+                lastElementIndex = max(lastElementIndex, indexVal);
+            }
+            retVal = min(retVal, lastElementIndex);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def firstCompleteIndex(self, arr: List[int], mat: List[List[int]]) -> int:
+        retVal = 0
+
+        arrSize = len(arr)
+        numToIndex = {}
+        for i in range(arrSize):
+            numToIndex[arr[i]] = i
+
+        matRowSize = len(mat)
+        matColSize = len(mat[0])
+        retVal = float("inf")
+        for row in range(matRowSize):
+            lastElementIndex = float("-inf")
+            for col in range(matColSize):
+                indexVal = numToIndex[mat[row][col]]
+                lastElementIndex = max(lastElementIndex, indexVal)
+            retVal = min(retVal, lastElementIndex)
+        for col in range(matColSize):
+            lastElementIndex = float("-inf")
+            for row in range(matRowSize):
+                indexVal = numToIndex[mat[row][col]]
+                lastElementIndex = max(lastElementIndex, indexVal)
+            retVal = min(retVal, lastElementIndex)
+
+        return retVal
+```
+
+</details>
+
 ## [2981. Find Longest Special Substring That Occurs Thrice I](https://leetcode.com/problems/find-longest-special-substring-that-occurs-thrice-i/)  1505
 
 - [Official](https://leetcode.com/problems/find-longest-special-substring-that-occurs-thrice-i/editorial/)
