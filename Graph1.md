@@ -3058,6 +3058,195 @@ class Solution:
 
 </details>
 
+## [542. 01 Matrix](https://leetcode.com/problems/01-matrix/)
+
+- [Official](https://leetcode.cn/problems/01-matrix/solutions/202012/01ju-zhen-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+Given an m x n binary matrix mat, return the distance of the nearest 0 for each cell.
+
+The distance between two adjacent cells is 1.
+
+Example 1:
+Input: mat = [[0,0,0],[0,1,0],[0,0,0]]
+Output: [[0,0,0],[0,1,0],[0,0,0]]
+
+Example 2:
+Input: mat = [[0,0,0],[0,1,0],[1,1,1]]
+Output: [[0,0,0],[0,1,0],[1,2,1]]
+
+Constraints:
+m == mat.length
+n == mat[i].length
+1 <= m, n <= 10^4
+1 <= m * n <= 10^4
+mat[i][j] is either 0 or 1.
+There is at least one 0 in mat.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int** updateMatrix(int** mat, int matSize, int* matColSize, int* returnSize, int** returnColumnSizes) {
+    int** pRetVal = NULL;
+
+    (*returnSize) = 0;
+    int i, j;
+
+    (*returnColumnSizes) = (int*)calloc(matSize, sizeof(int));
+    if ((*returnColumnSizes) == NULL) {
+        perror("calloc");
+        return pRetVal;
+    }
+    memcpy((*returnColumnSizes), matColSize, (matSize * sizeof(int)));
+    pRetVal = (int**)malloc(matSize * sizeof(int*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        free((*returnColumnSizes));
+        (*returnColumnSizes) = NULL;
+        return pRetVal;
+    }
+    for (i = 0; i < matSize; ++i) {
+        pRetVal[i] = (int*)calloc(matColSize[i], sizeof(int));
+        if (pRetVal[i] == NULL) {
+            perror("calloc");
+            for (j = 0; j < i; ++j) {
+                free(pRetVal[j]);
+                pRetVal[j] = NULL;
+            }
+            free(pRetVal);
+            pRetVal = NULL;
+        }
+        (*returnColumnSizes)[i] = matColSize[i];
+    }
+    (*returnSize) = matSize;
+
+    int maxValue = (int)(1e5);  // 1 <= m, n <= 10^4, 1 <= m * n <= 10^4
+    for (i = 0; i < (*returnSize); ++i) {
+        for (j = 0; j < ((*returnColumnSizes)[i]); ++j) {
+            if (mat[i][j] != 0) {
+                pRetVal[i][j] = maxValue;
+            }
+        }
+    }
+    for (i = 0; i < (*returnSize); ++i) {
+        for (j = 0; j < ((*returnColumnSizes)[i]); ++j) {
+            if (i - 1 >= 0) {
+                pRetVal[i][j] = fmin(pRetVal[i][j], pRetVal[i - 1][j] + 1);
+            }
+            if (j - 1 >= 0) {
+                pRetVal[i][j] = fmin(pRetVal[i][j], pRetVal[i][j - 1] + 1);
+            }
+        }
+    }
+    for (i = (*returnSize) - 1; i >= 0; --i) {
+        for (j = ((*returnColumnSizes)[i]) - 1; j >= 0; --j) {
+            if (i + 1 < matSize) {
+                pRetVal[i][j] = fmin(pRetVal[i][j], pRetVal[i + 1][j] + 1);
+            }
+            if (j + 1 < ((*returnColumnSizes)[i])) {
+                pRetVal[i][j] = fmin(pRetVal[i][j], pRetVal[i][j + 1] + 1);
+            }
+        }
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<vector<int>> updateMatrix(vector<vector<int>>& mat) {
+        vector<vector<int>> retVal;
+
+        int matSize = mat.size();
+        int matColSize = mat[0].size();
+
+        int maxValue = (int)(1e5);  // 1 <= m, n <= 10^4, 1 <= m * n <= 10^4
+        retVal.resize(matSize, vector<int>(matColSize, maxValue));
+        for (int i = 0; i < matSize; ++i) {
+            for (int j = 0; j < matColSize; ++j) {
+                if (mat[i][j] == 0) {
+                    retVal[i][j] = 0;
+                }
+            }
+        }
+        for (int i = 0; i < matSize; ++i) {
+            for (int j = 0; j < matColSize; ++j) {
+                if (i - 1 >= 0) {
+                    retVal[i][j] = min(retVal[i][j], retVal[i - 1][j] + 1);
+                }
+                if (j - 1 >= 0) {
+                    retVal[i][j] = min(retVal[i][j], retVal[i][j - 1] + 1);
+                }
+            }
+        }
+        for (int i = matSize - 1; i >= 0; --i) {
+            for (int j = matColSize - 1; j >= 0; --j) {
+                if (i + 1 < matSize) {
+                    retVal[i][j] = min(retVal[i][j], retVal[i + 1][j] + 1);
+                }
+                if (j + 1 < matColSize) {
+                    retVal[i][j] = min(retVal[i][j], retVal[i][j + 1] + 1);
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def updateMatrix(self, mat: List[List[int]]) -> List[List[int]]:
+        retVal = []
+
+        matSize = len(mat)
+        matColSize = len(mat[0])
+
+        maxValue = 10**5  # 1 <= m, n <= 10^4, 1 <= m * n <= 10^4
+        retVal = [[maxValue] * matColSize for _ in range(matSize)]
+        for i in range(matSize):
+            for j in range(matColSize):
+                if mat[i][j] == 0:
+                    retVal[i][j] = 0
+        for i in range(matSize):
+            for j in range(matColSize):
+                if i - 1 >= 0:
+                    retVal[i][j] = min(retVal[i][j], retVal[i - 1][j] + 1)
+                if j - 1 >= 0:
+                    retVal[i][j] = min(retVal[i][j], retVal[i][j - 1] + 1)
+        for i in range(matSize - 1, -1, -1):
+            for j in range(matColSize - 1, -1, -1):
+                if i + 1 < matSize:
+                    retVal[i][j] = min(retVal[i][j], retVal[i + 1][j] + 1)
+                if j + 1 < matColSize:
+                    retVal[i][j] = min(retVal[i][j], retVal[i][j + 1] + 1)
+
+        return retVal
+```
+
+</details>
+
 ## [547. Number of Provinces](https://leetcode.com/problems/number-of-provinces/)
 
 - [Official](https://leetcode.com/problems/number-of-provinces/editorial/)

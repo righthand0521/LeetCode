@@ -3,16 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define DP (1)   // Dynamic Programming
-#define BFS (1)  // Breadth-First Search
-#if (DP)
-#elif (BFS)
-typedef struct {
-    int x;
-    int y;
-    int level;
-} Queue;
-#endif
 /**
  * Return an array of arrays of size *returnSize.
  * The sizes of the arrays are returned as *returnColumnSizes array.
@@ -21,41 +11,38 @@ typedef struct {
 int** updateMatrix(int** mat, int matSize, int* matColSize, int* returnSize, int** returnColumnSizes) {
     int** pRetVal = NULL;
 
+    (*returnSize) = 0;
     int i, j;
 
-    // returnSize
-    (*returnSize) = 0;
-    // malloc return columnSizes
-    (*returnColumnSizes) = (int*)malloc(matSize * sizeof(int));
+    (*returnColumnSizes) = (int*)calloc(matSize, sizeof(int));
     if ((*returnColumnSizes) == NULL) {
-        perror("malloc");
-        goto exitRetVal;
+        perror("calloc");
+        return pRetVal;
     }
-    memset((*returnColumnSizes), 0, (matSize * sizeof(int)));
     memcpy((*returnColumnSizes), matColSize, (matSize * sizeof(int)));
-    // malloc return array
     pRetVal = (int**)malloc(matSize * sizeof(int*));
     if (pRetVal == NULL) {
         perror("malloc");
-        goto exitColumnSizes;
+        free((*returnColumnSizes));
+        (*returnColumnSizes) = NULL;
+        return pRetVal;
     }
     for (i = 0; i < matSize; ++i) {
-        pRetVal[i] = (int*)malloc(((*returnColumnSizes)[i]) * sizeof(int));
+        pRetVal[i] = (int*)calloc(matColSize[i], sizeof(int));
         if (pRetVal[i] == NULL) {
-            perror("malloc");
-            goto exitSize;
+            perror("calloc");
+            for (j = 0; j < i; ++j) {
+                free(pRetVal[j]);
+                pRetVal[j] = NULL;
+            }
+            free(pRetVal);
+            pRetVal = NULL;
         }
-        memset(pRetVal[i], 0, ((*returnColumnSizes)[i]) * sizeof(int));
+        (*returnColumnSizes)[i] = matColSize[i];
     }
-
-    //
     (*returnSize) = matSize;
-#if (DP)
-    printf("Dynamic Programming\n");
 
-    // 1 <= m, n <= 10^4, 1 <= m * n <= 10^4
-    int maxValue = 1e5;
-
+    int maxValue = (int)(1e5);  // 1 <= m, n <= 10^4, 1 <= m * n <= 10^4
     for (i = 0; i < (*returnSize); ++i) {
         for (j = 0; j < ((*returnColumnSizes)[i]); ++j) {
             if (mat[i][j] != 0) {
@@ -63,7 +50,6 @@ int** updateMatrix(int** mat, int matSize, int* matColSize, int* returnSize, int
             }
         }
     }
-
     for (i = 0; i < (*returnSize); ++i) {
         for (j = 0; j < ((*returnColumnSizes)[i]); ++j) {
             if (i - 1 >= 0) {
@@ -74,7 +60,6 @@ int** updateMatrix(int** mat, int matSize, int* matColSize, int* returnSize, int
             }
         }
     }
-
     for (i = (*returnSize) - 1; i >= 0; --i) {
         for (j = ((*returnColumnSizes)[i]) - 1; j >= 0; --j) {
             if (i + 1 < matSize) {
@@ -85,103 +70,7 @@ int** updateMatrix(int** mat, int matSize, int* matColSize, int* returnSize, int
             }
         }
     }
-#elif (BFS)
-    printf("Breadth-First Search\n");
 
-    //
-    Queue* pQueue = (Queue*)malloc(matSize * ((*returnColumnSizes)[0]) * sizeof(Queue));
-    if (pQueue == NULL) {
-        perror("malloc");
-        (*returnSize) = 0;
-        i = matSize;
-        goto exitSize;
-    }
-    //
-    int front = 0;
-    int tail = 0;
-    for (i = 0; i < (*returnSize); ++i) {
-        for (j = 0; j < ((*returnColumnSizes)[i]); ++j) {
-            if (mat[i][j] == 0) {
-                pQueue[tail].x = i;
-                pQueue[tail].y = j;
-                pQueue[tail++].level = 0;
-                pRetVal[i][j] = 0;
-            }
-        }
-    }
-    //
-    int shiftX, shiftY;
-    int x, y, level;
-    while (front != tail) {
-        x = pQueue[front].x;
-        y = pQueue[front].y;
-        level = pQueue[front++].level;
-
-        // left
-        shiftX = x - 1;
-        shiftY = y;
-        if ((shiftX >= 0) && (shiftX < (*returnSize)) && (shiftY >= 0) && (shiftY < ((*returnColumnSizes)[0])) &&
-            (mat[shiftX][shiftY] == 1)) {
-            mat[shiftX][shiftY] = 2;
-            pQueue[tail].x = shiftX;
-            pQueue[tail].y = shiftY;
-            pQueue[tail++].level = level + 1;
-            pRetVal[shiftX][shiftY] = level + 1;
-        }
-        // right
-        shiftX = x + 1;
-        shiftY = y;
-        if ((shiftX >= 0) && (shiftX < (*returnSize)) && (shiftY >= 0) && (shiftY < ((*returnColumnSizes)[0])) &&
-            (mat[shiftX][shiftY] == 1)) {
-            mat[shiftX][shiftY] = 2;
-            pQueue[tail].x = shiftX;
-            pQueue[tail].y = shiftY;
-            pQueue[tail++].level = level + 1;
-            pRetVal[shiftX][shiftY] = level + 1;
-        }
-        // down
-        shiftX = x;
-        shiftY = y - 1;
-        if ((shiftX >= 0) && (shiftX < (*returnSize)) && (shiftY >= 0) && (shiftY < ((*returnColumnSizes)[0])) &&
-            (mat[shiftX][shiftY] == 1)) {
-            mat[shiftX][shiftY] = 2;
-            pQueue[tail].x = shiftX;
-            pQueue[tail].y = shiftY;
-            pQueue[tail++].level = level + 1;
-            pRetVal[shiftX][shiftY] = level + 1;
-        }
-        // up
-        shiftX = x;
-        shiftY = y + 1;
-        if ((shiftX >= 0) && (shiftX < (*returnSize)) && (shiftY >= 0) && (shiftY < ((*returnColumnSizes)[0])) &&
-            (mat[shiftX][shiftY] == 1)) {
-            mat[shiftX][shiftY] = 2;
-            pQueue[tail].x = shiftX;
-            pQueue[tail].y = shiftY;
-            pQueue[tail++].level = level + 1;
-            pRetVal[shiftX][shiftY] = level + 1;
-        }
-    }
-    //
-    free(pQueue);
-    pQueue = NULL;
-#endif
-
-    goto exitRetVal;
-
-exitSize:
-    for (j = 0; j < i; ++j) {
-        free(pRetVal[j]);
-        pRetVal[j] = NULL;
-    }
-    free(pRetVal);
-    pRetVal = NULL;
-
-exitColumnSizes:
-    free((*returnColumnSizes));
-    (*returnColumnSizes) = NULL;
-
-exitRetVal:
     return pRetVal;
 }
 

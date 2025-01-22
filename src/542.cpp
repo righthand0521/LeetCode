@@ -12,40 +12,35 @@ class Solution {
         int matSize = mat.size();
         int matColSize = mat[0].size();
 
-        // 1 <= m, n <= 10^4, 1 <= m * n <= 10^4
-        int maxValue = 1e5;
-        vector<vector<int>> dp(matSize, vector<int>(matColSize, maxValue));
-
+        int maxValue = (int)(1e5);  // 1 <= m, n <= 10^4, 1 <= m * n <= 10^4
+        retVal.resize(matSize, vector<int>(matColSize, maxValue));
         for (int i = 0; i < matSize; ++i) {
             for (int j = 0; j < matColSize; ++j) {
                 if (mat[i][j] == 0) {
-                    dp[i][j] = 0;
+                    retVal[i][j] = 0;
                 }
             }
         }
-
         for (int i = 0; i < matSize; ++i) {
             for (int j = 0; j < matColSize; ++j) {
                 if (i - 1 >= 0) {
-                    dp[i][j] = min(dp[i][j], dp[i - 1][j] + 1);
+                    retVal[i][j] = min(retVal[i][j], retVal[i - 1][j] + 1);
                 }
                 if (j - 1 >= 0) {
-                    dp[i][j] = min(dp[i][j], dp[i][j - 1] + 1);
+                    retVal[i][j] = min(retVal[i][j], retVal[i][j - 1] + 1);
                 }
             }
         }
-
         for (int i = matSize - 1; i >= 0; --i) {
             for (int j = matColSize - 1; j >= 0; --j) {
                 if (i + 1 < matSize) {
-                    dp[i][j] = min(dp[i][j], dp[i + 1][j] + 1);
+                    retVal[i][j] = min(retVal[i][j], retVal[i + 1][j] + 1);
                 }
                 if (j + 1 < matColSize) {
-                    dp[i][j] = min(dp[i][j], dp[i][j + 1] + 1);
+                    retVal[i][j] = min(retVal[i][j], retVal[i][j + 1] + 1);
                 }
             }
         }
-        retVal = dp;
 
         return retVal;
     }

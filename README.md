@@ -294,6 +294,13 @@
 
 </details>
 
+<details><summary>01 Matrix</summary>
+
+- [542. 01 Matrix](https://leetcode.com/problems/01-matrix/)
+- [1765. Map of Highest Peak](https://leetcode.com/problems/map-of-highest-peak/)
+
+</details>
+
 ## Greedy
 
 <details><summary>Greedy</summary>
