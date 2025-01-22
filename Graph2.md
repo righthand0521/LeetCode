@@ -7344,6 +7344,263 @@ class Solution:
 
 </details>
 
+## [1765. Map of Highest Peak](https://leetcode.com/problems/map-of-highest-peak/)  1782
+
+- [Official](https://leetcode.com/problems/map-of-highest-peak/editorial/)
+- [Official](https://leetcode.cn/problems/map-of-highest-peak/solutions/1234660/di-tu-zhong-de-zui-gao-dian-by-leetcode-jdkzr/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer matrix isWater of size m x n that represents a map of land and water cells.
+- If isWater[i][j] == 0, cell (i, j) is a land cell.
+- If isWater[i][j] == 1, cell (i, j) is a water cell.
+
+You must assign each cell a height in a way that follows these rules:
+- The height of each cell must be non-negative.
+- If the cell is a water cell, its height must be 0.
+- Any two adjacent cells must have an absolute height difference of at most 1.
+  A cell is adjacent to another cell if the former is directly north,
+  east, south, or west of the latter (i.e., their sides are touching).
+
+Find an assignment of heights such that the maximum height in the matrix is maximized.
+
+Return an integer matrix height of size m x n where height[i][j] is cell (i, j)'s height.
+If there are multiple solutions, return any of them.
+
+Example 1:
+Input: isWater = [[0,1],[0,0]]
+Output: [[1,0],[2,1]]
+Explanation: The image shows the assigned heights of each cell.
+The blue cell is the water cell, and the green cells are the land cells.
+
+Example 2:
+Input: isWater = [[0,0,1],[1,0,0],[0,0,0]]
+Output: [[1,1,0],[0,1,1],[1,2,2]]
+Explanation: A height of 2 is the maximum possible height of any assignment.
+Any height assignment that has a maximum height of 2 while still meeting the rules will also be accepted.
+
+Constraints:
+m == isWater.length
+n == isWater[i].length
+1 <= m, n <= 1000
+isWater[i][j] is 0 or 1.
+There is at least one water cell.
+
+Note: This question is the same as 542: https://leetcode.com/problems/01-matrix/
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Set each water cell to be 0. The height of each cell is limited by its closest water cell.
+2. Perform a multi-source BFS with all the water cells as sources.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int** highestPeak(int** isWater, int isWaterSize, int* isWaterColSize, int* returnSize, int** returnColumnSizes) {
+    int** pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    //
+    int isWaterRows = isWaterSize;
+    int isWaterCols = isWaterColSize[0];
+
+    //
+    (*returnColumnSizes) = (int*)calloc(isWaterRows, sizeof(int));
+    if ((*returnColumnSizes) == NULL) {
+        perror("calloc");
+        return pRetVal;
+    }
+    pRetVal = (int**)malloc(isWaterRows * sizeof(int*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        free((*returnColumnSizes));
+        (*returnColumnSizes) = NULL;
+        return pRetVal;
+    }
+    for (int i = 0; i < isWaterRows; ++i) {
+        pRetVal[i] = (int*)malloc(isWaterCols * sizeof(int));
+        if (pRetVal[i] == NULL) {
+            perror("malloc");
+            free((*returnColumnSizes));
+            (*returnColumnSizes) = NULL;
+            for (int j = 0; j < i; ++j) {
+                if (pRetVal[j]) {
+                    free(pRetVal[j]);
+                    pRetVal[j] = NULL;
+                }
+            }
+            free(pRetVal);
+            pRetVal = NULL;
+            return pRetVal;
+        }
+        memset(pRetVal[i], -1, isWaterCols * sizeof(int));
+        (*returnColumnSizes)[i] = isWaterCols;
+    }
+    (*returnSize) = isWaterRows;
+
+    //
+    int bfsQueueHead = 0;
+    int bfsQueueTail = 0;
+    int bfsQueueSize = isWaterRows * isWaterCols + 1;
+    int bfsQueue[bfsQueueSize][2];
+    memset(bfsQueue, 0, sizeof(bfsQueue));
+    for (int x = 0; x < isWaterRows; x++) {
+        for (int y = 0; y < isWaterCols; y++) {
+            if (isWater[x][y] == 1) {
+                bfsQueue[bfsQueueTail][0] = x;
+                bfsQueue[bfsQueueTail][1] = y;
+                bfsQueueTail++;
+                pRetVal[x][y] = 0;
+            }
+        }
+    }
+
+    //
+    int direction[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+    int row, col, bfsQueueCount, currentCellX, currentCellY, dir;
+    int heightOfNextLayer = 1;
+    while (bfsQueueHead < bfsQueueTail) {
+        bfsQueueCount = bfsQueueTail - bfsQueueHead;
+        for (int i = 0; i < bfsQueueCount; i++) {
+            currentCellX = bfsQueue[bfsQueueHead][0];
+            currentCellY = bfsQueue[bfsQueueHead][1];
+            bfsQueueHead++;
+
+            for (dir = 0; dir < 4; ++dir) {
+                row = currentCellX + direction[dir][0];
+                col = currentCellY + direction[dir][1];
+                if ((row < 0) || (row >= isWaterRows) || (col < 0) || (col >= isWaterCols)) {
+                    continue;
+                } else if (pRetVal[row][col] != -1) {
+                    continue;
+                }
+                pRetVal[row][col] = heightOfNextLayer;
+                bfsQueue[bfsQueueTail][0] = row;
+                bfsQueue[bfsQueueTail][1] = col;
+                bfsQueueTail++;
+            }
+        }
+        heightOfNextLayer++;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<vector<int>> highestPeak(vector<vector<int>>& isWater) {
+        vector<vector<int>> retVal;
+
+        int isWaterRows = isWater.size();
+        int isWaterCols = isWater[0].size();
+        vector<vector<int>> cellHeights(isWaterRows, vector<int>(isWaterCols, -1));
+
+        queue<pair<int, int>> bfsQueue;
+        for (int x = 0; x < isWaterRows; x++) {
+            for (int y = 0; y < isWaterCols; y++) {
+                if (isWater[x][y]) {
+                    bfsQueue.push({x, y});
+                    cellHeights[x][y] = 0;
+                }
+            }
+        }
+
+        vector<vector<int>> direction = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+        int heightOfNextLayer = 1;
+        while (bfsQueue.empty() == false) {
+            int bfsQueueSize = bfsQueue.size();
+            for (int i = 0; i < bfsQueueSize; i++) {
+                pair<int, int> currentCell = bfsQueue.front();
+                bfsQueue.pop();
+
+                for (int dir = 0; dir < 4; ++dir) {
+                    int x = currentCell.first + direction[dir][0];
+                    int y = currentCell.second + direction[dir][1];
+                    if ((x < 0) || (x >= isWaterRows) || (y < 0) || (y >= isWaterCols)) {
+                        continue;
+                    } else if (cellHeights[x][y] != -1) {
+                        continue;
+                    }
+                    cellHeights[x][y] = heightOfNextLayer;
+                    bfsQueue.push({x, y});
+                }
+            }
+            heightOfNextLayer++;
+        }
+        retVal = cellHeights;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def highestPeak(self, isWater: List[List[int]]) -> List[List[int]]:
+        retVal = []
+
+        isWaterRows = len(isWater)
+        isWaterCols = len(isWater[0])
+
+        cellHeights = [[-1 for _ in range(isWaterCols)] for _ in range(isWaterRows)]
+        bfsQueue = deque()
+        for x in range(isWaterRows):
+            for y in range(isWaterCols):
+                if isWater[x][y] == 1:
+                    cellHeights[x][y] = 0
+                    bfsQueue.append((x, y))
+
+        direction = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+        heightOfNextLayer = 1
+        while bfsQueue:
+            bfsQueueSize = len(bfsQueue)
+            for _ in range(bfsQueueSize):
+                currentCell = bfsQueue.popleft()
+
+                for dx, dy in direction:
+                    x = currentCell[0] + dx
+                    y = currentCell[1] + dy
+                    if (x < 0) or (x >= isWaterRows) or (y < 0) or (y >= isWaterCols):
+                        continue
+                    elif (cellHeights[x][y] != -1):
+                        continue
+
+                    cellHeights[x][y] = heightOfNextLayer
+                    bfsQueue.append((x, y))
+
+            heightOfNextLayer += 1
+
+        retVal = cellHeights
+
+        return retVal
+```
+
+</details>
+
 ## [1791. Find Center of Star Graph](https://leetcode.com/problems/find-center-of-star-graph/)  1286
 
 - [Official](https://leetcode.com/problems/find-center-of-star-graph/editorial/)
