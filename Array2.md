@@ -214,6 +214,156 @@ class Solution:
 
 </details>
 
+## [1267. Count Servers that Communicate](https://leetcode.com/problems/count-servers-that-communicate/)  1374
+
+- [Official](https://leetcode.com/problems/count-servers-that-communicate/editorial/)
+- [Official](https://leetcode.cn/problems/count-servers-that-communicate/solutions/101819/tong-ji-can-yu-tong-xin-de-fu-wu-qi-by-leetcode-so/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a map of a server center, represented as a m * n integer matrix grid,
+where 1 means that on that cell there is a server and 0 means that it is no server.
+Two servers are said to communicate if they are on the same row or on the same column.
+
+Return the number of servers that communicate with any other server.
+
+Example 1:
+Input: grid = [[1,0],[0,1]]
+Output: 0
+Explanation: No servers can communicate with others.
+
+Example 2:
+Input: grid = [[1,0],[1,1]]
+Output: 3
+Explanation: All three servers can communicate with at least one other server.
+
+Example 3:
+Input: grid = [[1,1,0,0],[0,0,1,0],[0,0,1,0],[0,0,0,1]]
+Output: 4
+Explanation: The two servers in the first row can communicate with each other.
+The two servers in the third column can communicate with each other.
+The server at right bottom corner can't communicate with any other server.
+
+Constraints:
+m == grid.length
+n == grid[i].length
+1 <= m <= 250
+1 <= n <= 250
+grid[i][j] == 0 or 1
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Store number of computer in each row and column.
+2. Count all servers that are not isolated.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int countServers(int** grid, int gridSize, int* gridColSize) {
+    int retVal = 0;
+
+    int rowSize = gridSize;
+    int colSize = gridColSize[0];
+
+    int rowCounts[colSize];
+    memset(rowCounts, 0, sizeof(rowCounts));
+    int colCounts[rowSize];
+    memset(colCounts, 0, sizeof(colCounts));
+    for (int row = 0; row < rowSize; ++row)
+        for (int col = 0; col < colSize; ++col)
+            if (grid[row][col] == 1) {  // grid[i][j] == 0 or 1
+                rowCounts[col]++;
+                colCounts[row]++;
+            }
+
+    for (int row = 0; row < rowSize; ++row) {
+        for (int col = 0; col < colSize; ++col) {
+            if (grid[row][col] == 1) {  // grid[i][j] == 0 or 1
+                retVal += ((rowCounts[col] > 1) || (colCounts[row] > 1));
+            }
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int countServers(vector<vector<int>>& grid) {
+        int retVal = 0;
+
+        int rowSize = grid.size();
+        int colSize = grid[0].size();
+
+        vector<int> rowCounts(colSize, 0);
+        vector<int> colCounts(rowSize, 0);
+        for (int row = 0; row < rowSize; ++row)
+            for (int col = 0; col < colSize; ++col)
+                if (grid[row][col] == 1) {  // grid[i][j] == 0 or 1
+                    rowCounts[col]++;
+                    colCounts[row]++;
+                }
+
+        for (int row = 0; row < rowSize; ++row) {
+            for (int col = 0; col < colSize; ++col) {
+                if (grid[row][col] == 1) {  // grid[i][j] == 0 or 1
+                    retVal += ((rowCounts[col] > 1) || (colCounts[row] > 1));
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def countServers(self, grid: List[List[int]]) -> int:
+        retVal = 0
+
+        rowSize = len(grid)
+        colSize = len(grid[0])
+
+        rowCounts = [0] * colSize
+        colCounts = [0] * rowSize
+        for row in range(rowSize):
+            for col in range(colSize):
+                if grid[row][col] == 1:  # grid[i][j] == 0 or 1
+                    rowCounts[col] += 1
+                    colCounts[row] += 1
+
+        for row in range(rowSize):
+            for col in range(colSize):
+                if grid[row][col] == 0:  # grid[i][j] == 0 or 1
+                    continue
+
+                if (rowCounts[col] > 1) or (colCounts[row] > 1):
+                    retVal += 1
+
+        return retVal
+```
+
+</details>
+
 ## [1287. Element Appearing More Than 25% In Sorted Array](https://leetcode.com/problems/element-appearing-more-than-25-in-sorted-array/)  1179
 
 - [Official](https://leetcode.com/problems/element-appearing-more-than-25-in-sorted-array/editorial/)
