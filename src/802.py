@@ -1,11 +1,11 @@
-import sys
 import logging
-from typing import List, Optional
-from collections import defaultdict, deque, Counter
-from functools import cache, lru_cache
+import sys
 from bisect import bisect_left, bisect_right
+from collections import Counter, defaultdict, deque
+from functools import cache, lru_cache
+from heapq import heapify, heappop, heappush
 from itertools import accumulate
-from heapq import heapify, heappush, heappop
+from typing import List, Optional
 
 
 def logging_setting():
@@ -79,12 +79,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

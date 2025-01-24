@@ -5232,6 +5232,7 @@ The number of edges in the graph will be in the range [1, 4 * 10^4].
 int* eventualSafeNodes(int** graph, int graphSize, int* graphColSize, int* returnSize) {
     int* pRetVal = NULL;
 
+    (*returnSize) = 0;
     int i, j;
     int node;
 
@@ -5248,22 +5249,8 @@ int* eventualSafeNodes(int** graph, int graphSize, int* graphColSize, int* retur
             indegree[i]++;
         }
     }
-#if (0)
-    printf("indegree: ");
-    for (i = 0; i < graphSize; ++i) {
-        printf("%d ", indegree[i]);
-    }
-    printf("\n");
-    for (i = 0; i < graphSize; ++i) {
-        printf("adjacency[%d]: ", i);
-        for (j = 0; j < graphSize; ++j) {
-            printf("%2d ", adjacency[i][j]);
-        }
-        printf(": %d\n", adjacencyColSize[i]);
-    }
-#endif
 
-#define MAX_QUEUE_SIZE ((graphSize)*2)
+#define MAX_QUEUE_SIZE ((graphSize) * 2)
     int topologicalSortQueueHead = 0;
     int topologicalSortQueueTail = 0;
     int topologicalSortQueue[MAX_QUEUE_SIZE];
@@ -5272,12 +5259,6 @@ int* eventualSafeNodes(int** graph, int graphSize, int* graphColSize, int* retur
             topologicalSortQueue[topologicalSortQueueTail++] = i;
         }
     }
-#if (0)
-    for (i = 0; i < (topologicalSortQueueTail - topologicalSortQueueHead); ++i) {
-        printf("%d ", topologicalSortQueue[i]);
-    }
-    printf("\n");
-#endif
 
     // Topological Sort Using Kahn's Algorithm
     bool safe[graphSize];
@@ -5285,7 +5266,6 @@ int* eventualSafeNodes(int** graph, int graphSize, int* graphColSize, int* retur
         safe[i] = false;
     }
     int neighbor;
-    (*returnSize) = 0;
     while (topologicalSortQueueHead < topologicalSortQueueTail) {
         node = topologicalSortQueue[topologicalSortQueueHead++];
         if (safe[node] == false) {
@@ -5302,13 +5282,12 @@ int* eventualSafeNodes(int** graph, int graphSize, int* graphColSize, int* retur
         }
     }
 
-    pRetVal = (int*)malloc((*returnSize) * sizeof(int));
+    pRetVal = (int*)calloc((*returnSize), sizeof(int));
     if (pRetVal == NULL) {
-        perror("malloc");
+        perror("calloc");
         (*returnSize) = 0;
         return pRetVal;
     }
-    memset(pRetVal, 0, ((*returnSize) * sizeof(int)));
     (*returnSize) = 0;
     for (i = 0; i < graphSize; i++) {
         if (safe[i] == true) {
