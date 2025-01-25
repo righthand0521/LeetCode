@@ -4906,3 +4906,254 @@ class Solution:
 ```
 
 </details>
+
+## [2948. Make Lexicographically Smallest Array by Swapping Elements](https://leetcode.com/problems/make-lexicographically-smallest-array-by-swapping-elements/)  2047
+
+- [Official](https://leetcode.com/problems/make-lexicographically-smallest-array-by-swapping-elements/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed array of positive integers nums and a positive integer limit.
+
+In one operation, you can choose any two indices i and j and swap nums[i] and nums[j] if |nums[i] - nums[j]| <= limit.
+
+Return the lexicographically smallest array that can be obtained by performing the operation any number of times.
+
+An array a is lexicographically smaller than an array b if in the first position where a and b differ,
+array a has an element that is less than the corresponding element in b.
+For example, the array [2,10,3] is lexicographically smaller than the array [10,2,3]
+because they differ at index 0 and 2 < 10.
+
+Example 1:
+Input: nums = [1,5,3,9,8], limit = 2
+Output: [1,3,5,8,9]
+Explanation: Apply the operation 2 times:
+- Swap nums[1] with nums[2]. The array becomes [1,3,5,9,8]
+- Swap nums[3] with nums[4]. The array becomes [1,3,5,8,9]
+We cannot obtain a lexicographically smaller array by applying any more operations.
+Note that it may be possible to get the same result by doing different operations.
+
+Example 2:
+Input: nums = [1,7,6,18,2,1], limit = 3
+Output: [1,6,7,18,1,2]
+Explanation: Apply the operation 3 times:
+- Swap nums[1] with nums[2]. The array becomes [1,6,7,18,2,1]
+- Swap nums[0] with nums[4]. The array becomes [2,6,7,18,1,1]
+- Swap nums[0] with nums[5]. The array becomes [1,6,7,18,1,2]
+We cannot obtain a lexicographically smaller array by applying any more operations.
+
+Example 3:
+Input: nums = [1,7,28,19,10], limit = 3
+Output: [1,7,28,19,10]
+Explanation: [1,7,28,19,10] is the lexicographically smallest array
+we can obtain because we cannot apply the operation on any two indices.
+
+Constraints:
+1 <= nums.length <= 10^5
+1 <= nums[i] <= 10^9
+1 <= limit <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Construct a virtual graph where all elements in nums are nodes
+   and the pairs satisfying the condition have an edge between them.
+2. Instead of constructing all edges, we only care about the connected components.
+3. Can we use DSU?
+4. Sort nums. Now we just need to consider if the consecutive elements have an edge to check
+   if they belong to the same connected component.
+   Hence, all connected components become a list of position-consecutive elements after sorting.
+5. For each index of nums from 0 to nums.length - 1 we can change it to the current minimum value
+   we have in its connected component and remove that value from the connected component.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// https://leetcode.cn/problems/make-lexicographically-smallest-array-by-swapping-elements/solutions/2545365/c-by-awesome-ardinghelli-jqrs/
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *current;
+    struct hashTable *tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int compareStruct(const void *a, const void *b) {
+    int pa = ((struct hashTable *)a)->value;
+    int pb = ((struct hashTable *)b)->value;
+
+    // ascending order
+    return (pa > pb);
+}
+int compareInteger(const void *n1, const void *n2) {
+    // ascending order
+    return (*(int *)n1 > *(int *)n2);
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *lexicographicallySmallestArray(int *nums, int numsSize, int limit, int *returnSize) {
+    int *pRetVal = NULL;
+
+    //
+    (*returnSize) = 0;
+
+    //
+    pRetVal = (int *)calloc(numsSize, sizeof(int));
+    if (pRetVal == NULL) {
+        perror("calloc");
+        return pRetVal;
+    }
+    (*returnSize) = numsSize;
+
+    //
+    struct hashTable *pHashTable = NULL;
+    struct hashTable *pTmp = NULL;
+    for (int i = 0; i < numsSize; i++) {
+        pTmp = NULL;
+        pTmp = (struct hashTable *)malloc(sizeof(struct hashTable));
+        if (pTmp == NULL) {
+            perror("malloc");
+            freeAll(pHashTable);
+            free(pRetVal);
+            pRetVal = NULL;
+            return pRetVal;
+        }
+        pTmp->key = i;
+        pTmp->value = nums[i];
+        HASH_ADD_INT(pHashTable, key, pTmp);
+    }
+    HASH_SORT(pHashTable, compareStruct);
+
+    //
+    int groupSize = (1e5);  // 1 <= nums.length <= 10^5
+    int groupIndex[groupSize];
+    memset(groupIndex, 0, sizeof(groupIndex));
+    int group[groupSize];
+    memset(group, 0, sizeof(group));
+    int FirstNum = nums[0];
+    int key = 0;
+    struct hashTable *pCurrent = NULL;
+    pTmp = NULL;
+    HASH_ITER(hh, pHashTable, pCurrent, pTmp) {
+        if (pCurrent->value - FirstNum > limit) {
+            qsort(groupIndex, key, sizeof(groupIndex[0]), compareInteger);
+            for (int i = 0; i < key; i++) {
+                pRetVal[groupIndex[i]] = group[i];
+            }
+            key = 0;
+        }
+        group[key] = pCurrent->value;
+        groupIndex[key++] = pCurrent->key;
+        FirstNum = pCurrent->value;
+    }
+
+    //
+    qsort(groupIndex, key, sizeof(groupIndex[0]), compareInteger);
+    for (int i = 0; i < key; i++) {
+        pRetVal[groupIndex[i]] = group[i];
+    }
+
+    //
+    freeAll(pHashTable);
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> lexicographicallySmallestArray(vector<int>& nums, int limit) {
+        vector<int> retVal = nums;
+
+        int returnSize = retVal.size();
+
+        vector<int> numsSorted(retVal);
+        sort(numsSorted.begin(), numsSorted.end());
+
+        int currGroup = 0;
+        unordered_map<int, int> numToGroup;
+        numToGroup.insert(pair<int, int>(numsSorted[0], currGroup));
+
+        unordered_map<int, list<int>> groupToList;
+        groupToList.insert(pair<int, list<int>>(currGroup, list<int>(1, numsSorted[0])));
+
+        for (int i = 1; i < returnSize; i++) {
+            if (abs(numsSorted[i] - numsSorted[i - 1]) > limit) {
+                currGroup++;
+            }
+            numToGroup.insert(pair<int, int>(numsSorted[i], currGroup));
+
+            if (groupToList.find(currGroup) == groupToList.end()) {
+                groupToList[currGroup] = list<int>();
+            }
+            groupToList[currGroup].push_back(numsSorted[i]);
+        }
+
+        for (int i = 0; i < returnSize; i++) {
+            int num = retVal[i];
+            int group = numToGroup[num];
+            retVal[i] = *groupToList[group].begin();
+            groupToList[group].pop_front();
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def lexicographicallySmallestArray(self, nums: List[int], limit: int) -> List[int]:
+        retVal = nums
+
+        returnSize = len(retVal)
+        numsSorted = sorted(retVal)
+
+        currGroup = 0
+        numToGroup = {}
+        numToGroup[numsSorted[0]] = currGroup
+
+        groupToList = {}
+        groupToList[currGroup] = deque([numsSorted[0]])
+
+        for i in range(1, returnSize):
+            if abs(numsSorted[i] - numsSorted[i - 1]) > limit:
+                currGroup += 1
+            numToGroup[numsSorted[i]] = currGroup
+
+            if currGroup not in groupToList:
+                groupToList[currGroup] = deque()
+            groupToList[currGroup].append(numsSorted[i])
+
+        for i in range(returnSize):
+            num = retVal[i]
+            group = numToGroup[num]
+            retVal[i] = groupToList[group].popleft()
+
+        return retVal
+```
+
+</details>
