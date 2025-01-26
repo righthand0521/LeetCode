@@ -1608,6 +1608,282 @@ class Solution:
 
 </details>
 
+## [2127. Maximum Employees to Be Invited to a Meeting](https://leetcode.com/problems/maximum-employees-to-be-invited-to-a-meeting/)  2449
+
+- [Official](https://leetcode.com/problems/maximum-employees-to-be-invited-to-a-meeting/editorial/)
+- [Official](https://leetcode.cn/problems/maximum-employees-to-be-invited-to-a-meeting/solutions/1190222/can-jia-hui-yi-de-zui-duo-yuan-gong-shu-u8e8u/)
+
+<details><summary>Description</summary>
+
+```text
+A company is organizing a meeting and has a list of n employees, waiting to be invited.
+They have arranged for a large circular table, capable of seating any number of employees.
+
+The employees are numbered from 0 to n - 1.
+Each employee has a favorite person and they will attend the meeting only if
+they can sit next to their favorite person at the table.
+The favorite person of an employee is not themself.
+
+Given a 0-indexed integer array favorite, where favorite[i] denotes the favorite person of the ith employee,
+return the maximum number of employees that can be invited to the meeting.
+
+Example 1:
+Input: favorite = [2,2,1,2]
+Output: 3
+Explanation:
+The above figure shows how the company can invite employees 0, 1, and 2, and seat them at the round table.
+All employees cannot be invited because employee 2 cannot sit beside employees 0, 1, and 3, simultaneously.
+Note that the company can also invite employees 1, 2, and 3, and give them their desired seats.
+The maximum number of employees that can be invited to the meeting is 3.
+
+Example 2:
+Input: favorite = [1,2,0]
+Output: 3
+Explanation:
+Each employee is the favorite person of at least one other employee,
+and the only way the company can invite them is if they invite every employee.
+The seating arrangement will be the same as that in the figure given in example 1:
+- Employee 0 will sit between employees 2 and 1.
+- Employee 1 will sit between employees 0 and 2.
+- Employee 2 will sit between employees 1 and 0.
+The maximum number of employees that can be invited to the meeting is 3.
+
+Example 3:
+Input: favorite = [3,0,1,4,1]
+Output: 4
+Explanation:
+The above figure shows how the company will invite employees 0, 1, 3, and 4, and seat them at the round table.
+Employee 2 cannot be invited because the two spots next to their favorite employee 1 are taken.
+So the company leaves them out of the meeting.
+The maximum number of employees that can be invited to the meeting is 4.
+
+Constraints:
+n == favorite.length
+2 <= n <= 10^5
+0 <= favorite[i] <= n - 1
+favorite[i] != i
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. From the given array favorite, create a graph where for every index i,
+   there is a directed edge from favorite[i] to i.
+   The graph will be a combination of cycles and chains of acyclic edges.
+   Now, what are the ways in which we can choose employees to sit at the table?
+2. The first way by which we can choose employees is by selecting a cycle of the graph.
+   It can be proven that in this case, the employees that do not lie in the cycle can never be seated at the table.
+3. The second way is by combining acyclic chains.
+   At most two chains can be combined by a cycle of length 2,
+   where each chain ends on one of the employees in the cycle.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int maximumInvitations(int* favorite, int favoriteSize) {
+    int retVal = 0;
+
+    // Calculate in-degree for each node
+    int inDegree[favoriteSize];
+    memset(inDegree, 0, sizeof(inDegree));
+    for (int person = 0; person < favoriteSize; ++person) {
+        inDegree[favorite[person]]++;
+    }
+
+    // Topological sorting to remove non-cycle nodes
+    int TopologicalSortingQueueSize = 2 * favoriteSize + 1;
+    int TopologicalSortingQueue[TopologicalSortingQueueSize];
+    memset(TopologicalSortingQueue, 0, sizeof(TopologicalSortingQueue));
+    int TopologicalSortingQueueFront = 0;
+    int TopologicalSortingQueueRear = 0;
+    for (int person = 0; person < favoriteSize; ++person) {
+        if (inDegree[person] == 0) {
+            TopologicalSortingQueue[TopologicalSortingQueueRear++] = person;
+        }
+    }
+
+    int depth[favoriteSize];  // Depth of each node
+    for (int i = 0; i < favoriteSize; ++i) {
+        depth[i] = 1;
+    }
+
+    int currentNode, nextNode;
+    while (TopologicalSortingQueueFront < TopologicalSortingQueueRear) {
+        currentNode = TopologicalSortingQueue[TopologicalSortingQueueFront++];
+
+        nextNode = favorite[currentNode];
+        depth[nextNode] = fmax(depth[nextNode], depth[currentNode] + 1);
+
+        inDegree[nextNode]--;
+        if (inDegree[nextNode] == 0) {
+            TopologicalSortingQueue[TopologicalSortingQueueRear++] = nextNode;
+        }
+    }
+
+    // Detect cycles
+    int cycleLength, current;
+    int longestCycle = 0;
+    int twoCycleInvitations = 0;
+    for (int person = 0; person < favoriteSize; ++person) {
+        if (inDegree[person] == 0) {  // Already processed
+            continue;
+        }
+
+        cycleLength = 0;
+        current = person;
+        while (inDegree[current] != 0) {
+            inDegree[current] = 0;  // Mark as visited
+            cycleLength++;
+            current = favorite[current];
+        }
+
+        if (cycleLength == 2) {  // For 2-cycles, add the depth of both nodes
+            twoCycleInvitations += depth[person] + depth[favorite[person]];
+        } else {
+            longestCycle = fmax(longestCycle, cycleLength);
+        }
+    }
+
+    retVal = fmax(longestCycle, twoCycleInvitations);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maximumInvitations(vector<int>& favorite) {
+        int retVal = 0;
+
+        int favoriteSize = favorite.size();
+
+        // Calculate in-degree for each node
+        vector<int> inDegree(favoriteSize, 0);
+        for (int person = 0; person < favoriteSize; ++person) {
+            inDegree[favorite[person]]++;
+        }
+
+        // Topological sorting to remove non-cycle nodes
+        queue<int> TopologicalSortingQueue;
+        for (int person = 0; person < favoriteSize; ++person) {
+            if (inDegree[person] == 0) {
+                TopologicalSortingQueue.push(person);
+            }
+        }
+
+        vector<int> depth(favoriteSize, 1);  // Depth of each node
+
+        while (TopologicalSortingQueue.empty() == false) {
+            int currentNode = TopologicalSortingQueue.front();
+            TopologicalSortingQueue.pop();
+
+            int nextNode = favorite[currentNode];
+            depth[nextNode] = max(depth[nextNode], depth[currentNode] + 1);
+
+            inDegree[nextNode]--;
+            if (inDegree[nextNode] == 0) {
+                TopologicalSortingQueue.push(nextNode);
+            }
+        }
+
+        // Detect cycles
+        int longestCycle = 0;
+        int twoCycleInvitations = 0;
+        for (int person = 0; person < favoriteSize; ++person) {
+            if (inDegree[person] == 0) {  // Already processed
+                continue;
+            }
+
+            int cycleLength = 0;
+            int current = person;
+            while (inDegree[current] != 0) {
+                inDegree[current] = 0;  // Mark as visited
+                cycleLength++;
+                current = favorite[current];
+            }
+
+            if (cycleLength == 2) {  // For 2-cycles, add the depth of both nodes
+                twoCycleInvitations += depth[person] + depth[favorite[person]];
+            } else {
+                longestCycle = max(longestCycle, cycleLength);
+            }
+        }
+
+        retVal = max(longestCycle, twoCycleInvitations);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maximumInvitations(self, favorite: List[int]) -> int:
+        retVal = 0
+
+        favoriteSize = len(favorite)
+
+        # Calculate in-degree for each node
+        inDegree = [0] * favoriteSize
+        for person in range(favoriteSize):
+            inDegree[favorite[person]] += 1
+
+        # Topological sorting to remove non-cycle nodes
+        TopologicalSortingQueue = deque()
+        for person in range(favoriteSize):
+            if inDegree[person] == 0:
+                TopologicalSortingQueue.append(person)
+
+        depth = [1] * favoriteSize  # Depth of each node
+
+        while TopologicalSortingQueue:
+            currentNode = TopologicalSortingQueue.popleft()
+            nextNode = favorite[currentNode]
+            depth[nextNode] = max(depth[nextNode], depth[currentNode] + 1)
+            inDegree[nextNode] -= 1
+            if inDegree[nextNode] == 0:
+                TopologicalSortingQueue.append(nextNode)
+
+        # Detect cycles
+        longestCycle = 0
+        twoCycleInvitations = 0
+        for person in range(favoriteSize):
+            if inDegree[person] == 0:  # Already processed
+                continue
+
+            cycleLength = 0
+            current = person
+            while inDegree[current] != 0:
+                inDegree[current] = 0  # Mark as visited
+                cycleLength += 1
+                current = favorite[current]
+
+            if cycleLength == 2:  # For 2-cycles, add the depth of both nodes
+                twoCycleInvitations += depth[person] + depth[favorite[person]]
+            else:
+                longestCycle = max(longestCycle, cycleLength)
+
+        retVal = max(longestCycle, twoCycleInvitations)
+
+        return retVal
+```
+
+</details>
+
 ## [2192. All Ancestors of a Node in a Directed Acyclic Graph](https://leetcode.com/problems/all-ancestors-of-a-node-in-a-directed-acyclic-graph/)  1787
 
 - [Official](https://leetcode.com/problems/all-ancestors-of-a-node-in-a-directed-acyclic-graph/editorial/)
