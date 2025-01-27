@@ -273,8 +273,6 @@
 
 <details><summary>Topological Sort</summary>
 
-- [207. Course Schedule](https://leetcode.com/problems/course-schedule/)
-- [210. Course Schedule II](https://leetcode.com/problems/course-schedule-ii/)
 - [802. Find Eventual Safe States](https://leetcode.com/problems/find-eventual-safe-states/)
 - [2050. Parallel Courses III](https://leetcode.com/problems/parallel-courses-iii/)
 
@@ -298,6 +296,14 @@
 
 - [542. 01 Matrix](https://leetcode.com/problems/01-matrix/)
 - [1765. Map of Highest Peak](https://leetcode.com/problems/map-of-highest-peak/)
+
+</details>
+
+<details><summary>Course Schedule</summary>
+
+- [207. Course Schedule](https://leetcode.com/problems/course-schedule/)
+- [210. Course Schedule II](https://leetcode.com/problems/course-schedule-ii/)
+- [1462. Course Schedule IV](https://leetcode.com/problems/course-schedule-iv/)
 
 </details>
 
