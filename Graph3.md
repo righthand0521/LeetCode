@@ -5077,6 +5077,252 @@ class Graph:
 
 </details>
 
+## [2658. Maximum Number of Fish in a Grid](https://leetcode.com/problems/maximum-number-of-fish-in-a-grid/)  1489
+
+- [Official](https://leetcode.com/problems/maximum-number-of-fish-in-a-grid/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed 2D matrix grid of size m x n, where (r, c) represents:
+- A land cell if grid[r][c] = 0, or
+- A water cell containing grid[r][c] fish, if grid[r][c] > 0.
+
+A fisher can start at any water cell (r, c) and can do the following operations any number of times:
+- Catch all the fish at cell (r, c), or
+- Move to any adjacent water cell.
+
+Return the maximum number of fish the fisher can catch if he chooses his starting cell optimally,
+or 0 if no water cell exists.
+
+An adjacent cell of the cell (r, c), is one of the cells (r, c + 1), (r, c - 1), (r + 1, c) or (r - 1, c) if it exists.
+
+Example 1:
+Input: grid = [[0,2,1,0],[4,0,0,3],[1,0,0,4],[0,3,2,0]]
+Output: 7
+Explanation: The fisher can start at cell (1,3) and collect 3 fish, then move to cell (2,3) and collect 4 fish.
+
+Example 2:
+Input: grid = [[1,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,1]]
+Output: 1
+Explanation: The fisher can start at cells (0,0) or (3,3) and collect a single fish.
+
+Constraints:
+m == grid.length
+n == grid[i].length
+1 <= m, n <= 10
+0 <= grid[i][j] <= 10
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Run DFS from each non-zero cell.
+2. Each time you pick a cell to start from, add up the number of fish contained in the cells you visit.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int bfs(int** grid, int rowSize, int colSize, bool** pVisited, int row, int col) {
+    int retVal = 0;
+
+    int bfsQueueSize = 4 * rowSize * colSize;
+    int bfsQueue[bfsQueueSize][2];
+    memset(bfsQueue, 0, sizeof(bfsQueue));
+    int bfsQueueFront = 0;
+    int bfsQueueRear = 0;
+    bfsQueue[bfsQueueRear][0] = row;
+    bfsQueue[bfsQueueRear][1] = col;
+    bfsQueueRear++;
+
+    pVisited[row][col] = true;
+
+    const int directions[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+    int x, y, nextX, nextY;
+    while (bfsQueueFront < bfsQueueRear) {
+        x = bfsQueue[bfsQueueFront][0];
+        y = bfsQueue[bfsQueueFront][1];
+        bfsQueueFront++;
+
+        retVal += grid[x][y];
+
+        for (int dir = 0; dir < 4; ++dir) {
+            nextX = x + directions[dir][0];
+            nextY = y + directions[dir][1];
+            if ((nextX < 0) || (nextX >= rowSize) || (nextY < 0) || (nextY >= colSize)) {
+                continue;
+            }
+
+            if ((grid[nextX][nextY] != 0) && (pVisited[nextX][nextY] == false)) {
+                bfsQueue[bfsQueueRear][0] = nextX;
+                bfsQueue[bfsQueueRear][1] = nextY;
+                bfsQueueRear++;
+                pVisited[nextX][nextY] = true;
+            }
+        }
+    }
+
+    return retVal;
+}
+int findMaxFish(int** grid, int gridSize, int* gridColSize) {
+    int retVal = 0;
+
+    int rowSize = gridSize;
+    int colSize = gridColSize[0];
+
+    bool** pVisited = (bool**)malloc(rowSize * sizeof(bool*));
+    if (pVisited == NULL) {
+        perror("malloc");
+        return retVal;
+    }
+    for (int i = 0; i < rowSize; ++i) {
+        pVisited[i] = (bool*)malloc(colSize * sizeof(bool));
+        if (pVisited[i] == NULL) {
+            perror("malloc");
+            for (int j = 0; j < i; ++j) {
+                free(pVisited[j]);
+                pVisited[j] = NULL;
+            }
+            free(pVisited);
+            pVisited = NULL;
+            return retVal;
+        }
+        memset(pVisited[i], false, (colSize * sizeof(bool)));
+    }
+    for (int i = 0; i < rowSize; i++) {
+        for (int j = 0; j < colSize; j++) {
+            if ((grid[i][j] != 0) && (pVisited[i][j] == false)) {
+                retVal = fmax(retVal, bfs(grid, rowSize, colSize, pVisited, i, j));
+            }
+        }
+    }
+
+    //
+    for (int i = 0; i < rowSize; ++i) {
+        free(pVisited[i]);
+        pVisited[i] = NULL;
+    }
+    free(pVisited);
+    pVisited = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int bfs(vector<vector<int>>& grid, vector<vector<bool>>& visited, int row, int col) {
+        int retVal = 0;
+
+        int rowSize = grid.size();
+        int colSize = grid[0].size();
+
+        queue<pair<int, int>> bfsQueue;
+        bfsQueue.push({row, col});
+        visited[row][col] = true;
+        const int directions[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+        while (bfsQueue.empty() == false) {
+            int x = bfsQueue.front().first;
+            int y = bfsQueue.front().second;
+            bfsQueue.pop();
+            retVal += grid[x][y];
+
+            for (auto& direction : directions) {
+                int nextX = x + direction[0];
+                int nextY = y + direction[1];
+                if ((nextX < 0) || (nextX >= rowSize) || (nextY < 0) || (nextY >= colSize)) {
+                    continue;
+                }
+
+                if ((grid[nextX][nextY] != 0) && (visited[nextX][nextY] == false)) {
+                    bfsQueue.push({nextX, nextY});
+                    visited[nextX][nextY] = true;
+                }
+            }
+        }
+
+        return retVal;
+    }
+
+   public:
+    int findMaxFish(vector<vector<int>>& grid) {
+        int retVal = 0;
+
+        int rowSize = grid.size();
+        int colSize = grid[0].size();
+
+        vector<vector<bool>> visited(rowSize, vector<bool>(colSize));
+        for (int i = 0; i < rowSize; i++) {
+            for (int j = 0; j < colSize; j++) {
+                if ((grid[i][j] != 0) && (visited[i][j] == false)) {
+                    retVal = max(retVal, bfs(grid, visited, i, j));
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def bfs(self, grid, visited, row, col) -> int:
+        retVal = 0
+
+        rowSize = len(grid)
+        colSize = len(grid[0])
+
+        bfsQueue = [(row, col)]
+        visited[row][col] = True
+        directions = [[0, 1], [0, -1], [1, 0], [-1, 0]]
+        while bfsQueue:
+            x, y = bfsQueue.pop(0)
+            retVal += grid[x][y]
+
+            for dx, dy in directions:
+                nextX = x + dx
+                nextY = y + dy
+                if (nextX < 0) or (nextX >= rowSize) or (nextY < 0) or (nextY >= colSize):
+                    continue
+
+                if (grid[nextX][nextY] != 0) and (visited[nextX][nextY] == False):
+                    bfsQueue.append((nextX, nextY))
+                    visited[nextX][nextY] = True
+
+        return retVal
+
+    def findMaxFish(self, grid: List[List[int]]) -> int:
+        retVal = 0
+
+        rowSize = len(grid)
+        colSize = len(grid[0])
+
+        visited = [[False] * colSize for _ in range(rowSize)]
+        for i in range(rowSize):
+            for j in range(colSize):
+                if (grid[i][j] != 0) and (visited[i][j] == False):
+                    retVal = max(retVal, self.bfs(grid, visited, i, j))
+
+        return retVal
+```
+
+</details>
+
 ## [2699. Modify Graph Edge Weights](https://leetcode.com/problems/modify-graph-edge-weights/)  2873
 
 - [Official](https://leetcode.com/problems/modify-graph-edge-weights/editorial/)
