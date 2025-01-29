@@ -3498,6 +3498,284 @@ class Solution:
 
 </details>
 
+## [684. Redundant Connection](https://leetcode.com/problems/redundant-connection/)
+
+- [Official](https://leetcode.com/problems/redundant-connection/editorial/)
+- [Official](https://leetcode.cn/problems/redundant-connection/solutions/557616/rong-yu-lian-jie-by-leetcode-solution-pks2/)
+
+<details><summary>Description</summary>
+
+```text
+In this problem, a tree is an undirected graph that is connected and has no cycles.
+
+You are given a graph that started as a tree with n nodes labeled from 1 to n, with one additional edge added.
+The added edge has two different vertices chosen from 1 to n, and was not an edge that already existed.
+The graph is represented as an array edges of length n where edges[i] = [ai, bi] indicates
+that there is an edge between nodes ai and bi in the graph.
+
+Return an edge that can be removed so that the resulting graph is a tree of n nodes.
+If there are multiple answers, return the answer that occurs last in the input.
+
+Example 1:
+Input: edges = [[1,2],[1,3],[2,3]]
+Output: [2,3]
+
+Example 2:
+Input: edges = [[1,2],[2,3],[3,4],[1,4],[1,5]]
+Output: [1,4]
+
+Constraints:
+n == edges.length
+3 <= n <= 1000
+edges[i].length == 2
+1 <= ai < bi <= edges.length
+ai != bi
+There are no repeated edges.
+The given graph is connected.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int cycleStart = -1;
+void dfs(int src, bool* visited, int** adjList, int adjListSize, int* parent) {
+    visited[src] = true;
+
+    int adj;
+    for (int i = 0; i < adjListSize; ++i) {
+        adj = adjList[src][i];
+        if (adj == -1) {
+            continue;
+        }
+
+        if (visited[adj] == false) {
+            parent[adj] = src;
+            dfs(adj, visited, adjList, adjListSize, parent);
+        } else if ((adj != parent[src]) && (cycleStart == -1)) {
+            // If the node is visited and the parent is different then the node is part of the cycle.
+            cycleStart = adj;
+            parent[adj] = src;
+        }
+    }
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* findRedundantConnection(int** edges, int edgesSize, int* edgesColSize, int* returnSize) {
+    int* pRetVal = NULL;
+
+    cycleStart = -1;
+
+    (*returnSize) = 0;
+
+    int** pAdjList = NULL;
+    pAdjList = (int**)malloc(edgesSize * sizeof(int*));
+    if (pAdjList == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    for (int i = 0; i < edgesSize; ++i) {
+        pAdjList[i] = (int*)malloc(edgesSize * sizeof(int));
+        if (pAdjList[i] == NULL) {
+            perror("malloc");
+            for (int j = 0; j < i; ++j) {
+                free(pAdjList[j]);
+                pAdjList[j] = NULL;
+            }
+            free(pAdjList);
+            pAdjList = NULL;
+            return pRetVal;
+        }
+        for (int j = 0; j < edgesSize; ++j) {
+            pAdjList[i][j] = -1;
+        }
+    }
+    for (int i = 0; i < edgesSize; ++i) {
+        int src = edges[i][0] - 1;
+        int dst = edges[i][1] - 1;
+        pAdjList[src][dst] = dst;
+        pAdjList[dst][src] = src;
+    }
+
+    bool* pVisited = NULL;
+    pVisited = (bool*)malloc(edgesSize * sizeof(bool));
+    if (pVisited == NULL) {
+        perror("malloc");
+        goto exit_pAdjList;
+    }
+    memset(pVisited, false, (edgesSize * sizeof(bool)));
+    int* pParent = NULL;
+    pParent = (int*)malloc(edgesSize * sizeof(int));
+    if (pParent == NULL) {
+        perror("malloc");
+        goto exit_pVisited;
+    }
+    for (int i = 0; i < edgesSize; ++i) {
+        pParent[i] = -1;
+    }
+    dfs(0, pVisited, pAdjList, edgesSize, pParent);
+
+    // Start from the cycleStart node and backtrack to get all the nodes in the cycle. Mark them all in the map.
+    int cycleNodes[1000 + 4];  // given a graph that started as a tree with n nodes labeled from 1 to n, 3 <= n <= 1000.
+    memset(cycleNodes, 0, sizeof(cycleNodes));
+    int node = cycleStart;
+    do {
+        cycleNodes[node] = 1;
+        node = pParent[node];
+    } while (node != cycleStart);
+
+    // If both nodes of the edge were marked as cycle nodes then this edge can be removed.
+    for (int i = edgesSize - 1; i >= 0; i--) {
+        if ((cycleNodes[edges[i][0] - 1]) && (cycleNodes[edges[i][1] - 1])) {
+            pRetVal = (int*)calloc(edgesColSize[i], sizeof(int));
+            if (pRetVal == NULL) {
+                perror("calloc");
+                break;
+            }
+            memcpy(pRetVal, edges[i], (edgesColSize[i] * sizeof(int)));
+            (*returnSize) = edgesColSize[i];
+            break;
+        }
+    }
+
+    //
+    free(pParent);
+    pParent = NULL;
+exit_pVisited:
+    free(pVisited);
+    pVisited = NULL;
+exit_pAdjList:
+    for (int i = 0; i < edgesSize; ++i) {
+        free(pAdjList[i]);
+        pAdjList[i] = NULL;
+    }
+    free(pAdjList);
+    pAdjList = NULL;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int cycleStart = -1;
+
+    void dfs(int src, vector<bool>& visited, vector<int> adjList[], vector<int>& parent) {
+        visited[src] = true;
+        for (int adj : adjList[src]) {
+            if (visited[adj] == false) {
+                parent[adj] = src;
+                dfs(adj, visited, adjList, parent);
+            } else if ((adj != parent[src]) && (cycleStart == -1)) {
+                // If the node is visited and the parent is different then the node is part of the cycle.
+                cycleStart = adj;
+                parent[adj] = src;
+            }
+        }
+    }
+
+   public:
+    vector<int> findRedundantConnection(vector<vector<int>>& edges) {
+        vector<int> retVal;
+
+        cycleStart = -1;
+
+        int edgesSize = edges.size();
+
+        vector<int> adjList[edgesSize];
+        for (auto edge : edges) {
+            adjList[edge[0] - 1].push_back(edge[1] - 1);
+            adjList[edge[1] - 1].push_back(edge[0] - 1);
+        }
+
+        vector<bool> visited(edgesSize, false);
+        vector<int> parent(edgesSize, -1);
+        dfs(0, visited, adjList, parent);  // Peform the DFS and store a node in the cycle as cycleStart.
+
+        // Start from the cycleStart node and backtrack to get all the nodes in the cycle. Mark them all in the map.
+        unordered_map<int, int> cycleNodes;
+        int node = cycleStart;
+        do {
+            cycleNodes[node] = 1;
+            node = parent[node];
+        } while (node != cycleStart);
+
+        // If both nodes of the edge were marked as cycle nodes then this edge can be removed.
+        for (int i = edgesSize - 1; i >= 0; i--) {
+            if ((cycleNodes[edges[i][0] - 1]) && (cycleNodes[edges[i][1] - 1])) {
+                retVal = edges[i];
+                break;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self):
+        self.cycleStart = -1
+
+    def dfs(self, src, visited, adjList, parent) -> None:
+        visited[src] = True
+        for adj in adjList[src]:
+            if visited[adj] == False:
+                parent[adj] = src
+                self.dfs(adj, visited, adjList, parent)
+            elif (adj != parent[src]) and (self.cycleStart == -1):
+                # If the node is visited and the parent is different then the node is part of the cycle.
+                self.cycleStart = adj
+                parent[adj] = src
+
+    def findRedundantConnection(self, edges: List[List[int]]) -> List[int]:
+        retVal = []  # This line should theoretically never be reached
+
+        self.cycleStart = -1
+
+        edgesSize = len(edges)
+
+        adjList = [[] for _ in range(edgesSize)]
+        for edge in edges:
+            adjList[edge[0] - 1].append(edge[1] - 1)
+            adjList[edge[1] - 1].append(edge[0] - 1)
+
+        visited = [False] * edgesSize
+        parent = [-1] * edgesSize
+        self.dfs(0, visited, adjList, parent)  # Perform the DFS and store a node in the cycle as cycleStart.
+
+        # Start from the cycleStart node and backtrack to get all the nodes in the cycle. Mark them all in the map.
+        cycleNodes = {}
+        node = self.cycleStart
+        while True:
+            cycleNodes[node] = 1
+            node = parent[node]
+            if node == self.cycleStart:
+                break
+
+        # If both nodes of the edge were marked as cycle nodes then this edge can be removed.
+        for i in range(edgesSize - 1, -1, -1):
+            if ((edges[i][0] - 1) in cycleNodes) and ((edges[i][1] - 1) in cycleNodes):
+                retVal = edges[i]
+                break
+
+        return retVal
+```
+
+</details>
+
 ## [695. Max Area of Island](https://leetcode.com/problems/max-area-of-island/)
 
 - [Official](https://leetcode.com/problems/max-area-of-island/solutions/127762/max-area-of-island/)
