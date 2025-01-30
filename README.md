@@ -278,6 +278,13 @@
 
 </details>
 
+<details><summary>Union Find</summary>
+
+- [1579. Remove Max Number of Edges to Keep Graph Fully Traversable](https://leetcode.com/problems/remove-max-number-of-edges-to-keep-graph-fully-traversable/)
+- [2493. Divide Nodes Into the Maximum Number of Groups](https://leetcode.com/problems/divide-nodes-into-the-maximum-number-of-groups/)
+
+</details>
+
 <details><summary>Eulerian Circuit</summary>
 
 - [332. Reconstruct Itinerary](https://leetcode.com/problems/reconstruct-itinerary/)

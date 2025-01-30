@@ -4467,6 +4467,480 @@ class Solution:
 
 </details>
 
+## [2493. Divide Nodes Into the Maximum Number of Groups](https://leetcode.com/problems/divide-nodes-into-the-maximum-number-of-groups/)  2415
+
+- [Official](https://leetcode.com/problems/divide-nodes-into-the-maximum-number-of-groups/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a positive integer n representing the number of nodes in an undirected graph.
+The nodes are labeled from 1 to n.
+
+You are also given a 2D integer array edges,
+where edges[i] = [ai, bi] indicates that there is a bidirectional edge between nodes ai and bi.
+Notice that the given graph may be disconnected.
+
+Divide the nodes of the graph into m groups (1-indexed) such that:
+- Each node in the graph belongs to exactly one group.
+- For every pair of nodes in the graph that are connected by an edge [ai, bi], if ai belongs to the group with index x,
+  and bi belongs to the group with index y, then |y - x| = 1.
+
+Return the maximum number of groups (i.e., maximum m) into which you can divide the nodes.
+Return -1 if it is impossible to group the nodes with the given conditions.
+
+Example 1:
+Input: n = 6, edges = [[1,2],[1,4],[1,5],[2,6],[2,3],[4,6]]
+Output: 4
+Explanation: As shown in the image we:
+- Add node 5 to the first group.
+- Add node 1 to the second group.
+- Add nodes 2 and 4 to the third group.
+- Add nodes 3 and 6 to the fourth group.
+We can see that every edge is satisfied.
+It can be shown that that if we create a fifth group and move any node from the third or fourth group to it,
+at least on of the edges will not be satisfied.
+
+Example 2:
+Input: n = 3, edges = [[1,2],[2,3],[3,1]]
+Output: -1
+Explanation: If we add node 1 to the first group, node 2 to the second group,
+and node 3 to the third group to satisfy the first two edges, we can see that the third edge will not be satisfied.
+It can be shown that no grouping is possible.
+
+Constraints:
+1 <= n <= 500
+1 <= edges.length <= 10^4
+edges[i].length == 2
+1 <= ai, bi <= n
+ai != bi
+There is at most one edge between any pair of vertices.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. If the graph is not bipartite, it is not possible to group the nodes.
+2. Notice that we can solve the problem for each connected component independently,
+   and the final answer will be just the sum of the maximum number of groups in each component.
+3. Finally, to solve the problem for each connected component,
+   we can notice that if for some node v we fix its position to be in the leftmost group,
+   then we can also evaluate the position of every other node.
+   That position is the depth of the node in a bfs tree after rooting at node v.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#ifndef UnionFind_H
+#define UnionFind_H
+
+void swap(int *a, int *b) {
+    int tmp;
+
+    tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+int find(int node, int *parent) {
+    int retVal = 0;
+
+    while (parent[node] != -1) {
+        node = parent[node];
+    }
+    retVal = node;
+
+    return retVal;
+}
+void Union(int node1, int node2, int *parent, int *depth) {
+    node1 = find(node1, parent);
+    node2 = find(node2, parent);
+
+    // If both nodes already belong to the same set, no action needed
+    if (node1 == node2) {
+        return;
+    }
+
+    // Union by rank (depth) to keep the tree balanced
+    if (depth[node1] < depth[node2]) {
+        swap(&node1, &node2);
+    }
+    parent[node2] = node1;
+
+    // If the depths are equal, increment the depth of the new root
+    if (depth[node1] == depth[node2]) {
+        depth[node1]++;
+    }
+}
+
+#endif  // UnionFind_H
+int getNumberOfGroups(int **adjacencyList, int adjacencyListSize, int srcNode, int n) {
+    int retVal = 0;
+
+    // Perform BFS to calculate the number of layers (groups)
+    int bfsQueueSize = n * n;
+    int bfsQueue[bfsQueueSize];
+    memset(bfsQueue, 0, sizeof(bfsQueue));
+    int bfsQueueFront = 0;
+    int bfsQueueRear = 0;
+    bfsQueue[bfsQueueRear++] = srcNode;
+
+    int layerSeen[n];
+    for (int i = 0; i < n; ++i) {
+        layerSeen[i] = -1;
+    }
+    layerSeen[srcNode] = 0;
+
+    int bfsQueueCount, currentNode, neighbor;
+    while (bfsQueueFront < bfsQueueRear) {
+        bfsQueueCount = bfsQueueRear - bfsQueueFront;
+        for (int i = 0; i < bfsQueueCount; i++) {
+            currentNode = bfsQueue[bfsQueueFront++];
+
+            for (int j = 0; j < adjacencyListSize; ++j) {
+                neighbor = adjacencyList[currentNode][j];
+                if (neighbor == -1) {
+                    continue;
+                }
+
+                // If neighbor hasn't been visited, assign it to the next layer
+                if (layerSeen[neighbor] == -1) {
+                    layerSeen[neighbor] = retVal + 1;
+                    bfsQueue[bfsQueueRear++] = neighbor;
+                    continue;
+                }
+
+                // If the neighbor is already in the same layer, return -1 (invalid partition)
+                if (layerSeen[neighbor] == retVal) {
+                    retVal = -1;
+                    return retVal;
+                }
+            }
+        }
+        retVal++;
+    }
+
+    return retVal;
+}
+int magnificentSets(int n, int **edges, int edgesSize, int *edgesColSize) {
+    int retVal = 0;
+
+    // Build the adjacency list and apply Union-Find for each edge
+    int **adjacencyList = (int **)malloc(n * sizeof(int *));
+    if (adjacencyList == NULL) {
+        perror("malloc");
+        return retVal;
+    }
+    for (int i = 0; i < n; ++i) {
+        adjacencyList[i] = (int *)malloc(n * sizeof(int));
+        if (adjacencyList[i] == NULL) {
+            perror("malloc");
+            for (int j = 0; j < i; ++j) {
+                free(adjacencyList[j]);
+                adjacencyList[j] = NULL;
+            }
+            free(adjacencyList);
+            adjacencyList = NULL;
+            return retVal;
+        }
+        for (int j = 0; j < n; ++j) {
+            adjacencyList[i][j] = -1;
+        }
+    }
+
+    int *parent = (int *)malloc(n * sizeof(int));
+    if (parent == NULL) {
+        perror("malloc");
+        for (int i = 0; i < n; ++i) {
+            free(adjacencyList[i]);
+            adjacencyList[i] = NULL;
+        }
+        free(adjacencyList);
+        adjacencyList = NULL;
+        return retVal;
+    }
+
+    int *depth = (int *)malloc(n * sizeof(int));
+    if (depth == NULL) {
+        perror("malloc");
+        free(parent);
+        parent = NULL;
+        for (int i = 0; i < n; ++i) {
+            free(adjacencyList[i]);
+            adjacencyList[i] = NULL;
+        }
+        free(adjacencyList);
+        adjacencyList = NULL;
+        return retVal;
+    }
+    for (int i = 0; i < n; ++i) {
+        parent[i] = -1;
+        depth[i] = 0;
+    }
+
+    int src, dst;
+    for (int i = 0; i < edgesSize; ++i) {
+        src = edges[i][0] - 1;
+        dst = edges[i][1] - 1;
+        adjacencyList[src][dst] = dst;
+        adjacencyList[dst][src] = src;
+        Union(src, dst, parent, depth);
+    }
+
+    // For each node, calculate the maximum number of groups for its component
+    int numOfGroupsForComponent[n];
+    for (int i = 0; i < n; ++i) {
+        numOfGroupsForComponent[i] = -1;
+    }
+
+    int numberOfGroups, rootNode;
+    for (int node = 0; node < n; node++) {
+        numberOfGroups = getNumberOfGroups(adjacencyList, n, node, n);
+        if (numberOfGroups == -1) {
+            retVal = -1;  // If invalid split, return -1
+            break;
+        }
+        rootNode = find(node, parent);
+        numOfGroupsForComponent[rootNode] = fmax(numOfGroupsForComponent[rootNode], numberOfGroups);
+    }
+
+    // Calculate the total number of groups across all components
+    if (retVal != -1) {
+        for (int i = 0; i < n; ++i) {
+            if (numOfGroupsForComponent[i] == -1) {
+                continue;
+            }
+            retVal += numOfGroupsForComponent[i];
+        }
+    }
+
+    //
+    free(depth);
+    depth = NULL;
+    free(parent);
+    parent = NULL;
+    for (int i = 0; i < n; ++i) {
+        free(adjacencyList[i]);
+        adjacencyList[i] = NULL;
+    }
+    free(adjacencyList);
+    adjacencyList = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class UnionFind {
+   public:
+    int n;
+    vector<int> parent;
+    vector<int> depth;
+
+    UnionFind(int _n) : n(_n), parent(_n, -1), depth(_n, 0) {}
+    int find(int node) {
+        int retVal = 0;
+
+        while (parent[node] != -1) {
+            node = parent[node];
+        }
+        retVal = node;
+
+        return retVal;
+    }
+    void Union(int node1, int node2) {
+        node1 = find(node1);
+        node2 = find(node2);
+
+        // If both nodes already belong to the same set, no action needed
+        if (node1 == node2) {
+            return;
+        }
+
+        // Union by rank (depth) to keep the tree balanced
+        if (depth[node1] < depth[node2]) {
+            swap(node1, node2);
+        }
+        parent[node2] = node1;
+
+        // If the depths are equal, increment the depth of the new root
+        if (depth[node1] == depth[node2]) {
+            depth[node1]++;
+        }
+    }
+};
+class Solution {
+   private:
+    int getNumberOfGroups(vector<vector<int>> &adjacencyList, int srcNode, int n) {
+        int retVal = 0;
+
+        // Perform BFS to calculate the number of layers (groups)
+        queue<int> bfsQueue;
+        bfsQueue.push(srcNode);
+        vector<int> layerSeen(n, -1);
+        layerSeen[srcNode] = 0;
+        while (bfsQueue.empty() == false) {
+            int bfsQueueSize = bfsQueue.size();
+            for (int i = 0; i < bfsQueueSize; i++) {
+                int currentNode = bfsQueue.front();
+                bfsQueue.pop();
+                for (int neighbor : adjacencyList[currentNode]) {
+                    // If neighbor hasn't been visited, assign it to the next layer
+                    if (layerSeen[neighbor] == -1) {
+                        layerSeen[neighbor] = retVal + 1;
+                        bfsQueue.push(neighbor);
+                        continue;
+                    }
+
+                    // If the neighbor is already in the same layer, return -1 (invalid partition)
+                    if (layerSeen[neighbor] == retVal) {
+                        retVal = -1;
+                        return retVal;
+                    }
+                }
+            }
+            retVal++;
+        }
+
+        return retVal;
+    }
+
+   public:
+    int magnificentSets(int n, vector<vector<int>> &edges) {
+        int retVal = 0;
+
+        // Build the adjacency list and apply Union-Find for each edge
+        vector<vector<int>> adjacencyList(n);
+        UnionFind uf(n);
+        for (auto edge : edges) {
+            adjacencyList[edge[0] - 1].push_back(edge[1] - 1);
+            adjacencyList[edge[1] - 1].push_back(edge[0] - 1);
+            uf.Union(edge[0] - 1, edge[1] - 1);
+        }
+
+        // For each node, calculate the maximum number of groups for its component
+        unordered_map<int, int> numOfGroupsForComponent;
+        for (int node = 0; node < n; node++) {
+            int numberOfGroups = getNumberOfGroups(adjacencyList, node, n);
+            if (numberOfGroups == -1) {
+                retVal = -1;  // If invalid split, return -1
+                return retVal;
+            }
+
+            int rootNode = uf.find(node);
+            numOfGroupsForComponent[rootNode] = max(numOfGroupsForComponent[rootNode], numberOfGroups);
+        }
+
+        // Calculate the total number of groups across all components
+        for (auto [rootNode, numberOfGroups] : numOfGroupsForComponent) {
+            retVal += numberOfGroups;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class UnionFind:
+    def __init__(self, n: int):
+        self.parent = [-1] * n
+        self.depth = [0] * n
+
+    def find(self, node) -> int:
+        retVal = 0
+
+        while self.parent[node] != -1:
+            node = self.parent[node]
+        retVal = node
+
+        return retVal
+
+    def union(self, node1, node2) -> None:
+        node1 = self.find(node1)
+        node2 = self.find(node2)
+
+        # If both nodes already belong to the same set, no action needed
+        if node1 == node2:
+            return
+
+        # Union by rank (depth) to keep the tree balanced
+        if self.depth[node1] < self.depth[node2]:
+            node1, node2 = node2, node1
+        self.parent[node2] = node1
+
+        # If the depths are equal, increment the depth of the new root
+        if self.depth[node1] == self.depth[node2]:
+            self.depth[node1] += 1
+
+
+class Solution:
+    def getNumberOfGroups(self, adjacencyList, srcNode, n) -> int:
+        retVal = 0
+
+        bfsQueue = deque()
+        bfsQueue.append(srcNode)
+        layerSeen = [-1] * n
+        layerSeen[srcNode] = 0
+        while bfsQueue:
+            bfsQueueSize = len(bfsQueue)
+            for _ in range(bfsQueueSize):
+                currentNode = bfsQueue.popleft()
+                for neighbor in adjacencyList[currentNode]:
+                    if layerSeen[neighbor] == -1:  # If neighbor hasn't been visited, assign it to the next layer
+                        layerSeen[neighbor] = retVal + 1
+                        bfsQueue.append(neighbor)
+                        continue
+
+                    # If the neighbor is already in the same layer, return -1 (invalid partition)
+                    if layerSeen[neighbor] == retVal:
+                        retVal = -1
+                        return retVal
+            retVal += 1
+
+        return retVal
+
+    def magnificentSets(self, n: int, edges: List[List[int]]) -> int:
+        retVal = -1  # If invalid split, return -1
+
+        # Build the adjacency list and apply Union-Find for each edge
+        adjacencyList = [[] for _ in range(n)]
+        uf = UnionFind(n)
+        for edge in edges:
+            adjacencyList[edge[0] - 1].append(edge[1] - 1)
+            adjacencyList[edge[1] - 1].append(edge[0] - 1)
+            uf.union(edge[0] - 1, edge[1] - 1)
+
+        # For each node, calculate the maximum number of groups for its component
+        numOfGroupsForComponent = {}
+        for node in range(n):
+            numberOfGroups = self.getNumberOfGroups(adjacencyList, node, n)
+            if numberOfGroups == -1:
+                return retVal
+
+            rootNode = uf.find(node)
+            numOfGroupsForComponent[rootNode] = max(numOfGroupsForComponent.get(rootNode, 0), numberOfGroups)
+
+        # Calculate the total number of groups across all components
+        retVal = sum(numOfGroupsForComponent.values())
+
+        return retVal
+```
+
+</details>
+
 ## [2577. Minimum Time to Visit a Cell In a Grid](https://leetcode.com/problems/minimum-time-to-visit-a-cell-in-a-grid/)  2381
 
 - [Official](https://leetcode.com/problems/minimum-time-to-visit-a-cell-in-a-grid/editorial/)
