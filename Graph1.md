@@ -5902,6 +5902,374 @@ class Solution:
 
 </details>
 
+## [827. Making A Large Island](https://leetcode.com/problems/making-a-large-island/)  1933
+
+- [Official](https://leetcode.com/problems/making-a-large-island/editorial/)
+- [Official](https://leetcode.cn/problems/making-a-large-island/solutions/1828969/zui-da-ren-gong-dao-by-leetcode-solution-lehy/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an n x n binary matrix grid. You are allowed to change at most one 0 to be 1.
+
+Return the size of the largest island in grid after applying this operation.
+
+An island is a 4-directionally connected group of 1s.
+
+Example 1:
+Input: grid = [[1,0],[0,1]]
+Output: 3
+Explanation: Change one 0 to 1 and connect two 1s, then we get an island with area = 3.
+
+Example 2:
+Input: grid = [[1,1],[1,0]]
+Output: 4
+Explanation: Change the 0 to 1 and make the island bigger, only one island with area = 4.
+
+Example 3:
+Input: grid = [[1,1],[1,1]]
+Output: 4
+Explanation: Can't change any 0 to 1, only one island with area = 4.
+
+Constraints:
+n == grid.length
+n == grid[i].length
+1 <= n <= 500
+grid[i][j] is either 0 or 1.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable* pFree) {
+    struct hashTable* current;
+    struct hashTable* tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int dfs(int** grid, int gridSize, int* gridColSize, int islandId, int row, int col) {
+    int retVal = 0;
+
+    int rowSize = gridSize;
+    int colSize = gridColSize[0];
+    if ((row < 0) || (row >= rowSize) || (col < 0) || (col >= colSize)) {
+        return retVal;
+    }
+
+    if (grid[row][col] != 1) {
+        return retVal;
+    }
+    grid[row][col] = islandId;
+
+    retVal = 1;
+    retVal += dfs(grid, gridSize, gridColSize, islandId, row + 1, col);
+    retVal += dfs(grid, gridSize, gridColSize, islandId, row - 1, col);
+    retVal += dfs(grid, gridSize, gridColSize, islandId, row, col + 1);
+    retVal += dfs(grid, gridSize, gridColSize, islandId, row, col - 1);
+
+    return retVal;
+}
+int largestIsland(int** grid, int gridSize, int* gridColSize) {
+    int retVal = 1;
+
+    int rowSize = gridSize;
+    int colSize = gridColSize[0];
+
+    // // Step 1: Mark all islands and calculate their sizes
+    struct hashTable* pIslandSizes = NULL;
+    struct hashTable* pTemp;
+    int islandId = 2;
+    for (int row = 0; row < rowSize; ++row) {
+        for (int col = 0; col < colSize; ++col) {
+            if (grid[row][col] != 1) {
+                continue;
+            }
+
+            pTemp = NULL;
+            HASH_FIND_INT(pIslandSizes, &islandId, pTemp);
+            if (pTemp == NULL) {
+                pTemp = (struct hashTable*)malloc(sizeof(struct hashTable));
+                if (pTemp == NULL) {
+                    perror("malloc");
+                    freeAll(pIslandSizes);
+                    return retVal;
+                }
+                pTemp->key = islandId;
+                pTemp->value = dfs(grid, gridSize, gridColSize, islandId, row, col);
+                HASH_ADD_INT(pIslandSizes, key, pTemp);
+            } else {
+                pTemp->value = dfs(grid, gridSize, gridColSize, islandId, row, col);
+            }
+            ++islandId;
+        }
+    }
+
+    int islandSizesSize = HASH_COUNT(pIslandSizes);
+    if (islandSizesSize == 0) {  // If there are no islands, return 1
+        return retVal;
+    } else if (islandSizesSize == 1) {  // If the entire grid is one island, return its size or size + 1
+        --islandId;
+
+        pTemp = NULL;
+        HASH_FIND_INT(pIslandSizes, &islandId, pTemp);
+        if (pTemp != NULL) {
+            retVal = pTemp->value;
+            if (pTemp->value != rowSize * colSize) {
+                retVal += 1;
+            }
+        }
+        freeAll(pIslandSizes);
+
+        return retVal;
+    }
+
+    // Step 2: Try converting every 0 to 1 and calculate the resulting island size
+    const int directions[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+    struct hashTable* pNeighboringIslands = NULL;
+    struct hashTable *pCurrent, *pNext;
+    int x, y, gridValue = 0;
+    int currentIslandSize;
+    for (int row = 0; row < rowSize; ++row) {
+        for (int col = 0; col < colSize; ++col) {
+            if (grid[row][col] != 0) {
+                continue;
+            }
+
+            for (int i = 0; i < 4; ++i) {
+                x = row + directions[i][0];
+                y = col + directions[i][1];
+                if ((x < 0) || (x >= rowSize) || (y < 0) || (y >= colSize)) {
+                    continue;
+                } else if (grid[x][y] <= 1) {
+                    continue;
+                }
+                gridValue = grid[x][y];
+
+                pTemp = NULL;
+                HASH_FIND_INT(pNeighboringIslands, &gridValue, pTemp);
+                if (pTemp == NULL) {
+                    pTemp = (struct hashTable*)malloc(sizeof(struct hashTable));
+                    if (pTemp == NULL) {
+                        perror("malloc");
+                        freeAll(pNeighboringIslands);
+                        freeAll(pIslandSizes);
+                        return retVal;
+                    }
+                    pTemp->key = gridValue;
+                    pTemp->value = gridValue;
+                    HASH_ADD_INT(pNeighboringIslands, key, pTemp);
+                }
+            }
+
+            // Sum the sizes of all unique neighboring islands
+            currentIslandSize = 1;
+            HASH_ITER(hh, pNeighboringIslands, pCurrent, pNext) {
+                islandId = pNeighboringIslands->key;
+                HASH_DEL(pNeighboringIslands, pCurrent);
+                free(pCurrent);
+
+                pTemp = NULL;
+                HASH_FIND_INT(pIslandSizes, &islandId, pTemp);
+                if (pTemp != NULL) {
+                    currentIslandSize += pTemp->value;
+                }
+            }
+
+            retVal = fmax(retVal, currentIslandSize);
+        }
+    }
+
+    //
+    freeAll(pIslandSizes);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int dfs(vector<vector<int>>& grid, int islandId, int row, int col) {
+        int retVal = 0;
+
+        int rowSize = grid.size();
+        int colSize = grid[0].size();
+        if ((row < 0) || (row >= rowSize) || (col < 0) || (col >= colSize)) {
+            return retVal;
+        }
+
+        if (grid[row][col] != 1) {
+            return retVal;
+        }
+        grid[row][col] = islandId;
+
+        retVal = 1;
+        retVal += dfs(grid, islandId, row + 1, col);
+        retVal += dfs(grid, islandId, row - 1, col);
+        retVal += dfs(grid, islandId, row, col + 1);
+        retVal += dfs(grid, islandId, row, col - 1);
+
+        return retVal;
+    }
+
+   public:
+    int largestIsland(vector<vector<int>>& grid) {
+        int retVal = 1;
+
+        int rowSize = grid.size();
+        int colSize = grid[0].size();
+
+        // Step 1: Mark all islands and calculate their sizes
+        unordered_map<int, int> islandSizes;
+        int islandId = 2;
+        for (int row = 0; row < rowSize; ++row) {
+            for (int col = 0; col < colSize; ++col) {
+                if (grid[row][col] == 1) {
+                    islandSizes[islandId] = dfs(grid, islandId, row, col);
+                    ++islandId;
+                }
+            }
+        }
+
+        int islandSizesSize = islandSizes.size();
+        if (islandSizes.empty() == true) {  // If there are no islands, return 1
+            return retVal;
+        } else if (islandSizesSize == 1) {  // If the entire grid is one island, return its size or size + 1
+            --islandId;
+            retVal = islandSizes[islandId];
+            if (islandSizes[islandId] != rowSize * colSize) {
+                retVal += 1;
+            }
+            return retVal;
+        }
+
+        // Step 2: Try converting every 0 to 1 and calculate the resulting island size
+        for (int row = 0; row < rowSize; ++row) {
+            for (int col = 0; col < colSize; ++col) {
+                if (grid[row][col] != 0) {
+                    continue;
+                }
+
+                unordered_set<int> neighboringIslands;
+                if ((row + 1 < rowSize) && (grid[row + 1][col] > 1)) {  // Check down
+                    neighboringIslands.insert(grid[row + 1][col]);
+                }
+                if ((row - 1 >= 0) && (grid[row - 1][col] > 1)) {  // Check up
+                    neighboringIslands.insert(grid[row - 1][col]);
+                }
+                if ((col + 1 < colSize) && (grid[row][col + 1] > 1)) {  // Check right
+                    neighboringIslands.insert(grid[row][col + 1]);
+                }
+                if ((col - 1 >= 0) && (grid[row][col - 1] > 1)) {  // Check left
+                    neighboringIslands.insert(grid[row][col - 1]);
+                }
+
+                // Sum the sizes of all unique neighboring islands
+                int currentIslandSize = 1;
+                for (int id : neighboringIslands) {
+                    currentIslandSize += islandSizes[id];
+                }
+
+                retVal = max(retVal, currentIslandSize);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def dfs(self, grid: List[List[int]], islandId: int, row: int, col: int) -> int:
+        retVal = 0
+
+        rowSize = len(grid)
+        colSize = len(grid[0])
+        if (row < 0) or (row >= rowSize) or (col < 0) or (col >= colSize):
+            return retVal
+
+        if (grid[row][col] != 1):
+            return retVal
+        grid[row][col] = islandId
+
+        retVal = 1
+        retVal += self.dfs(grid, islandId, row + 1, col)
+        retVal += self.dfs(grid, islandId, row - 1, col)
+        retVal += self.dfs(grid, islandId, row, col + 1)
+        retVal += self.dfs(grid, islandId, row, col - 1)
+
+        return retVal
+
+    def largestIsland(self, grid: List[List[int]]) -> int:
+        retVal = 1
+
+        rowSize = len(grid)
+        colSize = len(grid[0])
+
+        # Step 1: Mark all islands and calculate their sizes
+        islandSizes = {}
+        islandId = 2
+        for row in range(rowSize):
+            for col in range(colSize):
+                if grid[row][col] == 1:
+                    islandSizes[islandId] = self.dfs(grid, islandId, row, col)
+                    islandId += 1
+
+        if not islandSizes:  # If there are no islands, return 1
+            return retVal
+        elif len(islandSizes) == 1:  # If the entire grid is one island, return its size or size +
+            islandId -= 1
+            retVal = islandSizes[islandId]
+            if islandSizes[islandId] != rowSize * colSize:
+                retVal += 1
+            return retVal
+
+        # Step 2: Try converting every 0 to 1 and calculate the resulting island size
+        for row in range(rowSize):
+            for col in range(colSize):
+                if grid[row][col] != 0:
+                    continue
+
+                neighboringIslands = set()
+                if (row + 1 < rowSize) and (grid[row + 1][col] > 1):  # Check down
+                    neighboringIslands.add(grid[row + 1][col])
+                if (row - 1 >= 0) and (grid[row - 1][col] > 1):  # Check up
+                    neighboringIslands.add(grid[row - 1][col])
+                if (col + 1 < colSize) and (grid[row][col + 1] > 1):  # Check right
+                    neighboringIslands.add(grid[row][col + 1])
+                if (col - 1 >= 0) and (grid[row][col - 1] > 1):  # Check left
+                    neighboringIslands.add(grid[row][col - 1])
+
+                # Sum the sizes of all unique neighboring islands
+                currentIslandSize = 1
+                for islandId in neighboringIslands:
+                    currentIslandSize += islandSizes[islandId]
+                retVal = max(retVal, currentIslandSize)
+
+        return retVal
+```
+
+</details>
+
 ## [839. Similar String Groups](https://leetcode.com/problems/similar-string-groups/)  2053
 
 - [Official](https://leetcode.com/problems/similar-string-groups/editorial/)
