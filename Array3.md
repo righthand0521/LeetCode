@@ -2740,3 +2740,108 @@ class Solution:
 ```
 
 </details>
+
+## [3151. Special Array I](https://leetcode.com/problems/special-array-i/)  1152
+
+- [Official](https://leetcode.com/problems/special-array-i/editorial/)
+- [Official](https://leetcode.cn/problems/special-array-i/solutions/2872838/te-shu-shu-zu-i-by-leetcode-solution-kpjn/)
+
+<details><summary>Description</summary>
+
+```text
+An array is considered special if every pair of its adjacent elements contains two numbers with different parity.
+
+You are given an array of integers nums. Return true if nums is a special array, otherwise, return false.
+
+Example 1:
+Input: nums = [1]
+Output: true
+Explanation:
+There is only one element. So the answer is true.
+
+Example 2:
+Input: nums = [2,1,4]
+Output: true
+Explanation:
+There is only two pairs: (2,1) and (1,4), and both of them contain numbers with different parity. So the answer is true.
+
+Example 3:
+Input: nums = [4,3,1,6]
+Output: false
+Explanation:
+nums[1] and nums[2] are both odd. So the answer is false.
+
+Constraints:
+1 <= nums.length <= 100
+1 <= nums[i] <= 100
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Try to check the parity of each element and its previous element.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool isArraySpecial(int* nums, int numsSize) {
+    bool retVal = true;
+
+    for (int i = 1; i < numsSize; ++i) {
+        if (nums[i - 1] % 2 == nums[i] % 2) {
+            retVal = false;
+            break;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool isArraySpecial(vector<int>& nums) {
+        bool retVal = true;
+
+        int numsSize = nums.size();
+        for (int i = 1; i < numsSize; ++i) {
+            if (nums[i - 1] % 2 == nums[i] % 2) {
+                retVal = false;
+                break;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def isArraySpecial(self, nums: List[int]) -> bool:
+        retVal = True
+
+        numsSize = len(nums)
+        for i in range(1, numsSize):
+            if nums[i-1] % 2 == nums[i] % 2:
+                retVal = False
+                break
+
+        return retVal
+```
+
+</details>
