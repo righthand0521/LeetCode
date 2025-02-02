@@ -4,40 +4,22 @@
 #include <string.h>
 
 bool check(int* nums, int numsSize) {
-    bool retVal = false;
+    bool retVal = true;
 
-    int head1 = 0;
-    int tail1 = 0;
-    int head2 = 0;
-    int tail2 = numsSize - 1;
+    if (numsSize <= 1) {
+        return retVal;
+    }
 
-    int i;
-    for (i = head1 + 1; i < numsSize; ++i) {
-        if (nums[i - 1] <= nums[i]) {
-            continue;
+    int inversionCount = 0;
+    for (int i = 1; i < numsSize; ++i) {
+        if (nums[i - 1] > nums[i]) {
+            inversionCount++;
         }
-        tail1 = i - 1;
-        head2 = i;
-        break;
     }
-    if (i == numsSize) {
-        retVal = true;
-        return retVal;
+    if (nums[numsSize - 1] > nums[0]) {
+        inversionCount++;
     }
-
-    for (i = head2 + 1; i < numsSize; ++i) {
-        if (nums[i - 1] <= nums[i]) {
-            continue;
-        }
-        return retVal;
-    }
-
-    if ((nums[head1] < nums[head2]) || (nums[head1] < nums[tail2])) {
-        return retVal;
-    } else if ((nums[tail1] < nums[head2]) || (nums[tail1] < nums[tail2])) {
-        return retVal;
-    }
-    retVal = true;
+    retVal = (inversionCount <= 1);
 
     return retVal;
 }

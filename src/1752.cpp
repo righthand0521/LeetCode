@@ -10,27 +10,20 @@ class Solution {
         bool retVal = true;
 
         int numsSize = nums.size();
-        int idx = 0;
-        for (int i = 1; i < numsSize; ++i) {
-            if (nums[i - 1] > nums[i]) {
-                idx = i;
-                break;
-            }
-        }
-        if (idx == 0) {
+        if (numsSize <= 1) {
             return retVal;
         }
 
-        for (int i = idx + 1; i < numsSize; ++i) {
+        int inversionCount = 0;
+        for (int i = 1; i < numsSize; ++i) {
             if (nums[i - 1] > nums[i]) {
-                retVal = false;
-                return retVal;
+                inversionCount++;
             }
         }
-
-        if (nums[0] < nums[numsSize - 1]) {
-            retVal = false;
+        if (nums[numsSize - 1] > nums[0]) {
+            inversionCount++;
         }
+        retVal = (inversionCount <= 1);
 
         return retVal;
     }

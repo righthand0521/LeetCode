@@ -2824,6 +2824,7 @@ class Solution:
 
 ## [1752. Check if Array Is Sorted and Rotated](https://leetcode.com/problems/check-if-array-is-sorted-and-rotated/)  1324
 
+- [Official](https://leetcode.com/problems/check-if-array-is-sorted-and-rotated/editorial/)
 - [Official](https://leetcode.cn/problems/check-if-array-is-sorted-and-rotated/solutions/1990942/jian-cha-shu-zu-shi-fou-jing-pai-xu-he-l-cbqk/)
 
 <details><summary>Description</summary>
@@ -2860,47 +2861,36 @@ Constraints:
 1 <= nums[i] <= 100
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. Brute force and check if it is possible for a sorted array to start from each position.
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
 
 ```c
 bool check(int* nums, int numsSize) {
-    bool retVal = false;
+    bool retVal = true;
 
-    int head1 = 0;
-    int tail1 = 0;
-    int head2 = 0;
-    int tail2 = numsSize - 1;
+    if (numsSize <= 1) {
+        return retVal;
+    }
 
-    int i;
-    for (i=head1+1; i<numsSize; ++i) {
-        if (nums[i-1] <= nums[i]) {
-            continue;
+    int inversionCount = 0;
+    for (int i = 1; i < numsSize; ++i) {
+        if (nums[i - 1] > nums[i]) {
+            inversionCount++;
         }
-        tail1 = i - 1;
-        head2 = i;
-        break;
     }
-    if (i == numsSize) {
-        retVal = true;
-        return retVal;
+    if (nums[numsSize - 1] > nums[0]) {
+        inversionCount++;
     }
-
-    for (i=head2+1; i<numsSize; ++i) {
-        if (nums[i-1] <= nums[i]) {
-            continue;
-        }
-        return retVal;
-    }
-
-    if ((nums[head1]<nums[head2]) || (nums[head1]<nums[tail2])) {
-        return retVal;
-    }
-    else if ((nums[tail1]<nums[head2]) || (nums[tail1]<nums[tail2])) {
-        return retVal;
-    }
-    retVal = true;
+    retVal = (inversionCount <= 1);
 
     return retVal;
 }
@@ -2917,31 +2907,48 @@ class Solution {
         bool retVal = true;
 
         int numsSize = nums.size();
-        int idx = 0;
-        for (int i = 1; i < numsSize; ++i) {
-            if (nums[i - 1] > nums[i]) {
-                idx = i;
-                break;
-            }
-        }
-        if (idx == 0) {
+        if (numsSize <= 1) {
             return retVal;
         }
 
-        for (int i = idx + 1; i < numsSize; ++i) {
+        int inversionCount = 0;
+        for (int i = 1; i < numsSize; ++i) {
             if (nums[i - 1] > nums[i]) {
-                retVal = false;
-                return retVal;
+                inversionCount++;
             }
         }
-
-        if (nums[0] < nums[numsSize - 1]) {
-            retVal = false;
+        if (nums[numsSize - 1] > nums[0]) {
+            inversionCount++;
         }
+        retVal = (inversionCount <= 1);
 
         return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def check(self, nums: List[int]) -> bool:
+        retVal = True
+
+        numsSize = len(nums)
+        if numsSize <= 1:
+            return retVal
+
+        inversionCount = 0
+        for i in range(1, numsSize):
+            if nums[i - 1] > nums[i]:
+                inversionCount += 1
+        if nums[numsSize - 1] > nums[0]:
+            inversionCount += 1
+        retVal = (inversionCount <= 1)
+
+        return retVal
 ```
 
 </details>
