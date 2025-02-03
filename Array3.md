@@ -2741,6 +2741,136 @@ class Solution:
 
 </details>
 
+## [3105. Longest Strictly Increasing or Strictly Decreasing Subarray](https://leetcode.com/problems/longest-strictly-increasing-or-strictly-decreasing-subarray/)  1217
+
+- [Official](https://leetcode.com/problems/longest-strictly-increasing-or-strictly-decreasing-subarray/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an array of integers nums.
+Return the length of the longest subarray of nums which is either strictly increasing or strictly decreasing.
+
+Example 1:
+Input: nums = [1,4,3,3,2]
+Output: 2
+Explanation:
+The strictly increasing subarrays of nums are [1], [2], [3], [3], [4], and [1,4].
+The strictly decreasing subarrays of nums are [1], [2], [3], [3], [4], [3,2], and [4,3].
+Hence, we return 2.
+
+Example 2:
+Input: nums = [3,3,3,3]
+Output: 1
+Explanation:
+The strictly increasing subarrays of nums are [3], [3], [3], and [3].
+The strictly decreasing subarrays of nums are [3], [3], [3], and [3].
+Hence, we return 1.
+
+Example 3:
+Input: nums = [3,2,1]
+Output: 3
+Explanation:
+The strictly increasing subarrays of nums are [3], [2], and [1].
+The strictly decreasing subarrays of nums are [3], [2], [1], [3,2], [2,1], and [3,2,1].
+Hence, we return 3.
+
+Constraints:
+1 <= nums.length <= 50
+1 <= nums[i] <= 50
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int longestMonotonicSubarray(int* nums, int numsSize) {
+    int retVal = 1;
+
+    int increasing = 1;
+    int decreasing = 1;
+    for (int i = 1; i < numsSize; ++i) {
+        if (nums[i - 1] < nums[i]) {
+            increasing += 1;
+            decreasing = 1;
+        } else if (nums[i - 1] > nums[i]) {
+            decreasing += 1;
+            increasing = 1;
+        } else {
+            increasing = 1;
+            decreasing = 1;
+        }
+        retVal = fmax(retVal, fmax(increasing, decreasing));
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int longestMonotonicSubarray(vector<int>& nums) {
+        int retVal = 1;
+
+        int numsSize = nums.size();
+
+        int increasing = 1;
+        int decreasing = 1;
+        for (int i = 1; i < numsSize; ++i) {
+            if (nums[i - 1] < nums[i]) {
+                increasing += 1;
+                decreasing = 1;
+            } else if (nums[i - 1] > nums[i]) {
+                decreasing += 1;
+                increasing = 1;
+            } else {
+                increasing = 1;
+                decreasing = 1;
+            }
+            retVal = max(retVal, max(increasing, decreasing));
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def longestMonotonicSubarray(self, nums: List[int]) -> int:
+        retVal = 1
+
+        numsSize = len(nums)
+
+        increasing = 1
+        decreasing = 1
+        for i in range(1, numsSize):
+            if (nums[i-1] < nums[i]):
+                increasing += 1
+                decreasing = 1
+            elif (nums[i-1] > nums[i]):
+                decreasing += 1
+                increasing = 1
+            else:
+                increasing = 1
+                decreasing = 1
+            retVal = max(retVal, max(increasing, decreasing))
+
+        return retVal
+```
+
+</details>
+
 ## [3151. Special Array I](https://leetcode.com/problems/special-array-i/)  1152
 
 - [Official](https://leetcode.com/problems/special-array-i/editorial/)
