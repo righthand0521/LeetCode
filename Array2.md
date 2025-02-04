@@ -3346,6 +3346,121 @@ impl Solution {
 
 </details>
 
+## [1800. Maximum Ascending Subarray Sum](https://leetcode.com/problems/maximum-ascending-subarray-sum/)  1229
+
+- [Official](https://leetcode.com/problems/maximum-ascending-subarray-sum/editorial/)
+- [Official](https://leetcode.cn/problems/maximum-ascending-subarray-sum/solutions/1862585/zui-da-sheng-xu-zi-shu-zu-he-by-leetcode-0q6v/)
+
+<details><summary>Description</summary>
+
+```text
+Given an array of positive integers nums, return the maximum possible sum of an ascending subarray in nums.
+
+A subarray is defined as a contiguous sequence of numbers in an array.
+
+A subarray [numsl, numsl+1, ..., numsr-1, numsr] is ascending if for all i where l <= i < r, numsi  < numsi+1.
+Note that a subarray of size 1 is ascending.
+
+Example 1:
+Input: nums = [10,20,30,5,10,50]
+Output: 65
+Explanation: [5,10,50] is the ascending subarray with the maximum sum of 65.
+
+Example 2:
+Input: nums = [10,20,30,40,50]
+Output: 150
+Explanation: [10,20,30,40,50] is the ascending subarray with the maximum sum of 150.
+
+Example 3:
+Input: nums = [12,17,15,13,10,11,12]
+Output: 33
+Explanation: [10,11,12] is the ascending subarray with the maximum sum of 33.
+
+Constraints:
+1 <= nums.length <= 100
+1 <= nums[i] <= 100
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. It is fast enough to check all possible subarrays
+2. The end of each ascending subarray will be the start of the next
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int maxAscendingSum(int* nums, int numsSize) {
+    int retVal = 0;
+
+    int sum = nums[0];
+    for (int i = 1; i < numsSize; ++i) {
+        if (nums[i - 1] >= nums[i]) {
+            retVal = fmax(retVal, sum);
+            sum = 0;
+        }
+        sum += nums[i];
+    }
+    retVal = fmax(retVal, sum);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maxAscendingSum(vector<int>& nums) {
+        int retVal = 0;
+
+        int numsSize = nums.size();
+        int sum = nums[0];
+        for (int i = 1; i < numsSize; ++i) {
+            if (nums[i - 1] >= nums[i]) {
+                retVal = max(retVal, sum);
+                sum = 0;
+            }
+            sum += nums[i];
+        }
+        retVal = max(retVal, sum);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxAscendingSum(self, nums: List[int]) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+        sum = nums[0]
+        for i in range(1, numsSize):
+            if (nums[i-1] >= nums[i]):
+                retVal = max(retVal, sum)
+                sum = 0
+            sum += nums[i]
+        retVal = max(retVal, sum)
+
+        return retVal
+```
+
+</details>
+
 ## [1861. Rotating the Box](https://leetcode.com/problems/rotating-the-box/)  1536
 
 - [Official](https://leetcode.com/problems/rotating-the-box/editorial/)
