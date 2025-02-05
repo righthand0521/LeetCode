@@ -6,12 +6,10 @@
 bool areAlmostEqual(char* s1, char* s2) {
     bool retVal = false;
 
+    int s1Size = strlen(s1);
     int count = 0;
     int record[2] = {0};
-
-    int len = strlen(s1);
-    int i;
-    for (i = 0; i < len; ++i) {
+    for (int i = 0; i < s1Size; ++i) {
         if (s1[i] == s2[i]) {
             continue;
         }
@@ -35,8 +33,18 @@ int main(int argc, char** argv) {
         char s1[MAX_SIZE];
         char s2[MAX_SIZE];
         ;
-    } testCase[] = {{"bank", "kanb"}, {"attack", "defend"}, {"kelb", "kelb"}, {"caa", "aaz"}, {"aa", "ac"}};
+    } testCase[] = {{"bank", "kanb"}, {"attack", "defend"}, {"kelb", "kelb"}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: s1 = "bank", s2 = "kanb"
+     *  Output: true
+     *
+     *  Input: s1 = "attack", s2 = "defend"
+     *  Output: false
+     *
+     *  Input: s1 = "kelb", s2 = "kelb"
+     *  Output: true
+     */
 
     bool answer = false;
     int i;

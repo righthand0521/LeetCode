@@ -5980,6 +5980,9 @@ class Solution:
 
 ## [1790. Check if One String Swap Can Make Strings Equal](https://leetcode.com/problems/check-if-one-string-swap-can-make-strings-equal/)  1300
 
+- [Official](https://leetcode.com/problems/check-if-one-string-swap-can-make-strings-equal/editorial/)
+- [Official](https://leetcode.cn/problems/check-if-one-string-swap-can-make-strings-equal/solutions/1881111/jin-zhi-xing-yi-ci-zi-fu-chuan-jiao-huan-j8si/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -6011,6 +6014,15 @@ s1.length == s2.length
 s1 and s2 consist of only lowercase English letters.
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. The answer is false if the number of nonequal positions in the strings is not equal to 0 or 2.
+2. Check that these positions have the same set of characters.
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
@@ -6019,24 +6031,21 @@ s1 and s2 consist of only lowercase English letters.
 bool areAlmostEqual(char* s1, char* s2) {
     bool retVal = false;
 
+    int s1Size = strlen(s1);
     int count = 0;
     int record[2] = {0};
-
-    int len = strlen(s1);
-    int i;
-    for (i=0; i<len; ++i) {
+    for (int i = 0; i < s1Size; ++i) {
         if (s1[i] == s2[i]) {
             continue;
         }
-        record[0] |= (1<<(s1[i]-'a'));
-        record[1] |= (1<<(s2[i]-'a'));
+        record[0] |= (1 << (s1[i] - 'a'));
+        record[1] |= (1 << (s2[i] - 'a'));
         ++count;
     }
 
     if (count == 0) {
         retVal = true;
-    }
-    else if ((count == 2) && (record[0] == record[1])) {
+    } else if ((count == 2) && (record[0] == record[1])) {
         retVal = true;
     }
 
@@ -6050,31 +6059,62 @@ bool areAlmostEqual(char* s1, char* s2) {
 
 ```c++
 class Solution {
-public:
+   public:
     bool areAlmostEqual(string s1, string s2) {
         bool retVal = false;
 
+        int s1Size = s1.size();
         int count = 0;
         int record[2] = {0};
-        for (long unsigned int i=0; i<s1.length(); ++i) {
+        for (int i = 0; i < s1Size; ++i) {
             if (s1[i] == s2[i]) {
                 continue;
             }
-            record[0] |= (1<<(s1[i]-'a'));
-            record[1] |= (1<<(s2[i]-'a'));
+            record[0] |= (1 << (s1[i] - 'a'));
+            record[1] |= (1 << (s2[i] - 'a'));
             ++count;
         }
 
         if (count == 0) {
             retVal = true;
-        }
-        else if ((count == 2) && (record[0] == record[1])) {
+        } else if ((count == 2) && (record[0] == record[1])) {
             retVal = true;
         }
 
         return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def areAlmostEqual(self, s1: str, s2: str) -> bool:
+        retVal = False
+
+        s1Size = len(s1)
+        firstIndexDiff = 0
+        secondIndexDiff = 0
+        numDiffs = 0
+        for i in range(s1Size):
+            if s1[i] == s2[i]:
+                continue
+
+            numDiffs += 1
+            if numDiffs > 2:  # numDiffs is more than 2, one string swap will not make two strings equal
+                return retVal
+            elif numDiffs == 1:
+                firstIndexDiff = i  # store the index of first difference
+            else:
+                secondIndexDiff = i  # store the index of second difference
+
+        # check if swap is possible
+        retVal = (s1[firstIndexDiff] == s2[secondIndexDiff]) and (s1[secondIndexDiff] == s2[firstIndexDiff])
+
+        return retVal
 ```
 
 </details>
