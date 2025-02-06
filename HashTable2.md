@@ -3653,6 +3653,166 @@ class Solution:
 
 </details>
 
+## [1726. Tuple with Same Product](https://leetcode.com/problems/tuple-with-same-product/)  1530
+
+- [Official](https://leetcode.com/problems/tuple-with-same-product/editorial/)
+- [Official](https://leetcode.cn/problems/tuple-with-same-product/solutions/2470655/tong-ji-yuan-zu-by-leetcode-solution-7yyy/)
+
+<details><summary>Description</summary>
+
+```text
+Given an array nums of distinct positive integers,
+return the number of tuples (a, b, c, d) such that a * b = c * d
+where a, b, c, and d are elements of nums, and a != b != c != d.
+
+Example 1:
+Input: nums = [2,3,4,6]
+Output: 8
+Explanation: There are 8 valid tuples:
+(2,6,3,4) , (2,6,4,3) , (6,2,3,4) , (6,2,4,3)
+(3,4,2,6) , (4,3,2,6) , (3,4,6,2) , (4,3,6,2)
+
+Example 2:
+Input: nums = [1,2,4,5,10]
+Output: 16
+Explanation: There are 16 valid tuples:
+(1,10,2,5) , (1,10,5,2) , (10,1,2,5) , (10,1,5,2)
+(2,5,1,10) , (2,5,10,1) , (5,2,1,10) , (5,2,10,1)
+(2,10,4,5) , (2,10,5,4) , (10,2,4,5) , (10,2,5,4)
+(4,5,2,10) , (4,5,10,2) , (5,4,2,10) , (5,4,10,2)
+
+Constraints:
+1 <= nums.length <= 1000
+1 <= nums[i] <= 10^4
+All elements in nums are distinct.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Note that all of the integers are distinct.
+   This means that each time a product is formed it must be formed by two unique integers.
+2. Count the frequency of each product of 2 distinct numbers. Then calculate the permutations formed.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *current;
+    struct hashTable *tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int tupleSameProduct(int *nums, int numsSize) {
+    int retVal = 0;
+
+    struct hashTable *pHashTable = NULL;
+    struct hashTable *pTemp;
+    int productValue;
+    for (int firstIndex = 0; firstIndex < numsSize; firstIndex++) {
+        for (int secondIndex = firstIndex + 1; secondIndex < numsSize; secondIndex++) {
+            productValue = nums[firstIndex] * nums[secondIndex];
+
+            pTemp = NULL;
+            HASH_FIND_INT(pHashTable, &productValue, pTemp);
+            if (pTemp == NULL) {
+                pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+                if (pTemp == NULL) {
+                    perror("malloc");
+                    freeAll(pHashTable);
+                    return retVal;
+                }
+                pTemp->key = productValue;
+                pTemp->value = 1;
+                HASH_ADD_INT(pHashTable, key, pTemp);
+            } else {
+                pTemp->value += 1;
+            }
+        }
+    }
+
+    struct hashTable *pCurrent;
+    HASH_ITER(hh, pHashTable, pCurrent, pTemp) {
+        retVal += 8 * ((pHashTable->value - 1) * pHashTable->value / 2);  // each pair can form 8 tuples
+        HASH_DEL(pHashTable, pCurrent);
+        free(pCurrent);
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int tupleSameProduct(vector<int>& nums) {
+        int retVal = 0;
+
+        int numsSize = nums.size();
+
+        unordered_map<int, int> pairProductsFrequency;
+        for (int firstIndex = 0; firstIndex < numsSize; firstIndex++) {
+            for (int secondIndex = firstIndex + 1; secondIndex < numsSize; secondIndex++) {
+                pairProductsFrequency[nums[firstIndex] * nums[secondIndex]]++;
+            }
+        }
+
+        for (auto [productValue, productFrequency] : pairProductsFrequency) {
+            int pairsOfEqualProduct = (productFrequency - 1) * productFrequency / 2;
+            retVal += 8 * pairsOfEqualProduct;  // each pair can form 8 tuples
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def tupleSameProduct(self, nums: List[int]) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+
+        pairProductsFrequency = {}
+        for firstIndex in range(numsSize):
+            for secondIndex in range(firstIndex + 1, numsSize):
+                productValue = nums[firstIndex] * nums[secondIndex]
+                if productValue in pairProductsFrequency:
+                    pairProductsFrequency[productValue] += 1
+                else:
+                    pairProductsFrequency[productValue] = 1
+
+        for productFrequency in pairProductsFrequency.values():
+            pairsOfEqualProduct = ((productFrequency - 1) * productFrequency // 2)
+            retVal += 8 * pairsOfEqualProduct  # each pair can form 8 tuples
+
+        return retVal
+```
+
+</details>
+
 ## [1781. Sum of Beauty of All Substrings](https://leetcode.com/problems/sum-of-beauty-of-all-substrings/)  1714
 
 - [Official](https://leetcode.cn/problems/sum-of-beauty-of-all-substrings/solutions/2016548/suo-you-zi-zi-fu-chuan-mei-li-zhi-zhi-he-rq3x/)
