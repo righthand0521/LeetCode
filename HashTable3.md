@@ -1741,6 +1741,296 @@ impl Solution {
 
 </details>
 
+## [2349. Design a Number Container System](https://leetcode.com/problems/design-a-number-container-system/)  1540
+
+- [Official](https://leetcode.com/problems/design-a-number-container-system/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+Design a number container system that can do the following:
+- Insert or Replace a number at the given index in the system.
+- Return the smallest index for the given number in the system.
+
+Implement the NumberContainers class:
+- NumberContainers()
+  Initializes the number container system.
+- void change(int index, int number)
+  Fills the container at index with the number. If there is already a number at that index, replace it.
+- int find(int number)
+  Returns the smallest index for the given number, or -1 if there is no index that is filled by number in the system.
+
+Example 1:
+Input
+["NumberContainers", "find", "change", "change", "change", "change", "find", "change", "find"]
+[[], [10], [2, 10], [1, 10], [3, 10], [5, 10], [10], [1, 20], [10]]
+Output
+[null, -1, null, null, null, null, 1, null, 2]
+Explanation
+NumberContainers nc = new NumberContainers();
+nc.find(10); // There is no index that is filled with number 10. Therefore, we return -1.
+nc.change(2, 10); // Your container at index 2 will be filled with number 10.
+nc.change(1, 10); // Your container at index 1 will be filled with number 10.
+nc.change(3, 10); // Your container at index 3 will be filled with number 10.
+nc.change(5, 10); // Your container at index 5 will be filled with number 10.
+nc.find(10); // Number 10 is at the indices 1, 2, 3, and 5.
+Since the smallest index that is filled with 10 is 1, we return 1.
+nc.change(1, 20); // Your container at index 1 will be filled with number 20.
+Note that index 1 was filled with 10 and then replaced with 20.
+nc.find(10); // Number 10 is at the indices 2, 3, and 5.
+The smallest index that is filled with 10 is 2. Therefore, we return 2.
+
+Constraints:
+1 <= index, number <= 10^9
+At most 10^5 calls will be made in total to change and find.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use a hash table to efficiently map each number to all of its indices in the container
+   and to map each index to their current number.
+2. In addition, you can use ordered set to store all of the indices for each number to solve the find method.
+   Do not forget to update the ordered set according to the change method.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// https://leetcode.cn/problems/design-a-number-container-system/solutions/2830597/cyu-yan-ti-jie-by-6oofy-i3anachhuk-jakh/
+typedef struct IndexList {
+    int index;
+    struct IndexList *next;
+} IndexList;
+typedef struct ValType {
+    int val;
+    int minIndex;
+    IndexList *head;
+    UT_hash_handle hh;
+} ValType;
+typedef struct IndexType {
+    int index;
+    int val;
+    UT_hash_handle hh;
+} IndexType;
+typedef struct {
+    IndexType *indexDict;
+    ValType *valDict;
+} NumberContainers;
+NumberContainers *numberContainersCreate() {
+    NumberContainers *obj = (NumberContainers *)malloc(sizeof(NumberContainers));
+    obj->indexDict = NULL;
+    obj->valDict = NULL;
+    return obj;
+}
+void numberContainersChange(NumberContainers *obj, int index, int number) {
+    IndexType *indexRes = NULL;
+    ValType *temp1 = NULL;
+    ValType *temp2 = NULL;
+    int flag = 0;
+    int insertVal = 0;
+    HASH_FIND_INT(obj->indexDict, &index, indexRes);
+    if (indexRes == NULL) {
+        indexRes = malloc(sizeof(IndexType));
+        indexRes->index = index;
+        indexRes->val = number;
+        HASH_ADD_INT(obj->indexDict, index, indexRes);
+    } else {
+        if (indexRes->val == number) {
+            flag = 1;
+        } else {
+            flag = 2;
+            insertVal = indexRes->val;
+            indexRes->val = number;
+        }
+    }
+    if (flag == 1) {
+        return;
+    }
+    HASH_FIND_INT(obj->valDict, &number, temp2);
+    if (temp2 == NULL) {
+        temp2 = malloc(sizeof(ValType));
+        temp2->val = number;
+        temp2->minIndex = index;
+        temp2->head = malloc(sizeof(IndexList));
+        temp2->head->index = index;
+        temp2->head->next = NULL;
+        HASH_ADD_INT(obj->valDict, val, temp2);
+    } else {
+        IndexList *node1 = malloc(sizeof(IndexList));
+        IndexList *cur10 = temp2->head;
+        node1->index = index;
+        node1->next = cur10;
+        temp2->head = node1;
+        if (index < temp2->minIndex) {
+            temp2->minIndex = index;
+        }
+    }
+    if (flag == 2) {
+        HASH_FIND_INT(obj->valDict, &insertVal, temp1);
+        IndexList *dummy = malloc(sizeof(IndexList));
+        IndexList *node = dummy;
+        dummy->next = temp1->head;
+        int update = 0;
+        if (temp1->minIndex == index) {
+            update = 1;
+        }
+        while (dummy->next) {
+            if (dummy->next->index == index) {
+                IndexList *temp10 = dummy->next;
+                dummy->next = dummy->next->next;
+                free(temp10);
+                break;
+            } else {
+                dummy = dummy->next;
+            }
+        }
+        if (node->next == NULL) {
+            HASH_DEL(obj->valDict, temp1);
+            free(temp1);
+        } else {
+            temp1->head = node->next;
+            if (update == 1) {
+                IndexList *node88 = temp1->head;
+                temp1->minIndex = node88->index;
+                while (node88) {
+                    if (node88->index < temp1->minIndex) {
+                        temp1->minIndex = node88->index;
+                    }
+                    node88 = node88->next;
+                }
+            }
+        }
+    }
+}
+int numberContainersFind(NumberContainers *obj, int number) {
+    int index = -1;
+    ValType *temp2 = NULL;
+    HASH_FIND_INT(obj->valDict, &number, temp2);
+    if (temp2 != NULL) {
+        return temp2->minIndex;
+    }
+    return index;
+}
+void numberContainersFree(NumberContainers *obj) {
+    IndexType *cur;
+    IndexType *nxt;
+    HASH_ITER(hh, obj->indexDict, cur, nxt) {
+        HASH_DEL(obj->indexDict, cur);
+        free(cur);
+    }
+    ValType *cur2;
+    ValType *nxt2;
+    HASH_ITER(hh, obj->valDict, cur2, nxt2) {
+        HASH_DEL(obj->valDict, cur2);
+        while (cur2->head) {
+            IndexList *temp = cur2->head;
+            cur2->head = cur2->head->next;
+            free(temp);
+        }
+        free(cur2);
+    }
+    free(obj);
+}
+/**
+ * Your NumberContainers struct will be instantiated and called as such:
+ * NumberContainers* obj = numberContainersCreate();
+ * numberContainersChange(obj, index, number);
+ * int param_2 = numberContainersFind(obj, number);
+ * numberContainersFree(obj);
+ */
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class NumberContainers {
+   private:
+    unordered_map<int, set<int>> numberToIndices;  // Map from number to set of indices
+    unordered_map<int, int> indexToNumbers;        // Map from index to number
+
+   public:
+    // Constructor: The data structures are already initialized as part of the member variable declarations.
+    NumberContainers() {}
+    void change(int index, int number) {
+        if (indexToNumbers.find(index) != indexToNumbers.end()) {
+            int previousNumber = indexToNumbers[index];
+            numberToIndices[previousNumber].erase(index);
+            if (numberToIndices[previousNumber].empty()) {
+                numberToIndices.erase(previousNumber);
+            }
+        }
+        indexToNumbers[index] = number;
+        numberToIndices[number].insert(index);
+    }
+    int find(int number) {
+        int retVal = -1;
+
+        if (numberToIndices.find(number) != numberToIndices.end()) {
+            // Get the smallest index
+            retVal = *numberToIndices[number].begin();
+        }
+
+        return retVal;
+    }
+};
+/**
+ * Your NumberContainers object will be instantiated and called as such:
+ * NumberContainers* obj = new NumberContainers();
+ * obj->change(index,number);
+ * int param_2 = obj->find(number);
+ */
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class NumberContainers:
+    def __init__(self):
+        self.numberToIndices = defaultdict(list)  # Map to store number -> min heap of indices
+        self.indexToNumbers = {}  # Map to store index -> number
+
+    def change(self, index: int, number: int) -> None:
+        self.indexToNumbers[index] = number  # Update index to number mapping
+        heappush(self.numberToIndices[number], index)  # Add index to the min heap for this number
+
+    def find(self, number: int) -> int:
+        retVal = -1
+
+        # If number doesn't exist in our map
+        if not self.numberToIndices[number]:
+            return retVal
+
+        # Keep checking top element until we find valid index
+        while self.numberToIndices[number]:
+            index = self.numberToIndices[number][0]
+
+            # If index still maps to our target number, return it
+            if self.indexToNumbers.get(index) == number:
+                retVal = index
+                break
+
+            # Otherwise remove this stale index
+            heappop(self.numberToIndices[number])
+
+        return retVal
+
+# Your NumberContainers object will be instantiated and called as such:
+# obj = NumberContainers()
+# obj.change(index,number)
+# param_2 = obj.find(number)
+```
+
+</details>
+
 ## [2353. Design a Food Rating System](https://leetcode.com/problems/design-a-food-rating-system/)  1781
 
 - [Official](https://leetcode.com/problems/design-a-food-rating-system/editorial/)
