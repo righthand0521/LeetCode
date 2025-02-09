@@ -2679,6 +2679,152 @@ class Solution {
 
 </details>
 
+## [2364. Count Number of Bad Pairs](https://leetcode.com/problems/count-number-of-bad-pairs/)  1622
+
+- [Official](https://leetcode.com/problems/count-number-of-bad-pairs/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed integer array nums.
+A pair of indices (i, j) is a bad pair if i < j and j - i != nums[j] - nums[i].
+
+Return the total number of bad pairs in nums.
+
+Example 1:
+Input: nums = [4,1,3,3]
+Output: 5
+Explanation: The pair (0, 1) is a bad pair since 1 - 0 != 1 - 4.
+The pair (0, 2) is a bad pair since 2 - 0 != 3 - 4, 2 != -1.
+The pair (0, 3) is a bad pair since 3 - 0 != 3 - 4, 3 != -1.
+The pair (1, 2) is a bad pair since 2 - 1 != 3 - 1, 1 != 2.
+The pair (2, 3) is a bad pair since 3 - 2 != 3 - 3, 1 != 0.
+There are a total of 5 bad pairs, so we return 5.
+
+Example 2:
+Input: nums = [1,2,3,4,5]
+Output: 0
+Explanation: There are no bad pairs.
+
+Constraints:
+1 <= nums.length <= 10^5
+1 <= nums[i] <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Would it be easier to count the number of pairs that are not bad pairs?
+2. Notice that (j - i != nums[j] - nums[i]) is the same as (nums[i] - i != nums[j] - j).
+3. Keep a counter of nums[i] - i. To be efficient, use a HashMap.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *current;
+    struct hashTable *tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+long long countBadPairs(int *nums, int numsSize) {
+    long long retVal = 0;
+
+    struct hashTable *pHashTable = NULL;
+    struct hashTable *pTemp;
+    int diff, goodPairsCount;
+    for (int pos = 0; pos < numsSize; pos++) {
+        diff = pos - nums[pos];
+
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTable, &diff, pTemp);
+        if (pTemp == NULL) {
+            goodPairsCount = 0;  // Count of previous positions with same difference
+
+            // Update count of positions with this difference
+            pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                freeAll(pHashTable);
+                return retVal;
+            }
+            pTemp->key = diff;
+            pTemp->value = 1;
+            HASH_ADD_INT(pHashTable, key, pTemp);
+        } else {
+            goodPairsCount = pTemp->value;      // Count of previous positions with same difference
+            pTemp->value = goodPairsCount + 1;  // Update count of positions with this difference
+        }
+
+        retVal += (pos - goodPairsCount);  // Total possible pairs minus good pairs = bad pairs
+    }
+
+    //
+    freeAll(pHashTable);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    long long countBadPairs(vector<int>& nums) {
+        long long retVal = 0;
+
+        int numsSize = nums.size();
+        unordered_map<int, int> diffCount;
+        for (int pos = 0; pos < numsSize; pos++) {
+            int diff = pos - nums[pos];
+            int goodPairsCount = diffCount[diff];  // Count of previous positions with same difference
+            retVal += (pos - goodPairsCount);      // Total possible pairs minus good pairs = bad pairs
+            diffCount[diff] = goodPairsCount + 1;  // Update count of positions with this difference
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def countBadPairs(self, nums: List[int]) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+        diffCount = {}
+        for pos in range(numsSize):
+            diff = pos - nums[pos]
+            goodPairsCount = diffCount.get(diff, 0)  # Count of previous positions with same difference
+            retVal += pos - goodPairsCount  # Total possible pairs minus good pairs = bad pairs
+            diffCount[diff] = goodPairsCount + 1  # Update count of positions with this difference
+
+        return retVal
+```
+
+</details>
+
 ## [2367. Number of Arithmetic Triplets](https://leetcode.com/problems/number-of-arithmetic-triplets/)  1203
 
 - [Official](https://leetcode.cn/problems/number-of-arithmetic-triplets/description/)
