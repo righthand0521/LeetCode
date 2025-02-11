@@ -6334,6 +6334,196 @@ class Solution:
 
 </details>
 
+## [1910. Remove All Occurrences of a Substring](https://leetcode.com/problems/remove-all-occurrences-of-a-substring/)  1460
+
+- [Official](https://leetcode.com/problems/remove-all-occurrences-of-a-substring/editorial/)
+- [Official](https://leetcode.cn/problems/remove-all-occurrences-of-a-substring/solutions/847225/shan-chu-yi-ge-zi-fu-chuan-zhong-suo-you-4j08/)
+
+<details><summary>Description</summary>
+
+```text
+Given two strings s and part,
+perform the following operation on s until all occurrences of the substring part are removed:
+- Find the leftmost occurrence of the substring part and remove it from s.
+
+Return s after removing all occurrences of part.
+
+A substring is a contiguous sequence of characters in a string.
+
+Example 1:
+Input: s = "daabcbaabcbc", part = "abc"
+Output: "dab"
+Explanation: The following operations are done:
+- s = "daabcbaabcbc", remove "abc" starting at index 2, so s = "dabaabcbc".
+- s = "dabaabcbc", remove "abc" starting at index 4, so s = "dababc".
+- s = "dababc", remove "abc" starting at index 3, so s = "dab".
+Now s has no occurrences of "abc".
+
+Example 2:
+Input: s = "axxxxyyyyb", part = "xy"
+Output: "ab"
+Explanation: The following operations are done:
+- s = "axxxxyyyyb", remove "xy" starting at index 4 so s = "axxxyyyb".
+- s = "axxxyyyb", remove "xy" starting at index 3 so s = "axxyyb".
+- s = "axxyyb", remove "xy" starting at index 2 so s = "axyb".
+- s = "axyb", remove "xy" starting at index 1 so s = "ab".
+Now s has no occurrences of "xy".
+
+Constraints:
+1 <= s.length <= 1000
+1 <= part.length <= 1000
+s​​​​​​ and part consists of lowercase English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Note that a new occurrence of pattern can appear if you remove an old one,
+   For example, s = "ababcc" and pattern = "abc".
+2. You can maintain a stack of characters
+   and if the last character of the pattern size in the stack match the pattern remove them
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool checkMatch(char* stack, int stackTop, char* part, int partLength) {
+    bool retVal = true;
+
+    int tmpTop = stackTop;
+    char tmp[(stackTop + 1) + 1];
+    snprintf(tmp, sizeof(tmp), "%s", stack);
+    for (int partIndex = partLength - 1; partIndex >= 0; partIndex--) {
+        if (tmp[tmpTop] != part[partIndex]) {
+            retVal = false;
+            break;
+        }
+        tmpTop--;
+    }
+
+    return retVal;
+}
+char* removeOccurrences(char* s, char* part) {
+    char* pRetVal = "";
+
+    int sSize = strlen(s);
+    int partSize = strlen(part);
+
+    int stackTop = -1;
+    int returnSize = sSize + 4;
+    pRetVal = (char*)malloc(returnSize * sizeof(char));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (returnSize * sizeof(char)));
+    returnSize = 0;
+
+    for (int index = 0; index < sSize; index++) {
+        pRetVal[++stackTop] = s[index];
+        returnSize = stackTop + 1;
+
+        if ((returnSize < partSize) || (checkMatch(pRetVal, stackTop, part, partSize) == false)) {
+            continue;
+        }
+
+        for (int j = 0; j < partSize; j++) {
+            pRetVal[stackTop--] = '\0';
+        }
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    bool checkMatch(stack<char>& stk, string& part, int partLength) {
+        bool retVal = true;
+
+        stack<char> temp = stk;
+        for (int partIndex = partLength - 1; partIndex >= 0; partIndex--) {
+            if (temp.top() != part[partIndex]) {
+                retVal = false;
+                break;
+            }
+            temp.pop();
+        }
+
+        return retVal;
+    }
+
+   public:
+    string removeOccurrences(string s, string part) {
+        string retVal = "";
+
+        int sSize = s.size();
+        int partSize = part.size();
+        stack<char> stk;
+        for (int index = 0; index < sSize; index++) {
+            stk.push(s[index]);
+            int stkSize = stk.size();
+            if ((stkSize < partSize) || (checkMatch(stk, part, partSize) == false)) {
+                continue;
+            }
+
+            for (int j = 0; j < partSize; j++) {
+                stk.pop();
+            }
+        }
+
+        while (stk.empty() == false) {
+            retVal = stk.top() + retVal;
+            stk.pop();
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def checkMatch(self, stack: list, part: str, partLength: int) -> bool:
+        retVal = False
+
+        if "".join(stack[-partLength:]) == part:
+            retVal = True
+
+        return retVal
+
+    def removeOccurrences(self, s: str, part: str) -> str:
+        retVal = ""
+
+        partSize = len(part)
+        stack = []
+        for char in s:
+            stack.append(char)
+            stackSize = len(stack)
+            if (stackSize < partSize) or (self.checkMatch(stack, part, partSize) == False):
+                continue
+            for _ in range(partSize):
+                stack.pop()
+        retVal = "".join(stack)
+
+        return retVal
+```
+
+</details>
+
 ## [1963. Minimum Number of Swaps to Make the String Balanced](https://leetcode.com/problems/minimum-number-of-swaps-to-make-the-string-balanced/)  1688
 
 - [Official](https://leetcode.com/problems/minimum-number-of-swaps-to-make-the-string-balanced/editorial/)
