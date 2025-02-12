@@ -1741,6 +1741,189 @@ impl Solution {
 
 </details>
 
+## [2342. Max Sum of a Pair With Equal Sum of Digits](https://leetcode.com/problems/max-sum-of-a-pair-with-equal-sum-of-digits/)  1308
+
+- [Official](https://leetcode.com/problems/max-sum-of-a-pair-with-equal-sum-of-digits/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed array nums consisting of positive integers.
+You can choose two indices i and j, such that i != j,
+and the sum of digits of the number nums[i] is equal to that of nums[j].
+
+Return the maximum value of nums[i] + nums[j]
+that you can obtain over all possible indices i and j that satisfy the conditions.
+
+Example 1:
+Input: nums = [18,43,36,13,7]
+Output: 54
+Explanation: The pairs (i, j) that satisfy the conditions are:
+- (0, 2), both numbers have a sum of digits equal to 9, and their sum is 18 + 36 = 54.
+- (1, 4), both numbers have a sum of digits equal to 7, and their sum is 43 + 7 = 50.
+So the maximum sum that we can obtain is 54.
+
+Example 2:
+Input: nums = [10,12,19,14]
+Output: -1
+Explanation: There are no two numbers that satisfy the conditions, so we return -1.
+
+Constraints:
+1 <= nums.length <= 10^5
+1 <= nums[i] <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. What is the largest possible sum of digits a number can have?
+2. Group the array elements by the sum of their digits, and find the largest two elements of each group.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareIntArray(const void* a1, const void* a2) {
+    int* p1 = (int*)a1;
+    int* p2 = (int*)a2;
+
+    // ascending order
+    if (p1[0] == p2[0]) {
+        return (p1[1] > p2[1]);
+    }
+
+    return (p1[0] > p2[0]);
+}
+int calculateDigitSum(int num) {
+    int retVal = 0;
+
+    while (num > 0) {
+        retVal += num % 10;
+        num /= 10;
+    }
+
+    return retVal;
+}
+int maximumSum(int* nums, int numsSize) {
+    int retVal = -1;
+
+    // Store numbers with their digit sums as pairs
+    int digitSumPairsSize = numsSize;
+    int digitSumPairs[digitSumPairsSize][2];
+    memset(digitSumPairs, 0, sizeof(digitSumPairs));
+    for (int i = 0; i < numsSize; ++i) {
+        digitSumPairs[i][0] = calculateDigitSum(nums[i]);
+        digitSumPairs[i][1] = nums[i];
+    }
+    // Sort based on digit sums, and if equal, by number value
+    qsort(digitSumPairs, digitSumPairsSize, sizeof(digitSumPairs[0]), compareIntArray);
+
+    // Iterate through the sorted array to find the maximum sum of pairs
+    for (int index = 1; index < digitSumPairsSize; index++) {
+        int currentDigitSum = digitSumPairs[index][0];
+        int previousDigitSum = digitSumPairs[index - 1][0];
+        // If two consecutive numbers have the same digit sum
+        if (currentDigitSum == previousDigitSum) {
+            int currentSum = digitSumPairs[index][1] + digitSumPairs[index - 1][1];
+            retVal = fmax(retVal, currentSum);
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int calculateDigitSum(int num) {
+        int retVal = 0;
+
+        while (num > 0) {
+            retVal += num % 10;
+            num /= 10;
+        }
+
+        return retVal;
+    }
+
+   public:
+    int maximumSum(vector<int>& nums) {
+        int retVal = -1;
+
+        // Store numbers with their digit sums as pairs
+        vector<pair<int, int>> digitSumPairs;
+        for (int number : nums) {
+            int digitSum = calculateDigitSum(number);
+            digitSumPairs.push_back({digitSum, number});
+        }
+        sort(digitSumPairs.begin(), digitSumPairs.end());  // Sort based on digit sums, and if equal, by number value
+
+        // Iterate through the sorted array to find the maximum sum of pairs
+        int digitSumPairsSize = digitSumPairs.size();
+        for (int index = 1; index < digitSumPairsSize; index++) {
+            int currentDigitSum = digitSumPairs[index].first;
+            int previousDigitSum = digitSumPairs[index - 1].first;
+            // If two consecutive numbers have the same digit sum
+            if (currentDigitSum == previousDigitSum) {
+                int currentSum = digitSumPairs[index].second + digitSumPairs[index - 1].second;
+                retVal = max(retVal, currentSum);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def calculateDigitSum(self, num):
+        retVal = 0
+
+        while num > 0:
+            retVal += num % 10
+            num //= 10
+
+        return retVal
+
+    def maximumSum(self, nums: List[int]) -> int:
+        retVal = -1
+
+        # Store numbers with their digit sums as pairs
+        digitSumPairs = []
+        for number in nums:
+            digitSum = self.calculateDigitSum(number)
+            digitSumPairs.append((digitSum, number))
+        digitSumPairs.sort()  # Sort based on digit sums, and if equal, by number value
+
+        # Iterate through the sorted array to find the maximum sum of pairs
+        digitSumPairsSize = len(digitSumPairs)
+        for index in range(1, digitSumPairsSize):
+            currentDigitSum = digitSumPairs[index][0]
+            previousDigitSum = digitSumPairs[index - 1][0]
+            # If two consecutive numbers have the same digit sum
+            if currentDigitSum == previousDigitSum:
+                currentSum = digitSumPairs[index][1] + digitSumPairs[index - 1][1]
+                retVal = max(retVal, currentSum)
+
+        return retVal
+```
+
+</details>
+
 ## [2349. Design a Number Container System](https://leetcode.com/problems/design-a-number-container-system/)  1540
 
 - [Official](https://leetcode.com/problems/design-a-number-container-system/editorial/)
