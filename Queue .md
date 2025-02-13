@@ -6718,6 +6718,253 @@ class Solution:
 
 </details>
 
+## [3066. Minimum Operations to Exceed Threshold Value II](https://leetcode.com/problems/minimum-operations-to-exceed-threshold-value-ii/)  1399
+
+- [Official](https://leetcode.com/problems/minimum-operations-to-exceed-threshold-value-ii/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-operations-to-exceed-threshold-value-ii/solutions/3040119/chao-guo-yu-zhi-de-zui-shao-cao-zuo-shu-y7tgx/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed integer array nums, and an integer k.
+
+In one operation, you will:
+- Take the two smallest integers x and y in nums.
+- Remove x and y from nums.
+- Add min(x, y) * 2 + max(x, y) anywhere in the array.
+
+Note that you can only apply the described operation if nums contains at least two elements.
+
+Return the minimum number of operations needed so that all elements of the array are greater than or equal to k.
+
+Example 1:
+Input: nums = [2,11,10,1,3], k = 10
+Output: 2
+Explanation:
+In the first operation, we remove elements 1 and 2, then add 1 * 2 + 2 to nums. nums becomes equal to [4, 11, 10, 3].
+In the second operation, we remove elements 3 and 4, then add 3 * 2 + 4 to nums. nums becomes equal to [10, 11, 10].
+At this stage, all the elements of nums are greater than or equal to 10 so we can stop.
+It can be shown that 2 is the minimum number of operations needed
+so that all elements of the array are greater than or equal to 10.
+
+Example 2:
+Input: nums = [1,1,2,4,9], k = 20
+Output: 4
+Explanation:
+After one operation, nums becomes equal to [2, 4, 9, 3].
+After two operations, nums becomes equal to [7, 4, 9].
+After three operations, nums becomes equal to [15, 9].
+After four operations, nums becomes equal to [33].
+At this stage, all the elements of nums are greater than 20 so we can stop.
+It can be shown that 4 is the minimum number of operations needed
+so that all elements of the array are greater than or equal to 20.
+
+Constraints:
+2 <= nums.length <= 2 * 10^5
+1 <= nums[i] <= 10^9
+1 <= k <= 10^9
+The input is generated such that an answer always exists.
+That is, there exists some sequence of operations after which all elements of the array are greater than or equal to k.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use priority queue to keep track of minimum elements.
+2. Remove the minimum two elements, perform the operation, and insert the resulting number into the priority queue.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#ifndef HEAP_H
+#define HEAP_H
+
+#define MIN_QUEUE_SIZE (64)
+
+typedef struct Element {
+    long long data[1];
+} Element;
+typedef bool (*compare)(const void *, const void *);
+
+typedef struct PriorityQueue {
+    Element *arr;
+    int capacity;
+    int queueSize;
+    compare lessFunc;
+} PriorityQueue;
+Element *createElement(int x, int y) {
+    Element *obj = (Element *)malloc(sizeof(Element));
+    obj->data[0] = x;
+    obj->data[1] = y;
+    return obj;
+}
+static bool less(const void *a, const void *b) {
+    Element *e1 = (Element *)a;
+    Element *e2 = (Element *)b;
+    return e1->data[0] > e2->data[0];
+}
+static void memswap(void *m1, void *m2, size_t size) {
+    unsigned char *a = (unsigned char *)m1;
+    unsigned char *b = (unsigned char *)m2;
+    while (size--) {
+        *b ^= *a ^= *b ^= *a;
+        a++;
+        b++;
+    }
+}
+static void swap(Element *arr, int i, int j) {
+    //
+    memswap(&arr[i], &arr[j], sizeof(Element));
+}
+static void down(Element *arr, int size, int i, compare cmpFunc) {
+    for (int k = 2 * i + 1; k < size; k = 2 * k + 1) {
+        if (k + 1 < size && cmpFunc(&arr[k], &arr[k + 1])) {
+            k++;
+        }
+        if (cmpFunc(&arr[k], &arr[(k - 1) / 2])) {
+            break;
+        }
+        swap(arr, k, (k - 1) / 2);
+    }
+}
+PriorityQueue *createPriorityQueue(compare cmpFunc) {
+    PriorityQueue *obj = (PriorityQueue *)malloc(sizeof(PriorityQueue));
+    obj->capacity = MIN_QUEUE_SIZE;
+    obj->arr = (Element *)malloc(sizeof(Element) * obj->capacity);
+    obj->queueSize = 0;
+    obj->lessFunc = cmpFunc;
+    return obj;
+}
+void heapfiy(PriorityQueue *obj) {
+    for (int i = obj->queueSize / 2 - 1; i >= 0; i--) {
+        down(obj->arr, obj->queueSize, i, obj->lessFunc);
+    }
+}
+void enQueue(PriorityQueue *obj, Element *e) {
+    // we need to alloc more space, just twice space size
+    if (obj->queueSize == obj->capacity) {
+        obj->capacity *= 2;
+        obj->arr = realloc(obj->arr, sizeof(Element) * obj->capacity);
+    }
+    memcpy(&obj->arr[obj->queueSize], e, sizeof(Element));
+    for (int i = obj->queueSize; i > 0 && obj->lessFunc(&obj->arr[(i - 1) / 2], &obj->arr[i]); i = (i - 1) / 2) {
+        swap(obj->arr, i, (i - 1) / 2);
+    }
+    obj->queueSize++;
+}
+Element *deQueue(PriorityQueue *obj) {
+    swap(obj->arr, 0, obj->queueSize - 1);
+    down(obj->arr, obj->queueSize - 1, 0, obj->lessFunc);
+    Element *e = &obj->arr[obj->queueSize - 1];
+    obj->queueSize--;
+    return e;
+}
+bool isEmpty(const PriorityQueue *obj) {
+    //
+    return obj->queueSize == 0;
+}
+Element *front(const PriorityQueue *obj) {
+    if (obj->queueSize == 0) {
+        return NULL;
+    } else {
+        return &obj->arr[0];
+    }
+}
+void clear(PriorityQueue *obj) {
+    //
+    obj->queueSize = 0;
+}
+int size(const PriorityQueue *obj) {
+    //
+    return obj->queueSize;
+}
+void freeQueue(PriorityQueue *obj) {
+    free(obj->arr);
+    free(obj);
+}
+
+#endif  // HEAP_H
+int minOperations(int *nums, int numsSize, int k) {
+    int retVal = 0;
+
+    PriorityQueue *pMinHeap = createPriorityQueue(less);
+    struct Element e;
+    for (int i = 0; i < numsSize; i++) {
+        e.data[0] = nums[i];
+        enQueue(pMinHeap, &e);
+    }
+
+    long long x, y;
+    while (front(pMinHeap)->data[0] < k) {
+        x = front(pMinHeap)->data[0];
+        deQueue(pMinHeap);
+        y = front(pMinHeap)->data[0];
+        deQueue(pMinHeap);
+        e.data[0] = x + x + y;
+        enQueue(pMinHeap, &e);
+
+        retVal++;
+    }
+
+    //
+    freeQueue(pMinHeap);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minOperations(vector<int>& nums, int k) {
+        int retVal = 0;
+
+        priority_queue<long, vector<long>, greater<long>> minHeap(nums.begin(), nums.end());
+        while (minHeap.top() < k) {
+            long x = minHeap.top();
+            minHeap.pop();
+            long y = minHeap.top();
+            minHeap.pop();
+            minHeap.push(min(x, y) * 2 + max(x, y));
+
+            retVal++;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minOperations(self, nums: List[int], k: int) -> int:
+        retVal = 0
+
+        heapify(nums)
+        while nums[0] < k:
+            x = heappop(nums)
+            y = heappop(nums)
+            heappush(nums, min(x, y) * 2 + max(x, y))
+            retVal += 1
+
+        return retVal
+```
+
+</details>
+
 ## [3264. Final Array State After K Multiplication Operations I](https://leetcode.com/problems/final-array-state-after-k-multiplication-operations-i/)  1177
 
 - [Official](https://leetcode.com/problems/final-array-state-after-k-multiplication-operations-i/editorial/)
