@@ -19,6 +19,7 @@
 - [Prefix Sum](https://en.wikipedia.org/wiki/Prefix_sum)
   - [303. Range Sum Query - Immutable](https://leetcode.com/problems/range-sum-query-immutable/)
   - [304. Range Sum Query 2D - Immutable](https://leetcode.com/problems/range-sum-query-2d-immutable/)
+  - [1352. Product of the Last K Numbers](https://leetcode.com/problems/product-of-the-last-k-numbers/)
 - [Queue](https://en.wikipedia.org/wiki/Queue_(abstract_data_type))
   - [232. Implement Queue using Stacks](https://leetcode.com/problems/implement-queue-using-stacks/)
   - [295. Find Median from Data Stream](https://leetcode.com/problems/find-median-from-data-stream/)

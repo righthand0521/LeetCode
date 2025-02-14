@@ -639,6 +639,222 @@ class Solution:
 
 </details>
 
+## [1352. Product of the Last K Numbers](https://leetcode.com/problems/product-of-the-last-k-numbers/)  1473
+
+- [Official](https://leetcode.com/problems/product-of-the-last-k-numbers/editorial/)
+- [Official](https://leetcode.cn/problems/product-of-the-last-k-numbers/solutions/101222/zui-hou-k-ge-shu-de-cheng-ji-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+Design an algorithm that accepts a stream of integers and retrieves the product of the last k integers of the stream.
+
+Implement the ProductOfNumbers class:
+- ProductOfNumbers()
+  Initializes the object with an empty stream.
+- void add(int num)
+  Appends the integer num to the stream.
+- int getProduct(int k)
+  Returns the product of the last k numbers in the current list.
+  You can assume that always the current list has at least k numbers.
+
+The test cases are generated so that, at any time,
+the product of any contiguous sequence of numbers will fit into a single 32-bit integer without overflowing.
+
+Example:
+Input
+["ProductOfNumbers","add","add","add","add","add","getProduct","getProduct","getProduct","add","getProduct"]
+[[],[3],[0],[2],[5],[4],[2],[3],[4],[8],[2]]
+Output
+[null,null,null,null,null,null,20,40,0,null,32]
+Explanation
+ProductOfNumbers productOfNumbers = new ProductOfNumbers();
+productOfNumbers.add(3);        // [3]
+productOfNumbers.add(0);        // [3,0]
+productOfNumbers.add(2);        // [3,0,2]
+productOfNumbers.add(5);        // [3,0,2,5]
+productOfNumbers.add(4);        // [3,0,2,5,4]
+productOfNumbers.getProduct(2); // return 20. The product of the last 2 numbers is 5 * 4 = 20
+productOfNumbers.getProduct(3); // return 40. The product of the last 3 numbers is 2 * 5 * 4 = 40
+productOfNumbers.getProduct(4); // return 0. The product of the last 4 numbers is 0 * 2 * 5 * 4 = 0
+productOfNumbers.add(8);        // [3,0,2,5,4,8]
+productOfNumbers.getProduct(2); // return 32. The product of the last 2 numbers is 4 * 8 = 32
+
+Constraints:
+0 <= num <= 100
+1 <= k <= 4 * 10^4
+At most 4 * 10^4 calls will be made to add and getProduct.
+The product of the stream at any point in time will fit in a 32-bit integer.
+
+Follow-up: Can you implement both GetProduct and Add to work in O(1) time complexity instead of O(k) time complexity?
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Keep all prefix products of numbers in an array, then calculate the product of last K elements in O(1) complexity.
+2. When a zero number is added, clean the array of prefix products.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MAX_PRODUCT_SIZE (int)(4 * 10000)
+// Stores cumulative product of the stream
+typedef struct {
+    int prefixProduct[MAX_PRODUCT_SIZE];
+    int index;
+    int size;
+} ProductOfNumbers;
+ProductOfNumbers* productOfNumbersCreate() {
+    ProductOfNumbers* pRetVal = (ProductOfNumbers*)malloc(sizeof(ProductOfNumbers));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal->prefixProduct, 0, (MAX_PRODUCT_SIZE * sizeof(int)));
+    pRetVal->index = 0;
+    pRetVal->size = 0;
+
+    // Initialize the product list with 1 to handle multiplication logic
+    pRetVal->prefixProduct[pRetVal->index] = 1;
+    pRetVal->size += 1;
+
+    return pRetVal;
+}
+void productOfNumbersAdd(ProductOfNumbers* obj, int num) {
+    if (num == 0) {
+        // If num is 0, reset the cumulative products since multiplication with 0 invalidates previous products
+        obj->index = 0;
+        obj->prefixProduct[obj->index] = 1;
+        obj->size = 1;
+    } else {
+        // Append the cumulative product of the current number with the last product
+        obj->prefixProduct[obj->size] = obj->prefixProduct[obj->index] * num;
+        obj->index += 1;
+        obj->size += 1;
+    }
+}
+int productOfNumbersGetProduct(ProductOfNumbers* obj, int k) {
+    int retVal = 0;
+
+    // Check if the requested product length exceeds the size of the valid product list
+    if (k > obj->index) {
+        return retVal;
+    }
+    // Compute the product of the last k elements using division
+    retVal = obj->prefixProduct[obj->index] / obj->prefixProduct[obj->index - k];
+
+    return retVal;
+}
+void productOfNumbersFree(ProductOfNumbers* obj) {
+    free(obj);
+    obj = NULL;
+}
+/**
+ * Your ProductOfNumbers struct will be instantiated and called as such:
+ * ProductOfNumbers* obj = productOfNumbersCreate();
+ * productOfNumbersAdd(obj, num);
+ * int param_2 = productOfNumbersGetProduct(obj, k);
+ * productOfNumbersFree(obj);
+ */
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class ProductOfNumbers {
+   private:
+    // Stores cumulative product of the stream
+    vector<int> prefixProduct;
+    int size = 0;
+
+   public:
+    ProductOfNumbers() {
+        // Initialize the product list with 1 to handle multiplication logic
+        prefixProduct.push_back(1);
+        size = 0;
+    }
+    void add(int num) {
+        if (num == 0) {
+            // If num is 0, reset the cumulative products since multiplication with 0 invalidates previous products
+            prefixProduct = {1};
+            size = 0;
+        } else {
+            // Append the cumulative product of the current number with the last product
+            prefixProduct.push_back(prefixProduct[size] * num);
+            size++;
+        }
+    }
+    int getProduct(int k) {
+        int retVal = 0;
+
+        // Check if the requested product length exceeds the size of the valid product list
+        if (k > size) {
+            return retVal;
+        }
+        // Compute the product of the last k elements using division
+        retVal = prefixProduct[size] / prefixProduct[size - k];
+
+        return retVal;
+    }
+};
+/**
+ * Your ProductOfNumbers object will be instantiated and called as such:
+ * ProductOfNumbers* obj = new ProductOfNumbers();
+ * obj->add(num);
+ * int param_2 = obj->getProduct(k);
+ */
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class ProductOfNumbers:
+    def __init__(self):
+        # Stores cumulative product of the stream
+        # Initialize the product list with 1 to handle multiplication logic
+        self.prefixProduct = [1]
+        self.size = 0
+
+    def add(self, num: int) -> None:
+        if num == 0:
+            # If num is 0, reset the cumulative products since multiplication with 0 invalidates previous products
+            self.prefixProduct = [1]
+            self.size = 0
+        else:
+            # Append the cumulative product of the current number with the last product
+            self.prefixProduct.append(self.prefixProduct[self.size] * num)
+            self.size += 1
+
+    def getProduct(self, k: int) -> int:
+        retVal = 0
+
+        # Check if the requested product length exceeds the size of the valid product list
+        if k > self.size:
+            return retVal
+        # Compute the product of the last k elements using division
+        retVal = self.prefixProduct[self.size] // self.prefixProduct[self.size - k]
+
+        return retVal
+
+
+# Your ProductOfNumbers object will be instantiated and called as such:
+# obj = ProductOfNumbers()
+# obj.add(num)
+# param_2 = obj.getProduct(k)
+```
+
+</details>
+
 ## [1371. Find the Longest Substring Containing Vowels in Even Counts](https://leetcode.com/problems/find-the-longest-substring-containing-vowels-in-even-counts/)  2040
 
 - [Official](https://leetcode.com/problems/find-the-longest-substring-containing-vowels-in-even-counts/editorial/)
