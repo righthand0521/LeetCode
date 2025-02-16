@@ -3911,6 +3911,262 @@ class Solution:
 
 </details>
 
+## [1718. Construct the Lexicographically Largest Valid Sequence](https://leetcode.com/problems/construct-the-lexicographically-largest-valid-sequence/)  2080
+
+- [Official](https://leetcode.com/problems/construct-the-lexicographically-largest-valid-sequence/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+Given an integer n, find a sequence that satisfies all of the following:
+- The integer 1 occurs once in the sequence.
+- Each integer between 2 and n occurs twice in the sequence.
+- For every integer i between 2 and n, the distance between the two occurrences of i is exactly i.
+
+The distance between two numbers on the sequence, a[i] and a[j], is the absolute difference of their indices, |j - i|.
+
+Return the lexicographically largest sequence.
+It is guaranteed that under the given constraints, there is always a solution.
+
+A sequence a is lexicographically larger than a sequence b (of the same length)
+if in the first position where a and b differ, sequence a has a number greater than the corresponding number in b.
+For example, [0,1,9,0] is lexicographically larger than [0,1,5,6] because the first position
+they differ is at the third number, and 9 is greater than 5.
+
+Example 1:
+Input: n = 3
+Output: [3,1,2,3,2]
+Explanation: [2,3,2,1,3] is also a valid sequence, but [3,1,2,3,2] is the lexicographically largest valid sequence.
+
+Example 2:
+Input: n = 5
+Output: [5,3,1,4,3,5,2,4,2]
+
+Constraints:
+1 <= n <= 20
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Heuristic algorithm may work.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool findLexicographicallyLargestSequence(int index, int* result, int* returnSize, bool* isNumberUsed, int target) {
+    bool retVal = true;
+
+    // If we have filled all positions, return true indicating success
+    if (index == (*returnSize)) {
+        return retVal;
+    }
+
+    // If the current position is already filled, move to the next index
+    if (result[index] != 0) {
+        retVal = findLexicographicallyLargestSequence(index + 1, result, returnSize, isNumberUsed, target);
+        return retVal;
+    }
+
+    // Attempt to place numbers from target to 1 for a lexicographically largest result
+    for (int numberToPlace = target; numberToPlace >= 1; numberToPlace--) {
+        if (isNumberUsed[numberToPlace] == true) {
+            continue;
+        }
+        isNumberUsed[numberToPlace] = true;
+        result[index] = numberToPlace;
+
+        // If placing number 1, move to the next index directly
+        if (numberToPlace == 1) {
+            if (findLexicographicallyLargestSequence(index + 1, result, returnSize, isNumberUsed, target) == true) {
+                return retVal;
+            }
+        }
+        // Place larger numbers at two positions if valid
+        else if ((index + numberToPlace < (*returnSize)) && (result[index + numberToPlace] == 0)) {
+            result[index + numberToPlace] = numberToPlace;
+            if (findLexicographicallyLargestSequence(index + 1, result, returnSize, isNumberUsed, target) == true) {
+                return retVal;
+            }
+            // Undo the placement for backtracking
+            result[index + numberToPlace] = 0;
+        }
+
+        // Undo current placement and mark the number as unused
+        result[index] = 0;
+        isNumberUsed[numberToPlace] = false;
+    }
+    retVal = false;
+
+    return retVal;
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* constructDistancedSequence(int n, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 2 * n - 1;
+    pRetVal = (int*)malloc((*returnSize) * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, ((*returnSize) * sizeof(int)));
+
+    // Keep track of which numbers are already placed in the sequence
+    int isNumberUsedSize = n + 1;
+    bool* isNumberUsed = (bool*)malloc(isNumberUsedSize * sizeof(bool));
+    if (isNumberUsed == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(isNumberUsed, false, (isNumberUsedSize * sizeof(bool)));
+
+    // Start recursive backtracking to construct the sequence
+    findLexicographicallyLargestSequence(0, pRetVal, returnSize, isNumberUsed, n);
+
+    //
+    free(isNumberUsed);
+    isNumberUsed = NULL;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    bool findLexicographicallyLargestSequence(int index, vector<int>& result, vector<bool>& isNumberUsed, int target) {
+        bool retVal = true;
+
+        // If we have filled all positions, return true indicating success
+        int resultSequenceSize = result.size();
+        if (index == resultSequenceSize) {
+            return retVal;
+        }
+
+        // If the current position is already filled, move to the next index
+        if (result[index] != 0) {
+            retVal = findLexicographicallyLargestSequence(index + 1, result, isNumberUsed, target);
+            return retVal;
+        }
+
+        // Attempt to place numbers from target to 1 for a lexicographically largest result
+        for (int numberToPlace = target; numberToPlace >= 1; numberToPlace--) {
+            if (isNumberUsed[numberToPlace] == true) {
+                continue;
+            }
+            isNumberUsed[numberToPlace] = true;
+            result[index] = numberToPlace;
+
+            // If placing number 1, move to the next index directly
+            if (numberToPlace == 1) {
+                if (findLexicographicallyLargestSequence(index + 1, result, isNumberUsed, target) == true) {
+                    return retVal;
+                }
+            }
+            // Place larger numbers at two positions if valid
+            else if ((index + numberToPlace < resultSequenceSize) && (result[index + numberToPlace] == 0)) {
+                result[index + numberToPlace] = numberToPlace;
+                if (findLexicographicallyLargestSequence(index + 1, result, isNumberUsed, target) == true) {
+                    return retVal;
+                }
+                // Undo the placement for backtracking
+                result[index + numberToPlace] = 0;
+            }
+
+            // Undo current placement and mark the number as unused
+            result[index] = 0;
+            isNumberUsed[numberToPlace] = false;
+        }
+        retVal = false;
+
+        return retVal;
+    }
+
+   public:
+    vector<int> constructDistancedSequence(int n) {
+        vector<int> retVal(2 * n - 1, 0);
+
+        // Keep track of which numbers are already placed in the sequence
+        vector<bool> isNumberUsed(n + 1, false);
+        // Start recursive backtracking to construct the sequence
+        findLexicographicallyLargestSequence(0, retVal, isNumberUsed, n);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def findLexicographicallyLargestSequence(self, index, result, isNumberUsed, target):
+        retVal = True
+
+        # If we have filled all positions, return true indicating success
+        resultSequenceSize = len(result)
+        if index == resultSequenceSize:
+            return retVal
+
+        # If the current position is already filled, move to the next index
+        if result[index] != 0:
+            retVal = self.findLexicographicallyLargestSequence(index + 1, result, isNumberUsed, target)
+            return retVal
+
+        # Attempt to place numbers from target to 1 for a lexicographically largest result
+        for numberToPlace in range(target, 0, -1):
+            if isNumberUsed[numberToPlace]:
+                continue
+            isNumberUsed[numberToPlace] = True
+            result[index] = numberToPlace
+
+            # If placing number 1, move to the next index directly
+            if numberToPlace == 1:
+                if self.findLexicographicallyLargestSequence(index + 1, result, isNumberUsed, target) == True:
+                    return retVal
+            # Place larger numbers at two positions if valid
+            elif (index + numberToPlace < resultSequenceSize) and (result[index + numberToPlace] == 0):
+                result[index + numberToPlace] = numberToPlace
+                if self.findLexicographicallyLargestSequence(index + 1, result, isNumberUsed, target) == True:
+                    return retVal
+                # Undo the placement for backtracking
+                result[index + numberToPlace] = 0
+
+            # Undo current placement and mark the number as unused
+            result[index] = 0
+            isNumberUsed[numberToPlace] = False
+
+        retVal = False
+
+        return retVal
+
+    def constructDistancedSequence(self, n: int) -> List[int]:
+        retVal = [0] * (2*n-1)
+
+        # Keep track of which numbers are already placed in the sequence
+        isNumberUsed = [False] * (n + 1)
+        # Start recursive backtracking to construct the sequence
+        self.findLexicographicallyLargestSequence(0, retVal, isNumberUsed, n)
+
+        return retVal
+```
+
+</details>
+
 ## [2305. Fair Distribution of Cookies](https://leetcode.com/problems/fair-distribution-of-cookies/)  1886
 
 - [Official](https://leetcode.com/problems/fair-distribution-of-cookies/editorial/)
