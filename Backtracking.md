@@ -2810,6 +2810,188 @@ int uniquePathsIII(int** grid, int gridSize, int* gridColSize) {
 
 </details>
 
+## [1079. Letter Tile Possibilities](https://leetcode.com/problems/letter-tile-possibilities/)  1740
+
+- [Official](https://leetcode.com/problems/letter-tile-possibilities/editorial/)
+- [Official](https://leetcode.cn/problems/letter-tile-possibilities/solutions/2274542/huo-zi-yin-shua-by-leetcode-solution-e49s/)
+
+<details><summary>Description</summary>
+
+```text
+You have n  tiles, where each tile has one letter tiles[i] printed on it.
+
+Return the number of possible non-empty sequences of letters you can make using the letters printed on those tiles.
+
+Example 1:
+Input: tiles = "AAB"
+Output: 8
+Explanation: The possible sequences are "A", "B", "AA", "AB", "BA", "AAB", "ABA", "BAA".
+
+Example 2:
+Input: tiles = "AAABBC"
+Output: 188
+
+Example 3:
+Input: tiles = "V"
+Output: 1
+
+Constraints:
+1 <= tiles.length <= 7
+tiles consists of uppercase English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Try to build the string with a backtracking DFS by considering what you can put in every position.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MAX_TILES_SIZE (16)  // 1 <= tiles.length <= 7
+struct hashTable {
+    char key[MAX_TILES_SIZE];
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable* pFree) {
+    struct hashTable* current;
+    struct hashTable* tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%s\n", pFree->key);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+void generateSequences(char* tiles, char* current, bool* used, struct hashTable** sequences) {
+    // Add current sequence to set
+    struct hashTable* pTmp = NULL;
+    HASH_FIND_STR((*sequences), current, pTmp);
+    if (pTmp == NULL) {
+        pTmp = (struct hashTable*)malloc(sizeof(struct hashTable));
+        if (pTmp == NULL) {
+            perror("malloc");
+            return;
+        }
+        snprintf(pTmp->key, MAX_TILES_SIZE, "%s", current);
+        HASH_ADD_STR((*sequences), key, pTmp);
+    }
+
+    // Try adding each unused character to current sequence
+    char buf[MAX_TILES_SIZE];
+    int tilesSize = strlen(tiles);
+    for (int pos = 0; pos < tilesSize; ++pos) {
+        if (used[pos] == true) {
+            continue;
+        }
+        used[pos] = true;
+        memset(buf, 0, sizeof(buf));
+        snprintf(buf, sizeof(buf), "%s%c", current, tiles[pos]);
+        generateSequences(tiles, buf, used, sequences);
+        used[pos] = false;
+    }
+}
+int numTilePossibilities(char* tiles) {
+    int retVal = 0;
+
+    struct hashTable* sequences = NULL;
+    int tilesSize = strlen(tiles);
+    bool* used = (bool*)malloc(tilesSize * sizeof(bool));
+    if (used == NULL) {
+        perror("malloc");
+        freeAll(sequences);
+        sequences = NULL;
+        return retVal;
+    }
+    memset(used, false, (tilesSize * sizeof(bool)));
+    generateSequences(tiles, "", used, &sequences);  // Generate all possible sequences including empty string
+    retVal = HASH_COUNT(sequences) - 1;              // Subtract 1 to exclude empty string from count
+
+    //
+    free(used);
+    used = NULL;
+    freeAll(sequences);
+    sequences = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    void generateSequences(string& tiles, string current, vector<bool>& used, unordered_set<string>& sequences) {
+        // Add current sequence to set
+        sequences.insert(current);
+
+        // Try adding each unused character to current sequence
+        int tilesSize = tiles.size();
+        for (int pos = 0; pos < tilesSize; ++pos) {
+            if (used[pos] == true) {
+                continue;
+            }
+            used[pos] = true;
+            generateSequences(tiles, current + tiles[pos], used, sequences);
+            used[pos] = false;
+        }
+    }
+
+   public:
+    int numTilePossibilities(string tiles) {
+        int retVal = 0;
+
+        int tilesSize = tiles.size();
+
+        unordered_set<string> sequences;
+        vector<bool> used(tilesSize, false);
+        generateSequences(tiles, "", used, sequences);  // Generate all possible sequences including empty string
+        retVal = sequences.size() - 1;                  // Subtract 1 to exclude empty string from count
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def generateSequences(self, tiles: str, current: str, used: list, sequences: set) -> None:
+        sequences.add(current)
+
+        # Try adding each unused character to current sequence
+        for pos, char in enumerate(tiles):
+            if used[pos] == True:
+                continue
+            used[pos] = True
+            self.generateSequences(tiles, current + char, used, sequences)
+            used[pos] = False
+
+    def numTilePossibilities(self, tiles: str) -> int:
+        retVal = 0
+
+        tilesSize = len(tiles)
+
+        sequences = set()
+        used = [False] * tilesSize
+        self.generateSequences(tiles, "", used, sequences)  # Generate all possible sequences including empty string
+        retVal = len(sequences) - 1  # Subtract 1 to exclude empty string from count
+
+        return retVal
+```
+
+</details>
+
 ## [1219. Path with Maximum Gold](https://leetcode.com/problems/path-with-maximum-gold/)  1663
 
 - [Official](https://leetcode.com/problems/path-with-maximum-gold/editorial/)
