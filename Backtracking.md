@@ -3666,6 +3666,229 @@ class Solution:
 
 </details>
 
+## [1415. The k-th Lexicographical String of All Happy Strings of Length n](https://leetcode.com/problems/the-k-th-lexicographical-string-of-all-happy-strings-of-length-n/)  1575
+
+- [Official](https://leetcode.com/problems/the-k-th-lexicographical-string-of-all-happy-strings-of-length-n/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+A happy string is a string that:
+- consists only of letters of the set ['a', 'b', 'c'].
+- s[i] != s[i + 1] for all values of i from 1 to s.length - 1 (string is 1-indexed).
+
+For example, strings "abc", "ac", "b" and "abcbabcbcb" are all happy strings
+and strings "aa", "baa" and "ababbc" are not happy strings.
+
+Given two integers n and k, consider a list of all happy strings of length n sorted in lexicographical order.
+
+Return the kth string of this list or return an empty string if there are less than k happy strings of length n.
+
+Example 1:
+Input: n = 1, k = 3
+Output: "c"
+Explanation: The list ["a", "b", "c"] contains all happy strings of length 1. The third string is "c".
+
+Example 2:
+Input: n = 1, k = 4
+Output: ""
+Explanation: There are only 3 happy strings of length 1.
+
+Example 3:
+Input: n = 3, k = 9
+Output: "cab"
+Explanation: There are 12 different happy string of length 3
+["aba", "abc", "aca", "acb", "bab", "bac", "bca", "bcb", "cab", "cac", "cba", "cbc"]. You will find the 9th string = "cab"
+
+Constraints:
+1 <= n <= 10
+1 <= k <= 100
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Generate recursively all the happy strings of length n.
+2. Sort them in lexicographical order and return the kth string if it exists.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+char* getHappyString(int n, int k) {
+    char* pRetVal = NULL;
+
+    //
+    int returnSize = n + 1;
+    pRetVal = (char*)malloc(returnSize * sizeof(char));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (returnSize * sizeof(char)));
+
+    // Calculate the total number of happy strings of length n
+    int total = 3 * (1 << (n - 1));
+
+    // If k is greater than the total number of happy strings, return an empty string
+    if (k > total) {
+        return pRetVal;
+    }
+
+    // Initialize result with 'a' characters
+    for (int i = 0; i < n; ++i) {
+        pRetVal[i] = 'a';
+    }
+    //  Define mappings for the next smallest and greatest valid characters
+    char nextSmallest[] = {'b', 'a', 'a'};
+    char nextGreatest[] = {'c', 'c', 'b'};
+    // Calculate the starting indices for strings beginning with 'a', 'b', and 'c'
+    int startA = 1;
+    int startB = startA + (1 << (n - 1));
+    int startC = startB + (1 << (n - 1));
+    // Determine the first character based on the value of k
+    if (k < startB) {
+        pRetVal[0] = 'a';
+        k -= startA;
+    } else if (k < startC) {
+        pRetVal[0] = 'b';
+        k -= startB;
+    } else {
+        pRetVal[0] = 'c';
+        k -= startC;
+    }
+
+    // Iterate through the remaining positions in the result string
+    for (int charIndex = 1; charIndex < n; charIndex++) {
+        // Calculate the midpoint of the group for the current character position
+        int midpoint = (1 << (n - charIndex - 1));
+        // Determine the next character based on the value of k
+        if (k < midpoint) {
+            pRetVal[charIndex] = nextSmallest[pRetVal[charIndex - 1] - 'a'];
+        } else {
+            pRetVal[charIndex] = nextGreatest[pRetVal[charIndex - 1] - 'a'];
+            k -= midpoint;
+        }
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    string getHappyString(int n, int k) {
+        string retVal = "";
+
+        // Calculate the total number of happy strings of length n
+        int total = 3 * (1 << (n - 1));
+
+        // If k is greater than the total number of happy strings, return an empty string
+        if (k > total) {
+            return retVal;
+        }
+
+        // Initialize result with 'a' characters
+        retVal.resize(n, 'a');
+        //  Define mappings for the next smallest and greatest valid characters
+        unordered_map<char, char> nextSmallest = {{'a', 'b'}, {'b', 'a'}, {'c', 'a'}};
+        unordered_map<char, char> nextGreatest = {{'a', 'c'}, {'b', 'c'}, {'c', 'b'}};
+        // Calculate the starting indices for strings beginning with 'a', 'b', and 'c'
+        int startA = 1;
+        int startB = startA + (1 << (n - 1));
+        int startC = startB + (1 << (n - 1));
+        // Determine the first character based on the value of k
+        if (k < startB) {
+            retVal[0] = 'a';
+            k -= startA;
+        } else if (k < startC) {
+            retVal[0] = 'b';
+            k -= startB;
+        } else {
+            retVal[0] = 'c';
+            k -= startC;
+        }
+
+        // Iterate through the remaining positions in the result string
+        for (int charIndex = 1; charIndex < n; charIndex++) {
+            // Calculate the midpoint of the group for the current character position
+            int midpoint = (1 << (n - charIndex - 1));
+            // Determine the next character based on the value of k
+            if (k < midpoint) {
+                retVal[charIndex] = nextSmallest[retVal[charIndex - 1]];
+            } else {
+                retVal[charIndex] = nextGreatest[retVal[charIndex - 1]];
+                k -= midpoint;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def getHappyString(self, n: int, k: int) -> str:
+        retVal = ""
+
+        # Calculate the total number of happy strings of length n
+        total = 3 * (1 << (n - 1))
+
+        # If k is greater than the total number of happy strings, return an empty string
+        if k > total:
+            return retVal
+
+        # Initialize result with 'a' characters
+        result = ["a"] * n
+        # Define mappings for the next smallest and greatest valid characters
+        nextSmallest = {"a": "b", "b": "a", "c": "a"}
+        nextGreatest = {"a": "c", "b": "c", "c": "b"}
+        # Calculate the starting indices for strings beginning with 'a', 'b', and 'c'
+        startA = 1
+        startB = startA + (1 << (n - 1))
+        startC = startB + (1 << (n - 1))
+        # Determine the first character based on the value of k
+        if k < startB:
+            result[0] = "a"
+            k -= startA
+        elif k < startC:
+            result[0] = "b"
+            k -= startB
+        else:
+            result[0] = "c"
+            k -= startC
+
+        # Iterate through the remaining positions in the result string
+        for charIndex in range(1, n):
+            # Calculate the midpoint of the group for the current character position
+            midpoint = 1 << (n - charIndex - 1)
+            # Determine the next character based on the value of k
+            if k < midpoint:
+                result[charIndex] = nextSmallest[result[charIndex - 1]]
+            else:
+                result[charIndex] = nextGreatest[result[charIndex - 1]]
+                k -= midpoint
+        retVal = "".join(result)
+
+        return retVal
+```
+
+</details>
+
 ## [1593. Split a String Into the Max Number of Unique Substrings](https://leetcode.com/problems/split-a-string-into-the-max-number-of-unique-substrings/)  1739
 
 - [Official](https://leetcode.com/problems/split-a-string-into-the-max-number-of-unique-substrings/editorial/)
