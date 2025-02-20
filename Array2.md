@@ -3860,7 +3860,6 @@ char* findDifferentBinaryString(char** nums, int numsSize) {
 
 ```c++
 class Solution {
-#define MODULO (int)(1e9 + 7)
    public:
     string findDifferentBinaryString(vector<string>& nums) {
         string retVal;
