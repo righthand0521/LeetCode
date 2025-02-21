@@ -1067,6 +1067,250 @@ class Solution:
 
 </details>
 
+## [1261. Find Elements in a Contaminated Binary Tree](https://leetcode.com/problems/find-elements-in-a-contaminated-binary-tree/)  1439
+
+- [Official](https://leetcode.com/problems/find-elements-in-a-contaminated-binary-tree/editorial/)
+- [Official](https://leetcode.cn/problems/find-elements-in-a-contaminated-binary-tree/solutions/2674238/zai-shou-wu-ran-de-er-cha-shu-zhong-cha-5l56x/)
+
+<details><summary>Description</summary>
+
+```text
+Given a binary tree with the following rules:
+1. root.val == 0
+2. For any treeNode:
+   1. If treeNode.val has a value x and treeNode.left != null, then treeNode.left.val == 2 * x + 1
+   2. If treeNode.val has a value x and treeNode.right != null, then treeNode.right.val == 2 * x + 2
+
+Now the binary tree is contaminated, which means all treeNode.val have been changed to -1.
+
+Implement the FindElements class:
+- FindElements(TreeNode* root)
+  Initializes the object with a contaminated binary tree and recovers it.
+- bool find(int target)
+  Returns true if the target value exists in the recovered binary tree.
+
+Example 1:
+Input
+["FindElements","find","find"]
+[[[-1,null,-1]],[1],[2]]
+Output
+[null,false,true]
+Explanation
+FindElements findElements = new FindElements([-1,null,-1]);
+findElements.find(1); // return False
+findElements.find(2); // return True
+
+Example 2:
+Input
+["FindElements","find","find","find"]
+[[[-1,-1,-1,-1,-1]],[1],[3],[5]]
+Output
+[null,true,true,false]
+Explanation
+FindElements findElements = new FindElements([-1,-1,-1,-1,-1]);
+findElements.find(1); // return True
+findElements.find(3); // return True
+findElements.find(5); // return False
+
+Example 3:
+Input
+["FindElements","find","find","find","find"]
+[[[-1,null,-1,-1,null,-1]],[2],[3],[4],[5]]
+Output
+[null,true,false,false,true]
+Explanation
+FindElements findElements = new FindElements([-1,null,-1,-1,null,-1]);
+findElements.find(2); // return True
+findElements.find(3); // return False
+findElements.find(4); // return False
+findElements.find(5); // return True
+
+Constraints:
+TreeNode.val == -1
+The height of the binary tree is less than or equal to 20
+The total number of nodes is between [1, 10^4]
+Total calls of find() is between [1, 10^4]
+0 <= target <= 10^6
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use DFS to traverse the binary tree and recover it.
+2. Use a hashset to store TreeNode.val for finding.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable* pFree) {
+    struct hashTable* current;
+    struct hashTable* tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d\n", pFree->key);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+void dfs(struct TreeNode* currentNode, int currentValue, struct hashTable** seen) {
+    if (currentNode == NULL) {
+        return;
+    }
+
+    struct hashTable* pTemp = NULL;
+    HASH_FIND_INT(*seen, &currentValue, pTemp);
+    if (pTemp == NULL) {
+        pTemp = (struct hashTable*)malloc(sizeof(struct hashTable));
+        if (pTemp == NULL) {
+            perror("malloc");
+            return;
+        }
+        pTemp->key = currentValue;
+        HASH_ADD_INT(*seen, key, pTemp);
+    }
+    dfs(currentNode->left, currentValue * 2 + 1, seen);
+    dfs(currentNode->right, currentValue * 2 + 2, seen);
+}
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+typedef struct {
+    struct hashTable* seen;
+} FindElements;
+FindElements* findElementsCreate(struct TreeNode* root) {
+    FindElements* pRetVal = NULL;
+
+    pRetVal = (FindElements*)malloc(sizeof(FindElements));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    pRetVal->seen = NULL;
+    dfs(root, 0, &pRetVal->seen);
+
+    return pRetVal;
+}
+bool findElementsFind(FindElements* obj, int target) {
+    bool retVal = false;
+
+    struct hashTable* pTemp = NULL;
+    HASH_FIND_INT(obj->seen, &target, pTemp);
+    if (pTemp != NULL) {
+        retVal = true;
+    }
+
+    return retVal;
+}
+void findElementsFree(FindElements* obj) {
+    freeAll(obj->seen);
+    free(obj);
+}
+/**
+ * Your FindElements struct will be instantiated and called as such:
+ * FindElements* obj = findElementsCreate(root);
+ * bool param_1 = findElementsFind(obj, target);
+ * findElementsFree(obj);
+ */
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class FindElements {
+   private:
+    unordered_set<int> seen;
+    void dfs(TreeNode* currentNode, int currentValue) {
+        if (currentNode == nullptr) {
+            return;
+        }
+
+        // visit current node by adding its value to seen
+        seen.insert(currentValue);
+        dfs(currentNode->left, currentValue * 2 + 1);
+        dfs(currentNode->right, currentValue * 2 + 2);
+    }
+
+   public:
+    FindElements(TreeNode* root) {
+        //
+        dfs(root, 0);
+    }
+    bool find(int target) {
+        bool retVal = (seen.count(target) > 0);
+
+        return retVal;
+    }
+};
+/**
+ * Your FindElements object will be instantiated and called as such:
+ * FindElements* obj = new FindElements(root);
+ * bool param_1 = obj->find(target);
+ */
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class FindElements:
+    def __init__(self, root: Optional[TreeNode]):
+        self.seen = set()
+        self.dfs(root, 0)
+
+    def dfs(self, currentNode, currentValue):
+        if currentNode is None:
+            return
+
+        # visit current node by adding its value to seen
+        self.seen.add(currentValue)
+        self.dfs(currentNode.left, currentValue * 2 + 1)
+        self.dfs(currentNode.right, currentValue * 2 + 2)
+
+    def find(self, target: int) -> bool:
+        retVal = target in self.seen
+
+        return retVal
+
+# Your FindElements object will be instantiated and called as such:
+# obj = FindElements(root)
+# param_1 = obj.find(target)
+```
+
+</details>
+
 ## [1325. Delete Leaves With a Given Value](https://leetcode.com/problems/delete-leaves-with-a-given-value/)  1407
 
 - [Official](https://leetcode.com/problems/delete-leaves-with-a-given-value/editorial/)

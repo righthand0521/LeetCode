@@ -39,6 +39,7 @@
   - [173. Binary Search Tree Iterator](https://leetcode.com/problems/binary-search-tree-iterator/)
   - [297. Serialize and Deserialize Binary Tree](https://leetcode.com/problems/serialize-and-deserialize-binary-tree/)
   - [449. Serialize and Deserialize BST](https://leetcode.com/problems/serialize-and-deserialize-bst/)
+  - [1261. Find Elements in a Contaminated Binary Tree](https://leetcode.com/problems/find-elements-in-a-contaminated-binary-tree/)
 - [Trie](https://en.wikipedia.org/wiki/Trie)
   - [208. Implement Trie (Prefix Tree)](https://leetcode.com/problems/implement-trie-prefix-tree/)
   - [211. Design Add and Search Words Data Structure](https://leetcode.com/problems/design-add-and-search-words-data-structure/)
