@@ -169,6 +169,271 @@ class Solution:
 
 </details>
 
+## [1028. Recover a Tree From Preorder Traversal](https://leetcode.com/problems/recover-a-tree-from-preorder-traversal/)  1797
+
+- [Official](https://leetcode.com/problems/recover-a-tree-from-preorder-traversal/editorial/)
+- [Official](https://leetcode.cn/problems/recover-a-tree-from-preorder-traversal/solutions/292136/cong-xian-xu-bian-li-huan-yuan-er-cha-shu-by-leetc/)
+
+<details><summary>Description</summary>
+
+```text
+We run a preorder depth-first search (DFS) on the root of a binary tree.
+
+At each node in this traversal, we output D dashes (where D is the depth of this node),
+then we output the value of this node.
+If the depth of a node is D, the depth of its immediate child is D + 1.
+The depth of the root node is 0.
+
+If a node has only one child, that child is guaranteed to be the left child.
+
+Given the output traversal of this traversal, recover the tree and return its root.
+
+Example 1:
+    1
+   / \
+  2   3
+ /\   /\
+4  5 6  7
+Input: traversal = "1-2--3--4-5--6--7"
+Output: [1,2,5,3,4,6,7]
+
+Example 2:
+      1
+     / \
+    2   5
+   /   /
+  3   6
+ /   /
+4   7
+Input: traversal = "1-2--3---4-5--6---7"
+Output: [1,2,5,3,null,6,null,4,null,7]
+
+Example 3:
+          1
+         /
+      401
+      / \
+   349   88
+  /
+90
+Input: traversal = "1-401--349---90--88"
+Output: [1,401,null,349,88,90]
+
+Constraints:
+The number of nodes in the original tree is in the range [1, 1000].
+1 <= Node.val <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Do an iterative depth first search, parsing dashes from the string to inform you how to link the nodes together.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+struct TreeNode* recoverFromPreorder(char* traversal) {
+    struct TreeNode* pRetVal = NULL;
+
+    int traversalSize = strlen(traversal);
+
+    struct TreeNode* stack[traversalSize + 1];
+    int stackTop = -1;
+
+    struct TreeNode* node;
+    int depth, value;
+    int index = 0;
+    while (index < traversalSize) {
+        // Count the number of dashes
+        depth = 0;
+        while ((index < traversalSize) && (traversal[index] == '-')) {
+            depth++;
+            index++;
+        }
+
+        // Extract the node value
+        value = 0;
+        while ((index < traversalSize) && (isdigit(traversal[index]))) {
+            value = value * 10 + (traversal[index] - '0');
+            index++;
+        }
+
+        // Create the current node
+        node = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+        if (node == NULL) {
+            perror("malloc");
+            return pRetVal;
+        }
+        node->val = value;
+        node->left = NULL;
+        node->right = NULL;
+
+        // Adjust the stack to the correct depth
+        while ((stackTop + 1) > depth) {
+            stack[stackTop--] = NULL;
+        }
+
+        // Attach the node to the parent
+        if (stackTop > -1) {
+            if (stack[stackTop]->left == NULL) {
+                stack[stackTop]->left = node;
+            } else {
+                stack[stackTop]->right = node;
+            }
+        }
+
+        // Push the current node onto the stack
+        stack[++stackTop] = node;
+    }
+
+    // The root is the first node in the stack
+    pRetVal = stack[0];
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   public:
+    TreeNode* recoverFromPreorder(string traversal) {
+        TreeNode* pRetVal = nullptr;
+
+        int traversalSize = traversal.size();
+        stack<TreeNode*> stack;
+        int index = 0;
+        while (index < traversalSize) {
+            // Count the number of dashes
+            int depth = 0;
+            while ((index < traversalSize) && (traversal[index] == '-')) {
+                depth++;
+                index++;
+            }
+
+            // Extract the node value
+            int value = 0;
+            while ((index < traversalSize) && (isdigit(traversal[index]))) {
+                value = value * 10 + (traversal[index] - '0');
+                index++;
+            }
+
+            // Create the current node
+            TreeNode* node = new TreeNode(value);
+
+            // Adjust the stack to the correct depth
+            int stackSize = stack.size();
+            while (stackSize > depth) {
+                stack.pop();
+                stackSize = stack.size();
+            }
+
+            // Attach the node to the parent
+            if (stack.empty() == false) {
+                if (stack.top()->left == nullptr) {
+                    stack.top()->left = node;
+                } else {
+                    stack.top()->right = node;
+                }
+            }
+
+            // Push the current node onto the stack
+            stack.push(node);
+        }
+
+        // The root is the first node in the stack
+        while (stack.size() > 1) {
+            stack.pop();
+        }
+        pRetVal = stack.top();
+
+        return pRetVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def recoverFromPreorder(self, traversal: str) -> Optional[TreeNode]:
+        retVal = None
+
+        traversalSize = len(traversal)
+        stack = []
+        index = 0
+        while index < traversalSize:
+            # Count the number of dashes
+            depth = 0
+            while (index < traversalSize) and (traversal[index] == "-"):
+                depth += 1
+                index += 1
+
+            # Extract the node value
+            value = 0
+            while (index < traversalSize) and (traversal[index].isdigit()):
+                value = value * 10 + int(traversal[index])
+                index += 1
+
+            # Create the current node
+            node = TreeNode(value)
+
+            # Adjust the stack to the correct depth
+            while len(stack) > depth:
+                stack.pop()
+
+            # Attach the node to the parent
+            if stack:
+                if stack[-1].left is None:
+                    stack[-1].left = node
+                else:
+                    stack[-1].right = node
+
+            # Push the current node onto the stack
+            stack.append(node)
+
+        retVal = stack[0]
+
+        return retVal
+```
+
+</details>
+
 ## [1038. Binary Search Tree to Greater Sum Tree](https://leetcode.com/problems/binary-search-tree-to-greater-sum-tree/)  1374
 
 - [Official](https://leetcode.com/problems/binary-search-tree-to-greater-sum-tree/editorial/)
