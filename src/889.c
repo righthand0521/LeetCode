@@ -12,14 +12,43 @@
  *     struct TreeNode *right;
  * };
  */
+struct TreeNode* constructTree(int* preIndex, int* postIndex, int* preorder, int* postorder) {
+    // Create a new node with the value at the current preorder index
+    struct TreeNode* root = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+    if (root == NULL) {
+        perror("malloc");
+        return root;
+    }
+    root->val = preorder[(*preIndex)];
+    root->left = NULL;
+    root->right = NULL;
+    // Mark this node as created
+    (*preIndex)++;
+    // Recursively construct the left subtree if the root is not the last of its subtree
+    if (root->val != postorder[(*postIndex)]) {
+        root->left = constructTree(preIndex, postIndex, preorder, postorder);
+    }
+    // Recursively construct the right subtree if the root is still not the last of its subtree
+    if (root->val != postorder[(*postIndex)]) {
+        root->right = constructTree(preIndex, postIndex, preorder, postorder);
+    }
+    // Mark this node and its subtree as fully processed
+    (*postIndex)++;
+
+    return root;
+}
 struct TreeNode* constructFromPrePost(int* preorder, int preorderSize, int* postorder, int postorderSize) {
     struct TreeNode* pRetVal = NULL;
+
+    int preIndex = 0;
+    int postIndex = 0;
+    pRetVal = constructTree(&preIndex, &postIndex, preorder, postorder);
 
     return pRetVal;
 }
 
 int main(int argc, char** argv) {
-#define MAX_SIZE (3000)
+#define MAX_SIZE (100)
     struct testCaseType {
         int preorder[MAX_SIZE];
         int preorderSize;

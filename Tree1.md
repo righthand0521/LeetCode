@@ -10946,6 +10946,7 @@ class Solution:
 
 ## [889. Construct Binary Tree from Preorder and Postorder Traversal](https://leetcode.com/problems/construct-binary-tree-from-preorder-and-postorder-traversal/)  1731
 
+- [Official](https://leetcode.com/problems/construct-binary-tree-from-preorder-and-postorder-traversal/editorial/)
 - [Official](https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-postorder-traversal/solutions/3550/gen-ju-qian-xu-he-hou-xu-bian-li-gou-zao-er-cha-sh/)
 
 <details><summary>Description</summary>
@@ -10993,8 +10994,37 @@ It is guaranteed that preorder and postorder are the preorder traversal and post
  *     struct TreeNode *right;
  * };
  */
+struct TreeNode* constructTree(int* preIndex, int* postIndex, int* preorder, int* postorder) {
+    // Create a new node with the value at the current preorder index
+    struct TreeNode* root = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+    if (root == NULL) {
+        perror("malloc");
+        return root;
+    }
+    root->val = preorder[(*preIndex)];
+    root->left = NULL;
+    root->right = NULL;
+    // Mark this node as created
+    (*preIndex)++;
+    // Recursively construct the left subtree if the root is not the last of its subtree
+    if (root->val != postorder[(*postIndex)]) {
+        root->left = constructTree(preIndex, postIndex, preorder, postorder);
+    }
+    // Recursively construct the right subtree if the root is still not the last of its subtree
+    if (root->val != postorder[(*postIndex)]) {
+        root->right = constructTree(preIndex, postIndex, preorder, postorder);
+    }
+    // Mark this node and its subtree as fully processed
+    (*postIndex)++;
+
+    return root;
+}
 struct TreeNode* constructFromPrePost(int* preorder, int preorderSize, int* postorder, int postorderSize) {
     struct TreeNode* pRetVal = NULL;
+
+    int preIndex = 0;
+    int postIndex = 0;
+    pRetVal = constructTree(&preIndex, &postIndex, preorder, postorder);
 
     return pRetVal;
 }
@@ -11017,11 +11047,79 @@ struct TreeNode* constructFromPrePost(int* preorder, int preorderSize, int* post
  * };
  */
 class Solution {
-public:
-    TreeNode* constructFromPrePost(vector<int>& preorder, vector<int>& postorder) {
+   private:
+    TreeNode* constructTree(int& preIndex, int& postIndex, vector<int>& preorder, vector<int>& postorder) {
+        // Create a new node with the value at the current preorder index
+        TreeNode* root = new TreeNode(preorder[preIndex]);
+        // Mark this node as created
+        preIndex++;
+        // Recursively construct the left subtree if the root is not the last of its subtree
+        if (root->val != postorder[postIndex]) {
+            root->left = constructTree(preIndex, postIndex, preorder, postorder);
+        }
+        // Recursively construct the right subtree if the root is still not the last of its subtree
+        if (root->val != postorder[postIndex]) {
+            root->right = constructTree(preIndex, postIndex, preorder, postorder);
+        }
+        // Mark this node and its subtree as fully processed
+        postIndex++;
 
+        return root;
+    }
+
+   public:
+    TreeNode* constructFromPrePost(vector<int>& preorder, vector<int>& postorder) {
+        TreeNode* pRetVal = nullptr;
+
+        int preIndex = 0;
+        int postIndex = 0;
+        pRetVal = constructTree(preIndex, postIndex, preorder, postorder);
+
+        return pRetVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def __init__(self):
+        self.preIndex = 0
+        self.postIndex = 0
+
+    def constructTree(self, preorder: List[int], postorder: List[int]) -> Optional[TreeNode]:
+        # Create a new node with the value at the current preorder index
+        root = TreeNode(preorder[self.preIndex])
+        # Mark this node as created
+        self.preIndex += 1
+        # Recursively construct the left subtree if the root is not the last of its subtree
+        if root.val != postorder[self.postIndex]:
+            root.left = self.constructTree(preorder, postorder)
+        # Recursively construct the right subtree if the root is not the last of its subtree
+        if root.val != postorder[self.postIndex]:
+            root.right = self.constructTree(preorder, postorder)
+        # Mark this node and its subtree as fully processed
+        self.postIndex += 1
+
+        return root
+
+    def constructFromPrePost(self, preorder: List[int], postorder: List[int]) -> Optional[TreeNode]:
+        retVal = None
+
+        self.preIndex = 0
+        self.postIndex = 0
+        retVal = self.constructTree(preorder, postorder)
+
+        return retVal
 ```
 
 </details>

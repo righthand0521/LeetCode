@@ -1,6 +1,5 @@
 ﻿#include <algorithm>
 #include <iostream>
-#include <stack>
 #include <vector>
 
 using namespace std;
@@ -19,45 +18,33 @@ using namespace std;
  * };
  */
 class Solution {
+   private:
+    TreeNode* constructTree(int& preIndex, int& postIndex, vector<int>& preorder, vector<int>& postorder) {
+        // Create a new node with the value at the current preorder index
+        TreeNode* root = new TreeNode(preorder[preIndex]);
+        // Mark this node as created
+        preIndex++;
+        // Recursively construct the left subtree if the root is not the last of its subtree
+        if (root->val != postorder[postIndex]) {
+            root->left = constructTree(preIndex, postIndex, preorder, postorder);
+        }
+        // Recursively construct the right subtree if the root is still not the last of its subtree
+        if (root->val != postorder[postIndex]) {
+            root->right = constructTree(preIndex, postIndex, preorder, postorder);
+        }
+        // Mark this node and its subtree as fully processed
+        postIndex++;
+
+        return root;
+    }
+
    public:
     TreeNode* constructFromPrePost(vector<int>& preorder, vector<int>& postorder) {
         TreeNode* pRetVal = nullptr;
 
-        if ((preorder.size() == 0) || (postorder.size() == 0)) {
-            return pRetVal;
-        }
-
-        /* Example
-         *        (1)           pre: 1 2 4 5 3 6 7
-         *    (2)     (3)    v   in: 4 2 5 1 6 3 7
-         *  (4) (5) (6) (7)  v post: 4 5 2 6 7 3 1
-         */
-
-#if 0
-        int postorderIndex = postorder.size() - 1;
-        int inorderIndex = inorder.size() - 1;
-        stack s = stack<TreeNode*>();
-
-
-        pRetVal = new TreeNode(postorder[postorderIndex]);
-        s.push(pRetVal);
-        for (int i = postorderIndex - 1; i >= 0; --i) {
-            int postorderVal = postorder[i];
-            auto node = s.top();
-            if (node->val != inorder[inorderIndex]) {
-                node->right = new TreeNode(postorderVal);
-                s.push(node->right);
-            } else {
-                while ((s.empty() == false) && (s.top()->val == inorder[inorderIndex])) {
-                    node = s.top();
-                    s.pop();
-                    --inorderIndex;
-                }
-                node->left = new TreeNode(postorderVal);
-                s.push(node->left);
-            }
-        }
-#endif
+        int preIndex = 0;
+        int postIndex = 0;
+        pRetVal = constructTree(preIndex, postIndex, preorder, postorder);
 
         return pRetVal;
     }
