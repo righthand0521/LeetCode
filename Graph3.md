@@ -4137,6 +4137,292 @@ class Solution {
 
 </details>
 
+## [2467. Most Profitable Path in a Tree](https://leetcode.com/problems/most-profitable-path-in-a-tree/)  2053
+
+- [Official](https://leetcode.com/problems/most-profitable-path-in-a-tree/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+There is an undirected tree with n nodes labeled from 0 to n - 1, rooted at node 0.
+You are given a 2D integer array edges of length n - 1 where edges[i] = [ai, bi] indicates
+that there is an edge between nodes ai and bi in the tree.
+
+At every node i, there is a gate. You are also given an array of even integers amount, where amount[i] represents:
+- the price needed to open the gate at node i, if amount[i] is negative, or,
+- the cash reward obtained on opening the gate at node i, otherwise.
+
+The game goes on as follows:
+- Initially, Alice is at node 0 and Bob is at node bob.
+- At every second, Alice and Bob each move to an adjacent node.
+  Alice moves towards some leaf node, while Bob moves towards node 0.
+- For every node along their path, Alice and Bob either spend money to open the gate at that node,
+  or accept the reward. Note that:
+  - If the gate is already open, no price will be required, nor will there be any cash reward.
+  - If Alice and Bob reach the node simultaneously, they share the price/reward for opening the gate there.
+    In other words, if the price to open the gate is c, then both Alice and Bob pay c / 2 each.
+    Similarly, if the reward at the gate is c, both of them receive c / 2 each.
+- If Alice reaches a leaf node, she stops moving. Similarly, if Bob reaches node 0, he stops moving.
+  Note that these events are independent of each other.
+
+Return the maximum net income Alice can have if she travels towards the optimal leaf node.
+
+Example 1:
+Input: edges = [[0,1],[1,2],[1,3],[3,4]], bob = 3, amount = [-2,4,2,-4,6]
+Output: 6
+Explanation:
+The above diagram represents the given tree. The game goes as follows:
+- Alice is initially on node 0, Bob on node 3. They open the gates of their respective nodes.
+  Alice's net income is now -2.
+- Both Alice and Bob move to node 1.
+  Since they reach here simultaneously, they open the gate together and share the reward.
+  Alice's net income becomes -2 + (4 / 2) = 0.
+- Alice moves on to node 3. Since Bob already opened its gate, Alice's income remains unchanged.
+  Bob moves on to node 0, and stops moving.
+- Alice moves on to node 4 and opens the gate there. Her net income becomes 0 + 6 = 6.
+Now, neither Alice nor Bob can make any further moves, and the game ends.
+It is not possible for Alice to get a higher net income.
+
+Example 2:
+Input: edges = [[0,1]], bob = 1, amount = [-7280,2350]
+Output: -7280
+Explanation:
+Alice follows the path 0->1 whereas Bob follows the path 1->0.
+Thus, Alice opens the gate at node 0 only. Hence, her net income is -7280.
+
+Constraints:
+2 <= n <= 10^5
+edges.length == n - 1
+edges[i].length == 2
+0 <= ai, bi < n
+ai != bi
+edges represents a valid tree.
+1 <= bob < n
+amount.length == n
+amount[i] is an even integer in the range [-10^4, 10^4].
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Bob travels along a fixed path (from node “bob” to node 0).
+2. Calculate Alice’s distance to each node via DFS.
+3. We can calculate Alice’s score along a path ending at some node easily using Hints 1 and 2.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// https://leetcode.cn/problems/most-profitable-path-in-a-tree/solutions/1990965/chun-c-by-mogaitesheng-f0mh/
+#define N (100005)
+struct Edges {
+    int end;
+    int next;
+} edge[N * 2];
+int indx, res;
+int h[N], v[N], q[N];
+void add(int s, int e) {
+    edge[indx].end = e;
+    edge[indx].next = h[s];
+    h[s] = indx++;
+}
+bool dfsBob(int head, int idx) {
+    bool retVal = true;
+
+    v[head] = idx;
+    if (head == 0) {
+        return retVal;
+    }
+
+    for (int i = h[head]; i != -1; i = edge[i].next) {
+        if (v[edge[i].end] != -1) {
+            continue;
+        }
+
+        if (dfsBob(edge[i].end, idx + 1)) {
+            return retVal;
+        }
+    }
+    v[head] = -1;
+    retVal = false;
+
+    return retVal;
+}
+void dfsAlice(int head, int score, int time, int* amount) {
+    q[head] = 1;
+
+    if (v[head] == time) {
+        score += amount[head] / 2;
+    } else if (v[head] == -1 || v[head] > time) {
+        score += amount[head];
+    }
+
+    int ischild = 0;
+    for (int i = h[head]; i != -1; i = edge[i].next) {
+        if (q[edge[i].end] != -1) {
+            continue;
+        }
+        dfsAlice(edge[i].end, score, time + 1, amount);
+        ischild = 1;
+    }
+
+    if (ischild == false) {
+        res = fmax(res, score);
+    }
+
+    q[head] = -1;
+}
+int mostProfitablePath(int** edges, int edgesSize, int* edgesColSize, int bob, int* amount, int amountSize) {
+    int retVal = 0;
+
+    indx = 0;
+    res = INT_MIN;
+    memset(h, -1, sizeof(h));
+    memset(v, -1, sizeof(v));
+    memset(q, -1, sizeof(q));
+    for (int i = 0; i < edgesSize; i++) {
+        add(edges[i][0], edges[i][1]);
+        add(edges[i][1], edges[i][0]);
+    }
+
+    dfsBob(bob, 0);
+    dfsAlice(0, 0, 0, amount);
+
+    retVal = res;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+    int dfs(int sourceNode, int parentNode, int time, int bob, vector<int>& amount, vector<vector<int>>& tree,
+            vector<int>& distanceFromBob) {
+        int retVal = 0;
+
+        // Find the node distances from Bob
+        int amountSize = amount.size();
+        if (sourceNode == bob) {
+            distanceFromBob[sourceNode] = 0;
+        } else {
+            distanceFromBob[sourceNode] = amountSize;
+        }
+
+        int maxChild = numeric_limits<int>::min();
+        for (int adjacentNode : tree[sourceNode]) {
+            if (adjacentNode != parentNode) {
+                maxChild = max(maxChild, dfs(adjacentNode, sourceNode, time + 1, bob, amount, tree, distanceFromBob));
+                distanceFromBob[sourceNode] = min(distanceFromBob[sourceNode], distanceFromBob[adjacentNode] + 1);
+            }
+        }
+
+        int maxIncome = 0;
+        if (distanceFromBob[sourceNode] > time) {  // Alice reaches the node first
+            maxIncome += amount[sourceNode];
+        } else if (distanceFromBob[sourceNode] == time) {  // Alice and Bob reach the node at the same time
+            maxIncome += amount[sourceNode] / 2;
+        }
+
+        // Return max income of leaf node
+        if (maxChild == numeric_limits<int>::min()) {
+            retVal = maxIncome;
+        } else {
+            retVal = maxIncome + maxChild;
+        }
+
+        return retVal;
+    }
+
+   public:
+    int mostProfitablePath(vector<vector<int>>& edges, int bob, vector<int>& amount) {
+        int retVal = 0;
+
+        int amountSize = amount.size();
+
+        vector<vector<int>> tree(amountSize, vector<int>());
+        for (vector<int> edge : edges) {
+            tree[edge[0]].push_back(edge[1]);
+            tree[edge[1]].push_back(edge[0]);
+        }
+
+        vector<int> distanceFromBob(amountSize);
+
+        retVal = dfs(0, 0, 0, bob, amount, tree, distanceFromBob);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self):
+        self.tree = []
+        self.distanceFromBob = []
+        self.amountSize = 0
+
+    def dfs(self, sourceNode, parentNode, time, bob, amount):
+        retVal = 0
+
+        # Find the node distances from Bob
+        if sourceNode == bob:
+            self.distanceFromBob[sourceNode] = 0
+        else:
+            self.distanceFromBob[sourceNode] = self.amountSize
+
+        maxChild = float("-inf")
+        for adjacentNode in self.tree[sourceNode]:
+            if adjacentNode == parentNode:
+                continue
+            maxChild = max(maxChild, self.dfs(adjacentNode, sourceNode, time + 1, bob, amount))
+            self.distanceFromBob[sourceNode] = min(
+                self.distanceFromBob[sourceNode], self.distanceFromBob[adjacentNode] + 1)
+
+        maxIncome = 0
+        if self.distanceFromBob[sourceNode] > time:  # Alice reaches the node first
+            maxIncome += amount[sourceNode]
+        elif self.distanceFromBob[sourceNode] == time:  # Alice and Bob reach the node at the same time
+            maxIncome += amount[sourceNode] // 2
+
+        # Return max income of leaf node
+        if maxChild == float("-inf"):
+            retVal = maxIncome
+        else:
+            retVal = maxIncome + maxChild
+
+        return retVal
+
+    def mostProfitablePath(self, edges: List[List[int]], bob: int, amount: List[int]) -> int:
+        retVal = 0
+
+        self.amountSize = len(amount)
+
+        self.tree = [[] for _ in range(self.amountSize)]
+        for edge in edges:
+            self.tree[edge[0]].append(edge[1])
+            self.tree[edge[1]].append(edge[0])
+
+        self.distanceFromBob = [0] * self.amountSize
+
+        retVal = self.dfs(0, 0, 0, bob, amount)
+
+        return retVal
+```
+
+</details>
+
 ## [2477. Minimum Fuel Cost to Report to the Capital](https://leetcode.com/problems/minimum-fuel-cost-to-report-to-the-capital/)  2011
 
 - [Official](https://leetcode.com/problems/minimum-fuel-cost-to-report-to-the-capital/solutions/3080167/minimum-fuel-cost-to-report-to-the-capital/)
