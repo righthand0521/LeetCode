@@ -1098,6 +1098,142 @@ class Solution:
 
 </details>
 
+## [1524. Number of Sub-arrays With Odd Sum](https://leetcode.com/problems/number-of-sub-arrays-with-odd-sum/)  1610
+
+- [Official](https://leetcode.com/problems/number-of-sub-arrays-with-odd-sum/editorial/)
+- [Official](https://leetcode.cn/problems/number-of-sub-arrays-with-odd-sum/solutions/357914/he-wei-qi-shu-de-zi-shu-zu-shu-mu-by-leetcode-solu/)
+
+<details><summary>Description</summary>
+
+```text
+Given an array of integers arr, return the number of subarrays with an odd sum.
+
+Since the answer can be very large, return it modulo 10^9 + 7.
+
+Example 1:
+Input: arr = [1,3,5]
+Output: 4
+Explanation: All subarrays are [[1],[1,3],[1,3,5],[3],[3,5],[5]]
+All sub-arrays sum are [1,4,9,3,8,5].
+Odd sums are [1,9,3,5] so the answer is 4.
+
+Example 2:
+Input: arr = [2,4,6]
+Output: 0
+Explanation: All subarrays are [[2],[2,4],[2,4,6],[4],[4,6],[6]]
+All sub-arrays sum are [2,6,12,4,10,6].
+All sub-arrays have even sum and the answer is 0.
+
+Example 3:
+Input: arr = [1,2,3,4,5,6,7]
+Output: 16
+
+Constraints:
+1 <= arr.length <= 10^5
+1 <= arr[i] <= 100
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Can we use the accumulative sum to keep track of all the odd-sum sub-arrays ?
+2. if the current accu sum is odd, we care only about previous even accu sums and vice versa.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MODULO (int)(1e9 + 7)  // Since the answer can be very large, return it modulo 10^9 + 7.
+int numOfSubarrays(int* arr, int arrSize) {
+    int retVal = 0;
+
+    int prefixSum = 0;
+    int oddCount = 0;
+    int evenCount = 1;  // evenCount starts as 1 since the initial sum (0) is even
+    for (int i = 0; i < arrSize; ++i) {
+        prefixSum += arr[i];
+        if (prefixSum % 2 == 0) {  // If current prefix sum is even, add the number of odd subarrays
+            retVal += oddCount;
+            evenCount++;
+        } else {  // If current prefix sum is odd, add the number of even subarrays
+            retVal += evenCount;
+            oddCount++;
+        }
+
+        retVal %= MODULO;  // To handle large results
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+#define MODULO (int)(1e9 + 7)  // Since the answer can be very large, return it modulo 10^9 + 7.
+   public:
+    int numOfSubarrays(vector<int>& arr) {
+        int retVal = 0;
+
+        int prefixSum = 0;
+        int oddCount = 0;
+        int evenCount = 1;  // evenCount starts as 1 since the initial sum (0) is even
+        for (int num : arr) {
+            prefixSum += num;
+            if (prefixSum % 2 == 0) {  // If current prefix sum is even, add the number of odd subarrays
+                retVal += oddCount;
+                evenCount++;
+            } else {  // If current prefix sum is odd, add the number of even subarrays
+                retVal += evenCount;
+                oddCount++;
+            }
+
+            retVal %= MODULO;  // To handle large results
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.MODULO = 10 ** 9 + 7   # Since the answer can be very large, return it modulo 10^9 + 7.
+
+    def numOfSubarrays(self, arr: List[int]) -> int:
+        retVal = 0
+
+        prefixSum = 0
+        oddCount = 0
+        evenCount = 1  # evenCount starts as 1 since the initial sum (0) is even
+        for num in arr:
+            prefixSum += num
+            if prefixSum % 2 == 0:  # If current prefix sum is even, add the number of odd subarrays
+                retVal += oddCount
+                evenCount += 1
+            else:  # If current prefix sum is odd, add the number of even subarrays
+                retVal += evenCount
+                oddCount += 1
+
+            retVal %= self.MODULO  # To handle large results
+
+        return retVal
+```
+
+</details>
+
 ## [1590. Make Sum Divisible by P](https://leetcode.com/problems/make-sum-divisible-by-p/)  2038
 
 - [Official](https://leetcode.com/problems/make-sum-divisible-by-p/editorial/)
