@@ -10156,6 +10156,169 @@ class Solution:
 
 </details>
 
+## [873. Length of Longest Fibonacci Subsequence](https://leetcode.com/problems/length-of-longest-fibonacci-subsequence/)  1911
+
+- [Official](https://leetcode.com/problems/length-of-longest-fibonacci-subsequence/editorial/)
+- [Official](https://leetcode.cn/problems/length-of-longest-fibonacci-subsequence/solutions/1654336/zui-chang-de-fei-bo-na-qi-zi-xu-lie-de-c-8trz/)
+
+<details><summary>Description</summary>
+
+```text
+A sequence x1, x2, ..., xn is Fibonacci-like if:
+- n >= 3
+- xi + xi+1 == xi+2 for all i + 2 <= n
+
+Given a strictly increasing array arr of positive integers forming a sequence,
+return the length of the longest Fibonacci-like subsequence of arr.
+If one does not exist, return 0.
+
+A subsequence is derived from another sequence arr by deleting any number of elements (including none) from arr,
+without changing the order of the remaining elements. For example, [3, 5, 8] is a subsequence of [3, 4, 5, 6, 7, 8].
+
+Example 1:
+Input: arr = [1,2,3,4,5,6,7,8]
+Output: 5
+Explanation: The longest subsequence that is fibonacci-like: [1,2,3,5,8].
+
+Example 2:
+Input: arr = [1,3,7,11,12,14,18]
+Output: 3
+Explanation: The longest subsequence that is fibonacci-like: [1,11,12], [3,11,14] or [7,11,18].
+
+Constraints:
+3 <= arr.length <= 1000
+1 <= arr[i] < arr[i + 1] <= 10^9
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int lenLongestFibSubseq(int* arr, int arrSize) {
+    int retVal = 0;
+
+    // dp[prev][curr] stores length of Fibonacci sequence ending at indexes prev,curr
+    int dp[arrSize][arrSize];
+    memset(dp, 0, sizeof(dp));
+
+    // Find all possible pairs that sum to arr[curr]
+    int curr, start, end, pairSum;
+    for (curr = 2; curr < arrSize; curr++) {
+        // Use two pointers to find pairs that sum to arr[curr]
+        start = 0;
+        end = curr - 1;
+        while (start < end) {
+            pairSum = arr[start] + arr[end];
+            if (pairSum > arr[curr]) {
+                end--;
+            } else if (pairSum < arr[curr]) {
+                start++;
+            } else {
+                // Found a valid pair, update dp
+                dp[end][curr] = dp[start][end] + 1;
+                retVal = fmax(retVal, dp[end][curr]);
+                end--;
+                start++;
+            }
+        }
+    }
+
+    // Add 2 to include first two numbers, or return 0 if no sequence found
+    if (retVal != 0) {
+        retVal += 2;
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int lenLongestFibSubseq(vector<int>& arr) {
+        int retVal = 0;
+
+        int arrSize = arr.size();
+
+        // dp[prev][curr] stores length of Fibonacci sequence ending at indexes prev,curr
+        vector<vector<int>> dp(arrSize, vector<int>(arrSize, 0));
+
+        // Find all possible pairs that sum to arr[curr]
+        for (int curr = 2; curr < arrSize; curr++) {
+            // Use two pointers to find pairs that sum to arr[curr]
+            int start = 0;
+            int end = curr - 1;
+            while (start < end) {
+                int pairSum = arr[start] + arr[end];
+                if (pairSum > arr[curr]) {
+                    end--;
+                } else if (pairSum < arr[curr]) {
+                    start++;
+                } else {
+                    // Found a valid pair, update dp
+                    dp[end][curr] = dp[start][end] + 1;
+                    retVal = max(retVal, dp[end][curr]);
+                    end--;
+                    start++;
+                }
+            }
+        }
+
+        // Add 2 to include first two numbers, or return 0 if no sequence found
+        if (retVal != 0) {
+            retVal += 2;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def lenLongestFibSubseq(self, arr: List[int]) -> int:
+        retVal = 0
+
+        arrSize = len(arr)
+
+        # dp[prev][curr] stores length of Fibonacci sequence ending at indexes prev,curr
+        dp = [[0] * arrSize for _ in range(arrSize)]
+
+        # Find all possible pairs that sum to arr[curr]
+        for curr in range(2, arrSize):
+            # Use two pointers to find pairs that sum to arr[curr]
+            start = 0
+            end = curr - 1
+            while start < end:
+                pairSum = arr[start] + arr[end]
+                if pairSum > arr[curr]:
+                    end -= 1
+                elif pairSum < arr[curr]:
+                    start += 1
+                else:  # Found a valid pair, update dp
+                    dp[end][curr] = dp[start][end] + 1
+                    retVal = max(retVal, dp[end][curr])
+                    end -= 1
+                    start += 1
+
+        # Add 2 to include first two numbers, or return 0 if no sequence found
+        if retVal != 0:
+            retVal += 2
+
+        return retVal
+```
+
+</details>
+
 ## [879. Profitable Schemes](https://leetcode.com/problems/profitable-schemes/)  2204
 
 - [Official](https://leetcode.cn/problems/profitable-schemes/solutions/819654/ying-li-ji-hua-by-leetcode-solution-3t8o/)
