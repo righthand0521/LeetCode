@@ -914,6 +914,251 @@ class Solution:
 
 </details>
 
+## [1092. Shortest Common Supersequence](https://leetcode.com/problems/shortest-common-supersequence/)  1976
+
+- [Official](https://leetcode.com/problems/shortest-common-supersequence/editorial/)
+- [Official](https://leetcode.cn/problems/shortest-common-supersequence/solutions/2193928/zui-duan-gong-gong-chao-xu-lie-by-leetco-c1tu/)
+
+<details><summary>Description</summary>
+
+```text
+Given two strings str1 and str2, return the shortest string that has both str1 and str2 as subsequences.
+If there are multiple valid strings, return any of them.
+
+A string s is a subsequence of string t
+if deleting some number of characters from t (possibly 0) results in the string s.
+
+Example 1:
+Input: str1 = "abac", str2 = "cab"
+Output: "cabac"
+Explanation:
+str1 = "abac" is a subsequence of "cabac" because we can delete the first "c".
+str2 = "cab" is a subsequence of "cabac" because we can delete the last "ac".
+The answer provided is the shortest such string that satisfies these properties.
+
+Example 2:
+Input: str1 = "aaaaaaaa", str2 = "aaaaaaaa"
+Output: "aaaaaaaa"
+
+Constraints:
+1 <= str1.length, str2.length <= 1000
+str1 and str2 consist of lowercase English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. We can find the length of the longest common subsequence
+   between str1[i:] and str2[j:] (for all (i, j)) by using dynamic programming.
+2. We can use this information to recover the shortest common supersequence.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+char* shortestCommonSupersequence(char* str1, char* str2) {
+    char* pRetVal = NULL;
+
+    int str1Size = strlen(str1);
+    int str2Size = strlen(str2);
+
+    // Initialize the base cases
+    int dp[str1Size + 1][str2Size + 1];
+    memset(dp, 0, sizeof(dp));
+    // When str2 is empty, the supersequence is str1 itself (length = row index)
+    for (int row = 0; row <= str1Size; row++) {
+        dp[row][0] = row;
+    }
+    // When str1 is empty, the supersequence is str2 itself (length = col index)
+    for (int col = 0; col <= str2Size; col++) {
+        dp[0][col] = col;
+    }
+
+    for (int row = 1; row <= str1Size; row++) {
+        for (int col = 1; col <= str2Size; col++) {
+            if (str1[row - 1] == str2[col - 1]) {  // If characters match, inherit the length from the diagonal + 1
+                dp[row][col] = dp[row - 1][col - 1] + 1;
+            } else {  // If characters do not match, take the minimum length option + 1
+                dp[row][col] = fmin(dp[row - 1][col], dp[row][col - 1]) + 1;
+            }
+        }
+    }
+
+    // Reverse the built sequence to get the correct order
+    int idx = str1Size + str2Size;
+    char buf[idx + 1];
+    memset(buf, 0, sizeof(buf));
+
+    int row = str1Size;
+    int col = str2Size;
+    while ((row > 0) && (col > 0)) {
+        if (str1[row - 1] == str2[col - 1]) {  // If characters match, take it from diagonal
+            buf[--idx] = str1[row - 1];
+            row--;
+            col--;
+        } else if (dp[row - 1][col] < dp[row][col - 1]) {  // If str1’s character is part of the retVal, move up
+            buf[--idx] = str1[row - 1];
+            row--;
+        } else {  // If str2’s character is part of the retVal, move left
+            buf[--idx] = str2[col - 1];
+            col--;
+        }
+    }
+
+    // Append any remaining characters If there are leftover characters in str1
+    while (row > 0) {
+        buf[--idx] = str1[row - 1];
+        row--;
+    }
+    // If there are leftover characters in str2
+    while (col > 0) {
+        buf[--idx] = str2[col - 1];
+        col--;
+    }
+
+    int returnSize = strlen(buf + idx) + 1;
+    pRetVal = (char*)malloc(returnSize * sizeof(char));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (returnSize * sizeof(char)));
+    memcpy(pRetVal, buf + idx, returnSize - 1);
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    string shortestCommonSupersequence(string str1, string str2) {
+        string retVal = "";
+
+        int str1Size = str1.length();
+        int str2Size = str2.length();
+
+        // Initialize the base cases
+        vector<vector<int>> dp(str1Size + 1, vector<int>(str2Size + 1, 0));
+        // When str2 is empty, the supersequence is str1 itself (length = row index)
+        for (int row = 0; row <= str1Size; row++) {
+            dp[row][0] = row;
+        }
+        // When str1 is empty, the supersequence is str2 itself (length = col index)
+        for (int col = 0; col <= str2Size; col++) {
+            dp[0][col] = col;
+        }
+
+        for (int row = 1; row <= str1Size; row++) {
+            for (int col = 1; col <= str2Size; col++) {
+                if (str1[row - 1] == str2[col - 1]) {  // If characters match, inherit the length from the diagonal + 1
+                    dp[row][col] = dp[row - 1][col - 1] + 1;
+                } else {  // If characters do not match, take the minimum length option + 1
+                    dp[row][col] = min(dp[row - 1][col], dp[row][col - 1]) + 1;
+                }
+            }
+        }
+
+        int row = str1Size;
+        int col = str2Size;
+        while (row > 0 && col > 0) {
+            if (str1[row - 1] == str2[col - 1]) {  // If characters match, take it from diagonal
+                retVal += str1[row - 1];
+                row--;
+                col--;
+            } else if (dp[row - 1][col] < dp[row][col - 1]) {  // If str1’s character is part of the retVal, move up
+                retVal += str1[row - 1];
+                row--;
+            } else {  // If str2’s character is part of the retVal, move left
+                retVal += str2[col - 1];
+                col--;
+            }
+        }
+
+        // Append any remaining characters If there are leftover characters in str1
+        while (row > 0) {
+            retVal += str1[row - 1];
+            row--;
+        }
+        // If there are leftover characters in str2
+        while (col > 0) {
+            retVal += str2[col - 1];
+            col--;
+        }
+        // Reverse the built sequence to get the correct order
+        reverse(retVal.begin(), retVal.end());
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def shortestCommonSupersequence(self, str1: str, str2: str) -> str:
+        retVal = ""
+
+        str1Size = len(str1)
+        str2Size = len(str2)
+
+        # Initialize the base cases
+        dp = [[0 for _ in range(str2Size + 1)] for _ in range(str1Size + 1)]
+        # When str2 is empty, the supersequence is str1 itself (length = row index)
+        for row in range(str1Size + 1):
+            dp[row][0] = row
+        # When str1 is empty, the supersequence is str2 itself (length = col index)
+        for col in range(str2Size + 1):
+            dp[0][col] = col
+
+        for row in range(1, str1Size + 1):
+            for col in range(1, str2Size + 1):
+                if str1[row - 1] == str2[col - 1]:  # If characters match, inherit the length from the diagonal +1
+                    dp[row][col] = dp[row - 1][col - 1] + 1
+                else:  # If characters do not match, take the minimum length option +1
+                    dp[row][col] = min(dp[row - 1][col], dp[row][col - 1]) + 1
+
+        row = str1Size
+        col = str2Size
+        while row > 0 and col > 0:
+            if str1[row - 1] == str2[col - 1]:  # If characters match, take it from diagonal
+                retVal += str1[row - 1]
+                row -= 1
+                col -= 1
+            elif dp[row - 1][col] < dp[row][col - 1]:  # If str1’s character is part of the supersequence, move up
+                retVal += str1[row - 1]
+                row -= 1
+            else:  # If str2’s character is part of the supersequence, move left
+                retVal += str2[col - 1]
+                col -= 1
+
+        # Append any remaining characters if there are leftover characters in str1
+        while row > 0:
+            retVal += str1[row - 1]
+            row -= 1
+        # If there are leftover characters in str2
+        while col > 0:
+            retVal += str2[col - 1]
+            col -= 1
+        # Reverse the built sequence to get the correct order
+        retVal = retVal[::-1]
+
+        return retVal
+```
+
+</details>
+
 ## [1105. Filling Bookcase Shelves](https://leetcode.com/problems/filling-bookcase-shelves/)  2014
 
 - [Official](https://leetcode.com/problems/filling-bookcase-shelves/editorial/)
