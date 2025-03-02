@@ -1,74 +1,41 @@
 ﻿#include <algorithm>
 #include <iostream>
-#include <map>
 #include <vector>
 
 using namespace std;
 
 class Solution {
-#define HASH_TABLE (1)
-#define SORT (1)
    public:
     vector<vector<int>> mergeArrays(vector<vector<int>>& nums1, vector<vector<int>>& nums2) {
         vector<vector<int>> retVal;
 
-#if (HASH_TABLE)
-        cout << "HASH_TABLE\n";
+        int nums1Size = nums1.size();
+        int nums2Size = nums2.size();
 
-        map<int, int> hashTable;
-        for (auto& item : nums1) {
-            hashTable[item[0]] += item[1];
-        }
-        for (auto& item : nums2) {
-            hashTable[item[0]] += item[1];
-        }
-
-        for (auto& [key, value] : hashTable) {
-            retVal.push_back({key, value});
-        }
-#elif (SORT)
-        cout << "SORT\n";
-
-        sort(nums1.begin(), nums1.end(), [&](const vector<int>& x, const vector<int>& y) { return (x[0] < y[0]); });
-        sort(nums2.begin(), nums2.end(), [&](const vector<int>& x, const vector<int>& y) { return (x[0] < y[0]); });
-
-        int len1 = nums1.size();
-        int len2 = nums2.size();
         int idx1 = 0;
         int idx2 = 0;
-        while ((idx1 < len1) && (idx2 < len2)) {
-            vector<int> iter(2);
+        while ((idx1 < nums1Size) && (idx2 < nums2Size)) {
             if (nums1[idx1][0] == nums2[idx2][0]) {
-                iter[0] = nums1[idx1][0];
-                iter[1] = nums1[idx1][1] + nums2[idx2][1];
+                retVal.push_back({nums1[idx1][0], nums1[idx1][1] + nums2[idx2][1]});
                 ++idx1;
                 ++idx2;
             } else if (nums1[idx1][0] < nums2[idx2][0]) {
-                iter[0] = nums1[idx1][0];
-                iter[1] = nums1[idx1][1];
+                retVal.push_back(nums1[idx1]);
                 ++idx1;
             } else if (nums1[idx1][0] > nums2[idx2][0]) {
-                iter[0] = nums2[idx2][0];
-                iter[1] = nums2[idx2][1];
+                retVal.push_back(nums2[idx2]);
                 ++idx2;
             }
-            retVal.push_back(iter);
         }
-        while (idx1 < len1) {
-            vector<int> iter(2);
-            iter[0] = nums1[idx1][0];
-            iter[1] = nums1[idx1][1];
-            retVal.push_back(iter);
+
+        while (idx1 < nums1Size) {
+            retVal.push_back(nums1[idx1]);
             ++idx1;
         }
-        while (idx2 < len2) {
-            vector<int> iter(2);
-            iter[0] = nums2[idx2][0];
-            iter[1] = nums2[idx2][1];
-            retVal.push_back(iter);
+        while (idx2 < nums2Size) {
+            retVal.push_back(nums2[idx2]);
             ++idx2;
         }
-#endif
 
         return retVal;
     }

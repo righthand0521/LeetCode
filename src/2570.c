@@ -2,15 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define HASH_TABLE (0)
-#define SORT (1)
-int compareIntArray(const void* a1, const void* a2) {
-    const int* p1 = *(const int**)a1;
-    const int* p2 = *(const int**)a2;
-
-    // ascending order
-    return (p1[0] > p2[0]);
-}
 /**
  * Return an array of arrays of size *returnSize.
  * The sizes of the arrays are returned as *returnColumnSizes array.
@@ -20,7 +11,6 @@ int** mergeArrays(int** nums1, int nums1Size, int* nums1ColSize, int** nums2, in
                   int* returnSize, int** returnColumnSizes) {
     int** pRetVal = NULL;
 
-    // malloc return value
     (*returnSize) = nums1Size + nums2Size;
     (*returnColumnSizes) = (int*)malloc((*returnSize) * sizeof(int));
     if ((*returnColumnSizes) == NULL) {
@@ -38,18 +28,6 @@ int** mergeArrays(int** nums1, int nums1Size, int* nums1ColSize, int** nums2, in
         return pRetVal;
     }
 
-#if (HASH_TABLE)
-    printf("HASH_TABLE\n");
-
-#elif (SORT)
-    printf("SORT\n");
-
-    // sort nums1 and nums2
-    qsort(nums1, nums1Size, sizeof(int*), compareIntArray);
-    qsort(nums2, nums2Size, sizeof(int*), compareIntArray);
-
-    // merge nums1 and nums2
-    int i;
     (*returnSize) = 0;
     int idx1 = 0;
     int idx2 = 0;
@@ -58,7 +36,7 @@ int** mergeArrays(int** nums1, int nums1Size, int* nums1ColSize, int** nums2, in
         pRetVal[(*returnSize)] = (int*)malloc(((*returnColumnSizes)[(*returnSize)]) * sizeof(int));
         if (pRetVal[(*returnSize)] == NULL) {
             perror("malloc");
-            for (i = 0; i < (*returnSize); ++i) {
+            for (int i = 0; i < (*returnSize); ++i) {
                 free(pRetVal[i]);
                 pRetVal[i] = NULL;
             }
@@ -67,6 +45,7 @@ int** mergeArrays(int** nums1, int nums1Size, int* nums1ColSize, int** nums2, in
             (*returnSize) = 0;
             return pRetVal;
         }
+
         if (nums1[idx1][0] == nums2[idx2][0]) {
             pRetVal[(*returnSize)][0] = nums1[idx1][0];
             pRetVal[(*returnSize)][1] = nums1[idx1][1] + nums2[idx2][1];
@@ -84,12 +63,13 @@ int** mergeArrays(int** nums1, int nums1Size, int* nums1ColSize, int** nums2, in
 
         ++(*returnSize);
     }
+
     while (idx1 < nums1Size) {
         (*returnColumnSizes)[(*returnSize)] = 2;
         pRetVal[(*returnSize)] = (int*)malloc(((*returnColumnSizes)[(*returnSize)]) * sizeof(int));
         if (pRetVal[(*returnSize)] == NULL) {
             perror("malloc");
-            for (i = 0; i < (*returnSize); ++i) {
+            for (int i = 0; i < (*returnSize); ++i) {
                 free(pRetVal[i]);
                 pRetVal[i] = NULL;
             }
@@ -109,7 +89,7 @@ int** mergeArrays(int** nums1, int nums1Size, int* nums1ColSize, int** nums2, in
         pRetVal[(*returnSize)] = (int*)malloc(((*returnColumnSizes)[(*returnSize)]) * sizeof(int));
         if (pRetVal[(*returnSize)] == NULL) {
             perror("malloc");
-            for (i = 0; i < (*returnSize); ++i) {
+            for (int i = 0; i < (*returnSize); ++i) {
                 free(pRetVal[i]);
                 pRetVal[i] = NULL;
             }
@@ -124,7 +104,6 @@ int** mergeArrays(int** nums1, int nums1Size, int* nums1ColSize, int** nums2, in
 
         ++(*returnSize);
     }
-#endif
 
     return pRetVal;
 }
