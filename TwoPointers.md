@@ -4155,6 +4155,187 @@ class Solution:
 
 </details>
 
+## [2161. Partition Array According to Given Pivot](https://leetcode.com/problems/partition-array-according-to-given-pivot/)  1337
+
+- [Official](https://leetcode.com/problems/partition-array-according-to-given-pivot/editorial/)
+- [Official](https://leetcode.cn/problems/partition-array-according-to-given-pivot/solutions/1249401/gen-ju-gei-ding-shu-zi-hua-fen-shu-zu-by-372i/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed integer array nums and an integer pivot.
+Rearrange nums such that the following conditions are satisfied:
+- Every element less than pivot appears before every element greater than pivot.
+- Every element equal to pivot appears in between the elements less than and greater than pivot.
+- The relative order of the elements less than pivot and the elements greater than pivot is maintained.
+  - More formally, consider every pi, pj
+    where pi is the new position of the ith element and pj is the new position of the jth element.
+    If i < j and both elements are smaller (or larger) than pivot, then pi < pj.
+
+Return nums after the rearrangement.
+
+Example 1:
+Input: nums = [9,12,5,10,14,3,10], pivot = 10
+Output: [9,5,3,10,10,12,14]
+Explanation:
+The elements 9, 5, and 3 are less than the pivot so they are on the left side of the array.
+The elements 12 and 14 are greater than the pivot so they are on the right side of the array.
+The relative ordering of the elements less than and greater than pivot is also maintained.
+[9, 5, 3] and [12, 14] are the respective orderings.
+
+Example 2:
+Input: nums = [-3,4,3,2], pivot = 2
+Output: [-3,2,4,3]
+Explanation:
+The element -3 is less than the pivot so it is on the left side of the array.
+The elements 4 and 3 are greater than the pivot so they are on the right side of the array.
+The relative ordering of the elements less than and greater than pivot is also maintained.
+[-3] and [4, 3] are the respective orderings.
+
+Constraints:
+1 <= nums.length <= 10^5
+-10^6 <= nums[i] <= 10^6
+pivot equals to an element of nums.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Could you put the elements smaller than the pivot and greater than the pivot in a separate list
+   as in the sequence that they occur?
+2. With the separate lists generated, could you then generate the result?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* pivotArray(int* nums, int numsSize, int pivot, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    int less = 0;
+    int equal = 0;
+    int greater = 0;
+    for (int i = 0; i < numsSize; ++i) {
+        if (nums[i] < pivot) {
+            equal++;
+        } else if (nums[i] == pivot) {
+            greater++;
+        }
+    }
+    greater += equal;
+
+    pRetVal = (int*)calloc(numsSize, sizeof(int));
+    if (pRetVal == NULL) {
+        perror("calloc");
+        return pRetVal;
+    }
+    for (int i = 0; i < numsSize; ++i) {
+        if (nums[i] < pivot) {
+            pRetVal[less] = nums[i];
+            less++;
+        } else if (nums[i] > pivot) {
+            pRetVal[greater] = nums[i];
+            greater++;
+        } else {
+            pRetVal[equal] = nums[i];
+            equal++;
+        }
+    }
+    (*returnSize) = numsSize;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> pivotArray(vector<int>& nums, int pivot) {
+        vector<int> retVal;
+
+        int less = 0;
+        int equal = 0;
+        int greater = 0;
+        for (int num : nums) {
+            if (num < pivot) {
+                equal++;
+            } else if (num == pivot) {
+                greater++;
+            }
+        }
+        greater += equal;
+
+        int numsSize = nums.size();
+        retVal.assign(numsSize, 0);
+        for (int num : nums) {
+            if (num < pivot) {
+                retVal[less] = num;
+                less++;
+            } else if (num > pivot) {
+                retVal[greater] = num;
+                greater++;
+            } else {
+                retVal[equal] = num;
+                equal++;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def pivotArray(self, nums: List[int], pivot: int) -> List[int]:
+        retVal = []
+
+        numsSize = len(nums)
+        retVal = [0] * numsSize
+
+        less = 0
+        equal = 0
+        greater = 0
+        for num in nums:
+            if num < pivot:
+                equal += 1
+            elif num == pivot:
+                greater += 1
+        greater += equal
+
+        for num in nums:
+            if num < pivot:
+                retVal[less] = num
+                less += 1
+            elif num > pivot:
+                retVal[greater] = num
+                greater += 1
+            else:
+                retVal[equal] = num
+                equal += 1
+
+        return retVal
+```
+
+</details>
+
 ## [2332. The Latest Time to Catch a Bus](https://leetcode.com/problems/the-latest-time-to-catch-a-bus/)  1840
 
 <details><summary>Description</summary>
