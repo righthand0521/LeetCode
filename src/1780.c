@@ -36,6 +36,16 @@ int main(int argc, char** argv) {
         int n;
     } testCase[] = {{12}, {91}, {21}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: n = 12
+     *  Output: true
+     *
+     *  Input: n = 91
+     *  Output: true
+     *
+     *  Input: n = 21
+     *  Output: false
+     */
 
     bool answer = false;
     int i;

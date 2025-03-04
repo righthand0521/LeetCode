@@ -4915,6 +4915,9 @@ class Solution:
 
 ## [1780. Check if Number is a Sum of Powers of Three](https://leetcode.com/problems/check-if-number-is-a-sum-of-powers-of-three/)  1505
 
+- [Official](https://leetcode.com/problems/check-if-number-is-a-sum-of-powers-of-three/editorial/)
+- [Official](https://leetcode.cn/problems/check-if-number-is-a-sum-of-powers-of-three/solutions/2011470/pan-duan-yi-ge-shu-zi-shi-fou-ke-yi-biao-0j5k/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -4940,6 +4943,15 @@ Output: false
 Constraints:
 1 <= n <= 10^7
 ```
+
+<details><summary>Hint</summary>
+
+```text
+1. Let's note that the maximum power of 3 you'll use in your soln is 3^16
+2. The number can not be represented as a sum of powers of 3 if it's ternary presentation has a 2 in it
+```
+
+</details>
 
 </details>
 
@@ -4972,6 +4984,54 @@ bool checkPowersOfThree(int n) {
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool checkPowersOfThree(int n) {
+        bool retVal = false;
+
+        /*  可以將 n 轉換成 3 進位
+         *  如果 n 的 3 進制表示中每一位均不為 2, 那麼答案為 True, 否則為 False.
+         *  例如, 當 n = 12 時, 12 = 110, 滿足要求; 當 n = 21 時, 21 = 210, 不滿足要求.
+         */
+        while (n > 0) {
+            if (n % 3 == 2) {  // Check if this power should be used twice
+                return retVal;
+            }
+            n /= 3;  // Divide n by 3 to move to the next greater power
+        }
+        retVal = true;  // The ternary representation of n consists only of 0s and 1s
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def checkPowersOfThree(self, n: int) -> bool:
+        retVal = False
+
+        # 可以將 n 轉換成 3 進位
+        # 如果 n 的 3 進制表示中每一位均不為 2, 那麼答案為 True, 否則為 False.
+        # 例如, 當 n = 12 時, 12 = 110, 滿足要求; 當 n = 21 時, 21 = 210, 不滿足要求.
+        while n > 0:
+            if n % 3 == 2:  # Check if this power should be used twice
+                return retVal
+            n //= 3  # Divide n by 3 to move to the next greater power
+        retVal = True  # The ternary representation of n consists only of 0s and 1s
+
+        return retVal
 ```
 
 </details>
