@@ -6895,6 +6895,110 @@ impl Solution {
 
 </details>
 
+## [2579. Count Total Number of Colored Cells](https://leetcode.com/problems/count-total-number-of-colored-cells/)  1356
+
+- [Official](https://leetcode.com/problems/count-total-number-of-colored-cells/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+There exists an infinitely large two-dimensional grid of uncolored unit cells.
+You are given a positive integer n, indicating that you must do the following routine for n minutes:
+- At the first minute, color any arbitrary unit cell blue.
+- Every minute thereafter, color blue every uncolored cell that touches a blue cell.
+
+Below is a pictorial representation of the state of the grid after minutes 1, 2, and 3.
+                  3
+       2        3 2 3
+1 -> 2 1 2 -> 3 2 1 2 3
+       2        3 2 3
+                  3
+Return the number of colored cells at the end of n minutes.
+
+Example 1:
+Input: n = 1
+Output: 1
+Explanation: After 1 minute, there is only 1 blue cell, so we return 1.
+
+Example 2:
+Input: n = 2
+Output: 5
+Explanation: After 2 minutes, there are 4 colored cells on the boundary and 1 in the center, so we return 5.
+
+Constraints:
+1 <= n <= 10^5
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Derive a mathematical relation between total number of colored cells and the time elapsed in minutes.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+long long coloredCells(int n) {
+    long long retVal = 0;
+
+    /*    1 + (4×1) + (4×2) + ... + (4×(n−1))
+     *  = 1 + 4 x (1 + 2 + ... + (n-1))
+     *  = 1 + 4 x (n x (n-1) / 2)
+     *  = 1 + 2 x n x (n-1)
+     */
+    retVal = 1 + (long long)(2) * (long long)(n) * (long long)(n - 1);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    long long coloredCells(int n) {
+        long long retVal = 0;
+
+        /*    1 + (4×1) + (4×2) + ... + (4×(n−1))
+         *  = 1 + 4 x (1 + 2 + ... + (n-1))
+         *  = 1 + 4 x (n x (n-1) / 2)
+         *  = 1 + 2 x n x (n-1)
+         */
+        retVal = 1 + (long long)(2) * (long long)(n) * (long long)(n - 1);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def coloredCells(self, n: int) -> int:
+        retVal = 0
+
+        # /*    1 + (4×1) + (4×2) + ... + (4×(n−1))
+        #  *  = 1 + 4 x (1 + 2 + ... + (n-1))
+        #  *  = 1 + 4 x (n x (n-1) / 2)
+        #  *  = 1 + 2 x n x (n-1)
+        #  */
+        retVal = 1 + 2 * n * (n - 1)
+
+        return retVal
+```
+
+</details>
+
 ## [2582. Pass the Pillow](https://leetcode.com/problems/pass-the-pillow/)  1278
 
 - [Official](https://leetcode.com/problems/pass-the-pillow/editorial/)
