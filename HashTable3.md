@@ -4536,6 +4536,147 @@ class Solution:
 
 </details>
 
+## [2965. Find Missing and Repeated Values](https://leetcode.com/problems/find-missing-and-repeated-values/)  1244
+
+- [Official](https://leetcode.com/problems/find-missing-and-repeated-values/editorial/)
+- [Official](https://leetcode.cn/problems/find-missing-and-repeated-values/solutions/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed 2D integer matrix grid of size n * n with values in the range [1, n2].
+Each integer appears exactly once except a which appears twice and b which is missing.
+The task is to find the repeating and missing numbers a and b.
+
+Return a 0-indexed integer array ans of size 2 where ans[0] equals to a and ans[1] equals to b.
+
+Example 1:
+Input: grid = [[1,3],[2,2]]
+Output: [2,4]
+Explanation: Number 2 is repeated and number 4 is missing so the answer is [2,4].
+
+Example 2:
+Input: grid = [[9,1,7],[8,9,2],[3,4,6]]
+Output: [9,5]
+Explanation: Number 9 is repeated and number 5 is missing so the answer is [9,5].
+
+Constraints:
+2 <= n == grid.length == grid[i].length <= 50
+1 <= grid[i][j] <= n * n
+For all x that 1 <= x <= n * n there is exactly one x that is not equal to any of the grid members.
+For all x that 1 <= x <= n * n there is exactly one x that is equal to exactly two of the grid members.
+For all x that 1 <= x <= n * n except two of them
+there is exatly one pair of i, j that 0 <= i, j <= n - 1 and grid[i][j] == x.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* findMissingAndRepeatedValues(int** grid, int gridSize, int* gridColSize, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    pRetVal = (int*)calloc(2, sizeof(int));
+    if (pRetVal == NULL) {
+        perror("calloc");
+        return pRetVal;
+    }
+
+    // Store frequency of each number in the grid
+    int freqSize = gridSize * gridSize + 1;  // 1 <= grid[i][j] <= n * n
+    int freq[freqSize];
+    memset(freq, 0, sizeof(freq));
+    for (int i = 0; i < gridSize; ++i) {
+        for (int j = 0; j < gridColSize[i]; ++j) {
+            freq[grid[i][j]]++;
+        }
+    }
+
+    // Check numbers from 1 to n^2 to find missing and repeated values
+    for (int num = 1; num <= gridSize * gridSize; num++) {
+        if (freq[num] == 0) {
+            pRetVal[1] = num;
+        } else if (freq[num] == 2) {
+            pRetVal[0] = num;
+        }
+    }
+    (*returnSize) = 2;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> findMissingAndRepeatedValues(vector<vector<int>>& grid) {
+        vector<int> retVal(2, 0);
+
+        // Store frequency of each number in the grid
+        unordered_map<int, int> freq;
+        for (auto& row : grid) {
+            for (int num : row) {
+                freq[num]++;
+            }
+        }
+
+        // Check numbers from 1 to n^2 to find missing and repeated values
+        int missing = -1;
+        int repeat = -1;
+        int gridSize = grid.size();
+        for (int num = 1; num <= gridSize * gridSize; num++) {
+            if (freq.count(num) == 0) {
+                missing = num;
+            } else if (freq[num] == 2) {
+                repeat = num;
+            }
+        }
+        retVal = {repeat, missing};
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def findMissingAndRepeatedValues(self, grid: List[List[int]]) -> List[int]:
+        retVal = []
+
+        # Store frequency of each number in the grid
+        freq = {}
+        for row in grid:
+            for num in row:
+                freq[num] = freq.get(num, 0) + 1
+
+        # Check numbers from 1 to n^2 to find missing and repeated values
+        gridSize = len(grid)
+        for num in range(1, gridSize * gridSize + 1):
+            if num not in freq:
+                missing = num
+            elif freq[num] == 2:
+                repeat = num
+        retVal = [repeat, missing]
+
+        return retVal
+```
+
+</details>
+
 ## [2981. Find Longest Special Substring That Occurs Thrice I](https://leetcode.com/problems/find-longest-special-substring-that-occurs-thrice-i/)  1505
 
 - [Official](https://leetcode.com/problems/find-longest-special-substring-that-occurs-thrice-i/editorial/)
