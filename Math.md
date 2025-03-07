@@ -6732,6 +6732,242 @@ class Solution:
 
 </details>
 
+## [2523. Closest Prime Numbers in Range](https://leetcode.com/problems/closest-prime-numbers-in-range/)  1649
+
+- [Official](https://leetcode.com/problems/closest-prime-numbers-in-range/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+Given two positive integers left and right, find the two integers num1 and num2 such that:
+- left <= num1 < num2 <= right .
+- Both num1 and num2 are prime numbers.
+- num2 - num1 is the minimum amongst all other pairs satisfying the above conditions.
+
+Return the positive integer array ans = [num1, num2]. If there are multiple pairs satisfying these conditions,
+return the one with the smallest num1 value. If no such numbers exist, return [-1, -1].
+
+Example 1:
+Input: left = 10, right = 19
+Output: [11,13]
+Explanation: The prime numbers between 10 and 19 are 11, 13, 17, and 19.
+The closest gap between any pair is 2, which can be achieved by [11,13] or [17,19].
+Since 11 is smaller than 17, we return the first pair.
+
+Example 2:
+Input: left = 4, right = 6
+Output: [-1,-1]
+Explanation: There exists only one prime number in the given range, so the conditions cannot be satisfied.
+
+Constraints:
+1 <= left <= right <= 10^6
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use Sieve of Eratosthenes to mark numbers that are primes.
+2. Iterate from right to left and find pair with the minimum distance between marked numbers.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define NOT_PRIME (1)
+void sieve(int upperLimit, int* sieveArray) {
+    // 0 and 1 are not prime
+    sieveArray[0] = NOT_PRIME;
+    sieveArray[1] = NOT_PRIME;
+
+    for (int number = 2; number * number <= upperLimit; number++) {
+        if (sieveArray[number] == NOT_PRIME) {
+            continue;
+        }
+
+        // Mark all multiples of 'number' as non-prime
+        for (int multiple = number * number; multiple <= upperLimit; multiple += number) {
+            sieveArray[multiple] = NOT_PRIME;
+        }
+    }
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* closestPrimes(int left, int right, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    pRetVal = (int*)calloc(2, sizeof(int));
+    if (pRetVal == NULL) {
+        perror("calloc");
+        return pRetVal;
+    }
+    pRetVal[0] = -1;
+    pRetVal[1] = -1;
+    (*returnSize) = 2;
+
+    // Step 1: Get all prime numbers up to 'right' using sieve
+    int upperLimit = right;
+    int* sieveArray = (int*)calloc((upperLimit + 1), sizeof(int));
+    if (sieveArray == NULL) {
+        perror("calloc");
+        return pRetVal;
+    }
+    sieve(upperLimit, sieveArray);
+
+    int primeNumbersSize = 0;
+    int primeNumbers[right - left + 1];  // Store all primes in the range [left, right]
+    memset(primeNumbers, 0, sizeof(primeNumbers));
+    for (int num = left; num <= right; num++) {
+        // If number is prime add to the primeNumbers list
+        if (sieveArray[num] != NOT_PRIME) {
+            primeNumbers[primeNumbersSize++] = num;
+        }
+    }
+
+    // Step 2: Find the closest prime pair
+    if (primeNumbersSize < 2) {
+        free(sieveArray);
+        sieveArray = NULL;
+        return pRetVal;
+    }
+
+    int minDifference = INT_MAX;
+    for (int index = 1; index < primeNumbersSize; index++) {
+        int difference = primeNumbers[index] - primeNumbers[index - 1];
+        if (difference < minDifference) {
+            minDifference = difference;
+            pRetVal[0] = primeNumbers[index - 1];
+            pRetVal[1] = primeNumbers[index];
+        }
+    }
+
+    //
+    free(sieveArray);
+    sieveArray = NULL;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    vector<int> sieve(int upperLimit) {
+        vector<int> retVal(upperLimit + 1, 1);  // Initiate an int array to mark prime numbers
+
+        // 0 and 1 are not prime
+        retVal[0] = 0;
+        retVal[1] = 0;
+        for (int number = 2; number * number <= upperLimit; number++) {
+            if (retVal[number] == 0) {
+                continue;
+            }
+
+            // Mark all multiples of 'number' as non-prime
+            for (int multiple = number * number; multiple <= upperLimit; multiple += number) {
+                retVal[multiple] = 0;
+            }
+        }
+
+        return retVal;
+    }
+
+   public:
+    vector<int> closestPrimes(int left, int right) {
+        vector<int> retVal(2, -1);
+
+        // Step 1: Get all prime numbers up to 'right' using sieve
+        int upperLimit = right;
+        vector<int> sieveArray = sieve(upperLimit);
+
+        vector<int> primeNumbers;  // Store all primes in the range [left, right]
+        for (int num = left; num <= right; num++) {
+            // If number is prime add to the primeNumbers list
+            if (sieveArray[num] == 1) {
+                primeNumbers.push_back(num);
+            }
+        }
+        int primeNumbersSize = primeNumbers.size();
+
+        // Step 2: Find the closest prime pair
+        if (primeNumbersSize < 2) {
+            return retVal;
+        }
+
+        int minDifference = numeric_limits<int>::max();
+        for (int index = 1; index < primeNumbersSize; index++) {
+            int difference = primeNumbers[index] - primeNumbers[index - 1];
+            if (difference < minDifference) {
+                minDifference = difference;
+                retVal[0] = primeNumbers[index - 1];
+                retVal[1] = primeNumbers[index];
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def sieve(self, upperLimit):
+        retVal = [True] * (upperLimit + 1)  # True = prime, False = not prime
+
+        # 0 and 1 are not prime
+        retVal[0] = False
+        retVal[1] = False
+
+        for number in range(2, int(upperLimit**0.5) + 1):
+            if retVal[number] == False:
+                continue
+            for multiple in range(number * number, upperLimit + 1, number):
+                retVal[multiple] = False  # Mark all multiples of 'number' as non-prime
+
+        return retVal
+
+    def closestPrimes(self, left: int, right: int) -> List[int]:
+        retVal = [-1] * 2
+
+        # Step 1: Get all prime numbers up to 'right' using sieve
+        sieveArray = self.sieve(right)
+        primeNumbers = []
+        for num in range(left, right + 1):
+            if sieveArray[num] == True:
+                primeNumbers.append(num)
+
+        # Step 2: Find the closest prime pair
+        primeNumbersSize = len(primeNumbers)
+        if primeNumbersSize < 2:
+            return retVal  # Less than two primes
+
+        minDifference = float("inf")
+        for index in range(1, primeNumbersSize):
+            difference = primeNumbers[index] - primeNumbers[index - 1]
+            if difference < minDifference:
+                minDifference = difference
+                retVal[0] = primeNumbers[index - 1]
+                retVal[1] = primeNumbers[index]
+
+        return retVal
+```
+
+</details>
+
 ## [2544. Alternating Digit Sum](https://leetcode.com/problems/alternating-digit-sum/)  1184
 
 <details><summary>Description</summary>
