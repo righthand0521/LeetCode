@@ -3126,3 +3126,163 @@ class Solution:
 ```
 
 </details>
+
+## [3208. Alternating Groups II](https://leetcode.com/problems/alternating-groups-ii/)  1721
+
+- [Official](https://leetcode.com/problems/alternating-groups-ii/editorial/)
+- [Official](https://leetcode.cn/problems/alternating-groups-ii/solutions/2986846/jiao-ti-zu-ii-by-leetcode-solution-7912/)
+
+<details><summary>Description</summary>
+
+```text
+There is a circle of red and blue tiles. You are given an array of integers colors and an integer k.
+The color of tile i is represented by colors[i]:
+- colors[i] == 0 means that tile i is red.
+- colors[i] == 1 means that tile i is blue.
+
+An alternating group is every k contiguous tiles in the circle with alternating colors
+(each tile in the group except the first and last one has a different color from its left and right tiles).
+
+Return the number of alternating groups.
+
+Note that since colors represents a circle, the first and the last tiles are considered to be next to each other.
+
+Example 1:
+Input: colors = [0,1,0,1,0], k = 3
+Output: 3
+
+Example 2:
+Input: colors = [0,1,0,0,1,0,1], k = 6
+Output: 2
+
+Example 3:
+Input: colors = [1,1,0,1], k = 4
+Output: 0
+
+Constraints:
+3 <= colors.length <= 10^5
+0 <= colors[i] <= 1
+3 <= k <= colors.length
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Try to find a tile that has the same color as its next tile (if it exists).
+2. Then try to find maximal alternating groups by starting a single for loop from that tile.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int numberOfAlternatingGroups(int* colors, int colorsSize, int k) {
+    int retVal = 0;
+
+    int index;
+    int alternatingElementsCount = 1;
+    int lastColor = colors[0];
+    for (int i = 1; i < colorsSize + k - 1; i++) {
+        index = i % colorsSize;
+
+        // Check if current color is the same as last color
+        if (colors[index] == lastColor) {
+            // Pattern breaks, reset sequence length
+            alternatingElementsCount = 1;
+            lastColor = colors[index];
+            continue;
+        }
+
+        // Extend alternating sequence
+        alternatingElementsCount += 1;
+
+        // If sequence length reaches at least k, count it
+        if (alternatingElementsCount >= k) {
+            retVal++;
+        }
+
+        lastColor = colors[index];
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int numberOfAlternatingGroups(vector<int>& colors, int k) {
+        int retVal = 0;
+
+        int colorsSize = colors.size();
+        int alternatingElementsCount = 1;
+        int lastColor = colors[0];
+        for (int i = 1; i < colorsSize + k - 1; i++) {
+            int index = i % colorsSize;
+
+            // Check if current color is the same as last color
+            if (colors[index] == lastColor) {
+                // Pattern breaks, reset sequence length
+                alternatingElementsCount = 1;
+                lastColor = colors[index];
+                continue;
+            }
+
+            // Extend alternating sequence
+            alternatingElementsCount += 1;
+
+            // If sequence length reaches at least k, count it
+            if (alternatingElementsCount >= k) {
+                retVal++;
+            }
+
+            lastColor = colors[index];
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def numberOfAlternatingGroups(self, colors: List[int], k: int) -> int:
+        retVal = 0
+
+        colorsSize = len(colors)
+        alternatingElementsCount = 1
+        lastColor = colors[0]
+        for i in range(1, colorsSize + k - 1):
+            index = i % colorsSize
+
+            # Check if current color is the same as the last color
+            if colors[index] == lastColor:
+                # Pattern breaks, reset sequence length
+                alternatingElementsCount = 1
+                lastColor = colors[index]
+                continue
+
+            # Extend sequence
+            alternatingElementsCount += 1
+
+            # If sequence length reaches at least k, count it
+            if alternatingElementsCount >= k:
+                retVal += 1
+
+            lastColor = colors[index]
+
+        return retVal
+```
+
+</details>
