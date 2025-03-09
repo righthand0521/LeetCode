@@ -32,6 +32,13 @@
 
 </details>
 
+<details><summary>Alternating Groups</summary>
+
+- [3206. Alternating Groups I](https://leetcode.com/problems/alternating-groups-i/)
+- [3208. Alternating Groups II](https://leetcode.com/problems/alternating-groups-ii/)
+
+</details>
+
 ## Backtracking
 
 <details><summary>Combination Sum</summary>
