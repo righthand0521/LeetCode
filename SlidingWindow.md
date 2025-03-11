@@ -3169,6 +3169,124 @@ class Solution:
 
 </details>
 
+## [1358. Number of Substrings Containing All Three Characters](https://leetcode.com/problems/number-of-substrings-containing-all-three-characters/)  1646
+
+- [Official](https://leetcode.com/problems/number-of-substrings-containing-all-three-characters/editorial/)
+- [Official](https://leetcode.cn/problems/number-of-substrings-containing-all-three-characters/solutions/109170/bao-han-suo-you-san-chong-zi-fu-de-zi-zi-fu-chuan-/)
+
+<details><summary>Description</summary>
+
+```text
+Given a string s consisting only of characters a, b and c.
+
+Return the number of substrings containing at least one occurrence of all these characters a, b and c.
+
+Example 1:
+Input: s = "abcabc"
+Output: 10
+Explanation: The substrings containing at least one occurrence of
+the characters a, b and c are "abc", "abca", "abcab", "abcabc", "bca", "bcab", "bcabc", "cab", "cabc" and "abc" (again).
+
+Example 2:
+Input: s = "aaacb"
+Output: 3
+Explanation: The substrings containing at least one occurrence of
+the characters a, b and c are "aaacb", "aacb" and "acb".
+
+Example 3:
+Input: s = "abc"
+Output: 1
+
+Constraints:
+3 <= s.length <= 5 x 10^4
+s only consists of a, b or c characters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. For each position we simply need to find the first occurrence of a/b/c on or after this position.
+2. So we can pre-compute three link-list of indices of each a, b, and c.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int numberOfSubstrings(char* s) {
+    int retVal = 0;
+
+    int lastPos[3] = {-1, -1, -1};  // Track last position of a, b, c
+    int sSize = strlen(s);
+    for (int pos = 0; pos < sSize; pos++) {
+        // Update last position of current character
+        lastPos[s[pos] - 'a'] = pos;
+
+        // Add count of valid substrings ending at current position
+        // If any character is missing, min will be -1
+        // Else min gives leftmost required character position
+        retVal += 1 + fmin(lastPos[0], fmin(lastPos[1], lastPos[2]));
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int numberOfSubstrings(string s) {
+        int retVal = 0;
+
+        vector<int> lastPos = {-1, -1, -1};  // Track last position of a, b, c
+        int sSize = s.length();
+        for (int pos = 0; pos < sSize; pos++) {
+            // Update last position of current character
+            lastPos[s[pos] - 'a'] = pos;
+
+            // Add count of valid substrings ending at current position
+            // If any character is missing, min will be -1
+            // Else min gives leftmost required character position
+            retVal += 1 + min({lastPos[0], lastPos[1], lastPos[2]});
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def numberOfSubstrings(self, s: str) -> int:
+        retVal = 0
+
+        lastPos = [-1] * 3  # Track last position of a, b, c
+        sSize = len(s)
+        for pos in range(sSize):
+            # Update last position of current character
+            lastPos[ord(s[pos]) - ord("a")] = pos
+
+            # Add count of valid substrings ending at current position
+            # If any character is missing, min will be -1
+            # Else min gives leftmost required character position
+            retVal += 1 + min(lastPos)
+
+        return retVal
+```
+
+</details>
+
 ## [1493. Longest Subarray of 1's After Deleting One Element](https://leetcode.com/problems/longest-subarray-of-1s-after-deleting-one-element/)  1423
 
 - [Official](https://leetcode.com/problems/longest-subarray-of-1s-after-deleting-one-element/editorial/)
