@@ -2391,6 +2391,9 @@ class Solution:
 
 ## [2529. Maximum Count of Positive Integer and Negative Integer](https://leetcode.com/problems/maximum-count-of-positive-integer-and-negative-integer/)  1195
 
+- [Official](https://leetcode.com/problems/maximum-count-of-positive-integer-and-negative-integer/editorial/)
+- [Official](https://leetcode.cn/problems/maximum-count-of-positive-integer-and-negative-integer/solutions/2726974/zheng-zheng-shu-he-fu-zheng-shu-de-zui-d-psye/)
+
 <details><summary>Description</summary>
 
 ```text
