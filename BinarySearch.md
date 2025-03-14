@@ -6177,6 +6177,7 @@ class Solution:
 
 ## [2226. Maximum Candies Allocated to K Children](https://leetcode.com/problems/maximum-candies-allocated-to-k-children/)  1646
 
+- [Official](https://leetcode.com/problems/maximum-candies-allocated-to-k-children/editorial/)
 - [Official](https://leetcode.cn/problems/maximum-candies-allocated-to-k-children/solutions/1398462/mei-ge-xiao-hai-zui-duo-neng-fen-dao-duo-2717/)
 
 <details><summary>Description</summary>
