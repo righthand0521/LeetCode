@@ -7274,6 +7274,178 @@ class Solution:
 
 </details>
 
+## [2560. House Robber IV](https://leetcode.com/problems/house-robber-iv/)  2081
+
+- [Official](https://leetcode.com/problems/house-robber-iv/editorial/)
+- [Official](https://leetcode.cn/problems/house-robber-iv/solutions/2441849/da-jia-jie-she-iv-by-leetcode-solution-n93j/)
+
+<details><summary>Description</summary>
+
+```text
+There are several consecutive houses along a street, each of which has some money inside.
+There is also a robber, who wants to steal money from the homes, but he refuses to steal from adjacent homes.
+
+The capability of the robber is the maximum amount of money he steals from one house of all the houses he robbed.
+
+You are given an integer array nums representing how much money is stashed in each house.
+More formally, the ith house from the left has nums[i] dollars.
+
+You are also given an integer k, representing the minimum number of houses the robber will steal from.
+It is always possible to steal at least k houses.
+
+Return the minimum capability of the robber out of all the possible ways to steal at least k houses.
+
+Example 1:
+Input: nums = [2,3,5,9], k = 2
+Output: 5
+Explanation:
+There are three ways to rob at least 2 houses:
+- Rob the houses at indices 0 and 2. Capability is max(nums[0], nums[2]) = 5.
+- Rob the houses at indices 0 and 3. Capability is max(nums[0], nums[3]) = 9.
+- Rob the houses at indices 1 and 3. Capability is max(nums[1], nums[3]) = 9.
+Therefore, we return min(5, 9, 9) = 5.
+
+Example 2:
+Input: nums = [2,7,9,3,1], k = 2
+Output: 2
+Explanation:
+There are 7 ways to rob the houses. The way which leads to minimum capability is to rob the house at index 0 and 4.
+Return max(nums[0], nums[4]) = 2.
+
+Constraints:
+1 <= nums.length <= 10^5
+1 <= nums[i] <= 10^9
+1 <= k <= (nums.length + 1)/2
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Can we use binary search to find the minimum value of a non-contiguous subsequence of a given size k?
+2. Initialize the search range with the minimum and maximum elements of the input array.
+3. Use a check function to determine if it is possible to select k non-consecutive elements
+   that are less than or equal to the current "guess" value.
+4. Adjust the search range based on the outcome of the check function,
+   until the range converges and the minimum value is found.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int minCapability(int* nums, int numsSize, int k) {
+    int retVal = 0;
+
+    int maxNum = nums[0];
+    for (int i = 1; i < numsSize; ++i) {
+        if (nums[i] > maxNum) {
+            maxNum = nums[i];
+        }
+    }
+
+    int possibleThefts;
+    int totalHouses = numsSize;
+    int middle;
+    int left = 1;
+    int right = maxNum;
+    while (left < right) {
+        middle = (left + right) / 2;
+        possibleThefts = 0;
+
+        for (int index = 0; index < totalHouses; ++index) {
+            if (nums[index] <= middle) {
+                possibleThefts += 1;
+                index++;  // Skip the next house to maintain the non-adjacent condition
+            }
+        }
+
+        if (possibleThefts >= k) {
+            right = middle;
+        } else {
+            left = middle + 1;
+        }
+    }
+    retVal = left;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minCapability(vector<int>& nums, int k) {
+        int retVal = 0;
+
+        int totalHouses = nums.size();
+        int left = 1;
+        int right = *max_element(nums.begin(), nums.end());
+        while (left < right) {
+            int middle = (left + right) / 2;
+            int possibleThefts = 0;
+
+            for (int index = 0; index < totalHouses; ++index) {
+                if (nums[index] <= middle) {
+                    possibleThefts += 1;
+                    index++;  // Skip the next house to maintain the non-adjacent condition
+                }
+            }
+
+            if (possibleThefts >= k) {
+                right = middle;
+            } else {
+                left = middle + 1;
+            }
+        }
+        retVal = left;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minCapability(self, nums: List[int], k: int) -> int:
+        retVal = 0
+
+        totalHouses = len(nums)
+        left = 1
+        right = max(nums)
+        while left < right:
+            middle = (left + right) // 2
+            possibleThefts = 0
+
+            index = 0
+            while index < totalHouses:
+                if nums[index] <= middle:
+                    possibleThefts += 1
+                    index += 2  # Skip the next house to maintain the non-adjacent condition
+                else:
+                    index += 1
+
+            if possibleThefts >= k:
+                right = middle
+            else:
+                left = middle + 1
+        retVal = left
+
+        return retVal
+```
+
+</details>
+
 ## [2616. Minimize the Maximum Difference of Pairs](https://leetcode.com/problems/minimize-the-maximum-difference-of-pairs/)  2155
 
 - [Official](https://leetcode.com/problems/minimize-the-maximum-difference-of-pairs/editorial/)
