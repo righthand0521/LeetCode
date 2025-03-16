@@ -3336,6 +3336,8 @@ class Solution:
 
 ## [213. House Robber II](https://leetcode.com/problems/house-robber-ii/)
 
+- [Official](https://leetcode.cn/problems/house-robber-ii/solutions/722767/da-jia-jie-she-ii-by-leetcode-solution-bwja/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -3369,22 +3371,31 @@ Constraints:
 0 <= nums[i] <= 1000
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. Since House[1] and House[n] are adjacent, they cannot be robbed together.
+   Therefore, the problem becomes to rob either House[1]-House[n-1] or House[2]-House[n],
+   depending on which choice offers more money.
+   Now the problem has degenerated to the House Robber, which is already been solved.
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
 
 ```c
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
 int robHouse(int* nums, int start, int end) {
     int retVal = 0;
 
     int first = nums[start];
-    int second = MAX(nums[start], nums[start + 1]);
+    int second = fmax(nums[start], nums[start + 1]);
     int temp;
-    int i;
-    for (i = start + 2; i < end; ++i) {
+    for (int i = start + 2; i < end; ++i) {
         temp = second;
-        second = MAX(first + nums[i], second);
+        second = fmax(first + nums[i], second);
         first = temp;
     }
     retVal = second;
@@ -3396,18 +3407,92 @@ int rob(int* nums, int numsSize) {
 
     if (numsSize == 1) {
         retVal = nums[0];
-        return retVal;
     } else if (numsSize == 2) {
-        retVal = MAX(nums[0], nums[1]);
-        return retVal;
+        retVal = fmax(nums[0], nums[1]);
+    } else {
+        int robStartFirst = robHouse(nums, 0, numsSize - 1);
+        int robStartSecond = robHouse(nums, 1, numsSize);
+        retVal = fmax(robStartFirst, robStartSecond);
     }
-
-    int robStartFirst = robHouse(nums, 0, numsSize - 1);
-    int robStartSecond = robHouse(nums, 1, numsSize);
-    retVal = MAX(robStartFirst, robStartSecond);
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int robHouse(vector<int>& nums, int start, int end) {
+        int retVal = 0;
+
+        int first = nums[start];
+        int second = max(nums[start], nums[start + 1]);
+        int temp;
+        for (int i = start + 2; i < end; ++i) {
+            temp = second;
+            second = max(first + nums[i], second);
+            first = temp;
+        }
+        retVal = second;
+
+        return retVal;
+    }
+
+   public:
+    int rob(vector<int>& nums) {
+        int retVal = 0;
+
+        int numsSize = nums.size();
+        if (numsSize == 1) {
+            retVal = nums[0];
+        } else if (numsSize == 2) {
+            retVal = max(nums[0], nums[1]);
+        } else {
+            int robStartFirst = robHouse(nums, 0, numsSize - 1);
+            int robStartSecond = robHouse(nums, 1, numsSize);
+            retVal = max(robStartFirst, robStartSecond);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def robHouse(self, nums: List[int], start: int, end: int) -> int:
+        retVal = 0
+
+        first = nums[start]
+        second = max(nums[start], nums[start + 1])
+        for i in range(start + 2, end):
+            first, second = second, max(first + nums[i], second)
+        retVal = second
+
+        return retVal
+
+    def rob(self, nums: List[int]) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+        if numsSize == 1:
+            retVal = nums[0]
+        elif numsSize == 2:
+            retVal = max(nums[0], nums[1])
+        else:
+            robStartFirst = self.robHouse(nums, 0, numsSize - 1)
+            robStartSecond = self.robHouse(nums, 1, numsSize)
+            retVal = max(robStartFirst, robStartSecond)
+
+        return retVal
 ```
 
 </details>

@@ -276,6 +276,13 @@
 
 </details>
 
+<details><summary>House Robber</summary>
+
+- [198. House Robber](https://leetcode.com/problems/house-robber/)
+- [213. House Robber II](https://leetcode.com/problems/house-robber-ii/)
+
+</details>
+
 ## Graph
 
 <details><summary>Topological Sort</summary>

@@ -1,18 +1,17 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
 int robHouse(int* nums, int start, int end) {
     int retVal = 0;
 
     int first = nums[start];
-    int second = MAX(nums[start], nums[start + 1]);
+    int second = fmax(nums[start], nums[start + 1]);
     int temp;
-    int i;
-    for (i = start + 2; i < end; ++i) {
+    for (int i = start + 2; i < end; ++i) {
         temp = second;
-        second = MAX(first + nums[i], second);
+        second = fmax(first + nums[i], second);
         first = temp;
     }
     retVal = second;
@@ -24,15 +23,13 @@ int rob(int* nums, int numsSize) {
 
     if (numsSize == 1) {
         retVal = nums[0];
-        return retVal;
     } else if (numsSize == 2) {
-        retVal = MAX(nums[0], nums[1]);
-        return retVal;
+        retVal = fmax(nums[0], nums[1]);
+    } else {
+        int robStartFirst = robHouse(nums, 0, numsSize - 1);
+        int robStartSecond = robHouse(nums, 1, numsSize);
+        retVal = fmax(robStartFirst, robStartSecond);
     }
-
-    int robStartFirst = robHouse(nums, 0, numsSize - 1);
-    int robStartSecond = robHouse(nums, 1, numsSize);
-    retVal = MAX(robStartFirst, robStartSecond);
 
     return retVal;
 }
@@ -44,6 +41,16 @@ int main(int argc, char** argv) {
         int numsSize;
     } testCase[] = {{{2, 3, 2}, 3}, {{1, 2, 3, 1}, 4}, {{1, 2, 3}, 3}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: nums = [2,3,2]
+     *  Output: 3
+     *
+     *  Input: nums = [1,2,3,1]
+     *  Output: 4
+     *
+     *  Input: nums = [1,2,3]
+     *  Output: 3
+     */
 
     int answer;
     int i, j;

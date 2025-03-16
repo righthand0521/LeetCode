@@ -21,23 +21,29 @@ def logging_setting():
 
 
 class Solution:
+    def robHouse(self, nums: List[int], start: int, end: int) -> int:
+        retVal = 0
+
+        first = nums[start]
+        second = max(nums[start], nums[start + 1])
+        for i in range(start + 2, end):
+            first, second = second, max(first + nums[i], second)
+        retVal = second
+
+        return retVal
+
     def rob(self, nums: List[int]) -> int:
         retVal = 0
 
         numsSize = len(nums)
-        if numsSize == 0:
-            return retVal
-        elif numsSize == 1:
+        if numsSize == 1:
             retVal = nums[0]
-            return retVal
-
-        first = nums[0]
-        second = max(nums[0], nums[1])
-        for i in range(2, numsSize):
-            temp = second
-            second = max(first + nums[i], second)
-            first = temp
-        retVal = second
+        elif numsSize == 2:
+            retVal = max(nums[0], nums[1])
+        else:
+            robStartFirst = self.robHouse(nums, 0, numsSize - 1)
+            robStartSecond = self.robHouse(nums, 1, numsSize)
+            retVal = max(robStartFirst, robStartSecond)
 
         return retVal
 
@@ -50,19 +56,16 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for nums in [[1, 2, 3, 1], [2, 7, 9, 3, 1], [2, 1], [2, 1, 1, 2]]:
+        for nums in [[2, 3, 2], [1, 2, 3, 1], [1, 2, 3]]:
             # /* Example
+            #  *  Input: nums = [2,3,2]
+            #  *  Output: 3
+            #  *
             #  *  Input: nums = [1,2,3,1]
             #  *  Output: 4
             #  *
-            #  *  Input: nums = [2,7,9,3,1]
-            #  *  Output: 12
-            #  *
-            #  *  Input: nums = [2, 1]
-            #  *  Output: 2
-            #  *
-            #  *  Input: nums = [2, 1, 1, 2]
-            #  *  Output: 4
+            #  *  Input: nums = [1,2,3]
+            #  *  Output: 3
             #  */
             logging.info("Input: nums = %s", nums)
 
