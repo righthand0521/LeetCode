@@ -7446,6 +7446,160 @@ class Solution:
 
 </details>
 
+## [2594. Minimum Time to Repair Cars](https://leetcode.com/problems/minimum-time-to-repair-cars/)  1915
+
+- [Official](https://leetcode.com/problems/minimum-time-to-repair-cars/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-time-to-repair-cars/solutions/2425409/xiu-che-de-zui-shao-shi-jian-by-leetcode-if20/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array ranks representing the ranks of some mechanics. ranksi is the rank of the ith mechanic.
+A mechanic with a rank r can repair n cars in r * n^2 minutes.
+
+You are also given an integer cars representing the total number of cars waiting in the garage to be repaired.
+
+Return the minimum time taken to repair all the cars.
+
+Note: All the mechanics can repair the cars simultaneously.
+
+Example 1:
+Input: ranks = [4,2,3,1], cars = 10
+Output: 16
+Explanation:
+- The first mechanic will repair two cars. The time required is 4 * 2 * 2 = 16 minutes.
+- The second mechanic will repair two cars. The time required is 2 * 2 * 2 = 8 minutes.
+- The third mechanic will repair two cars. The time required is 3 * 2 * 2 = 12 minutes.
+- The fourth mechanic will repair four cars. The time required is 1 * 4 * 4 = 16 minutes.
+It can be proved that the cars cannot be repaired in less than 16 minutes.​​​​​
+
+Example 2:
+Input: ranks = [5,1,8], cars = 6
+Output: 16
+Explanation:
+- The first mechanic will repair one car. The time required is 5 * 1 * 1 = 5 minutes.
+- The second mechanic will repair four cars. The time required is 1 * 4 * 4 = 16 minutes.
+- The third mechanic will repair one car. The time required is 8 * 1 * 1 = 8 minutes.
+It can be proved that the cars cannot be repaired in less than 16 minutes.​​​​​
+
+Constraints:
+1 <= ranks.length <= 10^5
+1 <= ranks[i] <= 100
+1 <= cars <= 10^6
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. For a predefined fixed time, can all the cars be repaired?
+2. Try using binary search on the answer.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+long long repairCars(int* ranks, int ranksSize, int cars) {
+    long long retVal = 0;
+
+    // The minimum possible time is 1
+    // The maximum possible time is when the slowest mechanic (highest rank) repairs all cars
+    long long left = 1;
+    long long right = 1LL * cars * cars * ranks[0];
+    while (left < right) {
+        long long middle = left + (right - left) / 2;
+
+        // Calculate the number of cars that can be repaired in 'middle' time by all mechanics.
+        long long carsRepaired = 0;
+        for (int i = 0; i < ranksSize; ++i) {
+            carsRepaired += sqrt(1.0 * middle / ranks[i]);
+        }
+
+        // If the total cars repaired is less than required, increase the time. Otherwise, try a smaller time.
+        if (carsRepaired < cars) {
+            left = middle + 1;
+
+        } else {
+            right = middle;
+        }
+    }
+    retVal = left;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    long long repairCars(vector<int>& ranks, int cars) {
+        long long retVal = 0;
+
+        // The minimum possible time is 1
+        // The maximum possible time is when the slowest mechanic (highest rank) repairs all cars
+        long long left = 1;
+        long long right = 1LL * cars * cars * ranks[0];
+        while (left < right) {
+            long long middle = left + (right - left) / 2;
+
+            // Calculate the number of cars that can be repaired in 'middle' time by all mechanics.
+            long long carsRepaired = 0;
+            for (auto rank : ranks) {
+                carsRepaired += sqrt(1.0 * middle / rank);
+            }
+
+            // If the total cars repaired is less than required, increase the time. Otherwise, try a smaller time.
+            if (carsRepaired < cars) {
+                left = middle + 1;
+
+            } else {
+                right = middle;
+            }
+        }
+        retVal = left;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def repairCars(self, ranks: List[int], cars: int) -> int:
+        retVal = 0
+
+        # The minimum possible time is 1
+        # The maximum possible time is when the slowest mechanic (highest rank) repairs all cars
+        left = 1
+        right = cars * cars * ranks[0]
+        while left < right:
+            middle = (left + right) // 2
+
+            carsRepaired = sum(int((middle / rank) ** 0.5) for rank in ranks)
+
+            # If the total cars repaired is less than required, increase the time.  Otherwise, try a smaller time.
+            if carsRepaired < cars:
+                left = middle + 1
+            else:
+                right = middle
+        retVal = left
+
+        return retVal
+```
+
+</details>
+
 ## [2616. Minimize the Maximum Difference of Pairs](https://leetcode.com/problems/minimize-the-maximum-difference-of-pairs/)  2155
 
 - [Official](https://leetcode.com/problems/minimize-the-maximum-difference-of-pairs/editorial/)
