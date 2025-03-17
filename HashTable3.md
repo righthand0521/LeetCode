@@ -806,6 +806,172 @@ int findFinalValue(int* nums, int numsSize, int original) {
 
 </details>
 
+## [2206. Divide Array Into Equal Pairs](https://leetcode.com/problems/divide-array-into-equal-pairs/)  1223
+
+- [Official](https://leetcode.com/problems/divide-array-into-equal-pairs/editorial/)
+- [Official](https://leetcode.cn/problems/divide-array-into-equal-pairs/solutions/1374492/jiang-shu-zu-hua-fen-cheng-xiang-deng-sh-vrd5/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array nums consisting of 2 * n integers.
+
+You need to divide nums into n pairs such that:
+- Each element belongs to exactly one pair.
+- The elements present in a pair are equal.
+
+Return true if nums can be divided into n pairs, otherwise return false.
+
+Example 1:
+Input: nums = [3,2,3,2,2,2]
+Output: true
+Explanation:
+There are 6 elements in nums, so they should be divided into 6 / 2 = 3 pairs.
+If nums is divided into the pairs (2, 2), (3, 3), and (2, 2), it will satisfy all the conditions.
+
+Example 2:
+Input: nums = [1,2,3,4]
+Output: false
+Explanation:
+There is no way to divide nums into 4 / 2 = 2 pairs such that the pairs satisfy every condition.
+
+Constraints:
+nums.length == 2 * n
+1 <= n <= 500
+1 <= nums[i] <= 500
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. For any number x in the range [1, 500], count the number of elements in nums whose values are equal to x.
+2. The elements with equal value can be divided completely into pairs if and only if their count is even.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *current;
+    struct hashTable *tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+bool divideArray(int *nums, int numsSize) {
+    bool retVal = true;
+
+    if ((numsSize % 2) == 1) {
+        retVal = false;
+        return retVal;
+    }
+
+    struct hashTable *pHashTable = NULL;
+    struct hashTable *pTemp;
+    int key;
+    for (int i = 0; i < numsSize; ++i) {
+        key = nums[i];
+
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTable, &key, pTemp);
+        if (pTemp == NULL) {
+            pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                freeAll(pHashTable);
+                return retVal;
+            }
+            pTemp->key = key;
+            pTemp->value = 1;
+            HASH_ADD_INT(pHashTable, key, pTemp);
+        } else {
+            pTemp->value += 1;
+        }
+    }
+
+    pTemp = NULL;
+    struct hashTable *pCurrent = NULL;
+    HASH_ITER(hh, pHashTable, pCurrent, pTemp) {
+        // printf("%d: %d\n", pHashTable->key, pHashTable->value);
+        if ((pHashTable->value % 2) == 1) {
+            retVal = false;
+        }
+        HASH_DEL(pHashTable, pCurrent);
+        free(pCurrent);
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool divideArray(vector<int>& nums) {
+        bool retVal = true;
+
+        int numsSize = nums.size();
+        if ((numsSize % 2) == 1) {
+            retVal = false;
+            return retVal;
+        }
+
+        unordered_map<int, int> hashTable;
+        for (int num : nums) {
+            hashTable[num]++;
+        }
+        for (auto [key, value] : hashTable) {
+            if ((value % 2) == 1) {
+                retVal = false;
+                break;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def divideArray(self, nums: List[int]) -> bool:
+        retVal = True
+
+        numsSize = len(nums)
+        if (numsSize % 2) == 1:
+            retVal = False
+            return retVal
+
+        hashTable = Counter(nums)
+        for times in hashTable.values():
+            if (times % 2) == 1:
+                retVal = False
+                break
+
+        return retVal
+```
+
+</details>
+
 ## [2215. Find the Difference of Two Arrays](https://leetcode.com/problems/find-the-difference-of-two-arrays/)  1207
 
 - [Official](https://leetcode.com/problems/find-the-difference-of-two-arrays/editorial/)
