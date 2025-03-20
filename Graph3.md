@@ -7606,6 +7606,273 @@ class Solution:
 
 </details>
 
+## [3108. Minimum Cost Walk in Weighted Graph](https://leetcode.com/problems/minimum-cost-walk-in-weighted-graph/)  2108
+
+- [Official](https://leetcode.com/problems/minimum-cost-walk-in-weighted-graph/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+There is an undirected weighted graph with n vertices labeled from 0 to n - 1.
+
+You are given the integer n and an array edges,
+where edges[i] = [ui, vi, wi] indicates that there is an edge between vertices ui and vi with a weight of wi.
+
+A walk on a graph is a sequence of vertices and edges.
+The walk starts and ends with a vertex,
+and each edge connects the vertex that comes before it and the vertex that comes after it.
+It's important to note that a walk may visit the same edge or vertex more than once.
+
+The cost of a walk starting at node u and ending at node v
+is defined as the bitwise AND of the weights of the edges traversed during the walk.
+In other words, if the sequence of edge weights encountered during the walk is w0, w1, w2, ..., wk,
+then the cost is calculated as w0 & w1 & w2 & ... & wk, where & denotes the bitwise AND operator.
+
+You are also given a 2D array query, where query[i] = [si, ti].
+For each query, you need to find the minimum cost of the walk starting at vertex si and ending at vertex ti.
+If there exists no such walk, the answer is -1.
+
+Return the array answer, where answer[i] denotes the minimum cost of a walk for query i.
+
+Example 1:
+Input: n = 5, edges = [[0,1,7],[1,3,7],[1,2,1]], query = [[0,3],[3,4]]
+Output: [1,-1]
+Explanation:
+To achieve the cost of 1 in the first query, we need to move on the following edges:
+0->1 (weight 7), 1->2 (weight 1), 2->1 (weight 1), 1->3 (weight 7).
+In the second query, there is no walk between nodes 3 and 4, so the answer is -1.
+
+Example 2:
+Input: n = 3, edges = [[0,2,7],[0,1,15],[1,2,6],[1,2,1]], query = [[1,2]]
+Output: [0]
+Explanation:
+To achieve the cost of 0 in the first query, we need to move on the following edges:
+1->2 (weight 1), 2->1 (weight 6), 1->2 (weight 1).
+
+Constraints:
+2 <= n <= 10^5
+0 <= edges.length <= 10^5
+edges[i].length == 3
+0 <= ui, vi <= n - 1
+ui != vi
+0 <= wi <= 10^5
+1 <= query.length <= 10^5
+query[i].length == 2
+0 <= si, ti <= n - 1
+si != ti
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. The intended solution uses Disjoint Set Union.
+2. Notice that, if u and v are not connected then the answer is -1,
+   otherwise we can use all the edges from the connected component where both belong to.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// https://leetcode.cn/problems/minimum-cost-walk-in-weighted-graph/solutions/2727524/dai-quan-tu-li-lu-tu-de-zui-xiao-dai-jie-6tds/
+int findParent(int* parent, int x) {
+    int retVal;
+
+    while (parent[x] != x) {
+        parent[x] = parent[parent[x]];
+        x = parent[x];
+    }
+    retVal = x;
+
+    return retVal;
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* minimumCost(int n, int** edges, int edgesSize, int* edgesColSize, int** query, int querySize, int* queryColSize,
+                 int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    const int fullWeight = 0x7FFFFFFF;
+    int x = 0;
+
+    int parent[n];
+    int weight[n];
+    for (x = 0; n > x; x++) {
+        parent[x] = x;
+        weight[x] = fullWeight;
+    }
+
+    int e0 = 0, e1 = 0, p0 = 0, p1 = 0;
+    for (x = 0; edgesSize > x; x++) {
+        e0 = fmin(edges[x][0], edges[x][1]);
+        e1 = fmax(edges[x][0], edges[x][1]);
+        p0 = findParent(parent, e0);
+        p1 = findParent(parent, e1);
+        if (p0 != p1) {
+            weight[p1] &= weight[p0];
+            parent[p0] = p1;
+        }
+        weight[p1] &= edges[x][2];
+    }
+
+    pRetVal = (int*)calloc(querySize, sizeof(int));
+    if (pRetVal == NULL) {
+        perror("calloc");
+        return pRetVal;
+    }
+    for (x = 0; querySize > x; x++) {
+        if (query[x][0] == query[x][1]) {
+            pRetVal[x] = 0;
+        } else {
+            p0 = findParent(parent, query[x][0]);
+            p1 = findParent(parent, query[x][1]);
+            if (p0 == p1) {
+                pRetVal[x] = weight[p0];
+            } else {
+                pRetVal[x] = -1;
+            }
+        }
+    }
+    (*returnSize) = querySize;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int dfs(int node, vector<vector<pair<int, int>>>& adjList, vector<bool>& visited, vector<int>& components,
+            int componentId) {
+        // Initialize the cost to the number that has only 1s in its binary representation
+        int retVal = numeric_limits<int>::max();
+
+        components[node] = componentId;  // Mark the node as part of the current component
+        visited[node] = true;
+        for (auto& [neighbor, weight] : adjList[node]) {
+            retVal &= weight;  // Update the cost by performing a bitwise AND of the edge weights
+            if (visited[neighbor] == true) {
+                continue;
+            }
+            // Recursively calculate the cost of the rest of the component and accumulate it into retVal
+            retVal &= dfs(neighbor, adjList, visited, components, componentId);
+        }
+
+        return retVal;
+    }
+
+   public:
+    vector<int> minimumCost(int n, vector<vector<int>>& edges, vector<vector<int>>& query) {
+        vector<int> retVal;
+
+        // Create the adjacency list of the graph
+        vector<vector<pair<int, int>>> adjList(n);
+        for (auto& edge : edges) {
+            adjList[edge[0]].push_back({edge[1], edge[2]});
+            adjList[edge[1]].push_back({edge[0], edge[2]});
+        }
+
+        vector<bool> visited(n, false);
+
+        // Array to store the component ID of each node
+        vector<int> components(n);
+        vector<int> componentCost;
+        int componentId = 0;
+        // Perform DFS for each unvisited node to identify components and calculate their costs
+        for (int node = 0; node < n; node++) {
+            // If the node hasn't been visited, it's a new component
+            if (visited[node] == true) {
+                continue;
+            }
+            // Get the component cost and mark all nodes in the component
+            componentCost.push_back(dfs(node, adjList, visited, components, componentId));
+            // Increment the component ID for the next component
+            componentId++;
+        }
+
+        for (auto& q : query) {
+            int start = q[0];
+            int end = q[1];
+            // If they are in the same component, return the precomputed cost for the component
+            if (components[start] == components[end]) {
+                retVal.push_back(componentCost[components[start]]);
+            } else {  // If they are in different components, return -1
+                retVal.push_back(-1);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def dfs(self, node, adjList, visited, components, componentId):
+        retVal = -1  # Initialize the cost to the number that has only 1s in its binary representation
+
+        components[node] = componentId  # Mark the node as part of the current component
+        visited[node] = True
+        for neighbor, weight in adjList[node]:
+            retVal &= weight  # Update the component cost by performing a bitwise AND of the edge weights
+            if visited[neighbor] == True:
+                continue
+            # Recursively calculate the cost of the rest of the component and accumulate it into currentCost
+            retVal &= self.dfs(neighbor, adjList, visited, components, componentId)
+
+        return retVal
+
+    def minimumCost(self, n: int, edges: List[List[int]], query: List[List[int]]) -> List[int]:
+        retVal = []
+
+        # Create the adjacency list of the graph
+        adjList = [[] for _ in range(n)]
+        for edge in edges:
+            adjList[edge[0]].append((edge[1], edge[2]))
+            adjList[edge[1]].append((edge[0], edge[2]))
+
+        visited = [False] * n
+
+        # Array to store the component ID of each node
+        components = [0] * n
+        componentCost = []
+        componentId = 0
+        # Perform DFS for each unvisited node to identify components and calculate their costs
+        for node in range(n):
+            if visited[node] == True:
+                continue
+            # Get the component cost and mark all nodes in the component
+            componentCost.append(self.dfs(node, adjList, visited, components, componentId))
+            componentId += 1
+
+        for q in query:
+            start, end = q
+            # If they are in the same component, return the precomputed cost for the component
+            # Else they are in different components, return -1
+            if components[start] == components[end]:
+                retVal.append(componentCost[components[start]])
+            else:
+                retVal.append(-1)
+
+        return retVal
+```
+
+</details>
+
 ## [3203. Find Minimum Diameter After Merging Two Trees](https://leetcode.com/problems/find-minimum-diameter-after-merging-two-trees/)  2266
 
 - [Official](https://leetcode.com/problems/find-minimum-diameter-after-merging-two-trees/editorial/)
