@@ -6386,6 +6386,253 @@ class Solution:
 
 </details>
 
+## [2685. Count the Number of Complete Components](https://leetcode.com/problems/count-the-number-of-complete-components/)  1769
+
+- [Official](https://leetcode.com/problems/count-the-number-of-complete-components/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer n. There is an undirected graph with n vertices, numbered from 0 to n - 1.
+You are given a 2D integer array edges
+where edges[i] = [ai, bi] denotes that there exists an undirected edge connecting vertices ai and bi.
+
+Return the number of complete connected components of the graph.
+
+A connected component is a subgraph of a graph in which there exists a path between any two vertices,
+and no vertex of the subgraph shares an edge with a vertex outside of the subgraph.
+
+A connected component is said to be complete if there exists an edge between every pair of its vertices.
+
+Example 1:
+Input: n = 6, edges = [[0,1],[0,2],[1,2],[3,4]]
+Output: 3
+Explanation: From the picture above, one can see that all of the components of this graph are complete.
+
+Example 2:
+Input: n = 6, edges = [[0,1],[0,2],[1,2],[3,4],[3,5]]
+Output: 1
+Explanation: The component containing vertices 0, 1, and 2 is complete
+since there is an edge between every pair of two vertices.
+On the other hand, the component containing vertices 3, 4, and 5 is not complete
+since there is no edge between vertices 4 and 5.
+Thus, the number of complete components in this graph is 1.
+
+Constraints:
+1 <= n <= 50
+0 <= edges.length <= n * (n - 1) / 2
+edges[i].length == 2
+0 <= ai, bi <= n - 1
+ai != bi
+There are no repeated edges.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Find the connected components of an undirected graph using depth-first search (DFS) or breadth-first search (BFS).
+2. For each connected component, count the number of nodes and edges in the component.
+3. A connected component is complete if and only if the number of edges in the component is equal to m*(m-1)/2,
+   where m is the number of nodes in the component.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int countCompleteComponents(int n, int** edges, int edgesSize, int* edgesColSize) {
+    int retVal = 0;
+
+    // Create adjacency list representation of the graph
+    int adjacency[n][n];
+    memset(adjacency, 0, (n * n * sizeof(int)));
+    for (int i = 0; i < edgesSize; ++i) {
+        int u = edges[i][0], v = edges[i][1];
+        adjacency[u][v] = 1;
+        adjacency[v][u] = 1;
+    }
+
+    bool visited[n];
+    memset(visited, false, sizeof(visited));
+
+    int component[n * n];
+    int componentSize;
+    int bfsQueue[n * n];
+    int bfsQueueHead, bfsQueueTail, current;
+    bool isComplete;
+    int adjacencyNodeSize;
+    for (int vertex = 0; vertex < n; vertex++) {
+        if (visited[vertex] == true) {
+            continue;
+        }
+        visited[vertex] = true;
+
+        // BFS to find all vertices in the current component
+        memset(component, 0, sizeof(component));
+        componentSize = 0;
+        memset(bfsQueue, 0, (n * n * sizeof(int)));
+        bfsQueueHead = 0;
+        bfsQueueTail = 0;
+        bfsQueue[bfsQueueTail++] = vertex;
+        while (bfsQueueHead < bfsQueueTail) {
+            current = bfsQueue[bfsQueueHead++];
+            component[componentSize++] = current;
+
+            // Process neighbors
+            for (int neighbor = 0; neighbor < n; neighbor++) {
+                if (adjacency[current][neighbor] == 0) {
+                    continue;
+                }
+                if (visited[neighbor] == true) {
+                    continue;
+                }
+                bfsQueue[bfsQueueTail++] = neighbor;
+                visited[neighbor] = true;
+            }
+        }
+
+        // Check if component is complete(all vertices have the right number of edges)
+        isComplete = true;
+        for (int node = 0; node < componentSize; node++) {
+            adjacencyNodeSize = 0;
+            for (int neighbor = 0; neighbor < n; neighbor++) {
+                if (adjacency[component[node]][neighbor] == 1) {
+                    adjacencyNodeSize++;
+                }
+            }
+            if (adjacencyNodeSize != componentSize - 1) {
+                isComplete = false;
+                break;
+            }
+        }
+        if (isComplete == true) {
+            retVal++;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int countCompleteComponents(int n, vector<vector<int>>& edges) {
+        int retVal = 0;
+
+        // Create adjacency list representation of the graph
+        vector<vector<int>> adjacency(n);
+        for (const auto& edge : edges) {
+            int u = edge[0], v = edge[1];
+            adjacency[u].push_back(v);
+            adjacency[v].push_back(u);
+        }
+
+        vector<bool> visited(n, false);
+
+        for (int vertex = 0; vertex < n; vertex++) {
+            if (visited[vertex] == true) {
+                continue;
+            }
+            visited[vertex] = true;
+
+            // BFS to find all vertices in the current component
+            vector<int> component;
+            queue<int> bfsQueue;
+            bfsQueue.push(vertex);
+            while (bfsQueue.empty() == false) {
+                int current = bfsQueue.front();
+                bfsQueue.pop();
+                component.push_back(current);
+
+                // Process neighbors
+                for (int neighbor : adjacency[current]) {
+                    if (visited[neighbor] == true) {
+                        continue;
+                    }
+                    bfsQueue.push(neighbor);
+                    visited[neighbor] = true;
+                }
+            }
+
+            // Check if component is complete (all vertices have the right number of edges)
+            bool isComplete = true;
+            for (int node : component) {
+                int componentSize = component.size();
+                int adjacencyNodeSize = adjacency[node].size();
+                if (adjacencyNodeSize != componentSize - 1) {
+                    isComplete = false;
+                    break;
+                }
+            }
+            if (isComplete) {
+                retVal++;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def countCompleteComponents(self, n: int, edges: List[List[int]]) -> int:
+        retVal = 0
+
+        adjacency = [[] for _ in range(n)]
+        for u, v in edges:
+            adjacency[u].append(v)
+            adjacency[v].append(u)
+
+        visited = [False] * n
+
+        for vertex in range(n):
+            if visited[vertex] == True:
+                continue
+            visited[vertex] = True
+
+            # BFS to find all vertices in the current component
+            component = []
+            bfsQueue = [vertex]
+            while bfsQueue:
+                current = bfsQueue.pop(0)
+                component.append(current)
+
+                # Process neighbors
+                for neighbor in adjacency[current]:
+                    if visited[neighbor] == True:
+                        continue
+                    bfsQueue.append(neighbor)
+                    visited[neighbor] = True
+
+            # Check if component is complete (all vertices have the right number of edges)
+            isComplete = True
+            for node in component:
+                componentSize = len(component)
+                adjacencyNodeSize = len(adjacency[node])
+                if adjacencyNodeSize != componentSize - 1:
+                    isComplete = False
+                    break
+            if isComplete == True:
+                retVal += 1
+
+        return retVal
+```
+
+</details>
+
 ## [2699. Modify Graph Edge Weights](https://leetcode.com/problems/modify-graph-edge-weights/)  2873
 
 - [Official](https://leetcode.com/problems/modify-graph-edge-weights/editorial/)
