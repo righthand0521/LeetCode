@@ -9495,6 +9495,380 @@ class Solution:
 
 </details>
 
+## [1976. Number of Ways to Arrive at Destination](https://leetcode.com/problems/number-of-ways-to-arrive-at-destination/)  2094
+
+- [Official](https://leetcode.com/problems/number-of-ways-to-arrive-at-destination/editorial/)
+- [Official](https://leetcode.cn/problems/number-of-ways-to-arrive-at-destination/solutions/951921/dao-da-mu-de-di-de-fang-an-shu-by-leetco-5ptp/)
+
+<details><summary>Description</summary>
+
+```text
+You are in a city that consists of n intersections numbered from 0 to n - 1
+with bi-directional roads between some intersections.
+The inputs are generated such that you can reach any intersection from any other intersection
+and that there is at most one road between any two intersections.
+
+You are given an integer n and a 2D integer array roads where roads[i] = [ui, vi, timei] means
+that there is a road between intersections ui and vi that takes timei minutes to travel.
+You want to know in how many ways you can travel
+from intersection 0 to intersection n - 1 in the shortest amount of time.
+
+Return the number of ways you can arrive at your destination in the shortest amount of time.
+Since the answer may be large, return it modulo 10^9 + 7.
+
+Example 1:
+Input: n = 7, roads = [[0,6,7],[0,1,2],[1,2,3],[1,3,3],[6,3,3],[3,5,1],[6,5,1],[2,5,1],[0,4,5],[4,6,2]]
+Output: 4
+Explanation: The shortest amount of time it takes to go from intersection 0 to intersection 6 is 7 minutes.
+The four ways to get there in 7 minutes are:
+- 0 ➝ 6
+- 0 ➝ 4 ➝ 6
+- 0 ➝ 1 ➝ 2 ➝ 5 ➝ 6
+- 0 ➝ 1 ➝ 3 ➝ 5 ➝ 6
+
+Example 2:
+Input: n = 2, roads = [[1,0,10]]
+Output: 1
+Explanation: There is only one way to go from intersection 0 to intersection 1, and it takes 10 minutes.
+
+Constraints:
+1 <= n <= 200
+n - 1 <= roads.length <= n * (n - 1) / 2
+roads[i].length == 3
+0 <= ui, vi <= n - 1
+1 <= timei <= 10^9
+ui != vi
+There is at most one road connecting any two intersections.
+You can reach any intersection from any other intersection.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. First use any shortest path algorithm to get edges where dist[u] + weight = dist[v],
+   here dist[x] is the shortest distance between node 0 and x
+2. Using those edges only the graph turns into a dag now we just need to know the number of ways
+   to get from node 0 to node n - 1 on a dag using dp
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#ifndef ADJACENCY_H
+#define ADJACENCY_H
+
+typedef struct Edge {
+    int to;
+    int cost;
+    struct Edge *next;
+} Edge;
+Edge *createEdge(int to, int cost) {
+    Edge *pObj = NULL;
+
+    pObj = (Edge *)malloc(sizeof(Edge));
+    if (pObj == NULL) {
+        perror("malloc");
+        return pObj;
+    }
+    pObj->to = to;
+    pObj->cost = cost;
+    pObj->next = NULL;
+
+    return pObj;
+}
+void freeEdgeList(Edge *pList) {
+    while (pList) {
+        Edge *pFree = pList;
+        pList = pList->next;
+        free(pFree);
+    }
+}
+
+#endif  // ADJACENCY_H
+#ifndef HEAP_H
+#define HEAP_H
+
+typedef struct {
+    long long first;
+    int second;
+} Node;
+typedef bool (*cmp)(const void *, const void *);
+typedef struct {
+    Node *arr;
+    int capacity;
+    int queueSize;
+    cmp compare;
+} PriorityQueue;
+Node *createNode(long long x, int y) {
+    Node *obj = (Node *)malloc(sizeof(Node));
+    obj->first = x;
+    obj->second = y;
+    return obj;
+}
+PriorityQueue *createPriorityQueue(int size, cmp compare) {
+    PriorityQueue *obj = (PriorityQueue *)malloc(sizeof(PriorityQueue));
+    obj->arr = (Node *)malloc(sizeof(Node) * size);
+    obj->queueSize = 0;
+    obj->capacity = size;
+    obj->compare = compare;
+    return obj;
+}
+static void swap(Node *arr, int i, int j) {
+    Node tmp;
+    memcpy(&tmp, &arr[i], sizeof(Node));
+    memcpy(&arr[i], &arr[j], sizeof(Node));
+    memcpy(&arr[j], &tmp, sizeof(Node));
+}
+static void down(Node *arr, int size, int i, cmp compare) {
+    for (int k = 2 * i + 1; k < size; k = 2 * k + 1) {
+        if (k + 1 < size && compare(&arr[k], &arr[k + 1])) {
+            k++;
+        }
+        if (compare(&arr[k], &arr[(k - 1) / 2])) {
+            break;
+        }
+        swap(arr, k, (k - 1) / 2);
+    }
+}
+void Heapfiy(PriorityQueue *obj) {
+    for (int i = obj->queueSize / 2 - 1; i >= 0; i--) {
+        down(obj->arr, obj->queueSize, i, obj->compare);
+    }
+}
+void Push(PriorityQueue *obj, Node *node) {
+    memcpy(&obj->arr[obj->queueSize], node, sizeof(Node));
+    for (int i = obj->queueSize; i > 0 && obj->compare(&obj->arr[(i - 1) / 2], &obj->arr[i]); i = (i - 1) / 2) {
+        swap(obj->arr, i, (i - 1) / 2);
+    }
+    obj->queueSize++;
+}
+Node *Pop(PriorityQueue *obj) {
+    swap(obj->arr, 0, obj->queueSize - 1);
+    down(obj->arr, obj->queueSize - 1, 0, obj->compare);
+    Node *ret = &obj->arr[obj->queueSize - 1];
+    obj->queueSize--;
+    return ret;
+}
+bool isEmpty(PriorityQueue *obj) {
+    //
+    return obj->queueSize == 0;
+}
+Node *Top(PriorityQueue *obj) {
+    if (obj->queueSize == 0) {
+        return NULL;
+    } else {
+        return &obj->arr[obj->queueSize];
+    }
+}
+void FreePriorityQueue(PriorityQueue *obj) {
+    free(obj->arr);
+    free(obj);
+}
+bool greater(const void *a, const void *b) {
+    //
+    return ((Node *)a)->first > ((Node *)b)->first;
+}
+
+#endif  // HEAP_H
+#define MODULO (int)(1e9 + 7)
+int countPaths(int n, int **roads, int roadsSize, int *roadsColSize) {
+    int retVal = 0;
+
+    // Build adjacency list
+    Edge *adjacency[n];
+    for (int i = 0; i < n; i++) {
+        adjacency[i] = NULL;
+    }
+    for (int i = 0; i < roadsSize; i++) {
+        int u = roads[i][0];
+        int v = roads[i][1];
+        int t = roads[i][2];
+
+        Edge *eu = createEdge(v, t);
+        eu->next = adjacency[u];
+        adjacency[u] = eu;
+
+        Edge *ev = createEdge(u, t);
+        ev->next = adjacency[v];
+        adjacency[v] = ev;
+    }
+
+    long long shortestTime[n];  // Store shortest time to each node
+    long long pathCount[n];     // Number of ways to reach each node in shortest time
+    for (int i = 0; i < n; i++) {
+        shortestTime[i] = LLONG_MAX;
+        pathCount[i] = 0;
+    }
+    shortestTime[0] = 0;  // Distance to source is 0
+    pathCount[0] = 1;     // 1 way to reach node 0
+
+    // Min-Heap (priority queue) for Dijkstra
+    PriorityQueue *minHeap = createPriorityQueue(n, greater);
+    Node node;  // {time, node}
+    node.first = 0;
+    node.second = 0;
+    Push(minHeap, &node);
+
+    while (isEmpty(minHeap) == false) {
+        Node *pCurrent = Pop(minHeap);
+        long long currTime = pCurrent->first;
+        int currNode = pCurrent->second;
+
+        // Skip outdated distances
+        if (currTime > shortestTime[currNode]) {
+            continue;
+        }
+
+        for (Edge *pEntry = adjacency[currNode]; pEntry != NULL; pEntry = pEntry->next) {
+            int neighborNode = pEntry->to;
+            int roadTime = pEntry->cost;
+
+            // Found a new shortest path → Update shortest time and reset path count
+            if (currTime + roadTime < shortestTime[neighborNode]) {
+                shortestTime[neighborNode] = currTime + roadTime;
+                pathCount[neighborNode] = pathCount[currNode];
+                Node node;
+                node.first = currTime + roadTime;
+                node.second = neighborNode;
+                Push(minHeap, &node);
+            }  // Found another way with the same shortest time → Add to path count
+            else if (currTime + roadTime == shortestTime[neighborNode]) {
+                pathCount[neighborNode] = (pathCount[neighborNode] + pathCount[currNode]) % MODULO;
+            }
+        }
+    }
+    retVal = pathCount[n - 1];
+
+    // Free memory
+    FreePriorityQueue(minHeap);
+    for (int i = 0; i < n; i++) {
+        freeEdgeList(adjacency[i]);
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    const int MODULO = 1e9 + 7;
+
+   public:
+    int countPaths(int n, vector<vector<int>>& roads) {
+        int retVal = 0;
+
+        // Build adjacency list
+        vector<vector<pair<int, int>>> adjacency(n);
+        for (auto& road : roads) {
+            int startNode = road[0], endNode = road[1], travelTime = road[2];
+            adjacency[startNode].emplace_back(endNode, travelTime);
+            adjacency[endNode].emplace_back(startNode, travelTime);
+        }
+
+        // Min-Heap (priority queue) for Dijkstra
+        priority_queue<pair<long long, int>, vector<pair<long long, int>>, greater<>> minHeap;
+        minHeap.emplace(0, 0);  // {time, node}
+
+        // Store shortest time to each node
+        vector<long long> shortestTime(n, numeric_limits<long long>::max());
+        shortestTime[0] = 0;  // Distance to source is 0
+
+        // Number of ways to reach each node in shortest time
+        vector<int> pathCount(n, 0);
+        pathCount[0] = 1;  // 1 way to reach node 0
+
+        while (minHeap.empty() == false) {
+            long long currTime = minHeap.top().first;  // Current shortest time
+            int currNode = minHeap.top().second;
+            minHeap.pop();
+
+            // Skip outdated distances
+            if (currTime > shortestTime[currNode]) {
+                continue;
+            }
+
+            for (auto& [neighborNode, roadTime] : adjacency[currNode]) {
+                // Found a new shortest path → Update shortest time and reset path count
+                if (currTime + roadTime < shortestTime[neighborNode]) {
+                    shortestTime[neighborNode] = currTime + roadTime;
+                    pathCount[neighborNode] = pathCount[currNode];
+                    minHeap.emplace(shortestTime[neighborNode], neighborNode);
+                }
+                // Found another way with the same shortest time → Add to path count
+                else if (currTime + roadTime == shortestTime[neighborNode]) {
+                    pathCount[neighborNode] = (pathCount[neighborNode] + pathCount[currNode]) % MODULO;
+                }
+            }
+        }
+        retVal = pathCount[n - 1];
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.MODULO = 10 ** 9 + 7
+
+    def countPaths(self, n: int, roads: List[List[int]]) -> int:
+        retVal = 0
+
+        # Build adjacency list
+        adjacency = [[] for _ in range(n)]
+        for start_node, end_node, travel_time in roads:
+            adjacency[start_node].append((end_node, travel_time))
+            adjacency[end_node].append((start_node, travel_time))
+
+        # Min-Heap (priority queue) for Dijkstra
+        minHeap = [(0, 0)]  # (time, node)
+
+        # Store shortest time to each node
+        shortestTime = [float("inf")] * n
+        shortestTime[0] = 0  # Distance to source is 0
+
+        # Number of ways to reach each node in shortest time
+        pathCount = [0] * n
+        pathCount[0] = 1  # 1 way to reach node 0
+
+        while minHeap:
+            currTime, currNode = heappop(minHeap)
+
+            # Skip outdated distances
+            if currTime > shortestTime[currNode]:
+                continue
+
+            for neighbor_node, roadTime in adjacency[currNode]:
+                # Found a new shortest path → Update shortest time and reset path count
+                if currTime + roadTime < shortestTime[neighbor_node]:
+                    shortestTime[neighbor_node] = currTime + roadTime
+                    pathCount[neighbor_node] = pathCount[currNode]
+                    heappush(minHeap, (shortestTime[neighbor_node], neighbor_node))
+                # Found another way with the same shortest time → Add to path count
+                elif currTime + roadTime == shortestTime[neighbor_node]:
+                    pathCount[neighbor_node] = (pathCount[neighbor_node] + pathCount[currNode]) % self.MODULO
+
+        retVal = pathCount[n - 1]
+
+        return retVal
+```
+
+</details>
+
 ## [1992. Find All Groups of Farmland](https://leetcode.com/problems/find-all-groups-of-farmland/)  1539
 
 - [Official](https://leetcode.com/problems/find-all-groups-of-farmland/editorial/)
