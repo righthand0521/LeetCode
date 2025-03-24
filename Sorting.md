@@ -5157,3 +5157,158 @@ class Solution:
 ```
 
 </details>
+
+## [3169. Count Days Without Meetings](https://leetcode.com/problems/count-days-without-meetings/)  1483
+
+- [Official](https://leetcode.com/problems/count-days-without-meetings/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a positive integer days
+representing the total number of days an employee is available for work (starting from day 1).
+You are also given a 2D array meetings of size n where, meetings[i] = [start_i, end_i]
+represents the starting and ending days of meeting i (inclusive).
+
+Return the count of days when the employee is available for work but no meetings are scheduled.
+
+Note: The meetings may overlap.
+
+Example 1:
+Input: days = 10, meetings = [[5,7],[1,3],[9,10]]
+Output: 2
+Explanation:
+There is no meeting scheduled on the 4th and 8th days.
+
+Example 2:
+Input: days = 5, meetings = [[2,4],[1,3]]
+Output: 1
+Explanation:
+There is no meeting scheduled on the 5th day.
+
+Example 3:
+Input: days = 6, meetings = [[1,6]]
+Output: 0
+Explanation:
+Meetings are scheduled for all working days.
+
+Constraints:
+1 <= days <= 10^9
+1 <= meetings.length <= 10^5
+meetings[i].length == 2
+1 <= meetings[i][0] <= meetings[i][1] <= days
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Merge the overlapping meetings and sort the new meetings timings.
+2. Return the sum of difference between the end time of a meeting
+   and the start time of the next meeting for all adjacent pairs.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareIntArray(const void *a1, const void *a2) {
+    const int *p1 = *(const int **)a1;
+    const int *p2 = *(const int **)a2;
+
+    // ascending order
+    if (p1[0] == p2[0]) {
+        return (p1[1] > p2[1]);
+    }
+
+    return (p1[0] > p2[0]);
+}
+int countDays(int days, int **meetings, int meetingsSize, int *meetingsColSize) {
+    int retVal = 0;
+
+    qsort(meetings, meetingsSize, sizeof(meetings[0]), compareIntArray);
+
+    int latestEnd = 0;
+    for (int i = 0; i < meetingsSize; ++i) {
+        int start = meetings[i][0];
+        int end = meetings[i][1];
+
+        // Add current range of days without a meeting
+        if (start > latestEnd + 1) {
+            retVal += start - latestEnd - 1;
+        }
+
+        // Update latest meeting end
+        latestEnd = fmax(latestEnd, end);
+    }
+
+    // Add all days after the last day of meetings
+    retVal += days - latestEnd;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int countDays(int days, vector<vector<int>>& meetings) {
+        int retVal = 0;
+
+        sort(meetings.begin(), meetings.end());
+
+        int latestEnd = 0;
+        for (auto& meeting : meetings) {
+            int start = meeting[0];
+            int end = meeting[1];
+
+            // Add current range of days without a meeting
+            if (start > latestEnd + 1) {
+                retVal += start - latestEnd - 1;
+            }
+
+            // Update latest meeting end
+            latestEnd = max(latestEnd, end);
+        }
+
+        // Add all days after the last day of meetings
+        retVal += days - latestEnd;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def countDays(self, days: int, meetings: List[List[int]]) -> int:
+        retVal = 0
+
+        meetings.sort()
+
+        latestEnd = 0
+        for start, end in meetings:
+            # Add current range of days without a meeting
+            if start > latestEnd + 1:
+                retVal += start - latestEnd - 1
+
+            # Update latest meeting end
+            latestEnd = max(latestEnd, end)
+
+        # Add all days after the last day of meetings
+        retVal += days - latestEnd
+
+        return retVal
+```
+
+</details>
