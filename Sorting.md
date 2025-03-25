@@ -5312,3 +5312,215 @@ class Solution:
 ```
 
 </details>
+
+## [3394. Check if Grid can be Cut into Sections](https://leetcode.com/problems/check-if-grid-can-be-cut-into-sections/)  1916
+
+- [Official](https://leetcode.com/problems/check-if-grid-can-be-cut-into-sections/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer n representing the dimensions of an n x n grid,
+with the origin at the bottom-left corner of the grid.
+You are also given a 2D array of coordinates rectangles,
+where rectangles[i] is in the form [startx, starty, endx, endy],
+representing a rectangle on the grid. Each rectangle is defined as follows:
+- (startx, starty): The bottom-left corner of the rectangle.
+- (endx, endy): The top-right corner of the rectangle.
+
+Note that the rectangles do not overlap.
+Your task is to determine if it is possible to make either two horizontal or two vertical cuts on the grid such that:
+- Each of the three resulting sections formed by the cuts contains at least one rectangle.
+- Every rectangle belongs to exactly one section.
+
+Return true if such cuts can be made; otherwise, return false.
+
+Example 1:
+Input: n = 5, rectangles = [[1,0,5,2],[0,2,2,4],[3,2,5,3],[0,4,4,5]]
+Output: true
+Explanation:
+The grid is shown in the diagram. We can make horizontal cuts at y = 2 and y = 4. Hence, output is true.
+
+Example 2:
+Input: n = 4, rectangles = [[0,0,1,1],[2,0,3,4],[0,2,2,3],[3,0,4,3]]
+Output: true
+Explanation:
+We can make vertical cuts at x = 2 and x = 3. Hence, output is true.
+
+Example 3:
+Input: n = 4, rectangles = [[0,2,2,4],[1,0,3,2],[2,2,3,4],[3,0,4,2],[3,2,4,4]]
+Output: false
+Explanation:
+We cannot make two horizontal or two vertical cuts that satisfy the conditions. Hence, output is false.
+
+Constraints:
+3 <= n <= 10^9
+3 <= rectangles.length <= 10^5
+0 <= rectangles[i][0] < rectangles[i][2] <= n
+0 <= rectangles[i][1] < rectangles[i][3] <= n
+No two rectangles overlap.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. For each rectangle, consider ranges [start_x, end_x] and [start_y, end_y] separately.
+2. For x and y directions, check whether we can split it into 3 parts.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// https://leetcode.com/problems/check-if-grid-can-be-cut-into-sections/solutions/6575954/sorting-python-c-java-js-c-go-rust-kotlin-swift/
+typedef struct {
+    int start;
+    int end;
+} pair;
+int compareStruct(const void *a, const void *b) {
+    int pa = ((pair *)a)->start;
+    int pb = ((pair *)b)->start;
+
+    // ascending order
+    return (pa > pb);
+}
+bool check(pair *intervals, int intervalsSize) {
+    bool retVal = false;
+
+    qsort(intervals, intervalsSize, sizeof(pair), compareStruct);
+
+    int sections = 0;
+    int maxEnd = intervals[0].end;
+    int start, end;
+    for (int i = 0; i < intervalsSize; ++i) {
+        start = intervals[i].start;
+        end = intervals[i].end;
+        if (maxEnd <= start) {
+            sections++;
+        }
+        maxEnd = fmax(maxEnd, end);
+    }
+    retVal = (sections >= 2);
+
+    return retVal;
+}
+bool checkValidCuts(int n, int **rectangles, int rectanglesSize, int *rectanglesColSize) {
+    bool retVal = false;
+
+    pair *pXintervals = malloc(rectanglesSize * sizeof(pair));
+    if (pXintervals == NULL) {
+        perror("malloc");
+        return retVal;
+    }
+    pair *pYintervals = malloc(rectanglesSize * sizeof(pair));
+    if (pYintervals == NULL) {
+        perror("malloc");
+        free(pXintervals);
+        pXintervals = NULL;
+        return retVal;
+    }
+    for (int i = 0; i < rectanglesSize; ++i) {
+        pXintervals[i].start = rectangles[i][0];
+        pXintervals[i].end = rectangles[i][2];
+        pYintervals[i].start = rectangles[i][1];
+        pYintervals[i].end = rectangles[i][3];
+    }
+    retVal = check(pXintervals, rectanglesSize) || check(pYintervals, rectanglesSize);
+
+    //
+    free(pXintervals);
+    pXintervals = NULL;
+    free(pYintervals);
+    pYintervals = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    bool checkCuts(vector<vector<int>>& rectangles, int dim) {
+        bool retVal = false;
+
+        // Sort rectangles by their starting coordinate in the given dimension
+        sort(rectangles.begin(), rectangles.end(), [dim](const vector<int>& a, const vector<int>& b) {
+            //
+            return a[dim] < b[dim];
+        });
+
+        // Track the furthest ending coordinate seen so far
+        int furthestEnd = rectangles[0][dim + 2];
+        int gapCount = 0;
+        for (size_t i = 1; i < rectangles.size(); i++) {
+            vector<int>& rect = rectangles[i];
+            // If current rectangle starts after the furthest end we've seen, we found a gap where a cut can be made
+            if (furthestEnd <= rect[dim]) {
+                gapCount++;
+            }
+            // Update the furthest ending coordinate
+            furthestEnd = max(furthestEnd, rect[dim + 2]);
+        }
+
+        // We need at least 2 gaps to create 3 sections
+        retVal = (gapCount >= 2);
+
+        return retVal;
+    }
+
+   public:
+    bool checkValidCuts(int n, vector<vector<int>>& rectangles) {
+        bool retVal = false;
+
+        // Try both horizontal and vertical cuts
+        retVal = checkCuts(rectangles, 0) || checkCuts(rectangles, 1);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def checkCuts(self, rectangles: list[list[int]], dim: int) -> bool:
+        retVal = False
+
+        # Sort rectangles by their starting coordinate in the given dimension
+        rectangles.sort(key=lambda rect: rect[dim])
+
+        furthestEnd = rectangles[0][dim + 2]  # Track the furthest ending coordinate seen so far
+        gapCount = 0
+        for i in range(1, len(rectangles)):
+            rect = rectangles[i]
+            # If current rectangle starts after the furthest end we've seen, we found a gap where a cut can be made
+            if furthestEnd <= rect[dim]:
+                gapCount += 1
+            # Update the furthest ending coordinate
+            furthestEnd = max(furthestEnd, rect[dim + 2])
+
+        # We need at least 2 gaps to create 3 sections
+        retVal = (gapCount >= 2)
+
+        return retVal
+
+    def checkValidCuts(self, n: int, rectangles: List[List[int]]) -> bool:
+        retVal = False
+
+        # Try both horizontal and vertical cuts
+        retVal = self.checkCuts(rectangles, 0) or self.checkCuts(rectangles, 1)
+
+        return retVal
+```
+
+</details>
