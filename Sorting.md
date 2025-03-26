@@ -3563,6 +3563,185 @@ class Solution:
 
 </details>
 
+## [2033. Minimum Operations to Make a Uni-Value Grid](https://leetcode.com/problems/minimum-operations-to-make-a-uni-value-grid/)  1671
+
+- [Official](https://leetcode.com/problems/minimum-operations-to-make-a-uni-value-grid/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 2D integer grid of size m x n and an integer x.
+In one operation, you can add x to or subtract x from any element in the grid.
+
+A uni-value grid is a grid where all the elements of it are equal.
+
+Return the minimum number of operations to make the grid uni-value. If it is not possible, return -1.
+
+Example 1:
+Input: grid = [[2,4],[6,8]], x = 2
+Output: 4
+Explanation: We can make every element equal to 4 by doing the following:
+- Add x to 2 once.
+- Subtract x from 6 once.
+- Subtract x from 8 twice.
+A total of 4 operations were used.
+
+Example 2:
+Input: grid = [[1,5],[2,3]], x = 1
+Output: 5
+Explanation: We can make every element equal to 3.
+
+Example 3:
+Input: grid = [[1,2],[3,4]], x = 2
+Output: -1
+Explanation: It is impossible to make every element equal.
+
+Constraints:
+m == grid.length
+n == grid[i].length
+1 <= m, n <= 10^5
+1 <= m * n <= 10^5
+1 <= x, grid[i][j] <= 10^4
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Is it possible to make two integers a and b equal if they have different remainders dividing by x?
+2. If it is possible, which number should you select to minimize the number of operations?
+3. What if the elements are sorted?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareInteger(const void* n1, const void* n2) {
+    // ascending order
+    return (*(int*)n1 > *(int*)n2);
+}
+int minOperations(int** grid, int gridSize, int* gridColSize, int x) {
+    int retVal = 0;
+
+    // Flatten the grid into numsArray
+    int numsArraySize = gridSize * gridColSize[0];
+    int* numsArray = (int*)malloc(numsArraySize * sizeof(int));
+    if (numsArray == NULL) {
+        perror("malloc");
+        return retVal;
+    }
+    for (int row = 0; row < gridSize; row++) {
+        for (int col = 0; col < gridColSize[row]; col++) {
+            numsArray[row * gridColSize[row] + col] = grid[row][col];
+        }
+    }
+
+    // Sort numsArray in non-decreasing order to easily find the median
+    qsort(numsArray, numsArraySize, sizeof(int), compareInteger);
+
+    // Store the median element as the final common value
+    int finalCommonNumber = numsArray[numsArraySize / 2];
+
+    for (int i = 0; i < numsArraySize; i++) {
+        // If the remainder when divided by x is different for any number, return -1
+        if (numsArray[i] % x != finalCommonNumber % x) {
+            retVal = -1;
+            break;
+        }
+        // Add the number of operations required to make the current number equal to finalCommonNumber
+        retVal += abs(finalCommonNumber - numsArray[i]) / x;
+    }
+
+    //
+    free(numsArray);
+    numsArray = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minOperations(vector<vector<int>>& grid, int x) {
+        int retVal = 0;
+
+        int gridSize = grid.size();
+        int gridColSize = grid[0].size();
+
+        // Flatten the grid into numsArray
+        vector<int> numsArray;
+        for (int row = 0; row < gridSize; row++) {
+            for (int col = 0; col < gridColSize; col++) {
+                numsArray.push_back(grid[row][col]);
+            }
+        }
+        int numsArraySize = numsArray.size();
+
+        // Partially sorts the array so that the median element is placed at the middle index
+        nth_element(numsArray.begin(), numsArray.begin() + numsArraySize / 2, numsArray.end());
+
+        // Store the median element as the final common value to make all elements equal to
+        int finalCommonNumber = numsArray[numsArraySize / 2];
+
+        for (int number : numsArray) {
+            // If the remainder when divided by x is different for any number, return -1
+            if (number % x != finalCommonNumber % x) {
+                retVal = -1;
+                break;
+            }
+            // Add the number of operations required to make the current number equal to finalCommonNumber
+            retVal += abs(finalCommonNumber - number) / x;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minOperations(self, grid: List[List[int]], x: int) -> int:
+        retVal = 0
+
+        # Flatten the grid into numsArray
+        numsArray = []
+        for row in grid:
+            for num in row:
+                numsArray.append(num)
+        numsArraySize = len(numsArray)
+
+        # Sort numsArray in non-decreasing order to easily find the median
+        numsArray.sort()
+
+        # Store the median element as the final common value
+        finalCommonNumber = numsArray[numsArraySize // 2]
+
+        # Iterate through each number in numsArray
+        for number in numsArray:
+            # If the remainder when divided by x is different, return -1
+            if number % x != finalCommonNumber % x:
+                retVal = -1
+                break
+            # Add the number of operations required to make the current number equal to final_common_number
+            retVal += abs(finalCommonNumber - number) // x
+
+        return retVal
+```
+
+</details>
+
 ## [2054. Two Best Non-Overlapping Events](https://leetcode.com/problems/two-best-non-overlapping-events/)  1883
 
 - [Official](https://leetcode.com/problems/two-best-non-overlapping-events/editorial/)
