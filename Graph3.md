@@ -5530,6 +5530,462 @@ class Solution:
 
 </details>
 
+## [2503. Maximum Number of Points From Grid Queries](https://leetcode.com/problems/maximum-number-of-points-from-grid-queries/)  2195
+
+- [Official](https://leetcode.com/problems/maximum-number-of-points-from-grid-queries/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an m x n integer matrix grid and an array queries of size k.
+
+Find an array answer of size k such that
+for each integer queries[i] you start in the top left cell of the matrix and repeat the following process:
+- If queries[i] is strictly greater than the value of the current cell that you are in,
+  then you get one point if it is your first time visiting this cell,
+  and you can move to any adjacent cell in all 4 directions: up, down, left, and right.
+- Otherwise, you do not get any points, and you end this process.
+
+After the process, answer[i] is the maximum number of points you can get.
+Note that for each query you are allowed to visit the same cell multiple times.
+
+Return the resulting array answer.
+
+Example 1:
+(1) (2) (3)     (1) (2) (3)    (1) 2 3
+(2)  5   7  ->  (2) (5)  7  ->  2  5 7
+(3)  5   1      (3) (5) (1)     3  5 1
+Input: grid = [[1,2,3],[2,5,7],[3,5,1]], queries = [5,6,2]
+Output: [5,8,1]
+Explanation: The diagrams above show which cells we visit to get points for each query.
+
+Example 2:
+5 2 1
+1 1 2
+Input: grid = [[5,2,1],[1,1,2]], queries = [3]
+Output: [0]
+Explanation: We can not get any points because the value of the top left cell is already greater than or equal to 3.
+
+Constraints:
+m == grid.length
+n == grid[i].length
+2 <= m, n <= 1000
+4 <= m * n <= 10^5
+k == queries.length
+1 <= k <= 10^4
+1 <= grid[i][j], queries[i] <= 10^6
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. The queries are all given to you beforehand so you can answer them in any order you want.
+2. Sort the queries knowing their original order to be able to build the answer array.
+3. Run a BFS on the graph and answer the queries in increasing order.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// https://leetcode.cn/problems/maximum-number-of-points-from-grid-queries/solutions/2017183/ju-zhen-cha-xun-ke-huo-de-by-heng-deng-s-lcyx/
+#define BITS_SHIFT (32)
+#define BITS_MASK (0xFFFFFFFF)
+#define INVALID_VALUE (-1)
+#define FATHER_NODE(x) ((0 == (x)) ? INVALID_VALUE : (((x) - 1) >> 1))
+#define LEFT_NODE(x) (((x) << 1) + 1)
+#define RIGHT_NODE(x) (((x) << 1) + 2)
+#define IN_RANGE(x, y, m, n) ((0 <= (x)) && (m > (x)) && (0 <= y) && (n > (y)))
+typedef struct {
+    long int *array;
+    int arraySize;
+} HeapNode;
+int findParent(int *parent, int index) {
+    int retVal = 0;
+
+    while (parent[index] != index) {
+        parent[index] = parent[parent[index]];
+        index = parent[index];
+    }
+    retVal = index;
+
+    return retVal;
+}
+void heapPush(HeapNode *heap, long int t) {
+    int son = heap->arraySize;
+    int father = FATHER_NODE(son);
+
+    heap->arraySize++;
+
+    while ((INVALID_VALUE != father) && (heap->array[father] > t)) {
+        heap->array[son] = heap->array[father];
+        son = father;
+        father = FATHER_NODE(son);
+    }
+    heap->array[son] = t;
+}
+void heapPop(HeapNode *heap) {
+    int father = 0;
+    int left = LEFT_NODE(father);
+    int right = RIGHT_NODE(father);
+    int son = 0;
+    long int t = heap->array[heap->arraySize - 1];
+
+    heap->arraySize--;
+
+    while (((heap->arraySize > left) && (heap->array[left] < t)) ||
+           ((heap->arraySize > right) && (heap->array[right] < t))) {
+        son = ((heap->arraySize > right) && (heap->array[right] < heap->array[left])) ? right : left;
+        heap->array[father] = heap->array[son];
+        father = son;
+        left = LEFT_NODE(father);
+        right = RIGHT_NODE(father);
+    }
+    heap->array[father] = t;
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int *maxPoints(int **grid, int gridSize, int *gridColSize, int *queries, int queriesSize, int *returnSize) {
+    int *pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    pRetVal = (int *)calloc(queriesSize, sizeof(int));
+    if (pRetVal == NULL) {
+        perror("calloc");
+        return pRetVal;
+    }
+    (*returnSize) = queriesSize;
+
+    int rowSize = gridSize;
+    int colSize = gridColSize[0];
+    int totalCells = rowSize * colSize;
+    int gridIndex = 0;
+
+    int parent[totalCells];
+    int counter[totalCells];
+    long int array1[totalCells];
+    HeapNode gridHeap;
+    gridHeap.array = array1;
+    gridHeap.arraySize = 0;
+    for (int x = 0; x < rowSize; x++) {
+        for (int y = 0; y < colSize; y++) {
+            parent[gridIndex] = gridIndex;
+            counter[gridIndex] = 0;
+
+            long int t = ((long int)grid[x][y] << BITS_SHIFT) + gridIndex;
+            heapPush(&gridHeap, t);
+
+            gridIndex++;
+        }
+    }
+
+    long int array2[queriesSize];
+    HeapNode queriesHeap;
+    queriesHeap.array = array2;
+    queriesHeap.arraySize = 0;
+    for (int x = 0; x < queriesSize; x++) {
+        long int t = ((long int)queries[x] << BITS_SHIFT) + x;
+        heapPush(&queriesHeap, t);
+    }
+
+    const int direction[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+    int parentIndex;
+    while (0 < queriesHeap.arraySize) {
+        int value = queriesHeap.array[0] >> BITS_SHIFT;
+        int queriesIndex = queriesHeap.array[0] & BITS_MASK;
+        heapPop(&queriesHeap);
+
+        while ((0 < gridHeap.arraySize) && (gridHeap.array[0] >> BITS_SHIFT < value)) {
+            gridIndex = gridHeap.array[0] & BITS_MASK;
+            heapPop(&gridHeap);
+
+            int x = gridIndex / colSize;
+            int y = gridIndex % colSize;
+            counter[gridIndex] = 1;
+            for (int i = 0; i < 4; i++) {
+                int newX = x + direction[i][0];
+                int newY = y + direction[i][1];
+                int newIndex = newX * colSize + newY;
+                if ((newX < 0) || (newX >= rowSize) || (newY < 0) || (newY >= colSize)) {
+                    continue;
+                } else if (counter[newIndex] <= 0) {
+                    continue;
+                }
+
+                parentIndex = findParent(parent, newIndex);
+                if (parentIndex != gridIndex) {
+                    parent[parentIndex] = gridIndex;
+                    counter[gridIndex] += counter[parentIndex];
+                }
+            }
+        }
+
+        parentIndex = findParent(parent, 0);
+        pRetVal[queriesIndex] = counter[parentIndex];
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+// Represents a query with its original index and value
+class Query {
+   public:
+    int index;
+    int value;
+    Query(int i, int v) : index(i), value(v) {}
+};
+bool operator<(const Query& a, const Query& b) {
+    //
+    return a.value < b.value;
+}
+// Represents a cell in the grid with row index, column index, and value
+class Cell {
+   public:
+    int row;
+    int col;
+    int value;
+    Cell(int r, int c, int v) : row(r), col(c), value(v) {}
+};
+bool operator<(const Cell& a, const Cell& b) {
+    //
+    return a.value < b.value;
+}
+// Union-Find to track connected components
+class UnionFind {
+   private:
+    vector<int> parent;
+    vector<int> size;
+
+   public:
+    // Initialize all parents to -1 (disjoint sets) and each component starts with size 1
+    UnionFind(int n) : parent(vector<int>(n, -1)), size(vector<int>(n, 1)) {}
+    int find(int node) {  // Find with path compression
+        int retVal = 0;
+
+        if (parent[node] < 0) {  // If negative, it's the root
+            retVal = node;
+        } else {
+            // Path compression
+            retVal = (parent[node] = find(parent[node]));
+        }
+
+        return retVal;
+    }
+    bool union_nodes(int nodeA, int nodeB) {  // Union by size (merge smaller tree into larger tree)
+        int retVal = true;
+
+        int rootA = find(nodeA);
+        int rootB = find(nodeB);
+        if (rootA == rootB) {  // Already connected
+            retVal = false;
+            return retVal;
+        }
+
+        if (size[rootA] > size[rootB]) {
+            parent[rootB] = rootA;
+            size[rootA] += size[rootB];
+        } else {
+            parent[rootA] = rootB;
+            size[rootB] += size[rootA];
+        }
+
+        return retVal;
+    }
+    int getSize(int node) {  // Get the size of the component containing a given node
+        int retVal = size[find(node)];
+
+        return retVal;
+    }
+};
+class Solution {
+   private:
+    const vector<int> rowDirections = {0, 0, 1, -1};  // Right, Left, Down, Up
+    const vector<int> colDirections = {1, -1, 0, 0};  // Corresponding column moves
+
+   public:
+    vector<int> maxPoints(vector<vector<int>>& grid, vector<int>& queries) {
+        vector<int> retVal;
+
+        int rowSize = grid.size();
+        int colSize = grid[0].size();
+        int queriesSize = queries.size();
+
+        retVal.resize(queriesSize);
+
+        // Store queries with their original indices to maintain result order
+        vector<Query> sortedQueries;
+        for (int i = 0; i < queriesSize; i++) {
+            sortedQueries.push_back(Query(i, queries[i]));
+        }
+        sort(sortedQueries.begin(), sortedQueries.end());  // Sort queries in ascending order
+
+        // Store all grid cells and sort them by value
+        vector<Cell> sortedCells;
+        for (int row = 0; row < rowSize; row++) {
+            for (int col = 0; col < colSize; col++) {
+                sortedCells.push_back(Cell(row, col, grid[row][col]));
+            }
+        }
+        sort(sortedCells.begin(), sortedCells.end());  // Sort cells by value
+
+        // Union-Find to track connected components
+        int totalCells = rowSize * colSize;
+        UnionFind uf = UnionFind(totalCells);
+
+        int cellIndex = 0;
+        // Process queries in sorted order
+        for (Query query : sortedQueries) {
+            // Process cells whose values are smaller than the current query value
+            while (cellIndex < totalCells && sortedCells[cellIndex].value < query.value) {
+                int row = sortedCells[cellIndex].row;
+                int col = sortedCells[cellIndex].col;
+                int cellId = row * colSize + col;  // Convert 2D position to 1D index
+                // Merge the current cell with its adjacent cells that have already been processed
+                for (int direction = 0; direction < 4; direction++) {
+                    int newRow = row + rowDirections[direction];
+                    int newCol = col + colDirections[direction];
+                    int newCellId = newRow * colSize + newCol;  // Convert 2D position to 1D index
+                    // Check if the new cell is within bounds and its value is smaller than the query value
+                    if ((newRow < 0) || (newRow >= rowSize) || (newCol < 0) || (newCol >= colSize)) {
+                        continue;
+                    } else if (grid[newRow][newCol] < query.value) {
+                        uf.union_nodes(cellId, newCellId);
+                    }
+                }
+                cellIndex++;
+            }
+
+            // Get the size of the connected component containing the top-left cell (0,0)
+            retVal[query.index] = (query.value > grid[0][0]) ? uf.getSize(0) : 0;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Query:
+    def __init__(self, index: int, value: int):
+        self.index = index
+        self.value = value
+
+
+class Cell:
+    def __init__(self, row: int, col: int, value: int):
+        self.row = row
+        self.col = col
+        self.value = value
+
+
+class UnionFind:
+    def __init__(self, n: int):
+        self.parent = [-1] * n
+        self.size = [1] * n
+
+    def find(self, node: int) -> int:
+        retVal = 0
+
+        if self.parent[node] < 0:
+            retVal = node
+        else:
+            retVal = self.find(self.parent[node])
+
+        return retVal
+
+    def union(self, nodeA: int, nodeB: int) -> bool:
+        retVal = True
+
+        rootA = self.find(nodeA)
+        rootB = self.find(nodeB)
+        if rootA == rootB:
+            retVal = False
+            return retVal
+
+        if self.size[rootA] > self.size[rootB]:
+            self.parent[rootB] = rootA
+            self.size[rootA] += self.size[rootB]
+        else:
+            self.parent[rootA] = rootB
+            self.size[rootB] += self.size[rootA]
+
+        return retVal
+
+    def getSize(self, node: int) -> int:
+        retVal = self.size[self.find(node)]
+
+        return retVal
+
+
+class Solution:
+    def __init__(self):
+        self.rowDirections = [0, 0, 1, -1]  # Right, Left, Down, Up
+        self.colDirections = [1, -1, 0, 0]  # Corresponding column moves
+
+    def maxPoints(self, grid: List[List[int]], queries: List[int]) -> List[int]:
+        retVal = []
+
+        rowSize = len(grid)
+        colSize = len(grid[0])
+        queriesSize = len(queries)
+
+        retVal = [0] * queriesSize
+
+        # Store queries with their original indices to maintain result order
+        sortedQueries = [Query(i, val) for i, val in enumerate(queries)]
+        sortedQueries.sort(key=lambda x: x.value)  # Sort queries in ascending order
+
+        # Store all grid cells and sort them by value
+        sortedCells = [Cell(row, col, grid[row][col]) for row in range(rowSize) for col in range(colSize)]
+        sortedCells.sort(key=lambda x: x.value)  # Sort cells by value
+
+        totalCells = rowSize * colSize
+        uf = UnionFind(totalCells)
+
+        cellIndex = 0
+        # Process queries in sorted order
+        for query in sortedQueries:
+            # Process cells whose values are smaller than the current query value
+            while (cellIndex < totalCells) and (sortedCells[cellIndex].value < query.value):
+                row = sortedCells[cellIndex].row
+                col = sortedCells[cellIndex].col
+                cellId = (row * colSize + col)  # Convert 2D position to 1D index
+
+                # Merge the current cell with its adjacent cells that have already been processed
+                for direction in range(4):
+                    newRow = row + self.rowDirections[direction]
+                    newCol = col + self.colDirections[direction]
+                    newCellId = (newRow * colSize + newCol)  # Convert 2D position to 1D index
+                    if (0 <= newRow < rowSize) and (0 <= newCol < colSize) and (grid[newRow][newCol] < query.value):
+                        uf.union(cellId, newCellId)
+
+                cellIndex += 1
+
+            # Get the size of the component containing the top-left cell (0,0)
+            retVal[query.index] = 0
+            if query.value > grid[0][0]:
+                retVal[query.index] = uf.getSize(0)
+
+        return retVal
+```
+
+</details>
+
 ## [2577. Minimum Time to Visit a Cell In a Grid](https://leetcode.com/problems/minimum-time-to-visit-a-cell-in-a-grid/)  2381
 
 - [Official](https://leetcode.com/problems/minimum-time-to-visit-a-cell-in-a-grid/editorial/)
