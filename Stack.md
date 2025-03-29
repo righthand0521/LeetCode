@@ -7537,6 +7537,418 @@ class Solution:
 
 </details>
 
+## [2818. Apply Operations to Maximize Score](https://leetcode.com/problems/apply-operations-to-maximize-score/)  2396
+
+- [Official](https://leetcode.com/problems/apply-operations-to-maximize-score/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an array nums of n positive integers and an integer k.
+
+Initially, you start with a score of 1.
+You have to maximize your score by applying the following operation at most k times:
+- Choose any non-empty subarray nums[l, ..., r] that you haven't chosen previously.
+- Choose an element x of nums[l, ..., r] with the highest prime score.
+  If multiple such elements exist, choose the one with the smallest index.
+- Multiply your score by x.
+
+Here, nums[l, ..., r] denotes the subarray of nums starting at index l and ending at the index r,
+both ends being inclusive.
+
+The prime score of an integer x is equal to the number of distinct prime factors of x.
+For example, the prime score of 300 is 3 since 300 = 2 * 2 * 3 * 5 * 5.
+
+Return the maximum possible score after applying at most k operations.
+
+Since the answer may be large, return it modulo 10^9 + 7.
+
+Example 1:
+Input: nums = [8,3,9,3,8], k = 2
+Output: 81
+Explanation: To get a score of 81, we can apply the following operations:
+- Choose subarray nums[2, ..., 2]. nums[2] is the only element in this subarray.
+  Hence, we multiply the score by nums[2]. The score becomes 1 * 9 = 9.
+- Choose subarray nums[2, ..., 3]. Both nums[2] and nums[3] have a prime score of 1, but nums[2] has the smaller index.
+  Hence, we multiply the score by nums[2]. The score becomes 9 * 9 = 81.
+It can be proven that 81 is the highest score one can obtain.
+
+Example 2:
+Input: nums = [19,12,14,6,10,18], k = 3
+Output: 4788
+Explanation: To get a score of 4788, we can apply the following operations:
+- Choose subarray nums[0, ..., 0]. nums[0] is the only element in this subarray.
+  Hence, we multiply the score by nums[0]. The score becomes 1 * 19 = 19.
+- Choose subarray nums[5, ..., 5]. nums[5] is the only element in this subarray.
+  Hence, we multiply the score by nums[5]. The score becomes 19 * 18 = 342.
+- Choose subarray nums[2, ..., 3]. Both nums[2] and nums[3] have a prime score of 2, but nums[2] has the smaller index.
+  Hence, we multipy the score by nums[2]. The score becomes 342 * 14 = 4788.
+It can be proven that 4788 is the highest score one can obtain.
+
+Constraints:
+1 <= nums.length == n <= 10^5
+1 <= nums[i] <= 10^5
+1 <= k <= min(n * (n + 1) / 2, 10^9)
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Calculate nums[i]'s prime score s[i] by factoring in O(sqrt(nums[i])) time.
+2. For each nums[i], find the nearest index left[i] on the left (if any) such that s[left[i]] >= s[i].
+   if none is found, set left[i] to -1.
+   Similarly, find the nearest index right[i] on the right (if any) such that s[right[i]] > s[i].
+   If none is found, set right[i] to n.
+3. Use a monotonic stack to compute right[i] and left[i].
+4. For each index i, if left[i] + 1 <= l <= i <= r <= right[i] - 1, then s[i] is the maximum value in the range [l, r].
+   For this particular i, there are ranges[i] = (i - left[i]) * (right[i] - i) ranges where index i will be chosen.
+5. Loop over all elements of nums by non-increasing prime score,
+   each element will be chosen min(ranges[i], remainingK) times,
+   where reaminingK denotes the number of remaining operations.
+   Therefore, the score will be multiplied by s[i]^min(ranges[i],remainingK).
+6. Use fast exponentiation to quickly calculate A^B mod C.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MODULO (int)(1e9 + 7)
+typedef struct {
+    int value;
+    int index;
+} pair;
+int compareStruct(const void* a, const void* b) {
+    int pa = ((pair*)a)->value;
+    int pb = ((pair*)b)->value;
+
+    // ascending order
+    return (pa > pb);
+}
+long long powerOfModulo(long long base, long long exponent) {
+    long long retVal = 1;
+
+    // Calculate the exponentiation using binary exponentiation
+    while (exponent > 0) {
+        // If the exponent is odd, multiply the result by the base
+        if (exponent % 2 == 1) {
+            retVal = ((retVal * base) % MODULO);
+        }
+
+        // Square the base and halve the exponent
+        base = (base * base) % MODULO;
+        exponent /= 2;
+    }
+
+    return retVal;
+}
+int maximumScore(int* nums, int numsSize, int k) {
+    int retVal = 0;
+
+    // Calculate the prime score for each number in nums
+    int primeScores[numsSize];
+    memset(primeScores, 0, sizeof(primeScores));
+    for (int index = 0; index < numsSize; index++) {
+        int num = nums[index];
+        // Check for prime factors from 2 to sqrt(n)
+        for (int factor = 2; factor <= sqrt(num); factor++) {
+            if (num % factor != 0) {
+                continue;
+            }
+            // Increment prime score for each prime factor
+            primeScores[index]++;
+            // Remove all occurrences of the prime factor from num
+            while (num % factor == 0) {
+                num /= factor;
+            }
+        }
+        // If num is still greater than or equal to 2, it's a prime factor
+        if (num >= 2) {
+            primeScores[index]++;
+        }
+    }
+
+    // Initialize next and previous dominant index arrays
+    int nextDominant[numsSize];
+    memset(nextDominant, 0, sizeof(nextDominant));
+    int prevDominant[numsSize];
+    memset(prevDominant, 0, sizeof(prevDominant));
+    for (int i = 0; i < numsSize; i++) {
+        nextDominant[i] = numsSize;
+        prevDominant[i] = -1;
+    }
+    // Stack to store indices for monotonic decreasing prime score
+    int decreasingPrimeScoreStack[numsSize];
+    int decreasingPrimeScoreStackTop = -1;
+    // Calculate the next and previous dominant indices for each number
+    for (int index = 0; index < numsSize; index++) {
+        // While the stack is not empty and the current prime score is greater than the stack's top
+        while ((decreasingPrimeScoreStackTop >= 0) &&
+               (primeScores[decreasingPrimeScoreStack[decreasingPrimeScoreStackTop]] < primeScores[index])) {
+            int topIndex = decreasingPrimeScoreStack[decreasingPrimeScoreStackTop];
+            decreasingPrimeScoreStackTop--;
+            // Set the next dominant element for the popped index
+            nextDominant[topIndex] = index;
+        }
+        // If the stack is not empty, set the previous dominant element for the current index
+        if (decreasingPrimeScoreStackTop >= 0) {
+            prevDominant[index] = decreasingPrimeScoreStack[decreasingPrimeScoreStackTop];
+        }
+        // Push the current index onto the stack
+        decreasingPrimeScoreStack[++decreasingPrimeScoreStackTop] = index;
+    }
+
+    // Calculate the number of subarrays in which each element is dominant
+    long long numOfSubarrays[numsSize];
+    memset(numOfSubarrays, 0, sizeof(numOfSubarrays));
+    for (int index = 0; index < numsSize; index++) {
+        numOfSubarrays[index] = (long long)(nextDominant[index] - index) * (index - prevDominant[index]);
+    }
+
+    // Priority queue to process elements in decreasing order of their value
+    pair processingQueue[numsSize];
+    memset(processingQueue, 0, sizeof(processingQueue));
+    int processingQueueIndex = 0;
+    // Push each number and its index onto the priority queue
+    for (int index = 0; index < numsSize; index++) {
+        processingQueue[index].value = nums[index];
+        processingQueue[index].index = index;
+        processingQueueIndex++;
+    }
+    qsort(processingQueue, numsSize, sizeof(pair), compareStruct);
+
+    // Process elements while there are operations left
+    long long score = 1;
+    while (k > 0) {
+        // Get the element with the maximum value from the queue
+        processingQueueIndex--;
+        long long num = processingQueue[processingQueueIndex].value;
+        int index = processingQueue[processingQueueIndex].index;
+        // Calculate the number of operations to apply on the current element
+        long long operations = fmin((long long)k, numOfSubarrays[index]);
+        // Update the score by raising the element to the power of operations
+        score = (score * powerOfModulo(num, operations)) % MODULO;
+        // Reduce the remaining operations count
+        k -= operations;
+    }
+    retVal = score;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int MODULO = 1e9 + 7;
+
+    long long powerOfModulo(long long base, long long exponent) {
+        long long retVal = 1;
+
+        // Calculate the exponentiation using binary exponentiation
+        while (exponent > 0) {
+            // If the exponent is odd, multiply the result by the base
+            if (exponent % 2 == 1) {
+                retVal = ((retVal * base) % MODULO);
+            }
+
+            // Square the base and halve the exponent
+            base = (base * base) % MODULO;
+            exponent /= 2;
+        }
+
+        return retVal;
+    }
+
+   public:
+    int maximumScore(vector<int>& nums, int k) {
+        int retVal = 0;
+
+        int numsSize = nums.size();
+
+        // Calculate the prime score for each number in nums
+        vector<int> primeScores(numsSize);
+        for (int index = 0; index < numsSize; index++) {
+            int num = nums[index];
+            // Check for prime factors from 2 to sqrt(n)
+            for (int factor = 2; factor <= sqrt(num); factor++) {
+                if (num % factor != 0) {
+                    continue;
+                }
+                // Increment prime score for each prime factor
+                primeScores[index]++;
+                // Remove all occurrences of the prime factor from num
+                while (num % factor == 0) {
+                    num /= factor;
+                }
+            }
+            // If num is still greater than or equal to 2, it's a prime factor
+            if (num >= 2) {
+                primeScores[index]++;
+            }
+        }
+
+        // Initialize next and previous dominant index arrays
+        vector<int> nextDominant(numsSize, numsSize);
+        vector<int> prevDominant(numsSize, -1);
+        // Stack to store indices for monotonic decreasing prime score
+        stack<int> decreasingPrimeScoreStack;
+        // Calculate the next and previous dominant indices for each number
+        for (int index = 0; index < numsSize; index++) {
+            // While the stack is not empty and the current prime score is greater than the stack's top
+            while ((decreasingPrimeScoreStack.empty() == false) &&
+                   (primeScores[decreasingPrimeScoreStack.top()] < primeScores[index])) {
+                int topIndex = decreasingPrimeScoreStack.top();
+                decreasingPrimeScoreStack.pop();
+                // Set the next dominant element for the popped index
+                nextDominant[topIndex] = index;
+            }
+            // If the stack is not empty, set the previous dominant element for the current index
+            if (decreasingPrimeScoreStack.empty() == false) {
+                prevDominant[index] = decreasingPrimeScoreStack.top();
+            }
+            // Push the current index onto the stack
+            decreasingPrimeScoreStack.push(index);
+        }
+
+        // Calculate the number of subarrays in which each element is dominant
+        vector<long long> numOfSubarrays(numsSize);
+        for (int index = 0; index < numsSize; index++) {
+            numOfSubarrays[index] = (long long)(nextDominant[index] - index) * (index - prevDominant[index]);
+        }
+
+        // Priority queue to process elements in decreasing order of their value
+        priority_queue<pair<int, int>> processingQueue;
+        // Push each number and its index onto the priority queue
+        for (int index = 0; index < numsSize; index++) {
+            processingQueue.push({nums[index], index});
+        }
+
+        // Process elements while there are operations left
+        long long score = 1;
+        while (k > 0) {
+            // Get the element with the maximum value from the queue
+            auto [num, index] = processingQueue.top();
+            processingQueue.pop();
+            // Calculate the number of operations to apply on the current element
+            long long operations = min((long long)k, numOfSubarrays[index]);
+            // Update the score by raising the element to the power of operations
+            score = (score * powerOfModulo(num, operations)) % MODULO;
+            // Reduce the remaining operations count
+            k -= operations;
+        }
+        retVal = score;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.MODULO = 10 ** 9 + 7
+
+    def powerOfModulo(self, base: int, exponent: int) -> int:
+        retVal = 1
+
+        # Calculate the exponentiation using binary exponentiation
+        while exponent > 0:
+            # If the exponent is odd, multiply the result by the base
+            if exponent % 2 == 1:
+                retVal = (retVal * base) % self.MODULO
+
+            # Square the base and halve the exponent
+            base = (base * base) % self.MODULO
+            exponent //= 2
+
+        return retVal
+
+    def maximumScore(self, nums: List[int], k: int) -> int:
+        retVal = 1
+
+        numsSize = len(nums)
+
+        primeScores = [0] * numsSize
+        # Calculate the prime score for each number in nums
+        for index in range(numsSize):
+            num = nums[index]
+            # Check for prime factors from 2 to sqrt(n)
+            for factor in range(2, int(sqrt(num)) + 1):
+                if num % factor != 0:
+                    continue
+                # Increment prime score for each prime factor
+                primeScores[index] += 1
+                # Remove all occurrences of the prime factor from num
+                while num % factor == 0:
+                    num //= factor
+
+            # If num is still greater than or equal to 2, it's a prime factor
+            if num >= 2:
+                primeScores[index] += 1
+
+        # Initialize next and previous dominant index arrays
+        nextDominant = [numsSize] * numsSize
+        prevDominant = [-1] * numsSize
+        # Stack to store indices for monotonic decreasing prime score
+        decreasingPrimeScoreStack = []
+        # Calculate the next and previous dominant indices for each number
+        for index in range(numsSize):
+            # While the stack is not empty and the current prime score is greater than the stack's top
+            while (decreasingPrimeScoreStack) and (primeScores[decreasingPrimeScoreStack[-1]] < primeScores[index]):
+                topIndex = decreasingPrimeScoreStack.pop()
+                # Set the next dominant element for the popped index
+                nextDominant[topIndex] = index
+
+            # If the stack is not empty, set the previous dominant element for the current index
+            if decreasingPrimeScoreStack:
+                prevDominant[index] = decreasingPrimeScoreStack[-1]
+
+            # Push the current index onto the stack
+            decreasingPrimeScoreStack.append(index)
+
+        # Calculate the number of subarrays in which each element is dominant
+        numOfSubarrays = [0] * numsSize
+        for index in range(numsSize):
+            numOfSubarrays[index] = (nextDominant[index] - index) * (index - prevDominant[index])
+
+        # Priority queue to process elements in decreasing order of their value
+        processingQueue = []
+        # Push each number and its index onto the priority queue
+        for index in range(numsSize):
+            heappush(processingQueue, (-nums[index], index))
+
+        # Process elements while there are operations left
+        while k > 0:
+            # Get the element with the maximum value from the queue
+            num, index = heappop(processingQueue)
+            num = -num  # Negate back to positive
+
+            # Calculate the number of operations to apply on the current element
+            operations = min(k, numOfSubarrays[index])
+
+            # Update the score by raising the element to the power of operations
+            retVal = (retVal * self.powerOfModulo(num, operations)) % self.MODULO
+
+            # Reduce the remaining operations count
+            k -= operations
+
+        return retVal
+```
+
+</details>
+
 ## [3174. Clear Digits](https://leetcode.com/problems/clear-digits/)  1255
 
 - [Official](https://leetcode.com/problems/clear-digits/editorial/)
