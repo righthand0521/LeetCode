@@ -39,6 +39,13 @@
 
 </details>
 
+<details><summary>Maximum Value of an Ordered Triplet</summary>
+
+- [2873. Maximum Value of an Ordered Triplet I](https://leetcode.com/problems/maximum-value-of-an-ordered-triplet-i/)
+- [2874. Maximum Value of an Ordered Triplet II](https://leetcode.com/problems/maximum-value-of-an-ordered-triplet-ii/)
+
+</details>
+
 ## Backtracking
 
 <details><summary>Combination Sum</summary>
