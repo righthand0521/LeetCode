@@ -593,6 +593,13 @@
 
 </details>
 
+<details><summary>Smallest Subtree with all the Deepest Nodes</summary>
+
+- [865. Smallest Subtree with all the Deepest Nodes](https://leetcode.com/problems/smallest-subtree-with-all-the-deepest-nodes/)
+- [1123. Lowest Common Ancestor of Deepest Leaves](https://leetcode.com/problems/lowest-common-ancestor-of-deepest-leaves/)
+
+</details>
+
 ## Two Pointers
 
 <details><summary>3Sum</summary>

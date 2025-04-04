@@ -859,6 +859,202 @@ class Solution:
 
 </details>
 
+## [1123. Lowest Common Ancestor of Deepest Leaves](https://leetcode.com/problems/lowest-common-ancestor-of-deepest-leaves/)  1607
+
+- [Official](https://leetcode.com/problems/lowest-common-ancestor-of-deepest-leaves/editorial/)
+- [Official](https://leetcode.cn/problems/lowest-common-ancestor-of-deepest-leaves/solutions/2421007/zui-shen-xie-jie-dian-de-zui-jin-gong-go-cjzv/)
+
+<details><summary>Description</summary>
+
+```text
+Given the root of a binary tree, return the lowest common ancestor of its deepest leaves.
+
+Recall that:
+- The node of a binary tree is a leaf if and only if it has no children
+- The depth of the root of the tree is 0. if the depth of a node is d, the depth of each of its children is d + 1.
+- The lowest common ancestor of a set S of nodes,
+  is the node A with the largest depth such that every node in S is in the subtree with root A.
+
+Example 1:
+      3
+   /     \
+  5       1
+ / \     / \
+6   2   0   8
+   / \
+  7   4
+Input: root = [3,5,1,6,2,0,8,null,null,7,4]
+Output: [2,7,4]
+Explanation: We return the node with value 2, colored in yellow in the diagram.
+The nodes coloured in blue are the deepest leaf-nodes of the tree.
+Note that nodes 6, 0, and 8 are also leaf nodes, but the depth of them is 2, but the depth of nodes 7 and 4 is 3.
+
+Example 2:
+Input: root = [1]
+Output: [1]
+Explanation: The root is the deepest node in the tree, and it's the lca of itself.
+
+Example 3:
+   0
+  / \
+ 1   3
+  \
+   2
+Input: root = [0,1,3,null,2]
+Output: [2]
+Explanation: The deepest leaf node in the tree is 2, the lca of one node is itself.
+
+Constraints:
+The number of nodes in the tree will be in the range [1, 1000].
+0 <= Node.val <= 1000
+The values of the nodes in the tree are unique.
+
+Note: This question is the same as 865: https://leetcode.com/problems/smallest-subtree-with-all-the-deepest-nodes/
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Do a postorder traversal.
+2. Then, if both subtrees contain a deepest leaf, you can mark this node as the answer (so far).
+3. The final node marked will be the correct answer.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct Pair {
+    struct TreeNode* node;
+    int depth;
+};
+struct Pair dfs(struct TreeNode* root) {
+    struct Pair pRetVal = {NULL, 0};
+
+    if (root == NULL) {
+        return pRetVal;
+    }
+
+    struct Pair left = dfs(root->left);
+    struct Pair right = dfs(root->right);
+    if (left.depth > right.depth) {
+        pRetVal = (struct Pair){left.node, left.depth + 1};
+    } else if (left.depth < right.depth) {
+        pRetVal = (struct Pair){right.node, right.depth + 1};
+    } else {
+        pRetVal = (struct Pair){root, left.depth + 1};
+    }
+
+    return pRetVal;
+}
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+struct TreeNode* lcaDeepestLeaves(struct TreeNode* root) {
+    struct TreeNode* pRetVal = NULL;
+
+    pRetVal = dfs(root).node;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   private:
+    pair<TreeNode*, int> dfs(TreeNode* root) {
+        pair<TreeNode*, int> retVal = {nullptr, 0};
+
+        if (root == nullptr) {
+            return retVal;
+        }
+
+        pair<TreeNode*, int> left = dfs(root->left);
+        pair<TreeNode*, int> right = dfs(root->right);
+        if (left.second > right.second) {
+            retVal = {left.first, left.second + 1};
+        } else if (left.second < right.second) {
+            retVal = {right.first, right.second + 1};
+        } else {
+            retVal = {root, left.second + 1};
+        }
+
+        return retVal;
+    }
+
+   public:
+    TreeNode* lcaDeepestLeaves(TreeNode* root) {
+        TreeNode* pRetVal = nullptr;
+
+        pRetVal = dfs(root).first;
+
+        return pRetVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def dfs(self, root) -> tuple[int, Optional[TreeNode]]:
+        retVal = [0, None]
+
+        if not root:
+            return retVal
+
+        left = self.dfs(root.left)
+        right = self.dfs(root.right)
+        if left[0] > right[0]:
+            retVal = [left[0] + 1, left[1]]
+        elif left[0] < right[0]:
+            retVal = [right[0] + 1, right[1]]
+        else:
+            retVal = [left[0] + 1, root]
+
+        return retVal
+
+    def lcaDeepestLeaves(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        retVal = None
+
+        retVal = self.dfs(root)[1]
+
+        return retVal
+```
+
+</details>
+
 ## [1145. Binary Tree Coloring Game](https://leetcode.com/problems/binary-tree-coloring-game/)  1741
 
 - [Official](https://leetcode.cn/problems/binary-tree-coloring-game/solutions/2087907/er-cha-shu-zhao-se-you-xi-by-leetcode-so-ruys/)
