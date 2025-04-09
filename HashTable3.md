@@ -5643,6 +5643,164 @@ class Solution:
 
 </details>
 
+## [3375. Minimum Operations to Make Array Values Equal to K](https://leetcode.com/problems/minimum-operations-to-make-array-values-equal-to-k/)  1382
+
+- [Official](https://leetcode.com/problems/minimum-operations-to-make-array-values-equal-to-k/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-operations-to-make-array-values-equal-to-k/solutions/3636172/shi-shu-zu-de-zhi-quan-bu-wei-k-de-zui-s-bhcw/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array nums and an integer k.
+
+An integer h is called valid if all values in the array that are strictly greater than h are identical.
+
+For example, if nums = [10, 8, 10, 8], a valid integer is h = 9 because all nums[i] > 9 are equal to 10,
+but 5 is not a valid integer.
+
+You are allowed to perform the following operation on nums:
+- Select an integer h that is valid for the current values in nums.
+- For each index i where nums[i] > h, set nums[i] to h.
+
+Return the minimum number of operations required to make every element in nums equal to k.
+If it is impossible to make all elements equal to k, return -1.
+
+Example 1:
+Input: nums = [5,2,5,4,5], k = 2
+Output: 2
+Explanation:
+The operations can be performed in order using valid integers 4 and then 2.
+
+Example 2:
+Input: nums = [2,1,2], k = 2
+Output: -1
+Explanation:
+It is impossible to make all the values equal to 2.
+
+Example 3:
+Input: nums = [9,7,5,3], k = 1
+Output: 4
+Explanation:
+The operations can be performed using valid integers in the order 7, 5, 3, and 1.
+
+Constraints:
+1 <= nums.length <= 100
+1 <= nums[i] <= 100
+1 <= k <= 100
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Handle the case when the array contains an integer less than k
+2. Start by performing operations on the highest integer
+3. You can perform an operation on the highest integer using the second-highest,
+   an operation on the second-highest using the third-highest, and so forth.
+4. The answer is the number of distinct integers in the array that are larger than k.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *current;
+    struct hashTable *tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d\n", pFree->key);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int minOperations(int *nums, int numsSize, int k) {
+    int retVal = -1;  // If it is impossible to make all elements equal to k, return -1.
+
+    struct hashTable *pHashTable = NULL;
+    struct hashTable *pTemp;
+    int key;
+    for (int i = 0; i < numsSize; i++) {
+        key = nums[i];
+        if (key < k) {
+            freeAll(pHashTable);
+            return retVal;
+        } else if (key > k) {
+            pTemp = NULL;
+            HASH_FIND_INT(pHashTable, &key, pTemp);
+            if (pTemp != NULL) {
+                continue;
+            }
+
+            pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                freeAll(pHashTable);
+                return retVal;
+            }
+            pTemp->key = key;
+            HASH_ADD_INT(pHashTable, key, pTemp);
+        }
+    }
+    retVal = HASH_COUNT(pHashTable);
+    freeAll(pHashTable);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minOperations(vector<int>& nums, int k) {
+        int retVal = -1;  // If it is impossible to make all elements equal to k, return -1.
+
+        unordered_set<int> hashTable;
+        for (int x : nums) {
+            if (x < k) {
+                return retVal;
+            } else if (x > k) {
+                hashTable.insert(x);
+            }
+        }
+        retVal = hashTable.size();
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minOperations(self, nums: List[int], k: int) -> int:
+        retVal = -1  # If it is impossible to make all elements equal to k, return -1.
+
+        hashTable = set()
+        for x in nums:
+            if x < k:
+                return retVal
+            elif x > k:
+                hashTable.add(x)
+        retVal = len(hashTable)
+
+        return retVal
+```
+
+</details>
+
 ## [3396. Minimum Number of Operations to Make Elements in Array Distinct](https://leetcode.com/problems/minimum-number-of-operations-to-make-elements-in-array-distinct/)  1299
 
 - [Official](https://leetcode.com/problems/minimum-number-of-operations-to-make-elements-in-array-distinct/editorial/)
