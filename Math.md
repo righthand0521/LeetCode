@@ -7550,6 +7550,127 @@ class Solution:
 
 </details>
 
+## [2843. Count Symmetric Integers](https://leetcode.com/problems/count-symmetric-integers/)  1269
+
+- [Official](https://leetcode.com/problems/count-symmetric-integers/editorial/)
+- [Official](https://leetcode.cn/problems/count-symmetric-integers/solutions/3636168/tong-ji-dui-cheng-zheng-shu-de-shu-mu-by-layo/)
+
+<details><summary>Description</summary>
+
+```text
+You are given two positive integers low and high.
+
+An integer x consisting of 2 * n digits is symmetric
+if the sum of the first n digits of x is equal to the sum of the last n digits of x.
+Numbers with an odd number of digits are never symmetric.
+
+Return the number of symmetric integers in the range [low, high].
+
+Example 1:
+Input: low = 1, high = 100
+Output: 9
+Explanation: There are 9 symmetric integers between 1 and 100: 11, 22, 33, 44, 55, 66, 77, 88, and 99.
+
+Example 2:
+Input: low = 1200, high = 1230
+Output: 4
+Explanation: There are 4 symmetric integers between 1200 and 1230: 1203, 1212, 1221, and 1230.
+
+Constraints:
+1 <= low <= high <= 10^4
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Iterate over all numbers from low to high
+2. Convert each number to a string and compare the sum of the first half with that of the second.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int countSymmetricIntegers(int low, int high) {
+    int retVal = 0;
+
+    // 1 <= low <= high <= 10^4
+    for (int num = low; num <= high; ++num) {
+        if (num < 100) {
+            if (num % 11 == 0) {
+                retVal++;
+            }
+        } else if ((1000 <= num) && (num < 10000)) {
+            int left = num / 1000 + (num % 1000) / 100;
+            int right = (num % 100) / 10 + num % 10;
+            if (left == right) {
+                retVal++;
+            }
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int countSymmetricIntegers(int low, int high) {
+        int retVal = 0;
+
+        // 1 <= low <= high <= 10^4
+        for (int num = low; num <= high; ++num) {
+            if (num < 100) {
+                if (num % 11 == 0) {
+                    retVal++;
+                }
+            } else if ((1000 <= num) && (num < 10000)) {
+                int left = num / 1000 + (num % 1000) / 100;
+                int right = (num % 100) / 10 + num % 10;
+                if (left == right) {
+                    retVal++;
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def countSymmetricIntegers(self, low: int, high: int) -> int:
+        retVal = 0
+
+        # 1 <= low <= high <= 10^4
+        for num in range(low, high + 1):
+            if num < 100:
+                if num % 11 == 0:
+                    retVal += 1
+            elif 1000 <= num < 10000:
+                left = num // 1000 + num % 1000 // 100
+                right = num % 100 // 10 + num % 10
+                if left == right:
+                    retVal += 1
+
+        return retVal
+```
+
+</details>
+
 ## [2849. Determine if a Cell Is Reachable at a Given Time](https://leetcode.com/problems/determine-if-a-cell-is-reachable-at-a-given-time/)  1515
 
 - [Official](https://leetcode.com/problems/determine-if-a-cell-is-reachable-at-a-given-time/editorial/)
