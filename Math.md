@@ -7915,3 +7915,247 @@ class Solution:
 ```
 
 </details>
+
+## [3272. Find the Count of Good Integers](https://leetcode.com/problems/find-the-count-of-good-integers/)  2382
+
+- [Official](https://leetcode.com/problems/find-the-count-of-good-integers/editorial/)
+- [Official](https://leetcode.cn/problems/find-the-count-of-good-integers/solutions/3637602/tong-ji-hao-zheng-shu-de-shu-mu-by-leetc-m5l4/)
+
+<details><summary>Description</summary>
+
+```text
+You are given two positive integers n and k.
+
+An integer x is called k-palindromic if:
+- x is a palindrome.
+- x is divisible by k.
+
+An integer is called good if its digits can be rearranged to form a k-palindromic integer.
+For example, for k = 2, 2020 can be rearranged to form the k-palindromic integer 2002,
+whereas 1010 cannot be rearranged to form a k-palindromic integer.
+
+Return the count of good integers containing n digits.
+
+Note that any integer must not have leading zeros, neither before nor after rearrangement.
+For example, 1010 cannot be rearranged to form 101.
+
+Example 1:
+Input: n = 3, k = 5
+Output: 27
+Explanation:
+Some of the good integers are:
+551 because it can be rearranged to form 515.
+525 because it is already k-palindromic.
+
+Example 2:
+Input: n = 1, k = 4
+Output: 2
+Explanation:
+The two good integers are 4 and 8.
+
+Example 3:
+Input: n = 5, k = 6
+Output: 2468
+
+Constraints:
+1 <= n <= 10
+1 <= k <= 9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. How to generate all K-palindromic strings of length n? Do we need to go through all n digits?
+2. Use permutations to calculate the number of possible rearrangements.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    char *key;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *current;
+    struct hashTable *tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%s\n", pFree->key);
+        HASH_DEL(pFree, current);
+        free(current->key);
+        free(current);
+    }
+}
+int compareChar(const void *c1, const void *c2) {
+    // ascending order
+    return (*(char *)c1 > *(char *)c2);
+}
+long long countGoodIntegers(int n, int k) {
+    long long retVal = 0;
+
+    // Enumerate the number of palindrome numbers of n digits
+    int base = (int)pow(10, (n - 1) / 2);
+    int skip = n & 1;
+    char s[16];
+    int sSize;
+    long long palindromicInteger;
+    struct hashTable *pHashTable = NULL;
+    struct hashTable *pTemp;
+    for (int i = base; i < base * 10; i++) {
+        memset(s, 0, sizeof(s));
+        sprintf(s, "%d", i);
+        sSize = strlen(s);
+        for (int j = sSize - 1 - skip; j >= 0; j--) {
+            s[sSize + (sSize - skip - 1 - j)] = s[j];
+        }
+        s[2 * sSize - skip] = '\0';
+        palindromicInteger = atoll(s);
+
+        // If the current palindrome number is a k-palindromic integer
+        if (palindromicInteger % k == 0) {
+            sSize = strlen(s);
+            qsort(s, sSize, sizeof(char), compareChar);
+
+            pTemp = NULL;
+            HASH_FIND_STR(pHashTable, s, pTemp);
+            if (pTemp != NULL) {
+                continue;
+            }
+            pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                return retVal;
+            }
+            pTemp->key = strdup(s);
+            HASH_ADD_STR(pHashTable, key, pTemp);
+        }
+    }
+
+    long long *factorial = malloc((n + 1) * sizeof(long long));
+    if (factorial == NULL) {
+        perror("malloc");
+        freeAll(pHashTable);
+        return retVal;
+    }
+    factorial[0] = 1;
+    for (int i = 1; i <= n; i++) {
+        factorial[i] = factorial[i - 1] * i;
+    }
+
+    pTemp = NULL;
+    int cnt[10];
+    long long tot;
+    for (pTemp = pHashTable; pTemp; pTemp = pTemp->hh.next) {
+        memset(cnt, 0, sizeof(cnt));
+        for (int j = 0; pTemp->key[j] != '\0'; j++) {
+            cnt[pTemp->key[j] - '0']++;
+        }
+
+        // Calculate permutations and combinations
+        tot = (n - cnt[0]) * factorial[n - 1];
+        for (int j = 0; j < 10; j++) {
+            tot /= factorial[cnt[j]];
+        }
+        retVal += tot;
+    }
+
+    //
+    free(factorial);
+    freeAll(pHashTable);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    long long countGoodIntegers(int n, int k) {
+        long long retVal = 0;
+
+        // Enumerate the number of palindrome numbers of n digits
+        int base = pow(10, (n - 1) / 2);
+        int skip = n & 1;
+        unordered_set<string> dict;
+        for (int i = base; i < base * 10; i++) {
+            string s = to_string(i);
+            s += string(s.rbegin() + skip, s.rend());
+            long long palindromicInteger = stoll(s);
+
+            // If the current palindrome number is a k-palindromic integer
+            if (palindromicInteger % k == 0) {
+                sort(s.begin(), s.end());
+                dict.emplace(s);
+            }
+        }
+
+        vector<long long> factorial(n + 1, 1);
+        for (int i = 1; i <= n; i++) {
+            factorial[i] = factorial[i - 1] * i;
+        }
+        for (const string& s : dict) {
+            vector<int> cnt(10);
+            for (char c : s) {
+                cnt[c - '0']++;
+            }
+
+            // Calculate permutations and combinations
+            long long tot = (n - cnt[0]) * factorial[n - 1];
+            for (int x : cnt) {
+                tot /= factorial[x];
+            }
+            retVal += tot;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def countGoodIntegers(self, n: int, k: int) -> int:
+        retVal = 0
+
+        # Enumerate the number of palindrome numbers of n digits
+        base = 10 ** ((n - 1) // 2)
+        skip = n & 1
+        dictionary = set()
+        for i in range(base, base * 10):
+            s = str(i)
+            s += s[::-1][skip:]
+            palindromicInteger = int(s)
+
+            # If the current palindrome number is a k-palindromic integer
+            if palindromicInteger % k == 0:
+                sorted_s = "".join(sorted(s))
+                dictionary.add(sorted_s)
+
+        fac = [factorial(i) for i in range(n + 1)]
+        for s in dictionary:
+            cnt = [0] * 10
+            for c in s:
+                cnt[int(c)] += 1
+
+            # Calculate permutations and combinations
+            tot = (n - cnt[0]) * fac[n - 1]
+            for x in cnt:
+                tot //= fac[x]
+            retVal += tot
+
+        return retVal
+```
+
+</details>
