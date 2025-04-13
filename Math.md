@@ -5767,6 +5767,145 @@ class Solution:
 
 </details>
 
+## [1922. Count Good Numbers](https://leetcode.com/problems/count-good-numbers/)  1674
+
+- [Official](https://leetcode.com/problems/count-good-numbers/editorial/)
+- [Official](https://leetcode.cn/problems/count-good-numbers/solutions/857968/tong-ji-hao-shu-zi-de-shu-mu-by-leetcode-53jj/)
+
+<details><summary>Description</summary>
+
+```text
+A digit string is good if the digits (0-indexed) at even indices are even
+and the digits at odd indices are prime (2, 3, 5, or 7).
+- For example, "2582" is good because the digits (2 and 8) at even positions are even
+  and the digits (5 and 2) at odd positions are prime.
+  However, "3245" is not good because 3 is at an even index but is not even.
+
+Given an integer n, return the total number of good digit strings of length n.
+Since the answer may be large, return it modulo 109 + 7.
+
+A digit string is a string consisting of digits 0 through 9 that may contain leading zeros.
+
+Example 1:
+Input: n = 1
+Output: 5
+Explanation: The good numbers of length 1 are "0", "2", "4", "6", "8".
+
+Example 2:
+Input: n = 4
+Output: 400
+
+Example 3:
+Input: n = 50
+Output: 564908303
+
+Constraints:
+1 <= n <= 10^15
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Is there a formula we can use to find the count of all the good numbers?
+2. Exponentiation can be done very fast if we looked at the binary bits of n.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MODULO (int)(1e9 + 7)
+long long quickmul(int x, long long y) {
+    long long retVal = 1;
+
+    long long mul = x;
+    while (y > 0) {
+        if (y % 2 == 1) {
+            retVal = (retVal * mul) % MODULO;
+        }
+        mul = (mul * mul) % MODULO;
+        y /= 2;
+    }
+
+    return retVal;
+}
+int countGoodNumbers(long long n) {
+    int retVal = 0;
+
+    retVal = (int)(quickmul(5, (n + 1) / 2) * quickmul(4, n / 2) % MODULO);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+#define MODULO (int)(1e9 + 7)
+   private:
+    long long quickmul(int x, long long y) {
+        long long retVal = 1;
+
+        long long mul = x;
+        while (y > 0) {
+            if (y % 2 == 1) {
+                retVal = (retVal * mul) % MODULO;
+            }
+            mul = (mul * mul) % MODULO;
+            y /= 2;
+        }
+
+        return retVal;
+    }
+
+   public:
+    int countGoodNumbers(long long n) {
+        int retVal = 0;
+
+        retVal = (int)(quickmul(5, (n + 1) / 2) * quickmul(4, n / 2) % MODULO);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self):
+        self.MODULO = 10 ** 9 + 7
+
+    def quickmul(self, x: int, y: int) -> int:
+        retVal = 1
+
+        mul = x
+        while y > 0:
+            if y % 2 == 1:
+                retVal = retVal * mul % self.MODULO
+            mul = mul * mul % self.MODULO
+            y //= 2
+
+        return retVal
+
+    def countGoodNumbers(self, n: int) -> int:
+        retVal = 0
+
+        retVal = self.quickmul(5, (n + 1) // 2) * self.quickmul(4, n // 2) % self.MODULO
+
+        return retVal
+```
+
+</details>
+
 ## [1979. Find Greatest Common Divisor of Array](https://leetcode.com/problems/find-greatest-common-divisor-of-array/)  1184
 
 <details><summary>Description</summary>
