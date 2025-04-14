@@ -1793,6 +1793,119 @@ class Solution:
 
 </details>
 
+## [1534. Count Good Triplets](https://leetcode.com/problems/count-good-triplets/)  1279
+
+- [Official](https://leetcode.com/problems/count-good-triplets/editorial/)
+- [Official](https://leetcode.cn/problems/count-good-triplets/solutions/371340/tong-ji-hao-san-yuan-zu-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+Given an array of integers arr, and three integers a, b and c. You need to find the number of good triplets.
+
+A triplet (arr[i], arr[j], arr[k]) is good if the following conditions are true:
+- 0 <= i < j < k < arr.length
+- |arr[i] - arr[j]| <= a
+- |arr[j] - arr[k]| <= b
+- |arr[i] - arr[k]| <= c
+Where |x| denotes the absolute value of x.
+
+Return the number of good triplets.
+
+Example 1:
+Input: arr = [3,0,1,1,9,7], a = 7, b = 2, c = 3
+Output: 4
+Explanation: There are 4 good triplets: [(3,0,1), (3,0,1), (3,1,1), (0,1,1)].
+
+Example 2:
+Input: arr = [1,1,2,2,3], a = 0, b = 0, c = 1
+Output: 0
+Explanation: No triplet satisfies all conditions.
+
+Constraints:
+3 <= arr.length <= 100
+0 <= arr[i] <= 1000
+0 <= a, b, c <= 1000
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Notice that the constraints are small enough for a brute force solution to pass.
+2. Loop through all triplets, and count the ones that are good.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int countGoodTriplets(int* arr, int arrSize, int a, int b, int c) {
+    int retVal = 0;
+
+    for (int i = 0; i < arrSize; ++i) {
+        for (int j = i + 1; j < arrSize; ++j) {
+            for (int k = j + 1; k < arrSize; ++k) {
+                if ((abs(arr[i] - arr[j]) <= a) && (abs(arr[j] - arr[k]) <= b) && (abs(arr[i] - arr[k]) <= c)) {
+                    ++retVal;
+                }
+            }
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int countGoodTriplets(vector<int>& arr, int a, int b, int c) {
+        int retVal = 0;
+
+        int arrSize = arr.size();
+        for (int i = 0; i < arrSize; ++i) {
+            for (int j = i + 1; j < arrSize; ++j) {
+                for (int k = j + 1; k < arrSize; ++k) {
+                    if ((abs(arr[i] - arr[j]) <= a) && (abs(arr[j] - arr[k]) <= b) && (abs(arr[i] - arr[k]) <= c)) {
+                        ++retVal;
+                    }
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def countGoodTriplets(self, arr: List[int], a: int, b: int, c: int) -> int:
+        retVal = 0
+
+        arrSize = len(arr)
+        for i in range(arrSize):
+            for j in range(i + 1, arrSize):
+                for k in range(j + 1, arrSize):
+                    if (abs(arr[i] - arr[j]) <= a) and (abs(arr[j] - arr[k]) <= b) and (abs(arr[i] - arr[k]) <= c):
+                        retVal += 1
+
+        return retVal
+```
+
+</details>
+
 ## [1535. Find the Winner of an Array Game](https://leetcode.com/problems/find-the-winner-of-an-array-game/)  1433
 
 - [Official](https://leetcode.com/problems/find-the-winner-of-an-array-game/editorial/)
