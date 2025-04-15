@@ -6026,6 +6026,280 @@ class Solution:
 
 </details>
 
+## [2179. Count Good Triplets in an Array](https://leetcode.com/problems/count-good-triplets-in-an-array/)  2272
+
+- [Official](https://leetcode.com/problems/count-good-triplets-in-an-array/editorial/)
+- [Official](https://leetcode.cn/problems/count-good-triplets-in-an-array/solutions/3650507/tong-ji-shu-zu-zhong-hao-san-yuan-zu-shu-u13d/)
+
+<details><summary>Description</summary>
+
+```text
+You are given two 0-indexed arrays nums1 and nums2 of length n, both of which are permutations of [0, 1, ..., n - 1].
+
+A good triplet is a set of 3 distinct values which are present in increasing order by position both in nums1 and nums2.
+In other words, if we consider pos1v as the index of the value v in nums1 and pos2v as the index of the value v in nums2,
+then a good triplet will be a set (x, y, z) where 0 <= x, y, z <= n - 1,
+such that pos1x < pos1y < pos1z and pos2x < pos2y < pos2z.
+
+Return the total number of good triplets.
+
+Example 1:
+Input: nums1 = [2,0,1,3], nums2 = [0,1,2,3]
+Output: 1
+Explanation:
+There are 4 triplets (x,y,z) such that pos1x < pos1y < pos1z. They are (2,0,1), (2,0,3), (2,1,3), and (0,1,3).
+Out of those triplets, only the triplet (0,1,3) satisfies pos2x < pos2y < pos2z. Hence, there is only 1 good triplet.
+
+Example 2:
+Input: nums1 = [4,0,1,3,2], nums2 = [4,1,0,2,3]
+Output: 4
+Explanation: The 4 good triplets are (4,0,3), (4,0,2), (4,1,3), and (4,1,2).
+
+Constraints:
+n == nums1.length == nums2.length
+3 <= n <= 10^5
+0 <= nums1[i], nums2[i] <= n - 1
+nums1 and nums2 are permutations of [0, 1, ..., n - 1].
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. For every value y,
+   how can you find the number of values x (0 ≤ x, y ≤ n - 1) such that x appears before y in both of the arrays?
+2. Similarly, for every value y,
+   try finding the number of values z (0 ≤ y, z ≤ n - 1) such that z appears after y in both of the arrays.
+3. Now, for every value y, count the number of good triplets that can be formed if y is considered as the middle element.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#ifndef FENWICKTREE_H
+#define FENWICKTREE_H
+
+typedef struct {
+    int* tree;
+    int size;
+} FenwickTree;
+FenwickTree* fenwickTreeCreate(int size) {
+    FenwickTree* obj = NULL;
+
+    obj = (FenwickTree*)malloc(sizeof(FenwickTree));
+    if (obj == NULL) {
+        perror("malloc");
+        return obj;
+    }
+
+    obj->size = size;
+    obj->tree = (int*)calloc(size + 1, sizeof(int));
+    if (obj->tree == NULL) {
+        perror("malloc");
+        free(obj);
+        obj = NULL;
+        return obj;
+    }
+
+    return obj;
+}
+void fenwickTreeUpdate(FenwickTree* obj, int index, int delta) {
+    index++;
+    while (index <= obj->size) {
+        obj->tree[index] += delta;
+        index += (index & -index);
+    }
+}
+int fenwickTreeQuery(FenwickTree* obj, int index) {
+    int retVal = 0;
+
+    index++;
+    while (index > 0) {
+        retVal += obj->tree[index];
+        index -= (index & -index);
+    }
+
+    return retVal;
+}
+void fenwickTreeFree(FenwickTree* obj) {
+    free(obj->tree);
+    obj->tree = NULL;
+    free(obj);
+    obj = NULL;
+}
+
+#endif  // FENWICKTREE_H
+long long goodTriplets(int* nums1, int nums1Size, int* nums2, int nums2Size) {
+    long long retVal = 0;
+
+    int* pos2 = (int*)malloc(nums1Size * sizeof(int));
+    if (pos2 == NULL) {
+        perror("malloc");
+        return retVal;
+    }
+    for (int i = 0; i < nums1Size; i++) {
+        pos2[nums2[i]] = i;
+    }
+
+    int* reversedIndexMapping = (int*)malloc(nums1Size * sizeof(int));
+    if (reversedIndexMapping == NULL) {
+        perror("malloc");
+        free(pos2);
+        return retVal;
+    }
+    for (int i = 0; i < nums1Size; i++) {
+        reversedIndexMapping[pos2[nums1[i]]] = i;
+    }
+
+    FenwickTree* tree = fenwickTreeCreate(nums1Size);
+    if (tree == NULL) {
+        perror("malloc");
+        free(pos2);
+        free(reversedIndexMapping);
+        return retVal;
+    }
+
+    for (int value = 0; value < nums1Size; value++) {
+        int pos = reversedIndexMapping[value];
+        int left = fenwickTreeQuery(tree, pos);
+        fenwickTreeUpdate(tree, pos, 1);
+
+        int right = (nums1Size - 1 - pos) - (value - left);
+        retVal += ((long long)left * right);
+    }
+
+    // Free allocated memory
+    free(pos2);
+    free(reversedIndexMapping);
+    fenwickTreeFree(tree);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class FenwickTree {
+   private:
+    vector<int> tree;
+
+   public:
+    FenwickTree(int size) : tree(size + 1, 0) {}
+    void update(int index, int delta) {
+        index++;
+        int treeSize = tree.size();
+        while (index < treeSize) {
+            tree[index] += delta;
+            index += (index & -index);
+        }
+    }
+    int query(int index) {
+        int retVal = 0;
+
+        index++;
+        while (index > 0) {
+            retVal += tree[index];
+            index -= (index & -index);
+        }
+
+        return retVal;
+    }
+};
+
+class Solution {
+   public:
+    long long goodTriplets(vector<int>& nums1, vector<int>& nums2) {
+        long long retVal = 0;
+
+        int nums1Size = nums1.size();
+
+        vector<int> pos2(nums1Size);
+        for (int i = 0; i < nums1Size; i++) {
+            pos2[nums2[i]] = i;
+        }
+
+        vector<int> reversedIndexMapping(nums1Size);
+        for (int i = 0; i < nums1Size; i++) {
+            reversedIndexMapping[pos2[nums1[i]]] = i;
+        }
+
+        FenwickTree tree(nums1Size);
+
+        for (int value = 0; value < nums1Size; value++) {
+            int pos = reversedIndexMapping[value];
+            int left = tree.query(pos);
+            tree.update(pos, 1);
+
+            int right = (nums1Size - 1 - pos) - (value - left);
+            retVal += ((long long)left * right);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class FenwickTree:
+    def __init__(self, size: int) -> None:
+        self.tree = [0] * (size + 1)
+
+    def update(self, index: int, delta: int) -> None:
+        index += 1
+        treeSize = len(self.tree)
+        while index <= treeSize - 1:
+            self.tree[index] += delta
+            index += (index & -index)
+
+    def query(self, index: int) -> int:
+        retVal = 0
+
+        index += 1
+        while index > 0:
+            retVal += self.tree[index]
+            index -= (index & -index)
+
+        return retVal
+
+
+class Solution:
+    def goodTriplets(self, nums1: List[int], nums2: List[int]) -> int:
+        retVal = 0
+
+        nums1Size = len(nums1)
+
+        pos2 = [0] * nums1Size
+        for i, num2 in enumerate(nums2):
+            pos2[num2] = i
+
+        reversedIndexMapping = [0] * nums1Size
+        for i, num1 in enumerate(nums1):
+            reversedIndexMapping[pos2[num1]] = i
+
+        tree = FenwickTree(nums1Size)
+
+        for value in range(nums1Size):
+            pos = reversedIndexMapping[value]
+            left = tree.query(pos)
+            tree.update(pos, 1)
+            right = (nums1Size - 1 - pos) - (value - left)
+            retVal += (left * right)
+
+        return retVal
+```
+
+</details>
+
 ## [2187. Minimum Time to Complete Trips](https://leetcode.com/problems/minimum-time-to-complete-trips/)  1640
 
 - [Official](https://leetcode.cn/problems/minimum-time-to-complete-trips/solutions/1300957/wan-cheng-lu-tu-de-zui-shao-shi-jian-by-uxyrp/)
