@@ -130,6 +130,13 @@
 
 </details>
 
+<details><summary>Binary Indexed Tree</summary>
+
+- [315. Count of Smaller Numbers After Self](https://leetcode.com/problems/count-of-smaller-numbers-after-self/)
+- [2179. Count Good Triplets in an Array](https://leetcode.com/problems/count-good-triplets-in-an-array/)
+
+</details>
+
 ## Bit Manipulation
 
 <details><summary>Single Number</summary>

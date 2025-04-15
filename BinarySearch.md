@@ -1746,6 +1746,256 @@ class Solution:
 
 </details>
 
+## [315. Count of Smaller Numbers After Self](https://leetcode.com/problems/count-of-smaller-numbers-after-self/)
+
+- [Official](https://leetcode.cn/problems/count-of-smaller-numbers-after-self/solutions/324892/ji-suan-you-ce-xiao-yu-dang-qian-yuan-su-de-ge-s-7/)
+
+<details><summary>Description</summary>
+
+```text
+Given an integer array nums,
+return an integer array counts where counts[i] is the number of smaller elements to the right of nums[i].
+
+Example 1:
+Input: nums = [5,2,6,1]
+Output: [2,1,1,0]
+Explanation:
+To the right of 5 there are 2 smaller elements (2 and 1).
+To the right of 2 there is only 1 smaller element (1).
+To the right of 6 there is 1 smaller element (1).
+To the right of 1 there is 0 smaller element.
+
+Example 2:
+Input: nums = [-1]
+Output: [0]
+
+Example 3:
+Input: nums = [-1,-1]
+Output: [0,0]
+
+Constraints:
+1 <= nums.length <= 10^5
+-10^4 <= nums[i] <= 10^4
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+void Update(int* c, int discretizationIndex, int pos) {
+    while (pos < discretizationIndex) {
+        c[pos] += 1;
+        pos += (pos & (-pos));
+    }
+}
+int Query(int* c, int pos) {
+    int retVal = 0;
+
+    while (pos > 0) {
+        retVal += c[pos];
+        pos -= (pos & (-pos));
+    }
+
+    return retVal;
+}
+int lowerBound(int* a, int discretizationIndex, int x) {
+    int retVal = 0;
+
+    int middle;
+    int left = 0;
+    int right = discretizationIndex;
+    while (left < right) {
+        middle = (left + right) >> 1;
+        if (a[middle] < x) {
+            left = middle + 1;
+        } else {
+            right = middle;
+        }
+    }
+    retVal = left;
+
+    return retVal;
+}
+int compareInteger(const void* n1, const void* n2) {
+    // ascending order
+    return (*(int*)n1 > *(int*)n2);
+}
+int Discretization(int* a, int* nums, int numsSize) {
+    int retVal = 0;
+
+    memcpy(a, nums, sizeof(int) * numsSize);
+    qsort(a, numsSize, sizeof(int), compareInteger);
+
+    for (int i = 1; i < numsSize; i++) {
+        if (a[i] > a[retVal]) {
+            a[++retVal] = a[i];
+        }
+    }
+    retVal += 1;
+
+    return retVal;
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* countSmaller(int* nums, int numsSize, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    int* a = (int*)calloc(numsSize, sizeof(int));
+    if (a == NULL) {
+        perror("calloc");
+        return pRetVal;
+    }
+    int discretizationIndex = Discretization(a, nums, numsSize);
+
+    int* c = (int*)calloc(numsSize + 1, sizeof(int));
+    if (c == NULL) {
+        perror("calloc");
+        free(a);
+        return pRetVal;
+    }
+    pRetVal = (int*)calloc(numsSize, sizeof(int));
+    if (pRetVal == NULL) {
+        perror("calloc");
+        free(a);
+        free(c);
+        return pRetVal;
+    }
+    for (int i = numsSize - 1; i >= 0; --i) {
+        int id = lowerBound(a, discretizationIndex, nums[i]) + 1;
+        pRetVal[i] = Query(c, id - 1);
+        Update(c, discretizationIndex + 1, id);
+    }
+    (*returnSize) = numsSize;
+
+    // Free allocated memory
+    free(a);
+    free(c);
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    vector<int> c;
+    vector<int> a;
+
+    void Update(int pos) {
+        int cSize = c.size();
+        while (pos < cSize) {
+            c[pos] += 1;
+            pos += (pos & (-pos));
+        }
+    }
+    int Query(int pos) {
+        int retVal = 0;
+
+        while (pos > 0) {
+            retVal += c[pos];
+            pos -= (pos & (-pos));
+        }
+
+        return retVal;
+    }
+    int getId(int x) {
+        int retVal = lower_bound(a.begin(), a.end(), x) - a.begin() + 1;
+
+        return retVal;
+    }
+    void Init(int length) {
+        //
+        c.resize(length, 0);
+    }
+    void Discretization(vector<int>& nums) {
+        a.assign(nums.begin(), nums.end());
+        sort(a.begin(), a.end());
+        a.erase(unique(a.begin(), a.end()), a.end());
+    }
+
+   public:
+    vector<int> countSmaller(vector<int>& nums) {
+        vector<int> retVal;
+
+        int numsSize = nums.size();
+
+        Discretization(nums);
+        Init(numsSize + 5);
+        for (int i = numsSize - 1; i >= 0; --i) {
+            int id = getId(nums[i]);
+            retVal.emplace_back(Query(id - 1));
+            Update(id);
+        }
+        reverse(retVal.begin(), retVal.end());
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.a = None
+        self.c = None
+
+    def Discretization(self, nums: List[int]) -> None:
+        self.a = nums.copy()
+        self.a.sort()
+        self.a = list(dict.fromkeys(self.a))
+
+    def Update(self, pos: int) -> None:
+        cSize = len(self.c)
+        while pos < cSize:
+            self.c[pos] += 1
+            pos += (pos & (-pos))
+
+    def Query(self, pos: int) -> int:
+        retVal = 0
+
+        while pos > 0:
+            retVal += self.c[pos]
+            pos -= (pos & (-pos))
+
+        return retVal
+
+    def getId(self, x: int) -> int:
+        retVal = bisect_left(self.a, x) + 1
+
+        return retVal
+
+    def countSmaller(self, nums: List[int]) -> List[int]:
+        retVal = None
+
+        numSize = len(nums)
+
+        self.a = [0] * numSize
+        self.Discretization(nums)
+
+        self.c = [0] * (numSize + 5)
+        retVal = [0] * numSize
+        for i in range(numSize - 1, -1, -1):
+            id = self.getId(nums[i])
+            retVal[i] = self.Query(id - 1)
+            self.Update(id)
+
+        return retVal
+```
+
+</details>
+
 ## [374. Guess Number Higher or Lower](https://leetcode.com/problems/guess-number-higher-or-lower/)
 
 - [Official](https://leetcode.cn/problems/guess-number-higher-or-lower/solutions/824520/cai-shu-zi-da-xiao-by-leetcode-solution-qdzu/)
