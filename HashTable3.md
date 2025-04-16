@@ -4123,6 +4123,196 @@ class Solution:
 
 </details>
 
+## [2537. Count the Number of Good Subarrays](https://leetcode.com/problems/count-the-number-of-good-subarrays/)  1891
+
+- [Official](https://leetcode.com/problems/count-the-number-of-good-subarrays/editorial/)
+- [Official](https://leetcode.cn/problems/count-the-number-of-good-subarrays/solutions/3643775/tong-ji-hao-zi-shu-zu-de-shu-mu-by-leetc-uvcm/)
+
+<details><summary>Description</summary>
+
+```text
+Given an integer array nums and an integer k, return the number of good subarrays of nums.
+
+A subarray arr is good if there are at least k pairs of indices (i, j) such that i < j and arr[i] == arr[j].
+
+A subarray is a contiguous non-empty sequence of elements within an array.
+
+Example 1:
+Input: nums = [1,1,1,1,1], k = 10
+Output: 1
+Explanation: The only good subarray is the array nums itself.
+
+Example 2:
+Input: nums = [3,1,4,3,2,2,4], k = 2
+Output: 4
+Explanation: There are 4 different good subarrays:
+- [3,1,4,3,2,2] that has 2 pairs.
+- [3,1,4,3,2,2,4] that has 3 pairs.
+- [1,4,3,2,2,4] that has 2 pairs.
+- [4,3,2,2,4] that has 2 pairs.
+
+Constraints:
+1 <= nums.length <= 10^5
+1 <= nums[i], k <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. For a fixed index l, try to find the minimum value of index r, such that the subarray is not good
+2. When a number is added to a subarray, it increases the number of pairs by its previous appearances.
+3. When a number is removed from the subarray, it decreases the number of pairs by its remaining appearances.
+4. Maintain 2-pointers l and r such that we can keep in account the number of equal pairs.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *current;
+    struct hashTable *tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+long long countGood(int *nums, int numsSize, int k) {
+    long long retVal = 0;
+
+    struct hashTable *pHashTable = NULL;
+    struct hashTable *pTemp;
+    int key;
+
+    int same = 0;
+    int right = -1;
+    for (int left = 0; left < numsSize; ++left) {
+        while ((same < k) && (right + 1 < numsSize)) {
+            ++right;
+
+            pTemp = NULL;
+            key = nums[right];
+            HASH_FIND_INT(pHashTable, &key, pTemp);
+            if (pTemp == NULL) {
+                pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+                if (pTemp == NULL) {
+                    perror("malloc");
+                    freeAll(pHashTable);
+                    return retVal;
+                }
+                pTemp->key = key;
+                pTemp->value = 1;
+                HASH_ADD_INT(pHashTable, key, pTemp);
+            } else {
+                same += pTemp->value;
+                pTemp->value += 1;
+            }
+        }
+
+        if (same >= k) {
+            retVal += (numsSize - right);
+        }
+
+        pTemp = NULL;
+        key = nums[left];
+        HASH_FIND_INT(pHashTable, &key, pTemp);
+        if (pTemp == NULL) {
+            pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                freeAll(pHashTable);
+                return retVal;
+            }
+            pTemp->key = key;
+            pTemp->value = -1;
+            HASH_ADD_INT(pHashTable, key, pTemp);
+        } else {
+            pTemp->value -= 1;
+            same -= pTemp->value;
+        }
+    }
+
+    freeAll(pHashTable);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    long long countGood(vector<int>& nums, int k) {
+        long long retVal = 0;
+
+        unordered_map<int, int> hashTable;
+
+        int numsSize = nums.size();
+        int same = 0;
+        int right = -1;
+        for (int left = 0; left < numsSize; ++left) {
+            while ((same < k) && (right + 1 < numsSize)) {
+                ++right;
+                same += hashTable[nums[right]];
+                ++hashTable[nums[right]];
+            }
+
+            if (same >= k) {
+                retVal += (numsSize - right);
+            }
+
+            --hashTable[nums[left]];
+            same -= hashTable[nums[left]];
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def countGood(self, nums: List[int], k: int) -> int:
+        retVal = 0
+
+        hashTable = Counter()
+
+        numsSize = len(nums)
+        same = 0
+        right = -1
+        for left in range(numsSize):
+            while (same < k) and (right + 1 < numsSize):
+                right += 1
+                same += hashTable[nums[right]]
+                hashTable[nums[right]] += 1
+
+            if same >= k:
+                retVal += (numsSize - right)
+
+            hashTable[nums[left]] -= 1
+            same -= hashTable[nums[left]]
+
+        return retVal
+```
+
+</details>
+
 ## [2554. Maximum Number of Integers to Choose From a Range I](https://leetcode.com/problems/maximum-number-of-integers-to-choose-from-a-range-i/)  1333
 
 - [Official](https://leetcode.com/problems/maximum-number-of-integers-to-choose-from-a-range-i/editorial/)
