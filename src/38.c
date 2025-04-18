@@ -58,11 +58,17 @@ char* countAndSay(int n) {
 }
 
 int main(int argc, char** argv) {
-#define BOARD_SIZE (9)
     struct testCaseType {
         int n;
-    } testCase[] = {{1}, {4}, {30}};
+    } testCase[] = {{4}, {1}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: n = 4
+     *  Output: "1211"
+     *
+     *  Input: n = 1
+     *  Output: "1"
+     */
 
     char* pAnswer = NULL;
     int i;

@@ -1115,58 +1115,72 @@ class Solution:
 
 ## [38. Count and Say](https://leetcode.com/problems/count-and-say/)
 
+- [Official](https://leetcode.cn/problems/count-and-say/solutions/1047325/wai-guan-shu-lie-by-leetcode-solution-9rt8/)
+
 <details><summary>Description</summary>
 
 ```text
 The count-and-say sequence is a sequence of digit strings defined by the recursive formula:
 - countAndSay(1) = "1"
-- countAndSay(n) is the way you would "say" the digit string from countAndSay(n-1),
-  which is then converted into a different digit string.
+- countAndSay(n) is the run-length encoding of countAndSay(n - 1).
 
-To determine how you "say" a digit string, split it into the minimal number of substrings
-such that each substring contains exactly one unique digit.
-Then for each substring, say the number of digits, then say the digit. Finally, concatenate every said digit.
+Run-length encoding (RLE) is a string compression method
+that works by replacing consecutive identical characters (repeated 2 or more times)
+with the concatenation of the character and the number marking the count of the characters (length of the run).
+For example, to compress the string "3322251" we replace "33" with "23", replace "222" with "32",
+replace "5" with "15" and replace "1" with "11".
+Thus the compressed string becomes "23321511".
 
-For example, the saying and conversion for digit string "3322251":
- "3322251"
- = two 3's, three 2's, one 5 and one 1
- = 2 3 + 3 2 + 1 5 + 11
- = "23321511"
-
-Given a positive integer n, return the nth term of the count-and-say sequence.
+Given a positive integer n, return the nth element of the count-and-say sequence.
 
 Example 1:
-Input: n = 1
-Output: "1"
-Explanation: This is the base case.
-
-Example 2:
 Input: n = 4
 Output: "1211"
 Explanation:
 countAndSay(1) = "1"
-countAndSay(2) = say "1" = one 1 = "11"
-countAndSay(3) = say "11" = two 1's = "21"
-countAndSay(4) = say "21" = one 2 + one 1 = "12" + "11" = "1211"
+countAndSay(2) = RLE of "1" = "11"
+countAndSay(3) = RLE of "11" = "21"
+countAndSay(4) = RLE of "21" = "1211"
+
+Example 2:
+Input: n = 1
+Output: "1"
+Explanation:
+This is the base case.
 
 Constraints:
 1 <= n <= 30
+
+Follow up: Could you solve it iteratively?
 ```
+
+<details><summary>Hint</summary>
+
+```text
+1. Create a helper function that maps an integer to pairs of its digits and their frequencies.
+   For example, if you call this function with "223314444411",
+   then it maps it to an array of pairs [[2,2], [3,2], [1,1], [4,5], [1, 2]].
+2. Create another helper function that takes the array of pairs and creates a new integer.
+   For example, if you call this function with [[2,2], [3,2], [1,1], [4,5], [1, 2]],
+   it should create "22"+"23"+"11"+"54"+"21" = "2223115421".
+3. Now, with the two helper functions, you can start with "1" and call the two functions alternatively n-1 times.
+   The answer is the last integer you will obtain.
+```
+
+</details>
 
 </details>
 
 <details><summary>C</summary>
 
 ```c
-char* help(char* pSequence)
-{
+char* help(char* pSequence) {
     char* pRetVal = NULL;
 
     int len = strlen(pSequence);
     int returnSize = 2 * len * sizeof(char) + 1;
     pRetVal = (char*)malloc(returnSize);
-    if (pRetVal == NULL)
-    {
+    if (pRetVal == NULL) {
         perror("malloc");
         free(pSequence);
         return pRetVal;
@@ -1177,48 +1191,96 @@ char* help(char* pSequence)
     char digit = pSequence[0];
     int count = 0;
     int i;
-    for (i=0; i<len; ++i)
-    {
-        if (digit != pSequence[i])
-        {
-            idx += snprintf(pRetVal+idx, returnSize-idx, "%d%c", count, digit);
+    for (i = 0; i < len; ++i) {
+        if (digit != pSequence[i]) {
+            idx += snprintf(pRetVal + idx, returnSize - idx, "%d%c", count, digit);
             digit = pSequence[i];
             count = 1;
             continue;
         }
         ++count;
     }
-    idx += snprintf(pRetVal+idx, returnSize-idx, "%d%c", count, digit);
+    idx += snprintf(pRetVal + idx, returnSize - idx, "%d%c", count, digit);
     free(pSequence);
 
     return pRetVal;
 }
-
-char * countAndSay(int n){
+char* countAndSay(int n) {
     char* pRetVal = NULL;
 
-    pRetVal = (char*)malloc(2*sizeof(char));
-    if (pRetVal == NULL)
-    {
+    pRetVal = (char*)malloc(2 * sizeof(char));
+    if (pRetVal == NULL) {
         perror("malloc");
         return pRetVal;
     }
-    memset(pRetVal, 0, 2*sizeof(char));
-    snprintf(pRetVal, 2*sizeof(char), "%d", 1);
+    memset(pRetVal, 0, 2 * sizeof(char));
+    snprintf(pRetVal, 2 * sizeof(char), "%d", 1);
 
-    if (n == 1)
-    {
+    if (n == 1) {
         return pRetVal;
     }
 
     int i;
-    for (i=2; i<=n; ++i)
-    {
+    for (i = 2; i <= n; ++i) {
         pRetVal = help(pRetVal);
     }
 
     return pRetVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    string countAndSay(int n) {
+        string retVal = "1";
+
+        for (int i = 2; i <= n; ++i) {
+            string curr = "";
+            int start = 0;
+            int pos = 0;
+            int retValSize = retVal.size();
+            while (pos < retValSize) {
+                while ((pos < retValSize) && (retVal[pos] == retVal[start])) {
+                    pos++;
+                }
+                curr += to_string(pos - start) + retVal[start];
+                start = pos;
+            }
+            retVal = curr;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def countAndSay(self, n: int) -> str:
+        retVal = "1"
+
+        for i in range(n-1):
+            curr = ""
+            pos = 0
+            start = 0
+            retValSize = len(retVal)
+            while pos < retValSize:
+                while (pos < retValSize) and (retVal[pos] == retVal[start]):
+                    pos += 1
+                curr += str(pos - start) + retVal[start]
+                start = pos
+            retVal = curr
+
+        return retVal
 ```
 
 </details>
