@@ -2349,6 +2349,133 @@ class Solution:
 
 </details>
 
+## [781. Rabbits in Forest](https://leetcode.com/problems/rabbits-in-forest/)  1453
+
+- [Official](https://leetcode.cn/problems/rabbits-in-forest/solutions/698444/sen-lin-zhong-de-tu-zi-by-leetcode-solut-kvla/)
+
+<details><summary>Description</summary>
+
+```text
+There is a forest with an unknown number of rabbits.
+We asked n rabbits "How many rabbits have the same color as you?" and collected the answers in an integer array answers
+where answers[i] is the answer of the ith rabbit.
+
+Given the array answers, return the minimum number of rabbits that could be in the forest.
+
+Example 1:
+Input: answers = [1,1,2]
+Output: 5
+Explanation:
+The two rabbits that answered "1" could both be the same color, say red.
+The rabbit that answered "2" can't be red or the answers would be inconsistent.
+Say the rabbit that answered "2" was blue.
+Then there should be 2 other blue rabbits in the forest that didn't answer into the array.
+The smallest possible number of rabbits in the forest is therefore 5: 3 that answered plus 2 that didn't.
+
+Example 2:
+Input: answers = [10,10,10]
+Output: 11
+
+Constraints:
+1 <= answers.length <= 1000
+0 <= answers[i] < 1000
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *current;
+    struct hashTable *tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int numRabbits(int *answers, int answersSize) {
+    int retVal = 0;
+
+    struct hashTable *pHashTable = NULL;
+    struct hashTable *pTemp;
+    for (int i = 0; i < answersSize; i++) {
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTable, &answers[i], pTemp);
+        if (pTemp == NULL) {
+            pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                freeAll(pHashTable);
+                return retVal;
+            }
+            pTemp->key = answers[i];
+            pTemp->value = 1;
+            HASH_ADD_INT(pHashTable, key, pTemp);
+        } else {
+            pTemp->value++;
+        }
+    }
+
+    pTemp = NULL;
+    struct hashTable *pCurrent;
+    HASH_ITER(hh, pHashTable, pCurrent, pTemp) {
+        retVal += ((pCurrent->value + pCurrent->key) / (pCurrent->key + 1) * (pCurrent->key + 1));
+        HASH_DEL(pHashTable, pCurrent);
+        free(pCurrent);
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int numRabbits(vector<int>& answers) {
+        int retVal = 0;
+
+        unordered_map<int, int> hashTable;
+        for (int answer : answers) {
+            ++hashTable[answer];
+        }
+
+        for (auto& [answer, count] : hashTable) {
+            retVal += ((count + answer) / (answer + 1) * (answer + 1));
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def numRabbits(self, answers: List[int]) -> int:
+        retVal = 0
+
+        hashTable = Counter(answers)
+        retVal = sum((count + answer) // (answer + 1) * (answer + 1) for answer, count in hashTable.items())
+
+        return retVal
+```
+
+</details>
+
 ## [826. Most Profit Assigning Work](https://leetcode.com/problems/most-profit-assigning-work/)  1708
 
 - [Official](https://leetcode.cn/problems/most-profit-assigning-work/solutions/22424/an-pai-gong-zuo-yi-da-dao-zui-da-shou-yi-by-leetco/)
