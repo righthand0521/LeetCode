@@ -6658,6 +6658,243 @@ impl Solution {
 
 </details>
 
+## [2338. Count the Number of Ideal Arrays](https://leetcode.com/problems/count-the-number-of-ideal-arrays/)  2615
+
+- [Official](https://leetcode.com/problems/count-the-number-of-ideal-arrays/editorial/)
+- [Official](https://leetcode.cn/problems/count-the-number-of-ideal-arrays/solutions/3650511/tong-ji-li-xiang-shu-zu-de-shu-mu-by-lee-usvr/)
+
+<details><summary>Description</summary>
+
+```text
+You are given two integers n and maxValue, which are used to describe an ideal array.
+
+A 0-indexed integer array arr of length n is considered ideal if the following conditions hold:
+- Every arr[i] is a value from 1 to maxValue, for 0 <= i < n.
+- Every arr[i] is divisible by arr[i - 1], for 0 < i < n.
+
+Return the number of distinct ideal arrays of length n. Since the answer may be very large, return it modulo 10^9 + 7.
+
+Example 1:
+Input: n = 2, maxValue = 5
+Output: 10
+Explanation: The following are the possible ideal arrays:
+- Arrays starting with the value 1 (5 arrays): [1,1], [1,2], [1,3], [1,4], [1,5]
+- Arrays starting with the value 2 (2 arrays): [2,2], [2,4]
+- Arrays starting with the value 3 (1 array): [3,3]
+- Arrays starting with the value 4 (1 array): [4,4]
+- Arrays starting with the value 5 (1 array): [5,5]
+There are a total of 5 + 2 + 1 + 1 + 1 = 10 distinct ideal arrays
+
+Example 2:
+Input: n = 5, maxValue = 3
+Output: 11
+Explanation: The following are the possible ideal arrays:
+- Arrays starting with the value 1 (9 arrays):
+   - With no other distinct values (1 array): [1,1,1,1,1]
+   - With 2nd distinct value 2 (4 arrays): [1,1,1,1,2], [1,1,1,2,2], [1,1,2,2,2], [1,2,2,2,2]
+   - With 2nd distinct value 3 (4 arrays): [1,1,1,1,3], [1,1,1,3,3], [1,1,3,3,3], [1,3,3,3,3]
+- Arrays starting with the value 2 (1 array): [2,2,2,2,2]
+- Arrays starting with the value 3 (1 array): [3,3,3,3,3]
+There are a total of 9 + 1 + 1 = 11 distinct ideal arrays.
+
+Constraints:
+2 <= n <= 10^4
+1 <= maxValue <= 10^4
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Notice that an ideal array is non-decreasing.
+2. Consider an alternative problem: where an ideal array must also be strictly increasing. Can you use DP to solve it?
+3. Will combinatorics help to get an answer from the alternative problem to the actual problem?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MODULO (int)(1e9 + 7)
+#define MAX_N (10010)
+#define MAX_P (15)  // There are up to 15 prime factors
+int c[MAX_N + MAX_P][MAX_P + 1];
+int sieve[MAX_N];                    // Minimum prime factor
+int ps[MAX_N][MAX_P], psLen[MAX_N];  // List of prime factor counts
+void init() {
+    if (c[0][0]) {
+        return;
+    }
+
+    for (int i = 2; i < MAX_N; i++) {
+        if (sieve[i] != 0) {
+            continue;
+        }
+        for (int j = i; j < MAX_N; j += i) {
+            if (sieve[j] == 0) {
+                sieve[j] = i;
+            }
+        }
+    }
+
+    for (int i = 2; i < MAX_N; i++) {
+        int x = i;
+        psLen[i] = 0;
+        while (x > 1) {
+            int p = sieve[x];
+            int cnt = 0;
+            while (x % p == 0) {
+                x /= p;
+                cnt++;
+            }
+            ps[i][psLen[i]++] = cnt;
+        }
+    }
+
+    c[0][0] = 1;
+    for (int i = 1; i < MAX_N + MAX_P; i++) {
+        c[i][0] = 1;
+        for (int j = 1; j <= MAX_P && j <= i; j++) {
+            c[i][j] = (c[i - 1][j] + c[i - 1][j - 1]) % MODULO;
+        }
+    }
+}
+int idealArrays(int n, int maxValue) {
+    int retVal = 0;
+
+    init();
+    long long ans = 0;
+    for (int x = 1; x <= maxValue; x++) {
+        long long mul = 1;
+        for (int i = 0; i < psLen[x]; i++) {
+            mul = mul * c[n + ps[x][i] - 1][ps[x][i]] % MODULO;
+        }
+        ans = (ans + mul) % MODULO;
+    }
+    retVal = ans;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+#define MODULO (int)(1e9 + 7)
+#define MAX_N (int)(1e4 + 10)
+#define MAX_P (15)      // There are up to 15 prime factors
+int sieve[MAX_N];       // Minimum prime factor
+vector<int> ps[MAX_N];  // List of prime factor counts
+int c[MAX_N + MAX_P][MAX_P + 1];
+class Solution {
+   public:
+    Solution() {
+        if (c[0][0]) {
+            return;
+        }
+
+        for (int i = 2; i < MAX_N; i++) {
+            if (sieve[i] != 0) {
+                continue;
+            }
+            for (int j = i; j < MAX_N; j += i) {
+                sieve[j] = i;
+            }
+        }
+
+        for (int i = 2; i < MAX_N; i++) {
+            int x = i;
+            while (x > 1) {
+                int p = sieve[x];
+                int cnt = 0;
+                while (x % p == 0) {
+                    x /= p;
+                    cnt++;
+                }
+                ps[i].push_back(cnt);
+            }
+        }
+
+        c[0][0] = 1;
+        for (int i = 1; i < MAX_N + MAX_P; i++) {
+            c[i][0] = 1;
+            for (int j = 1; j <= min(i, MAX_P); j++) {
+                c[i][j] = (c[i - 1][j] + c[i - 1][j - 1]) % MODULO;
+            }
+        }
+    }
+    int idealArrays(int n, int maxValue) {
+        int retVal = 0;
+
+        long long ans = 0;
+        for (int x = 1; x <= maxValue; x++) {
+            long long mul = 1;
+            for (int p : ps[x]) {
+                mul = mul * c[n + p - 1][p] % MODULO;
+            }
+            ans = (ans + mul) % MODULO;
+        }
+        retVal = ans;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.MODULO = 10 ** 9 + 7
+        self.MAX_N = 10**4 + 10
+        self.MAX_P = 15  # There are up to 15 prime factors
+
+        self.sieve = [0] * self.MAX_N  # // Minimum prime factor
+        for i in range(2, self.MAX_N):
+            if self.sieve[i] != 0:
+                continue
+            for j in range(i, self.MAX_N, i):
+                self.sieve[j] = i
+
+        self.ps = [[] for _ in range(self.MAX_N)]
+        for i in range(2, self.MAX_N):
+            x = i
+            while x > 1:
+                p = self.sieve[x]
+                cnt = 0
+                while x % p == 0:
+                    x //= p
+                    cnt += 1
+                self.ps[i].append(cnt)
+
+        self.c = [[0] * (self.MAX_P + 1) for _ in range(self.MAX_N + self.MAX_P)]
+        self.c[0][0] = 1
+        for i in range(1, self.MAX_N + self.MAX_P):
+            self.c[i][0] = 1
+            for j in range(1, min(i, self.MAX_P) + 1):
+                self.c[i][j] = (self.c[i - 1][j] + self.c[i - 1][j - 1]) % self.MODULO
+
+    def idealArrays(self, n: int, maxValue: int) -> int:
+        retVal = 0
+
+        for x in range(1, maxValue + 1):
+            mul = 1
+            for p in self.ps[x]:
+                mul = mul * self.c[n + p - 1][p] % self.MODULO
+            retVal = (retVal + mul) % self.MODULO
+
+        return retVal
+```
+
+</details>
+
 ## [2413. Smallest Even Multiple](https://leetcode.com/problems/smallest-even-multiple/)  1144
 
 - [Official](https://leetcode.cn/problems/smallest-even-multiple/solutions/2236371/zui-xiao-ou-bei-shu-by-leetcode-solution-vy2o/)
