@@ -1881,6 +1881,171 @@ class UndergroundSystem:
 
 </details>
 
+## [1399. Count Largest Group](https://leetcode.com/problems/count-largest-group/)  1341
+
+- [Official](https://leetcode.com/problems/count-largest-group/editorial/)
+- [Official](https://leetcode.cn/problems/count-largest-group/solutions/197510/tong-ji-zui-da-zu-de-shu-mu-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer n.
+
+Each number from 1 to n is grouped according to the sum of its digits.
+
+Return the number of groups that have the largest size.
+
+Example 1:
+Input: n = 13
+Output: 4
+Explanation: There are 9 groups in total, they are grouped according sum of its digits of numbers from 1 to 13:
+[1,10], [2,11], [3,12], [4,13], [5], [6], [7], [8], [9].
+There are 4 groups with largest size.
+
+Example 2:
+Input: n = 2
+Output: 2
+Explanation: There are 2 groups [1], [2] of size 1.
+
+Constraints:
+1 <= n <= 10^4
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Count the digit sum for each integer in the range and find out the largest groups.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable* pFree) {
+    struct hashTable* current;
+    struct hashTable* tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", current->key, current->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int countLargestGroup(int n) {
+    int retVal = 0;
+
+    struct hashTable* pHashTable = NULL;
+    struct hashTable* pTemp;
+    int key;
+    int num;
+    int maxValue = 0;
+    for (int i = 1; i <= n; ++i) {
+        key = 0;
+        num = i;
+        while (num) {
+            key += num % 10;
+            num /= 10;
+        }
+
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTable, &key, pTemp);
+        if (pTemp == NULL) {
+            pTemp = (struct hashTable*)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                freeAll(pHashTable);
+                return retVal;
+            }
+            pTemp->key = key;
+            pTemp->value = 1;
+            HASH_ADD_INT(pHashTable, key, pTemp);
+        } else {
+            pTemp->value += 1;
+        }
+
+        maxValue = fmax(maxValue, pTemp->value);
+    }
+
+    pTemp = NULL;
+    struct hashTable* pCurrent = NULL;
+    HASH_ITER(hh, pHashTable, pCurrent, pTemp) {
+        if (pCurrent->value == maxValue) {
+            ++retVal;
+        }
+        HASH_DEL(pHashTable, pCurrent);
+        free(pCurrent);
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int countLargestGroup(int n) {
+        int retVal = 0;
+
+        int maxValue = 0;
+        unordered_map<int, int> hashTable;
+        for (int i = 1; i <= n; ++i) {
+            int key = 0;
+            int num = i;
+            while (num) {
+                key += num % 10;
+                num /= 10;
+            }
+            ++hashTable[key];
+
+            maxValue = max(maxValue, hashTable[key]);
+        }
+
+        for (auto& [_, value] : hashTable) {
+            if (value == maxValue) {
+                ++retVal;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def countLargestGroup(self, n: int) -> int:
+        retVal = 0
+
+        hashTable = Counter()
+        for i in range(1, n + 1):
+            key = sum([int(x) for x in str(i)])
+            hashTable[key] += 1
+        maxValue = max(hashTable.values())
+
+        for value in hashTable.values():
+            if value == maxValue:
+                retVal += 1
+
+        return retVal
+```
+
+</details>
+
 ## [1436. Destination City](https://leetcode.com/problems/destination-city/)  1192
 
 - [Official](https://leetcode.com/problems/destination-city/editorial/)
