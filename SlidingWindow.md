@@ -5532,6 +5532,249 @@ class Solution:
 
 </details>
 
+## [2799. Count Complete Subarrays in an Array](https://leetcode.com/problems/count-complete-subarrays-in-an-array/)  1397
+
+- [Official](https://leetcode.com/problems/count-complete-subarrays-in-an-array/editorial/)
+- [Official](https://leetcode.cn/problems/count-complete-subarrays-in-an-array/solutions/3650491/tong-ji-wan-quan-zi-shu-zu-de-shu-mu-by-ysvhb/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an array nums consisting of positive integers.
+
+We call a subarray of an array complete if the following condition is satisfied:
+- The number of distinct elements in the subarray is equal to the number of distinct elements in the whole array.
+
+Return the number of complete subarrays.
+
+A subarray is a contiguous non-empty part of an array.
+
+Example 1:
+Input: nums = [1,3,1,2,2]
+Output: 4
+Explanation: The complete subarrays are the following: [1,3,1,2], [1,3,1,2,2], [3,1,2] and [3,1,2,2].
+
+Example 2:
+Input: nums = [5,5,5,5]
+Output: 10
+Explanation: The array consists only of the integer 5, so any subarray is complete.
+The number of subarrays that we can choose is 10.
+
+Constraints:
+1 <= nums.length <= 1000
+1 <= nums[i] <= 2000
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Let’s say k is the number of distinct elements in the array.
+   Our goal is to find the number of subarrays with k distinct elements.
+2. Since the constraints are small, you can check every subarray.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *current;
+    struct hashTable *tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", current->key, current->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int countCompleteSubarrays(int *nums, int numsSize) {
+    int retVal = 0;
+
+    struct hashTable *pDistinct = NULL;
+    struct hashTable *pTemp;
+    int key;
+    for (int i = 0; i < numsSize; i++) {
+        key = nums[i];
+        pTemp = NULL;
+        HASH_FIND_INT(pDistinct, &key, pTemp);
+        if (pTemp == NULL) {
+            pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                freeAll(pDistinct);
+                return retVal;
+            }
+            pTemp->key = key;
+            pTemp->value = 1;
+            HASH_ADD_INT(pDistinct, key, pTemp);
+        }
+    }
+    int distinctSize = HASH_COUNT(pDistinct);
+
+    struct hashTable *pHashTable = NULL;
+    int pHashTableSize;
+    int remove, add;
+    int right = 0;
+    for (int left = 0; left < numsSize; left++) {
+        if (left > 0) {
+            remove = nums[left - 1];
+            pTemp = NULL;
+            HASH_FIND_INT(pHashTable, &remove, pTemp);
+            if (pTemp == NULL) {
+                pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+                if (pTemp == NULL) {
+                    perror("malloc");
+                    freeAll(pHashTable);
+                    freeAll(pDistinct);
+                    return retVal;
+                }
+                pTemp->key = remove;
+                pTemp->value = -1;
+                HASH_ADD_INT(pHashTable, key, pTemp);
+            } else {
+                pTemp->value -= 1;
+            }
+
+            if (pTemp->value == 0) {
+                HASH_DEL(pHashTable, pTemp);
+                free(pTemp);
+            }
+        }
+
+        pHashTableSize = HASH_COUNT(pHashTable);
+        while (right < numsSize) {
+            if (pHashTableSize >= distinctSize) {
+                break;
+            }
+
+            add = nums[right];
+            pTemp = NULL;
+            HASH_FIND_INT(pHashTable, &add, pTemp);
+            if (pTemp == NULL) {
+                pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+                if (pTemp == NULL) {
+                    perror("malloc");
+                    freeAll(pHashTable);
+                    freeAll(pDistinct);
+                    return retVal;
+                }
+                pTemp->key = add;
+                pTemp->value = 1;
+                HASH_ADD_INT(pHashTable, key, pTemp);
+            } else {
+                pTemp->value += 1;
+            }
+            pHashTableSize = HASH_COUNT(pHashTable);
+
+            right++;
+        }
+
+        if (pHashTableSize == distinctSize) {
+            retVal += (numsSize - right + 1);
+        }
+    }
+
+    //
+    freeAll(pHashTable);
+    freeAll(pDistinct);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int countCompleteSubarrays(vector<int>& nums) {
+        int retVal = 0;
+
+        unordered_set<int> distinct(nums.begin(), nums.end());
+        int distinctSize = distinct.size();
+
+        unordered_map<int, int> hashTable;
+        int numsSize = nums.size();
+        int right = 0;
+        for (int left = 0; left < numsSize; left++) {
+            if (left > 0) {
+                int remove = nums[left - 1];
+                hashTable[remove]--;
+                if (hashTable[remove] == 0) {
+                    hashTable.erase(remove);
+                }
+            }
+
+            int hashTableSize = hashTable.size();
+            while (right < numsSize) {
+                if (hashTableSize >= distinctSize) {
+                    break;
+                }
+
+                int add = nums[right];
+                hashTable[add]++;
+                hashTableSize = hashTable.size();
+                right++;
+            }
+
+            if (hashTableSize == distinctSize) {
+                retVal += (numsSize - right + 1);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def countCompleteSubarrays(self, nums: List[int]) -> int:
+        retVal = 0
+
+        distinct = set(nums)
+        distinctSize = len(distinct)
+
+        hashTable = {}
+        numsSize = len(nums)
+        right = 0
+        for left in range(numsSize):
+            if left > 0:
+                remove = nums[left - 1]
+                hashTable[remove] -= 1
+                if hashTable[remove] == 0:
+                    hashTable.pop(remove)
+
+            hashTableSize = len(hashTable)
+            while right < numsSize:
+                if hashTableSize >= distinctSize:
+                    break
+                add = nums[right]
+                hashTable[add] = hashTable.get(add, 0) + 1
+                hashTableSize = len(hashTable)
+                right += 1
+
+            if hashTableSize == distinctSize:
+                retVal += (numsSize - right + 1)
+
+        return retVal
+```
+
+</details>
+
 ## [2958. Length of Longest Subarray With at Most K Frequency](https://leetcode.com/problems/length-of-longest-subarray-with-at-most-k-frequency/)  1535
 
 - [Official](https://leetcode.com/problems/length-of-longest-subarray-with-at-most-k-frequency/editorial/)
