@@ -596,6 +596,7 @@ class Solution:
 
 ## [1295. Find Numbers with Even Number of Digits](https://leetcode.com/problems/find-numbers-with-even-number-of-digits/)  1139
 
+- [Official](https://leetcode.com/problems/find-numbers-with-even-number-of-digits/editorial/)
 - [Official](https://leetcode.cn/problems/find-numbers-with-even-number-of-digits/solutions/101807/tong-ji-wei-shu-wei-ou-shu-de-shu-zi-by-leetcode-s/)
 
 <details><summary>Description</summary>
@@ -625,27 +626,31 @@ Constraints:
 1 <= nums[i] <= 10^5
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. How to compute the number of digits of a number ?
+2. Divide the number by 10 again and again to get the number of digits.
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
 
 ```c
-int getTheNumberOfDigits(int num) {
-    int retVal = 0;
-
-    while (num > 0) {
-        ++retVal;
-        num /= 10;
-    }
-
-    return retVal;
-}
 int findNumbers(int* nums, int numsSize) {
     int retVal = 0;
 
-    int i;
-    for (i = 0; i < numsSize; ++i) {
-        if (getTheNumberOfDigits(nums[i]) % 2 == 0) {
+    int count;
+    for (int i = 0; i < numsSize; i++) {
+        count = 0;
+        while (nums[i] > 0) {
+            ++count;
+            nums[i] /= 10;
+        }
+        if (count % 2 == 0) {
             ++retVal;
         }
     }
@@ -664,12 +669,11 @@ class Solution {
     int findNumbers(vector<int>& nums) {
         int retVal = 0;
 
-        for (long unsigned int i = 0; i < nums.size(); ++i) {
-            int tmp = nums[i];
+        for (int num : nums) {
             int count = 0;
-            while (tmp > 0) {
+            while (num > 0) {
                 ++count;
-                tmp /= 10;
+                num /= 10;
             }
             if (count % 2 == 0) {
                 ++retVal;
@@ -679,6 +683,26 @@ class Solution {
         return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def findNumbers(self, nums: List[int]) -> int:
+        retVal = 0
+
+        for num in nums:
+            count = 0
+            while num > 0:
+                count += 1
+                num //= 10
+            if count % 2 == 0:
+                retVal += 1
+
+        return retVal
 ```
 
 </details>

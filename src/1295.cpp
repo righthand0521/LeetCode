@@ -9,12 +9,11 @@ class Solution {
     int findNumbers(vector<int>& nums) {
         int retVal = 0;
 
-        for (long unsigned int i = 0; i < nums.size(); ++i) {
-            int tmp = nums[i];
+        for (int num : nums) {
             int count = 0;
-            while (tmp > 0) {
+            while (num > 0) {
                 ++count;
-                tmp /= 10;
+                num /= 10;
             }
             if (count % 2 == 0) {
                 ++retVal;
@@ -31,6 +30,13 @@ int main(int argc, char** argv) {
     };
     vector<subject> testData{{{12, 345, 2, 6, 7896}}, {{555, 901, 482, 1771}}};
     int numberOfTestCase = testData.size();
+    /* Example
+     *  Input: nums = [12,345,2,6,7896]
+     *  Output: 2
+     *
+     *  Input: nums = [555,901,482,1771]
+     *  Output: 1
+     */
 
     Solution cSolution;
     int answer;

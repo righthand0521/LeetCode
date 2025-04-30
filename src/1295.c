@@ -2,22 +2,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-int getTheNumberOfDigits(int num) {
-    int retVal = 0;
-
-    while (num > 0) {
-        ++retVal;
-        num /= 10;
-    }
-
-    return retVal;
-}
 int findNumbers(int* nums, int numsSize) {
     int retVal = 0;
 
-    int i;
-    for (i = 0; i < numsSize; ++i) {
-        if (getTheNumberOfDigits(nums[i]) % 2 == 0) {
+    int count;
+    for (int i = 0; i < numsSize; i++) {
+        count = 0;
+        while (nums[i] > 0) {
+            ++count;
+            nums[i] /= 10;
+        }
+        if (count % 2 == 0) {
             ++retVal;
         }
     }
@@ -32,6 +27,13 @@ int main(int argc, char** argv) {
         int numsSize;
     } testCase[] = {{{12, 345, 2, 6, 7896}, 5}, {{555, 901, 482, 1771}, 4}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: nums = [12,345,2,6,7896]
+     *  Output: 2
+     *
+     *  Input: nums = [555,901,482,1771]
+     *  Output: 1
+     */
 
     int answer = 0;
     int i, j;
