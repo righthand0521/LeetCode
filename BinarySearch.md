@@ -6116,6 +6116,265 @@ class Solution:
 
 </details>
 
+## [2071. Maximum Number of Tasks You Can Assign](https://leetcode.com/problems/maximum-number-of-tasks-you-can-assign/)  2648
+
+- [Official](https://leetcode.com/problems/maximum-number-of-tasks-you-can-assign/editorial/)
+- [Official](https://leetcode.cn/problems/maximum-number-of-tasks-you-can-assign/solutions/1101831/ni-ke-yi-an-pai-de-zui-duo-ren-wu-shu-mu-p7dm/)
+
+<details><summary>Description</summary>
+
+```text
+You have n tasks and m workers. Each task has a strength requirement stored in a 0-indexed integer array tasks,
+with the ith task requiring tasks[i] strength to complete.
+The strength of each worker is stored in a 0-indexed integer array workers,
+with the jth worker having workers[j] strength.
+Each worker can only be assigned to a single task and
+must have a strength greater than or equal to the task's strength requirement (i.e., workers[j] >= tasks[i]).
+
+Additionally, you have pills magical pills that will increase a worker's strength by strength.
+You can decide which workers receive the magical pills, however, you may only give each worker at most one magical pill.
+
+Given the 0-indexed integer arrays tasks and workers and the integers pills and strength,
+return the maximum number of tasks that can be completed.
+
+Example 1:
+Input: tasks = [3,2,1], workers = [0,3,3], pills = 1, strength = 1
+Output: 3
+Explanation:
+We can assign the magical pill and tasks as follows:
+- Give the magical pill to worker 0.
+- Assign worker 0 to task 2 (0 + 1 >= 1)
+- Assign worker 1 to task 1 (3 >= 2)
+- Assign worker 2 to task 0 (3 >= 3)
+
+Example 2:
+Input: tasks = [5,4], workers = [0,0,0], pills = 1, strength = 5
+Output: 1
+Explanation:
+We can assign the magical pill and tasks as follows:
+- Give the magical pill to worker 0.
+- Assign worker 0 to task 0 (0 + 5 >= 5)
+
+Example 3:
+Input: tasks = [10,15,30], workers = [0,10,10,10,10], pills = 3, strength = 10
+Output: 2
+Explanation:
+We can assign the magical pills and tasks as follows:
+- Give the magical pill to worker 0 and worker 1.
+- Assign worker 0 to task 0 (0 + 10 >= 10)
+- Assign worker 1 to task 1 (10 + 10 >= 15)
+The last pill is not given because it will not make any worker strong enough for the last task.
+
+Constraints:
+n == tasks.length
+m == workers.length
+1 <= n, m <= 5 * 10^4
+0 <= pills <= m
+0 <= tasks[i], workers[j], strength <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Is it possible to assign the first k smallest tasks to the workers?
+2. How can you efficiently try every k?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool check(int* tasks, int* workers, int workersSize, int pills, int strength, int middle) {
+    bool retVal = false;
+
+    int workersIdx = workersSize - 1;
+    int workersQueue[workersSize];
+    int workersQueueHead = workersSize - 1;
+    int workersQueueTail = workersSize - 1;
+    for (int i = middle - 1; i >= 0; --i) {
+        while ((workersIdx >= workersSize - middle) && (workers[workersIdx] + strength >= tasks[i])) {
+            workersQueue[workersQueueHead] = workers[workersIdx];
+            --workersQueueHead;
+            --workersIdx;
+        }
+
+        if (workersQueueHead == workersQueueTail) {
+            return retVal;
+        }
+
+        // If the largest element in the deque is greater than or equal to tasks[i]
+        if (workersQueue[workersQueueTail] >= tasks[i]) {
+            workersQueueTail--;
+            continue;
+        }
+
+        if (pills == 0) {
+            return retVal;
+        }
+
+        --pills;
+        workersQueueHead++;
+    }
+    retVal = true;
+
+    return retVal;
+}
+int compareInteger(const void* n1, const void* n2) {
+    // ascending order
+    return (*(int*)n1 > *(int*)n2);
+}
+int maxTaskAssign(int* tasks, int tasksSize, int* workers, int workersSize, int pills, int strength) {
+    int retVal = 0;
+
+    qsort(tasks, tasksSize, sizeof(int), compareInteger);
+    qsort(workers, workersSize, sizeof(int), compareInteger);
+
+    int middle;
+    int left = 1;
+    int right = (workersSize < tasksSize) ? workersSize : tasksSize;
+    while (left <= right) {
+        middle = (left + right) / 2;
+        if (check(tasks, workers, workersSize, pills, strength, middle) == true) {
+            left = middle + 1;
+            retVal = middle;
+        } else {
+            right = middle - 1;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    bool check(vector<int>& tasks, vector<int>& workers, int pills, int strength, int middle) {
+        bool retVal = false;
+
+        int workersSize = workers.size();
+        int workersIdx = workersSize - 1;
+        deque<int> workersQueue;
+        for (int i = middle - 1; i >= 0; --i) {
+            while ((workersIdx >= workersSize - middle) && (workers[workersIdx] + strength >= tasks[i])) {
+                workersQueue.push_front(workers[workersIdx]);
+                --workersIdx;
+            }
+
+            if (workersQueue.empty() == true) {
+                return retVal;
+            }
+
+            // If the largest element in the deque is greater than or equal to tasks[i]
+            if (workersQueue.back() >= tasks[i]) {
+                workersQueue.pop_back();
+                continue;
+            }
+
+            if (pills == 0) {
+                return retVal;
+            }
+
+            --pills;
+            workersQueue.pop_front();
+        }
+        retVal = true;
+
+        return retVal;
+    }
+
+   public:
+    int maxTaskAssign(vector<int>& tasks, vector<int>& workers, int pills, int strength) {
+        int retVal = 0;
+
+        int tasksSize = tasks.size();
+        sort(tasks.begin(), tasks.end());
+
+        int workersSize = workers.size();
+        sort(workers.begin(), workers.end());
+
+        int left = 1;
+        int right = min(workersSize, tasksSize);
+        while (left <= right) {
+            int middle = (left + right) / 2;
+            if (check(tasks, workers, pills, strength, middle) == true) {
+                left = middle + 1;
+                retVal = middle;
+            } else {
+                right = middle - 1;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def check(self, tasks: List[int], workers: List[int], pills: int, strength: int, middle: int) -> bool:
+        retVal = False
+
+        workersSize = len(workers)
+        workersIdx = workersSize - 1
+        workersQueue = deque()
+        for i in range(middle - 1, -1, -1):
+            while (workersIdx >= workersSize - middle) and (workers[workersIdx] + strength >= tasks[i]):
+                workersQueue.appendleft(workers[workersIdx])
+                workersIdx -= 1
+            if not workersQueue:
+                return retVal
+
+            # If the largest element in the deque is greater than or equal to tasks[i]
+            if workersQueue[-1] >= tasks[i]:
+                workersQueue.pop()
+                continue
+
+            if pills == 0:
+                return retVal
+
+            pills -= 1
+            workersQueue.popleft()
+
+        retVal = True
+
+        return retVal
+
+    def maxTaskAssign(self, tasks: List[int], workers: List[int], pills: int, strength: int) -> int:
+        retVal = 0
+
+        tasksSize = len(tasks)
+        tasks.sort()
+
+        workersSize = len(workers)
+        workers.sort()
+
+        left = 1
+        right = min(workersSize, tasksSize)
+        while left <= right:
+            middle = (left + right) // 2
+            if self.check(tasks, workers, pills, strength, middle) == True:
+                left = middle + 1
+                retVal = middle
+            else:
+                right = middle - 1
+
+        return retVal
+```
+
+</details>
+
 ## [2141. Maximum Running Time of N Computers](https://leetcode.com/problems/maximum-running-time-of-n-computers/)  2265
 
 - [Official](https://leetcode.com/problems/maximum-running-time-of-n-computers/editorial/)
