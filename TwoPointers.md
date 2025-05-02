@@ -2381,6 +2381,171 @@ class Solution:
 
 </details>
 
+## [838. Push Dominoes](https://leetcode.com/problems/push-dominoes/)  1638
+
+- [Official](https://leetcode.com/problems/push-dominoes/editorial/)
+- [Official](https://leetcode.cn/problems/push-dominoes/solutions/1278202/tui-duo-mi-nuo-by-leetcode-solution-dwgm/)
+
+<details><summary>Description</summary>
+
+```text
+There are n dominoes in a line, and we place each domino vertically upright.
+In the beginning, we simultaneously push some of the dominoes either to the left or to the right.
+
+After each second, each domino that is falling to the left pushes the adjacent domino on the left.
+Similarly, the dominoes falling to the right push their adjacent dominoes standing on the right.
+
+When a vertical domino has dominoes falling on it from both sides, it stays still due to the balance of the forces.
+
+For the purposes of this question,
+we will consider that a falling domino expends no additional force to a falling or already fallen domino.
+
+You are given a string dominoes representing the initial state where:
+- dominoes[i] = 'L', if the ith domino has been pushed to the left,
+- dominoes[i] = 'R', if the ith domino has been pushed to the right, and
+- dominoes[i] = '.', if the ith domino has not been pushed.
+
+Return a string representing the final state.
+
+Example 1:
+Input: dominoes = "RR.L"
+Output: "RR.L"
+Explanation: The first domino expends no additional force on the second domino.
+
+Example 2:
+Input: dominoes = ".L.R...LR..L.."
+Output: "LL.RR.LLRRLL.."
+
+Constraints:
+n == dominoes.length
+1 <= n <= 10^5
+dominoes[i] is either 'L', 'R', or '.'.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+char* pushDominoes(char* dominoes) {
+    char* pRetVal = dominoes;
+
+    char left = 'L', right;
+    int dominoesSize = strlen(dominoes);
+    int i = 0, j, k;
+    while (i < dominoesSize) {
+        j = i;
+        while ((j < dominoesSize) && (pRetVal[j] == '.')) {
+            j++;
+        }
+
+        right = (j < dominoesSize) ? (pRetVal[j]) : ('R');
+        if (left == right) {
+            while (i < j) {
+                pRetVal[i++] = right;
+            }
+        } else if ((left == 'R') && (right == 'L')) {
+            k = j - 1;
+            while (i < k) {
+                pRetVal[i++] = 'R';
+                pRetVal[k--] = 'L';
+            }
+        }
+
+        left = right;
+        i = j + 1;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    string pushDominoes(string dominoes) {
+        string retVal = dominoes;
+
+        char left = 'L';
+        int dominoesSize = dominoes.size();
+        int i = 0;
+        while (i < dominoesSize) {
+            int j = i;
+            while ((j < dominoesSize) && (retVal[j] == '.')) {
+                j++;
+            }
+
+            char right = (j < dominoesSize) ? (retVal[j]) : ('R');
+            if (left == right) {
+                while (i < j) {
+                    retVal[i++] = right;
+                }
+            } else if (left == 'R' && right == 'L') {
+                int k = j - 1;
+                while (i < k) {
+                    retVal[i++] = 'R';
+                    retVal[k--] = 'L';
+                }
+            }
+
+            left = right;
+            i = j + 1;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def pushDominoes(self, dominoes: str) -> str:
+        retVal = ""
+
+        dominoesStr = list(dominoes)
+        dominoesSize = len(dominoes)
+
+        left = 'L'
+        i = 0
+        while i < dominoesSize:
+            j = i
+            while (j < dominoesSize) and (dominoesStr[j] == '.'):
+                j += 1
+
+            right = 'R'
+            if j < dominoesSize:
+                right = dominoesStr[j]
+
+            if left == right:
+                while i < j:
+                    dominoesStr[i] = right
+                    i += 1
+            elif left == 'R' and right == 'L':
+                k = j - 1
+                while i < k:
+                    dominoesStr[i] = 'R'
+                    dominoesStr[k] = 'L'
+                    i += 1
+                    k -= 1
+
+            left = right
+            i = j + 1
+
+        retVal = ''.join(dominoesStr)
+
+        return retVal
+```
+
+</details>
+
 ## [881. Boats to Save People](https://leetcode.com/problems/boats-to-save-people/)  1529
 
 - [Official](https://leetcode.cn/problems/boats-to-save-people/solutions/958838/jiu-sheng-ting-by-leetcode-solution-0nsp/)
