@@ -3241,6 +3241,179 @@ class Solution:
 
 </details>
 
+## [1007. Minimum Domino Rotations For Equal Row](https://leetcode.com/problems/minimum-domino-rotations-for-equal-row/)  1541
+
+- [Official](https://leetcode.cn/problems/minimum-domino-rotations-for-equal-row/solutions/3042120/xing-xiang-deng-de-zui-shao-duo-mi-nuo-x-l31w/)
+
+<details><summary>Description</summary>
+
+```text
+In a row of dominoes, tops[i] and bottoms[i] represent the top and bottom halves of the ith domino.
+(A domino is a tile with two numbers from 1 to 6 - one on each half of the tile.)
+
+We may rotate the ith domino, so that tops[i] and bottoms[i] swap values.
+
+Return the minimum number of rotations so that all the values in tops are the same,
+or all the values in bottoms are the same.
+
+If it cannot be done, return -1.
+
+Example 1:
+Input: tops = [2,1,2,4,2,2], bottoms = [5,2,6,2,3,2]
+Output: 2
+Explanation:
+The first figure represents the dominoes as given by tops and bottoms: before we do any rotations.
+If we rotate the second and fourth dominoes, we can make every value in the top row equal to 2,
+as indicated by the second figure.
+
+Example 2:
+Input: tops = [3,5,1,2,3], bottoms = [3,6,3,3,4]
+Output: -1
+Explanation:
+In this case, it is not possible to rotate the dominoes to make one row of values equal.
+
+Constraints:
+2 <= tops.length <= 2 * 10^4
+bottoms.length == tops.length
+1 <= tops[i], bottoms[i] <= 6
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int check(int* tops, int topsSize, int* bottoms, int bottomsSize, int x) {
+    int retVal = -1;
+
+    int rotationsTops = 0;
+    int rotationsBottoms = 0;
+    for (int i = 0; i < topsSize; i++) {
+        if ((tops[i] != x) && (bottoms[i] != x)) {  // rotations couldn't be done
+            return retVal;
+        }
+
+        if (tops[i] != x) {  // tops[i] != x and bottoms[i] == x
+            rotationsTops++;
+        } else if (bottoms[i] != x) {  // tops[i] == x and bottoms[i] != x
+            rotationsBottoms++;
+        }
+    }
+    // min number of rotations to have all elements equal to x in tops or bottoms
+    retVal = fmin(rotationsTops, rotationsBottoms);
+
+    return retVal;
+}
+int minDominoRotations(int* tops, int topsSize, int* bottoms, int bottomsSize) {
+    int retVal = 0;
+
+    int rotations = check(tops, topsSize, bottoms, bottomsSize, tops[0]);
+    // If one could make all elements in tops or bottoms equal to tops[0]
+    // Else one could make all elements in tops or bottoms equal to bottoms[0]
+    if ((rotations != -1) || (tops[0] == bottoms[0])) {
+        return rotations;
+    } else {
+        retVal = check(tops, topsSize, bottoms, bottomsSize, bottoms[0]);
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int check(vector<int>& tops, vector<int>& bottoms, int x) {
+        int retVal = -1;
+
+        int rotationsTops = 0;
+        int rotationsBottoms = 0;
+        int topsSize = tops.size();
+        for (int i = 0; i < topsSize; i++) {
+            if (tops[i] != x && bottoms[i] != x) {  // rotations couldn't be done
+                return retVal;
+            }
+
+            if (tops[i] != x) {  // tops[i] != x and bottoms[i] == x
+                rotationsTops++;
+            } else if (bottoms[i] != x) {  // tops[i] == x and bottoms[i] != x
+                rotationsBottoms++;
+            }
+        }
+        // min number of rotations to have all elements equal to x in tops or bottoms
+        retVal = min(rotationsTops, rotationsBottoms);
+
+        return retVal;
+    }
+
+   public:
+    int minDominoRotations(vector<int>& tops, vector<int>& bottoms) {
+        int retVal = 0;
+
+        int rotations = check(tops, bottoms, tops[0]);
+        // If one could make all elements in tops or bottoms equal to tops[0]
+        // Else one could make all elements in tops or bottoms equal to bottoms[0]
+        if ((rotations != -1) || (tops[0] == bottoms[0])) {
+            return rotations;
+        } else {
+            retVal = check(tops, bottoms, bottoms[0]);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    # Return min number of swaps
+    # if one could make all elements in tops or bottoms equal to x
+    # else return -1.
+    def check(self, tops: List[int], bottoms: List[int], x: int) -> int:
+        retVal = -1
+
+        # how many rotations should be done
+        # to have all elements in tops equal to x and to have all elements in bottoms equal to x
+        rotationsTops = 0
+        rotationsBottoms = 0
+        topsSize = len(tops)
+        for i in range(topsSize):
+            if (tops[i] != x) and (bottoms[i] != x):  # rotations coudn't be done
+                return retVal
+
+            if tops[i] != x:  # tops[i] != x and bottoms[i] == x
+                rotationsTops += 1
+            elif bottoms[i] != x:  # tops[i] == x and bottoms[i] != x
+                rotationsBottoms += 1
+
+        # min number of rotations to have all elements equal to x in tops or bottoms
+        retVal = min(rotationsTops, rotationsBottoms)
+
+        return retVal
+
+    def minDominoRotations(self, tops: List[int], bottoms: List[int]) -> int:
+        retVal = 0
+
+        rotations = self.check(tops, bottoms, tops[0])
+        # If one could make all elements in tops or bottoms equal to tops[0]
+        if (rotations != -1) or (tops[0] == bottoms[0]):
+            retVal = rotations
+        else:   # If one could make all elements in tops or bottoms equal to bottoms[0]
+            retVal = self.check(tops, bottoms, bottoms[0])
+
+        return retVal
+```
+
+</details>
+
 ## [1296. Divide Array in Sets of K Consecutive Numbers](https://leetcode.com/problems/divide-array-in-sets-of-k-consecutive-numbers/)  1490
 
 - [Official](https://leetcode.cn/problems/divide-array-in-sets-of-k-consecutive-numbers/solutions/101809/hua-fen-shu-zu-wei-lian-xu-shu-zi-de-ji-he-by-le-2/)
