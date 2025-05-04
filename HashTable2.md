@@ -684,6 +684,112 @@ class Solution:
 
 </details>
 
+## [1128. Number of Equivalent Domino Pairs](https://leetcode.com/problems/number-of-equivalent-domino-pairs/)  1332
+
+- [Official](https://leetcode.com/problems/number-of-equivalent-domino-pairs/editorial/)
+- [Official](https://leetcode.cn/problems/number-of-equivalent-domino-pairs/solutions/576295/deng-jie-duo-mi-nuo-gu-pai-dui-de-shu-li-yjlz/)
+
+<details><summary>Description</summary>
+
+```text
+Given a list of dominoes, dominoes[i] = [a, b] is equivalent to dominoes[j] = [c, d] if and only if
+either (a == c and b == d), or (a == d and b == c) - that is, one domino can be rotated to be equal to another domino.
+
+Return the number of pairs (i, j) for which 0 <= i < j < dominoes.length, and dominoes[i] is equivalent to dominoes[j].
+
+Example 1:
+Input: dominoes = [[1,2],[2,1],[3,4],[5,6]]
+Output: 1
+
+Example 2:
+Input: dominoes = [[1,2],[1,2],[1,1],[1,2],[2,2]]
+Output: 3
+
+Constraints:
+1 <= dominoes.length <= 4 * 10^4
+dominoes[i].length == 2
+1 <= dominoes[i][j] <= 9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. For each domino j, find the number of dominoes you've already seen (dominoes i with i < j) that are equivalent.
+2. You can keep track of what you've seen using a hashmap.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int numEquivDominoPairs(int** dominoes, int dominoesSize, int* dominoesColSize) {
+    int retVal = 0;
+
+    int hashTable[100];  // dominoes[i].length == 2, 1 <= dominoes[i][j] <= 9
+    memset(hashTable, 0, sizeof(hashTable));
+    int x, y, index;
+    for (int i = 0; i < dominoesSize; ++i) {
+        x = dominoes[i][0];
+        y = dominoes[i][1];
+        index = (x > y) ? (x * 10 + y) : (y * 10 + x);
+        retVal += hashTable[index];
+        hashTable[index] += 1;
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int numEquivDominoPairs(vector<vector<int>>& dominoes) {
+        int retVal = 0;
+
+        vector<int> hashTable(100, 0);  // dominoes[i].length == 2, 1 <= dominoes[i][j] <= 9
+        for (auto& domino : dominoes) {
+            int x = domino[0];
+            int y = domino[1];
+            int index = (x > y) ? (x * 10 + y) : (y * 10 + x);
+            retVal += hashTable[index];
+            hashTable[index] += 1;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def numEquivDominoPairs(self, dominoes: List[List[int]]) -> int:
+        retVal = 0
+
+        hashTable = [0] * 100  # dominoes[i].length == 2, 1 <= dominoes[i][j] <= 9
+        for x, y in dominoes:
+            if x > y:
+                index = x * 10 + y
+            else:
+                index = y * 10 + x
+            retVal += hashTable[index]
+            hashTable[index] += 1
+
+        return retVal
+```
+
+</details>
+
 ## [1207. Unique Number of Occurrences](https://leetcode.com/problems/unique-number-of-occurrences/)  1195
 
 - [Official](https://leetcode.cn/problems/unique-number-of-occurrences/solutions/463180/du-yi-wu-er-de-chu-xian-ci-shu-by-leetcode-solutio/)
