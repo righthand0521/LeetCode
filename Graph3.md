@@ -9465,3 +9465,399 @@ class Solution:
 ```
 
 </details>
+
+## [3341. Find Minimum Time to Reach Last Room I](https://leetcode.com/problems/find-minimum-time-to-reach-last-room-i/)  1721
+
+- [Official](https://leetcode.com/problems/find-minimum-time-to-reach-last-room-i/editorial/)
+- [Official](https://leetcode.cn/problems/find-minimum-time-to-reach-last-room-i/solutions/3669493/dao-da-zui-hou-yi-ge-fang-jian-de-zui-sh-i9zw/)
+
+<details><summary>Description</summary>
+
+```text
+There is a dungeon with n x m rooms arranged as a grid.
+
+You are given a 2D array moveTime of size n x m,
+where moveTime[i][j] represents the minimum time in seconds when you can start moving to that room.
+You start from the room (0, 0) at time t = 0 and can move to an adjacent room.
+Moving between adjacent rooms takes exactly one second.
+
+Return the minimum time to reach the room (n - 1, m - 1).
+
+Two rooms are adjacent if they share a common wall, either horizontally or vertically.
+
+Example 1:
+Input: moveTime = [[0,4],[4,4]]
+Output: 6
+Explanation:
+The minimum time required is 6 seconds.
+At time t == 4, move from room (0, 0) to room (1, 0) in one second.
+At time t == 5, move from room (1, 0) to room (1, 1) in one second.
+
+Example 2:
+Input: moveTime = [[0,0,0],[0,0,0]]
+Output: 3
+Explanation:
+The minimum time required is 3 seconds.
+At time t == 0, move from room (0, 0) to room (1, 0) in one second.
+At time t == 1, move from room (1, 0) to room (1, 1) in one second.
+At time t == 2, move from room (1, 1) to room (1, 2) in one second.
+
+Example 3:
+Input: moveTime = [[0,1],[1,2]]
+Output: 3
+
+Constraints:
+2 <= n == moveTime.length <= 50
+2 <= m == moveTime[i].length <= 50
+0 <= moveTime[i][j] <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use shortest path algorithms.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#ifndef QUEUE_H
+#define QUEUE_H
+
+#define MIN_QUEUE_SIZE (64)
+
+typedef struct Element {
+    int x;
+    int y;
+    int distance;
+} Element;
+typedef bool (*compare)(const void *, const void *);
+typedef struct PriorityQueue {
+    Element *arr;
+    int capacity;
+    int queueSize;
+    compare lessFunc;
+} PriorityQueue;
+
+static bool greater(const void *a, const void *b) {
+    static bool retVal = false;
+
+    Element *e1 = (Element *)a;
+    Element *e2 = (Element *)b;
+    retVal = e1->distance > e2->distance;
+
+    return retVal;
+}
+static void memswap(void *m1, void *m2, size_t size) {
+    int tmp;
+    unsigned char *a = (unsigned char *)m1;
+    unsigned char *b = (unsigned char *)m2;
+    while (size--) {
+        tmp = *a;
+        *a = *b;
+        *b = tmp;
+
+        a++;
+        b++;
+    }
+}
+static void swap(Element *arr, int i, int j) {
+    //
+    memswap(&arr[i], &arr[j], sizeof(Element));
+}
+static void down(Element *arr, int size, int i, compare cmpFunc) {
+    for (int k = 2 * i + 1; k < size; k = 2 * k + 1) {
+        if (k + 1 < size && cmpFunc(&arr[k], &arr[k + 1])) {
+            k++;
+        }
+
+        if (cmpFunc(&arr[k], &arr[(k - 1) / 2])) {
+            break;
+        }
+
+        swap(arr, k, (k - 1) / 2);
+    }
+}
+PriorityQueue *createPriorityQueue(compare cmpFunc) {
+    PriorityQueue *obj = NULL;
+
+    obj = (PriorityQueue *)malloc(sizeof(PriorityQueue));
+    if (obj == NULL) {
+        perror("malloc");
+        return obj;
+    }
+    obj->capacity = MIN_QUEUE_SIZE;
+    obj->arr = (Element *)malloc(sizeof(Element) * obj->capacity);
+    if (obj->arr == NULL) {
+        perror("malloc");
+        free(obj);
+        obj = NULL;
+        return obj;
+    }
+    obj->queueSize = 0;
+    obj->lessFunc = cmpFunc;
+
+    return obj;
+}
+void heapfiy(PriorityQueue *obj) {
+    for (int i = obj->queueSize / 2 - 1; i >= 0; i--) {
+        down(obj->arr, obj->queueSize, i, obj->lessFunc);
+    }
+}
+void enQueue(PriorityQueue *obj, Element *e) {
+    if (obj->queueSize == obj->capacity) {
+        obj->capacity *= 2;
+        obj->arr = realloc(obj->arr, sizeof(Element) * obj->capacity);
+    }
+    memcpy(&obj->arr[obj->queueSize], e, sizeof(Element));
+
+    for (int i = obj->queueSize; i > 0 && obj->lessFunc(&obj->arr[(i - 1) / 2], &obj->arr[i]); i = (i - 1) / 2) {
+        swap(obj->arr, i, (i - 1) / 2);
+    }
+    obj->queueSize++;
+}
+Element *deQueue(PriorityQueue *obj) {
+    Element *pRetVal = NULL;
+
+    swap(obj->arr, 0, obj->queueSize - 1);
+    down(obj->arr, obj->queueSize - 1, 0, obj->lessFunc);
+    pRetVal = &obj->arr[obj->queueSize - 1];
+    obj->queueSize--;
+
+    return pRetVal;
+}
+bool isEmpty(const PriorityQueue *obj) {
+    bool retVal = false;
+
+    if (obj->queueSize == 0) {
+        retVal = true;
+    }
+
+    return retVal;
+}
+Element *front(const PriorityQueue *obj) {
+    Element *pRetVal = NULL;
+
+    if (obj->queueSize == 0) {
+        return NULL;
+    }
+    pRetVal = &obj->arr[0];
+
+    return pRetVal;
+}
+void clear(PriorityQueue *obj) {
+    //
+    obj->queueSize = 0;
+}
+int size(const PriorityQueue *obj) {
+    int retVal = obj->queueSize;
+
+    return retVal;
+}
+void freeQueue(PriorityQueue *obj) {
+    free(obj->arr);
+    obj->arr = NULL;
+    free(obj);
+    obj = NULL;
+}
+
+#endif  // QUEUE_H
+int minTimeToReach(int **moveTime, int moveTimeSize, int *moveTimeColSize) {
+    int retVal = 0;
+
+    int rowSize = moveTimeSize;
+    int colSize = moveTimeColSize[0];
+
+    int dijkstra[rowSize][colSize];
+    memset(dijkstra, 0x3f, sizeof(dijkstra));
+    dijkstra[0][0] = 0;
+
+    int visit[rowSize][colSize];
+    memset(visit, 0, sizeof(visit));
+
+    PriorityQueue *queue = createPriorityQueue(greater);
+    Element e = {0, 0, 0};
+    enQueue(queue, &e);
+
+    int directions[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    Element *p;
+    Element s;
+    int nextX, nextY, distances;
+    while (isEmpty(queue) == false) {
+        p = front(queue);
+        s = (Element){p->x, p->y, p->distance};
+        deQueue(queue);
+
+        if (visit[s.x][s.y]) {
+            continue;
+        }
+        visit[s.x][s.y] = 1;
+
+        for (int i = 0; i < 4; i++) {
+            nextX = s.x + directions[i][0];
+            if ((nextX < 0) || (nextX >= rowSize)) {
+                continue;
+            }
+            nextY = s.y + directions[i][1];
+            if ((nextY < 0) || (nextY >= colSize)) {
+                continue;
+            }
+
+            distances = fmax(dijkstra[s.x][s.y], moveTime[nextX][nextY]) + 1;
+            if (dijkstra[nextX][nextY] > distances) {
+                dijkstra[nextX][nextY] = distances;
+                e.x = nextX;
+                e.y = nextY;
+                e.distance = distances;
+                enQueue(queue, &e);
+            }
+        }
+    }
+    retVal = dijkstra[rowSize - 1][colSize - 1];
+
+    // Free the allocated memory
+    freeQueue(queue);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class State {
+   public:
+    int x;
+    int y;
+    int distance;
+    State(int x, int y, int distance) : x(x), y(y), distance(distance) {}
+};
+
+class Solution {
+   private:
+    int inf = 0x3f3f3f3f;
+    int directions[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+   public:
+    int minTimeToReach(vector<vector<int>>& moveTime) {
+        int retVal = 0;
+
+        int rowSize = moveTime.size();
+        int colSize = moveTime[0].size();
+
+        vector<vector<int>> dijkstra(rowSize, vector<int>(colSize, inf));
+        dijkstra[0][0] = 0;
+
+        vector<vector<int>> visit(rowSize, vector<int>(colSize, 0));
+
+        auto cmp = [](const State& a, const State& b) {
+            // Compare the distances
+            return a.distance > b.distance;
+        };
+        priority_queue<State, vector<State>, decltype(cmp)> queue(cmp);
+        queue.push(State(0, 0, 0));
+
+        while (queue.empty() == false) {
+            State node = queue.top();
+            queue.pop();
+
+            if (visit[node.x][node.y]) {
+                continue;
+            }
+            visit[node.x][node.y] = 1;
+
+            for (int i = 0; i < 4; i++) {
+                int nextX = node.x + directions[i][0];
+                if ((nextX < 0) || (nextX >= rowSize)) {
+                    continue;
+                }
+
+                int nextY = node.y + directions[i][1];
+                if ((nextY < 0) || (nextY >= colSize)) {
+                    continue;
+                }
+
+                int distances = max(dijkstra[node.x][node.y], moveTime[nextX][nextY]) + 1;
+                if (dijkstra[nextX][nextY] > distances) {
+                    dijkstra[nextX][nextY] = distances;
+                    queue.push(State(nextX, nextY, distances));
+                }
+            }
+        }
+        retVal = dijkstra[rowSize - 1][colSize - 1];
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class State:
+    def __init__(self, x, y, distance) -> None:
+        self.x = x
+        self.y = y
+        self.distance = distance
+
+    def __lt__(self, other) -> bool:
+        retVal = False
+
+        if self.distance < other.distance:
+            retVal = True
+
+        return retVal
+
+
+class Solution:
+    def __init__(self) -> None:
+        self.directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+
+    def minTimeToReach(self, moveTime: List[List[int]]) -> int:
+        retVal = 0
+
+        rowSize = len(moveTime)
+        colSize = len(moveTime[0])
+
+        dijkstra = [[float("inf")] * colSize for _ in range(rowSize)]
+        dijkstra[0][0] = 0
+
+        visit = [[0] * colSize for _ in range(rowSize)]
+
+        queue = []
+        heappush(queue, State(0, 0, 0))
+
+        while queue:
+            node = heappop(queue)
+            if visit[node.x][node.y]:
+                continue
+
+            visit[node.x][node.y] = 1
+            for dx, dy in self.directions:
+                nextX = node.x + dx
+                if (nextX < 0) or (nextX >= rowSize):
+                    continue
+
+                nextY = node.y + dy
+                if (nextY < 0) or (nextY >= colSize):
+                    continue
+
+                distance = max(dijkstra[node.x][node.y], moveTime[nextX][nextY]) + 1
+                if dijkstra[nextX][nextY] > distance:
+                    dijkstra[nextX][nextY] = distance
+                    heappush(queue, State(nextX, nextY, distance))
+
+        retVal = dijkstra[rowSize - 1][colSize - 1]
+
+        return retVal
+```
+
+</details>
