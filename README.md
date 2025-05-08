@@ -342,6 +342,13 @@
 
 </details>
 
+<details><summary>Find Minimum Time to Reach Last Room</summary>
+
+- [3341. Find Minimum Time to Reach Last Room I](https://leetcode.com/problems/find-minimum-time-to-reach-last-room-i/)
+- [3342. Find Minimum Time to Reach Last Room II](https://leetcode.com/problems/find-minimum-time-to-reach-last-room-ii/)
+
+</details>
+
 ## Greedy
 
 <details><summary>Greedy</summary>
