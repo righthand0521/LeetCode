@@ -7971,6 +7971,160 @@ class Solution:
 
 </details>
 
+## [2918. Minimum Equal Sum of Two Arrays After Replacing Zeros](https://leetcode.com/problems/minimum-equal-sum-of-two-arrays-after-replacing-zeros/)  1526
+
+- [Official](https://leetcode.com/problems/minimum-equal-sum-of-two-arrays-after-replacing-zeros/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-equal-sum-of-two-arrays-after-replacing-zeros/solutions/3665133/shu-zu-de-zui-xiao-xiang-deng-he-by-leet-5cam/)
+
+<details><summary>Description</summary>
+
+```text
+You are given two arrays nums1 and nums2 consisting of positive integers.
+
+You have to replace all the 0's in both arrays with strictly positive integers
+such that the sum of elements of both arrays becomes equal.
+
+Return the minimum equal sum you can obtain, or -1 if it is impossible.
+
+Example 1:
+Input: nums1 = [3,2,0,1,0], nums2 = [6,5,0]
+Output: 12
+Explanation: We can replace 0's in the following way:
+- Replace the two 0's in nums1 with the values 2 and 4. The resulting array is nums1 = [3,2,2,1,4].
+- Replace the 0 in nums2 with the value 1. The resulting array is nums2 = [6,5,1].
+Both arrays have an equal sum of 12. It can be shown that it is the minimum sum we can obtain.
+
+Example 2:
+Input: nums1 = [2,0,2,0], nums2 = [1,4]
+Output: -1
+Explanation: It is impossible to make the sum of both arrays equal.
+
+Constraints:
+1 <= nums1.length, nums2.length <= 10^5
+0 <= nums1[i], nums2[i] <= 10^6
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Consider we replace all the 0’s with 1’s on both arrays,
+   the answer will be -1 if there was no 0 in the array with the smaller sum of elements.
+2. Otherwise, how can you update the value of exactly one of these 1’s to make the sum of the two arrays equal?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+long long minSum(int* nums1, int nums1Size, int* nums2, int nums2Size) {
+    long long retVal = -1;
+
+    long long sum1 = 0;
+    int zero1 = 0;
+    for (int i = 0; i < nums1Size; ++i) {
+        sum1 += nums1[i];
+        if (nums1[i] == 0) {
+            sum1 += 1;
+            zero1 += 1;
+        }
+    }
+
+    long long sum2 = 0;
+    int zero2 = 0;
+    for (int i = 0; i < nums2Size; ++i) {
+        sum2 += nums2[i];
+        if (nums2[i] == 0) {
+            sum2++;
+            zero2++;
+        }
+    }
+
+    if (((zero1 == 0) && (sum2 > sum1)) || ((zero2 == 0) && (sum1 > sum2))) {
+        return retVal;
+    }
+    retVal = fmax(sum1, sum2);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    long long minSum(vector<int>& nums1, vector<int>& nums2) {
+        long long retVal = -1;
+
+        long long sum1 = 0;
+        int zero1 = 0;
+        for (const int& num : nums1) {
+            sum1 += num;
+            if (num == 0) {
+                sum1 += 1;
+                zero1 += 1;
+            }
+        }
+
+        long long sum2 = 0;
+        int zero2 = 0;
+        for (const int& num : nums2) {
+            sum2 += num;
+            if (num == 0) {
+                sum2++;
+                zero2++;
+            }
+        }
+
+        if (((zero1 == 0) && (sum2 > sum1)) || ((zero2 == 0) && (sum1 > sum2))) {
+            return retVal;
+        }
+        retVal = max(sum1, sum2);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minSum(self, nums1: List[int], nums2: List[int]) -> int:
+        retVal = -1
+
+        sum1 = 0
+        zero1 = 0
+        for num in nums1:
+            sum1 += num
+            if num == 0:
+                sum1 += 1
+                zero1 += 1
+
+        sum2 = 0
+        zero2 = 0
+        for num in nums2:
+            sum2 += num
+            if num == 0:
+                sum2 += 1
+                zero2 += 1
+
+        if (zero1 == 0 and sum2 > sum1) or (zero2 == 0 and sum1 > sum2):
+            return retVal
+        retVal = max(sum1, sum2)
+
+        return retVal
+```
+
+</details>
+
 ## [2938. Separate Black and White Balls](https://leetcode.com/problems/separate-black-and-white-balls/)  1422
 
 - [Official](https://leetcode.com/problems/separate-black-and-white-balls/editorial/)
