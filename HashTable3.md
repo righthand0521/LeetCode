@@ -366,6 +366,197 @@ class Solution:
 
 </details>
 
+## [2094. Finding 3-Digit Even Numbers](https://leetcode.com/problems/finding-3-digit-even-numbers/)  1454
+
+- [Official](https://leetcode.com/problems/finding-3-digit-even-numbers/editorial/)
+- [Official](https://leetcode.cn/problems/finding-3-digit-even-numbers/solutions/1140756/zhao-chu-3-wei-ou-shu-by-leetcode-soluti-hptf/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array digits, where each element is a digit. The array may contain duplicates.
+
+You need to find all the unique integers that follow the given requirements:
+- The integer consists of the concatenation of three elements from digits in any arbitrary order.
+- The integer does not have leading zeros.
+- The integer is even.
+
+For example, if the given digits were [1, 2, 3], integers 132 and 312 follow the requirements.
+
+Return a sorted array of the unique integers.
+
+Example 1:
+Input: digits = [2,1,3,0]
+Output: [102,120,130,132,210,230,302,310,312,320]
+Explanation: All the possible integers that follow the requirements are in the output array.
+Notice that there are no odd integers or integers with leading zeros.
+
+Example 2:
+Input: digits = [2,2,8,8,2]
+Output: [222,228,282,288,822,828,882]
+Explanation: The same digit can be used as many times as it appears in digits.
+In this example, the digit 8 is used twice each time in 288, 828, and 882.
+
+Example 3:
+Input: digits = [3,7,5]
+Output: []
+Explanation: No even integers can be formed using the given digits.
+
+Constraints:
+3 <= digits.length <= 100
+0 <= digits[i] <= 9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. The range of possible answers includes all even numbers between 100 and 999 inclusive.
+   Could you check each possible answer to see if it could be formed from the digits in the array?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareInteger(const void* n1, const void* n2) {
+    // ascending order
+    return (*(int*)n1 > *(int*)n2);
+}
+struct hashTable {
+    int key;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable* pFree) {
+    struct hashTable* current;
+    struct hashTable* tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d\n", pFree->key);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* findEvenNumbers(int* digits, int digitsSize, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    struct hashTable* pHashTable = NULL;
+    struct hashTable* pTemp;
+    int num;
+    for (int i = 0; i < digitsSize; ++i) {
+        for (int j = 0; j < digitsSize; ++j) {
+            for (int k = 0; k < digitsSize; ++k) {
+                if (i == j || j == k || i == k) {
+                    continue;
+                }
+                num = digits[i] * 100 + digits[j] * 10 + digits[k];
+                if ((num < 100) || (num % 2 != 0)) {
+                    continue;
+                }
+
+                pTemp = NULL;
+                HASH_FIND_INT(pHashTable, &num, pTemp);
+                if (pTemp == NULL) {
+                    pTemp = (struct hashTable*)malloc(sizeof(struct hashTable));
+                    if (pTemp == NULL) {
+                        perror("malloc");
+                        freeAll(pHashTable);
+                        return pRetVal;
+                    }
+                    pTemp->key = num;
+                    HASH_ADD_INT(pHashTable, key, pTemp);
+                }
+            }
+        }
+    }
+
+    pRetVal = (int*)calloc(HASH_COUNT(pHashTable), sizeof(int));
+    if (pRetVal == NULL) {
+        perror("calloc");
+        freeAll(pHashTable);
+        return pRetVal;
+    }
+    struct hashTable* pCurrent;
+    pTemp = NULL;
+    HASH_ITER(hh, pHashTable, pCurrent, pTemp) {
+        pRetVal[(*returnSize)++] = pHashTable->key;
+        HASH_DEL(pHashTable, pCurrent);
+        free(pCurrent);
+    }
+    qsort(pRetVal, (*returnSize), sizeof(int), compareInteger);
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> findEvenNumbers(vector<int>& digits) {
+        vector<int> retVal;
+
+        unordered_set<int> nums;
+        int digitsSize = digits.size();
+        for (int i = 0; i < digitsSize; ++i) {
+            for (int j = 0; j < digitsSize; ++j) {
+                for (int k = 0; k < digitsSize; ++k) {
+                    if (i == j || j == k || i == k) {
+                        continue;
+                    }
+                    int num = digits[i] * 100 + digits[j] * 10 + digits[k];
+                    if ((num >= 100) && (num % 2 == 0)) {
+                        nums.insert(num);
+                    }
+                }
+            }
+        }
+
+        for (const int num : nums) {
+            retVal.emplace_back(num);
+        }
+        sort(retVal.begin(), retVal.end());
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def findEvenNumbers(self, digits: List[int]) -> List[int]:
+        retVal = []
+
+        nums = set()
+        digitsSize = len(digits)
+        for i in range(digitsSize):
+            for j in range(digitsSize):
+                for k in range(digitsSize):
+                    if (i == j) or (i == k) or (j == k):
+                        continue
+                    num = digits[i] * 100 + digits[j] * 10 + digits[k]
+                    if (num >= 100) and (num % 2 == 0):
+                        nums.add(num)
+        retVal = sorted(nums)
+
+        return retVal
+```
+
+</details>
+
 ## [2131. Longest Palindrome by Concatenating Two Letter Words](https://leetcode.com/problems/longest-palindrome-by-concatenating-two-letter-words/)  1556
 
 - [Official](https://leetcode.com/problems/longest-palindrome-by-concatenating-two-letter-words/solutions/2715749/longest-palindrome-by-concatenating-two-letter-words/)
