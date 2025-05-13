@@ -2284,6 +2284,174 @@ class Solution:
 
 </details>
 
+## [3335. Total Characters in String After Transformations I](https://leetcode.com/problems/total-characters-in-string-after-transformations-i/)  1806
+
+- [Official](https://leetcode.com/problems/total-characters-in-string-after-transformations-i/editorial/)
+- [Official](https://leetcode.cn/problems/total-characters-in-string-after-transformations-i/solutions/3674706/zi-fu-chuan-zhuan-huan-hou-de-chang-du-i-rw3x/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string s and an integer t, representing the number of transformations to perform.
+In one transformation, every character in s is replaced according to the following rules:
+- If the character is 'z', replace it with the string "ab".
+- Otherwise, replace it with the next character in the alphabet.
+  For example, 'a' is replaced with 'b', 'b' is replaced with 'c', and so on.
+
+Return the length of the resulting string after exactly t transformations.
+
+Since the answer may be very large, return it modulo 10^9 + 7.
+
+Example 1:
+Input: s = "abcyy", t = 2
+Output: 7
+Explanation:
+First Transformation (t = 1):
+'a' becomes 'b'
+'b' becomes 'c'
+'c' becomes 'd'
+'y' becomes 'z'
+'y' becomes 'z'
+String after the first transformation: "bcdzz"
+Second Transformation (t = 2):
+'b' becomes 'c'
+'c' becomes 'd'
+'d' becomes 'e'
+'z' becomes "ab"
+'z' becomes "ab"
+String after the second transformation: "cdeabab"
+Final Length of the string: The string is "cdeabab", which has 7 characters.
+
+Example 2:
+Input: s = "azbk", t = 1
+Output: 5
+Explanation:
+First Transformation (t = 1):
+'a' becomes 'b'
+'z' becomes "ab"
+'b' becomes 'c'
+'k' becomes 'l'
+String after the first transformation: "babcl"
+Final Length of the string: The string is "babcl", which has 5 characters.
+
+Constraints:
+1 <= s.length <= 10^5
+s consists only of lowercase English letters.
+1 <= t <= 10^5
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Maintain the frequency of each character.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MODULO (int)(1e9 + 7)
+#define LETTERSIZE (26)  // s consists only of lowercase English letters.
+int lengthAfterTransformations(char* s, int t) {
+    int retVal = 0;
+
+    int hashTable[LETTERSIZE];
+    memset(hashTable, 0, sizeof(hashTable));
+    for (int i = 0; s[i]; i++) {
+        hashTable[s[i] - 'a']++;
+    }
+
+    int next[LETTERSIZE];
+    for (int round = 0; round < t; round++) {
+        memset(next, 0, sizeof(next));
+        next[0] = hashTable[LETTERSIZE - 1];
+        next[1] = (hashTable[LETTERSIZE - 1] + hashTable[0]) % MODULO;
+        for (int i = 2; i < LETTERSIZE; i++) {
+            next[i] = hashTable[i - 1];
+        }
+        memcpy(hashTable, next, sizeof(hashTable));
+    }
+
+    for (int i = 0; i < LETTERSIZE; i++) {
+        retVal = (retVal + hashTable[i]) % MODULO;
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    static constexpr int MODULO = 1e9 + 7;
+    static constexpr int letterSize = 26;  // s consists only of lowercase English letters.
+
+   public:
+    int lengthAfterTransformations(string s, int t) {
+        int retVal = 0;
+
+        vector<int> hashTable(letterSize, 0);
+        for (char ch : s) {
+            ++hashTable[ch - 'a'];
+        }
+
+        for (int round = 0; round < t; ++round) {
+            vector<int> next(letterSize, 0);
+            next[0] = hashTable[letterSize - 1];
+            next[1] = (hashTable[letterSize - 1] + hashTable[0]) % MODULO;
+            for (int i = 2; i < letterSize; ++i) {
+                next[i] = hashTable[i - 1];
+            }
+            hashTable = move(next);
+        }
+
+        for (int i = 0; i < letterSize; ++i) {
+            retVal = (retVal + hashTable[i]) % MODULO;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.MODULO = 10 ** 9 + 7
+        self.letterSize = 26    # s consists only of lowercase English letters.
+
+    def lengthAfterTransformations(self, s: str, t: int) -> int:
+        retVal = 0
+
+        hashTable = [0] * self.letterSize
+        for ch in s:
+            hashTable[ord(ch) - ord("a")] += 1
+
+        for round in range(t):
+            next = [0] * self.letterSize
+            next[0] = hashTable[self.letterSize - 1]
+            next[1] = (hashTable[self.letterSize - 1] + hashTable[0]) % self.MODULO
+            for i in range(2, self.letterSize):
+                next[i] = hashTable[i - 1]
+            hashTable = next
+        retVal = sum(hashTable) % self.MODULO
+
+        return retVal
+```
+
+</details>
+
 ## [3343. Count Number of Balanced Permutations](https://leetcode.com/problems/count-number-of-balanced-permutations/)  2614
 
 - [Official](https://leetcode.com/problems/count-number-of-balanced-permutations/editorial/)
