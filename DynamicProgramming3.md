@@ -2452,6 +2452,322 @@ class Solution:
 
 </details>
 
+## [3337. Total Characters in String After Transformations II](https://leetcode.com/problems/total-characters-in-string-after-transformations-ii/)  2411
+
+- [Official](https://leetcode.com/problems/total-characters-in-string-after-transformations-ii/editorial/)
+- [Official](https://leetcode.cn/problems/total-characters-in-string-after-transformations-ii/solutions/3674707/zi-fu-chuan-zhuan-huan-hou-de-chang-du-i-ytl5/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string s consisting of lowercase English letters,
+an integer t representing the number of transformations to perform,
+and an array nums of size 26.
+In one transformation, every character in s is replaced according to the following rules:
+- Replace s[i] with the next nums[s[i] - 'a'] consecutive characters in the alphabet.
+  For example, if s[i] = 'a' and nums[0] = 3,
+  the character 'a' transforms into the next 3 consecutive characters ahead of it, which results in "bcd".
+- The transformation wraps around the alphabet if it exceeds 'z'.
+  For example, if s[i] = 'y' and nums[24] = 3,
+  the character 'y' transforms into the next 3 consecutive characters ahead of it, which results in "zab".
+
+Return the length of the resulting string after exactly t transformations.
+
+Since the answer may be very large, return it modulo 109 + 7.
+
+Example 1:
+Input: s = "abcyy", t = 2, nums = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2]
+Output: 7
+Explanation:
+First Transformation (t = 1):
+'a' becomes 'b' as nums[0] == 1
+'b' becomes 'c' as nums[1] == 1
+'c' becomes 'd' as nums[2] == 1
+'y' becomes 'z' as nums[24] == 1
+'y' becomes 'z' as nums[24] == 1
+String after the first transformation: "bcdzz"
+Second Transformation (t = 2):
+'b' becomes 'c' as nums[1] == 1
+'c' becomes 'd' as nums[2] == 1
+'d' becomes 'e' as nums[3] == 1
+'z' becomes 'ab' as nums[25] == 2
+'z' becomes 'ab' as nums[25] == 2
+String after the second transformation: "cdeabab"
+Final Length of the string: The string is "cdeabab", which has 7 characters.
+
+Example 2:
+Input: s = "azbk", t = 1, nums = [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]
+Output: 8
+Explanation:
+First Transformation (t = 1):
+'a' becomes 'bc' as nums[0] == 2
+'z' becomes 'ab' as nums[25] == 2
+'b' becomes 'cd' as nums[1] == 2
+'k' becomes 'lm' as nums[10] == 2
+String after the first transformation: "bcabcdlm"
+Final Length of the string: The string is "bcabcdlm", which has 8 characters.
+
+Constraints:
+1 <= s.length <= 10^5
+s consists only of lowercase English letters.
+1 <= t <= 10^9
+nums.length == 26
+1 <= nums[i] <= 25
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Model the problem as a matrix multiplication problem.
+2. Use exponentiation to quickly multiply matrices.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MODULO (int)(1e9 + 7)
+#define LETTERSIZE (26)  // s consists only of lowercase English letters.
+typedef struct {
+    int a[LETTERSIZE][LETTERSIZE];
+} Mat;
+Mat mul(Mat x, Mat y) {
+    Mat retVal;
+
+    memset(&retVal, 0, sizeof(retVal));
+    for (int i = 0; i < LETTERSIZE; i++) {
+        for (int j = 0; j < LETTERSIZE; j++) {
+            for (int k = 0; k < LETTERSIZE; k++) {
+                retVal.a[i][j] = (retVal.a[i][j] + (long long)x.a[i][k] * y.a[k][j]) % MODULO;
+            }
+        }
+    }
+
+    return retVal;
+}
+Mat quickmul(Mat x, int y) {  //  matrix exponentiation by squaring
+    Mat retVal;
+
+    // identity matrix
+    memset(&retVal, 0, sizeof(retVal));
+    for (int i = 0; i < LETTERSIZE; i++) {
+        retVal.a[i][i] = 1;
+    }
+
+    Mat cur = x;
+    while (y > 0) {
+        if (y & 1) {
+            retVal = mul(retVal, cur);
+        }
+        cur = mul(cur, cur);
+        y >>= 1;
+    }
+
+    return retVal;
+}
+int lengthAfterTransformations(char* s, int t, int* nums, int numsSize) {
+    int retVal = 0;
+
+    Mat T;
+    memset(&T, 0, sizeof(T));
+    for (int i = 0; i < LETTERSIZE; i++) {
+        for (int j = 1; j <= nums[i]; j++) {
+            T.a[(i + j) % LETTERSIZE][i] = 1;
+        }
+    }
+
+    Mat res = quickmul(T, t);
+
+    int f[LETTERSIZE];
+    memset(f, 0, sizeof(f));
+    for (char* p = s; *p; p++) {
+        f[*p - 'a']++;
+    }
+
+    for (int i = 0; i < LETTERSIZE; i++) {
+        for (int j = 0; j < LETTERSIZE; j++) {
+            retVal = (retVal + (long long)res.a[i][j] * f[j]) % MODULO;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+struct Mat {
+    static constexpr int MODULO = 1e9 + 7;
+    static constexpr int letterSize = 26;  // s consists only of lowercase English letters.
+    int a[letterSize][letterSize];
+
+    Mat() {
+        //
+        memset(a, 0, sizeof(a));
+    }
+    Mat(const Mat& that) {
+        for (int i = 0; i < letterSize; ++i) {
+            for (int j = 0; j < letterSize; ++j) {
+                a[i][j] = that.a[i][j];
+            }
+        }
+    }
+    Mat& operator=(const Mat& that) {
+        if (this != &that) {
+            for (int i = 0; i < letterSize; ++i) {
+                for (int j = 0; j < letterSize; ++j) {
+                    a[i][j] = that.a[i][j];
+                }
+            }
+        }
+        return *this;
+    }
+};
+Mat operator*(const Mat& u, const Mat& v) {
+    Mat retVal;
+
+    for (int i = 0; i < Mat::letterSize; ++i) {
+        for (int j = 0; j < Mat::letterSize; ++j) {
+            for (int k = 0; k < Mat::letterSize; ++k) {
+                retVal.a[i][j] = (retVal.a[i][j] + (long long)u.a[i][k] * v.a[k][j]) % Mat::MODULO;
+            }
+        }
+    }
+
+    return retVal;
+}
+class Solution {
+   private:
+    static constexpr int MODULO = 1e9 + 7;
+    static constexpr int letterSize = 26;  // s consists only of lowercase English letters.
+
+    // matrix exponentiation by squaring
+    Mat quickmul(const Mat& x, int y) {
+        Mat retVal;
+
+        // identity matrix
+        for (int i = 0; i < letterSize; ++i) {
+            retVal.a[i][i] = 1;
+        }
+
+        Mat cur = x;
+        while (y) {
+            if (y & 1) {
+                retVal = retVal * cur;
+            }
+            cur = cur * cur;
+            y >>= 1;
+        }
+
+        return retVal;
+    }
+
+   public:
+    int lengthAfterTransformations(string s, int t, vector<int>& nums) {
+        int retVal = 0;
+
+        Mat T;
+        for (int i = 0; i < letterSize; ++i) {
+            for (int j = 1; j <= nums[i]; ++j) {
+                T.a[(i + j) % letterSize][i] = 1;
+            }
+        }
+
+        Mat res = quickmul(T, t);
+
+        vector<int> f(letterSize);
+        for (char ch : s) {
+            ++f[ch - 'a'];
+        }
+
+        for (int i = 0; i < letterSize; ++i) {
+            for (int j = 0; j < letterSize; ++j) {
+                retVal = (retVal + (long long)res.a[i][j] * f[j]) % MODULO;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Mat:
+    MODULO = 10 ** 9 + 7
+    letterSize = 26    # s consists only of lowercase English letters.
+
+    def __init__(self, copyFrom: "Mat" = None) -> None:
+        self.a = [[0] * Mat.letterSize for _ in range(Mat.letterSize)]
+        if copyFrom:
+            for i in range(Mat.letterSize):
+                for j in range(Mat.letterSize):
+                    self.a[i][j] = copyFrom.a[i][j]
+
+    def __mul__(self, other: "Mat") -> "Mat":
+        retVal = Mat()
+
+        for i in range(Mat.letterSize):
+            for j in range(Mat.letterSize):
+                for k in range(Mat.letterSize):
+                    retVal.a[i][j] = (retVal.a[i][j] + self.a[i][k] * other.a[k][j]) % Mat.MODULO
+
+        return retVal
+
+
+class Solution:
+    def __init__(self) -> None:
+        self.MODULO = 10 ** 9 + 7
+        self.letterSize = 26    # s consists only of lowercase English letters.
+
+    def quickmul(self, x: Mat, y: int) -> Mat:  # matrix exponentiation by squaring
+        retVal = Mat()
+
+        # identity matrix
+        for i in range(self.letterSize):
+            retVal.a[i][i] = 1
+
+        cur = x
+        while y:
+            if y & 1:
+                retVal = retVal * cur
+            cur = cur * cur
+            y >>= 1
+
+        return retVal
+
+    def lengthAfterTransformations(self, s: str, t: int, nums: List[int]) -> int:
+        retVal = 0
+
+        T = Mat()
+        for i in range(self.letterSize):
+            for j in range(1, nums[i] + 1):
+                T.a[(i + j) % self.letterSize][i] = 1
+
+        res = self.quickmul(T, t)
+
+        f = [0] * self.letterSize
+        for ch in s:
+            f[ord(ch) - ord("a")] += 1
+
+        for i in range(self.letterSize):
+            for j in range(self.letterSize):
+                retVal = (retVal + res.a[i][j] * f[j]) % self.MODULO
+
+        return retVal
+```
+
+</details>
+
 ## [3343. Count Number of Balanced Permutations](https://leetcode.com/problems/count-number-of-balanced-permutations/)  2614
 
 - [Official](https://leetcode.com/problems/count-number-of-balanced-permutations/editorial/)
