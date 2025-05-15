@@ -7971,6 +7971,164 @@ class Solution:
 
 </details>
 
+## [2900. Longest Unequal Adjacent Groups Subsequence I](https://leetcode.com/problems/longest-unequal-adjacent-groups-subsequence-i/)  1468
+
+- [Official](https://leetcode.com/problems/longest-unequal-adjacent-groups-subsequence-i/editorial/)
+- [Official](https://leetcode.cn/problems/longest-unequal-adjacent-groups-subsequence-i/solutions/3669621/zui-chang-xiang-lin-bu-xiang-deng-zi-xu-8vlf3/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string array words and a binary array groups both of length n,
+where words[i] is associated with groups[i].
+
+Your task is to select the longest alternating subsequence from words.
+A subsequence of words is alternating if for any two consecutive strings in the sequence,
+their corresponding elements in the binary array groups differ.
+Essentially, you are to choose strings
+such that adjacent elements have non-matching corresponding bits in the groups array.
+
+Formally, you need to find the longest subsequence of an array
+of indices [0, 1, ..., n - 1] denoted as [i0, i1, ..., ik-1],
+such that groups[ij] != groups[ij+1] for each 0 <= j < k - 1 and then find the words corresponding to these indices.
+
+Return the selected subsequence. If there are multiple answers, return any of them.
+
+Note: The elements in words are distinct.
+
+Example 1:
+Input: words = ["e","a","b"], groups = [0,0,1]
+Output: ["e","b"]
+Explanation:
+A subsequence that can be selected is ["e","b"] because groups[0] != groups[2].
+Another subsequence that can be selected is ["a","b"] because groups[1] != groups[2].
+It can be demonstrated that the length of the longest subsequence of indices that satisfies the condition is 2.
+
+Example 2:
+Input: words = ["a","b","c","d"], groups = [1,0,1,1]
+Output: ["a","b","c"]
+Explanation:
+A subsequence that can be selected is ["a","b","c"] because groups[0] != groups[1] and groups[1] != groups[2].
+Another subsequence that can be selected is ["a","b","d"] because groups[0] != groups[1] and groups[1] != groups[3].
+It can be shown that the length of the longest subsequence of indices that satisfies the condition is 3.
+
+Constraints:
+1 <= n == words.length == groups.length <= 100
+1 <= words[i].length <= 10
+groups[i] is either 0 or 1.
+words consists of distinct strings.
+words[i] consists of lowercase English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. This problem can be solved greedily.
+2. Begin by constructing the answer starting with the first number in groups.
+3. For each index i in the range [1, n - 1], add i to the answer if groups[i] != groups[i - 1].
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+char** getLongestSubsequence(char** words, int wordsSize, int* groups, int groupsSize, int* returnSize) {
+    char** pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    pRetVal = (char**)malloc(groupsSize * sizeof(char*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+
+    int returnColSize = strlen(words[0]) + 1;
+    pRetVal[(*returnSize)] = (char*)malloc(returnColSize * sizeof(char));
+    if (pRetVal[(*returnSize)] == NULL) {
+        perror("malloc");
+        free(pRetVal);
+        pRetVal = NULL;
+        return pRetVal;
+    }
+    memset(pRetVal[(*returnSize)], 0, (returnColSize * sizeof(char)));
+    snprintf(pRetVal[(*returnSize)++], returnColSize, "%s", words[0]);
+
+    for (int i = 1; i < groupsSize; ++i) {
+        if (groups[i] == groups[i - 1]) {
+            continue;
+        }
+
+        returnColSize = strlen(words[i]) + 1;
+        pRetVal[(*returnSize)] = (char*)malloc(returnColSize * sizeof(char));
+        if (pRetVal[(*returnSize)] == NULL) {
+            perror("malloc");
+            for (int j = 0; j < i; ++j) {
+                free(pRetVal[j]);
+                pRetVal[j] = NULL;
+            }
+            free(pRetVal);
+            pRetVal = NULL;
+            (*returnSize) = 0;
+            return pRetVal;
+        }
+        memset(pRetVal[(*returnSize)], 0, (returnColSize * sizeof(char)));
+        snprintf(pRetVal[(*returnSize)++], returnColSize, "%s", words[i]);
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<string> getLongestSubsequence(vector<string>& words, vector<int>& groups) {
+        vector<string> retVal;
+
+        retVal.emplace_back(words[0]);
+        int groupsSize = groups.size();
+        for (int i = 1; i < groupsSize; ++i) {
+            if (groups[i] != groups[i - 1]) {
+                retVal.emplace_back(words[i]);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def getLongestSubsequence(self, words: List[str], groups: List[int]) -> List[str]:
+        retVal = []
+
+        retVal.append(words[0])
+        groupsSize = len(groups)
+        for i in range(1, groupsSize):
+            if groups[i] != groups[i - 1]:
+                retVal.append(words[i])
+
+        return retVal
+```
+
+</details>
+
 ## [2918. Minimum Equal Sum of Two Arrays After Replacing Zeros](https://leetcode.com/problems/minimum-equal-sum-of-two-arrays-after-replacing-zeros/)  1526
 
 - [Official](https://leetcode.com/problems/minimum-equal-sum-of-two-arrays-after-replacing-zeros/editorial/)
