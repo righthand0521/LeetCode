@@ -304,6 +304,13 @@
 
 </details>
 
+<details><summary>Longest Unequal Adjacent Groups Subsequence</summary>
+
+- [2900. Longest Unequal Adjacent Groups Subsequence I](https://leetcode.com/problems/longest-unequal-adjacent-groups-subsequence-i/)
+- [2901. Longest Unequal Adjacent Groups Subsequence II](https://leetcode.com/problems/longest-unequal-adjacent-groups-subsequence-ii/)
+
+</details>
+
 ## Graph
 
 <details><summary>Topological Sort</summary>

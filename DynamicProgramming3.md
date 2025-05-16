@@ -2064,6 +2064,436 @@ class Solution:
 
 </details>
 
+## [2900. Longest Unequal Adjacent Groups Subsequence I](https://leetcode.com/problems/longest-unequal-adjacent-groups-subsequence-i/)  1468
+
+- [Official](https://leetcode.com/problems/longest-unequal-adjacent-groups-subsequence-i/editorial/)
+- [Official](https://leetcode.cn/problems/longest-unequal-adjacent-groups-subsequence-i/solutions/3669621/zui-chang-xiang-lin-bu-xiang-deng-zi-xu-8vlf3/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string array words and a binary array groups both of length n,
+where words[i] is associated with groups[i].
+
+Your task is to select the longest alternating subsequence from words.
+A subsequence of words is alternating if for any two consecutive strings in the sequence,
+their corresponding elements in the binary array groups differ.
+Essentially, you are to choose strings
+such that adjacent elements have non-matching corresponding bits in the groups array.
+
+Formally, you need to find the longest subsequence of an array
+of indices [0, 1, ..., n - 1] denoted as [i0, i1, ..., ik-1],
+such that groups[ij] != groups[ij+1] for each 0 <= j < k - 1 and then find the words corresponding to these indices.
+
+Return the selected subsequence. If there are multiple answers, return any of them.
+
+Note: The elements in words are distinct.
+
+Example 1:
+Input: words = ["e","a","b"], groups = [0,0,1]
+Output: ["e","b"]
+Explanation:
+A subsequence that can be selected is ["e","b"] because groups[0] != groups[2].
+Another subsequence that can be selected is ["a","b"] because groups[1] != groups[2].
+It can be demonstrated that the length of the longest subsequence of indices that satisfies the condition is 2.
+
+Example 2:
+Input: words = ["a","b","c","d"], groups = [1,0,1,1]
+Output: ["a","b","c"]
+Explanation:
+A subsequence that can be selected is ["a","b","c"] because groups[0] != groups[1] and groups[1] != groups[2].
+Another subsequence that can be selected is ["a","b","d"] because groups[0] != groups[1] and groups[1] != groups[3].
+It can be shown that the length of the longest subsequence of indices that satisfies the condition is 3.
+
+Constraints:
+1 <= n == words.length == groups.length <= 100
+1 <= words[i].length <= 10
+groups[i] is either 0 or 1.
+words consists of distinct strings.
+words[i] consists of lowercase English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. This problem can be solved greedily.
+2. Begin by constructing the answer starting with the first number in groups.
+3. For each index i in the range [1, n - 1], add i to the answer if groups[i] != groups[i - 1].
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+char** getLongestSubsequence(char** words, int wordsSize, int* groups, int groupsSize, int* returnSize) {
+    char** pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    pRetVal = (char**)malloc(groupsSize * sizeof(char*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+
+    int returnColSize = strlen(words[0]) + 1;
+    pRetVal[(*returnSize)] = (char*)malloc(returnColSize * sizeof(char));
+    if (pRetVal[(*returnSize)] == NULL) {
+        perror("malloc");
+        free(pRetVal);
+        pRetVal = NULL;
+        return pRetVal;
+    }
+    memset(pRetVal[(*returnSize)], 0, (returnColSize * sizeof(char)));
+    snprintf(pRetVal[(*returnSize)++], returnColSize, "%s", words[0]);
+
+    for (int i = 1; i < groupsSize; ++i) {
+        if (groups[i] == groups[i - 1]) {
+            continue;
+        }
+
+        returnColSize = strlen(words[i]) + 1;
+        pRetVal[(*returnSize)] = (char*)malloc(returnColSize * sizeof(char));
+        if (pRetVal[(*returnSize)] == NULL) {
+            perror("malloc");
+            for (int j = 0; j < i; ++j) {
+                free(pRetVal[j]);
+                pRetVal[j] = NULL;
+            }
+            free(pRetVal);
+            pRetVal = NULL;
+            (*returnSize) = 0;
+            return pRetVal;
+        }
+        memset(pRetVal[(*returnSize)], 0, (returnColSize * sizeof(char)));
+        snprintf(pRetVal[(*returnSize)++], returnColSize, "%s", words[i]);
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<string> getLongestSubsequence(vector<string>& words, vector<int>& groups) {
+        vector<string> retVal;
+
+        retVal.emplace_back(words[0]);
+        int groupsSize = groups.size();
+        for (int i = 1; i < groupsSize; ++i) {
+            if (groups[i] != groups[i - 1]) {
+                retVal.emplace_back(words[i]);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def getLongestSubsequence(self, words: List[str], groups: List[int]) -> List[str]:
+        retVal = []
+
+        retVal.append(words[0])
+        groupsSize = len(groups)
+        for i in range(1, groupsSize):
+            if groups[i] != groups[i - 1]:
+                retVal.append(words[i])
+
+        return retVal
+```
+
+</details>
+
+## [2901. Longest Unequal Adjacent Groups Subsequence II](https://leetcode.com/problems/longest-unequal-adjacent-groups-subsequence-ii/)  1898
+
+- [Official](https://leetcode.com/problems/longest-unequal-adjacent-groups-subsequence-ii/editorial/)
+- [Official](https://leetcode.cn/problems/longest-unequal-adjacent-groups-subsequence-ii/solutions/3669641/zui-chang-xiang-lin-bu-xiang-deng-zi-xu-zh7yv/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string array words, and an array groups, both arrays having length n.
+
+The hamming distance between two strings of equal length is the number of positions
+at which the corresponding characters are different.
+
+You need to select the longest subsequence from an array of indices [0, 1, ..., n - 1],
+such that for the subsequence denoted as [i0, i1, ..., ik-1] having length k, the following holds:
+- For adjacent indices in the subsequence, their corresponding groups are unequal,
+  i.e., groups[ij] != groups[ij+1], for each j where 0 < j + 1 < k.
+- words[ij] and words[ij+1] are equal in length, and the hamming distance between them is 1,
+  where 0 < j + 1 < k, for all indices in the subsequence.
+
+Return a string array containing the words corresponding to the indices (in order) in the selected subsequence.
+If there are multiple answers, return any of them.
+
+Note: strings in words may be unequal in length.
+
+Example 1:
+Input: words = ["bab","dab","cab"], groups = [1,2,2]
+Output: ["bab","cab"]
+Explanation: A subsequence that can be selected is [0,2].
+groups[0] != groups[2]
+words[0].length == words[2].length, and the hamming distance between them is 1.
+So, a valid answer is [words[0],words[2]] = ["bab","cab"].
+Another subsequence that can be selected is [0,1].
+groups[0] != groups[1]
+words[0].length == words[1].length, and the hamming distance between them is 1.
+So, another valid answer is [words[0],words[1]] = ["bab","dab"].
+It can be shown that the length of the longest subsequence of indices that satisfies the conditions is 2.
+
+Example 2:
+Input: words = ["a","b","c","d"], groups = [1,2,3,4]
+Output: ["a","b","c","d"]
+Explanation: We can select the subsequence [0,1,2,3].
+It satisfies both conditions.
+Hence, the answer is [words[0],words[1],words[2],words[3]] = ["a","b","c","d"].
+It has the longest length among all subsequences of indices that satisfy the conditions.
+Hence, it is the only answer.
+
+Constraints:
+1 <= n == words.length == groups.length <= 1000
+1 <= words[i].length <= 10
+1 <= groups[i] <= n
+words consists of distinct strings.
+words[i] consists of lowercase English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Let dp[i] represent the length of the longest subsequence ending with words[i] that satisfies the conditions.
+2. dp[i] = (maximum value of dp[j]) + 1 for indices j < i, where groups[i] != groups[j], words[i] and words[j]
+   are equal in length, and the hamming distance between words[i] and words[j] is exactly 1.
+3. Keep track of the j values used to achieve the maximum dp[i] for each index i.
+4. The expected array's length is max(dp[0:n]),
+   and starting from the index having the maximum value in dp, we can trace backward to get the words.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool check(const char* s1, const char* s2) {
+    bool retVal = false;
+
+    int s1Size = strlen(s1);
+    int s2Size = strlen(s2);
+    if (s1Size != s2Size) {
+        return retVal;
+    }
+
+    int diff = 0;
+    for (int i = 0; s1[i]; i++) {
+        if (s1[i] == s2[i]) {
+            continue;
+        }
+
+        diff++;
+        if (diff > 1) {
+            return retVal;
+        }
+    }
+    if (diff == 1) {
+        retVal = true;
+    }
+
+    return retVal;
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+char** getWordsInLongestSubsequence(char** words, int wordsSize, int* groups, int groupsSize, int* returnSize) {
+    char** pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    int dp[wordsSize];
+    int prev[wordsSize];
+    for (int i = 0; i < wordsSize; i++) {
+        dp[i] = 1;
+        prev[i] = -1;
+    }
+    int maxIndex = 0;
+    for (int i = 1; i < wordsSize; i++) {
+        for (int j = 0; j < i; j++) {
+            if ((check(words[i], words[j]) == true) && (dp[j] + 1 > dp[i]) && (groups[i] != groups[j])) {
+                dp[i] = dp[j] + 1;
+                prev[i] = j;
+            }
+        }
+
+        if (dp[i] > dp[maxIndex]) {
+            maxIndex = i;
+        }
+    }
+
+    int count = 0;
+    for (int i = maxIndex; i >= 0; i = prev[i]) {
+        count++;
+    }
+
+    pRetVal = (char**)malloc(count * sizeof(char*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+
+    int index = 0;
+    for (int i = maxIndex; i >= 0; i = prev[i]) {
+        pRetVal[index++] = words[i];
+    }
+
+    char* temp;
+    for (int i = 0; i < count / 2; i++) {
+        temp = pRetVal[i];
+        pRetVal[i] = pRetVal[count - 1 - i];
+        pRetVal[count - 1 - i] = temp;
+    }
+
+    (*returnSize) = count;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    bool check(string& s1, string& s2) {
+        bool retVal = false;
+
+        int s1Size = s1.size();
+        int s2Size = s2.size();
+        if (s1Size != s2Size) {
+            return retVal;
+        }
+
+        int diff = 0;
+        for (int i = 0; i < s1Size; i++) {
+            if (s1[i] != s2[i]) {
+                diff++;
+            }
+            if (diff > 1) {
+                return retVal;
+            }
+        }
+        if (diff == 1) {
+            retVal = true;
+        }
+
+        return retVal;
+    }
+
+   public:
+    vector<string> getWordsInLongestSubsequence(vector<string>& words, vector<int>& groups) {
+        vector<string> retVal;
+
+        int groupsSize = groups.size();
+
+        vector<int> dp(groupsSize, 1);
+        vector<int> prev(groupsSize, -1);
+        int maxIndex = 0;
+        for (int i = 1; i < groupsSize; i++) {
+            for (int j = 0; j < i; j++) {
+                if ((check(words[i], words[j]) == 1) && (dp[j] + 1 > dp[i]) && (groups[i] != groups[j])) {
+                    dp[i] = dp[j] + 1;
+                    prev[i] = j;
+                }
+            }
+            if (dp[i] > dp[maxIndex]) {
+                maxIndex = i;
+            }
+        }
+
+        for (int i = maxIndex; i >= 0; i = prev[i]) {
+            retVal.emplace_back(words[i]);
+        }
+        reverse(retVal.begin(), retVal.end());
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def check(self, s1: str, s2: str) -> bool:
+        retVal = False
+
+        s1Size = len(s1)
+        s2Size = len(s2)
+        if s1Size != s2Size:
+            return retVal
+
+        diff = 0
+        for c1, c2 in zip(s1, s2):
+            if c1 == c2:
+                continue
+            diff += 1
+            if diff > 1:
+                return retVal
+        if diff == 1:
+            retVal = True
+
+        return retVal
+
+    def getWordsInLongestSubsequence(self, words: List[str], groups: List[int]) -> List[str]:
+        retVal = []
+
+        groupsSize = len(groups)
+
+        dp = [1] * groupsSize
+        prev = [-1] * groupsSize
+        maxIndex = 0
+        for i in range(1, groupsSize):
+            for j in range(i):
+                if ((self.check(words[i], words[j]) == True) and (dp[j] + 1 > dp[i]) and (groups[i] != groups[j])):
+                    dp[i] = dp[j] + 1
+                    prev[i] = j
+            if dp[i] > dp[maxIndex]:
+                maxIndex = i
+
+        i = maxIndex
+        while i >= 0:
+            retVal.append(words[i])
+            i = prev[i]
+        retVal.reverse()
+
+        return retVal
+```
+
+</details>
+
 ## [2999. Count the Number of Powerful Integers](https://leetcode.com/problems/count-the-number-of-powerful-integers/)  2351
 
 - [Official](https://leetcode.com/problems/count-the-number-of-powerful-integers/editorial/)
