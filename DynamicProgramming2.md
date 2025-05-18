@@ -7672,6 +7672,362 @@ class Solution:
 
 </details>
 
+## [1931. Painting a Grid With Three Different Colors](https://leetcode.com/problems/painting-a-grid-with-three-different-colors/)  2170
+
+- [Official](https://leetcode.com/problems/painting-a-grid-with-three-different-colors/editorial/)
+- [Official](https://leetcode.cn/problems/painting-a-grid-with-three-different-colors/solutions/870045/yong-san-chong-bu-tong-yan-se-wei-wang-g-7nb2/)
+
+<details><summary>Description</summary>
+
+```text
+You are given two integers m and n. Consider an m x n grid where each cell is initially white.
+You can paint each cell red, green, or blue. All cells must be painted.
+
+Return the number of ways to color the grid with no two adjacent cells having the same color.
+Since the answer can be very large, return it modulo 10^9 + 7.
+
+Example 1:
+Input: m = 1, n = 1
+Output: 3
+Explanation: The three possible colorings are shown in the image above.
+
+Example 2:
+Input: m = 1, n = 2
+Output: 6
+Explanation: The six possible colorings are shown in the image above.
+
+Example 3:
+Input: m = 5, n = 5
+Output: 580986
+
+Constraints:
+1 <= m <= 5
+1 <= n <= 1000
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Represent each colored column by a bitmask based on each cell color.
+2. Use bitmasks DP with state (currentCell, prevColumn).
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#ifndef LISTNODE_H
+#define LISTNODE_H
+
+struct ListNode *createList(int val) {
+    struct ListNode *pObj = NULL;
+
+    pObj = (struct ListNode *)malloc(sizeof(struct ListNode));
+    if (pObj == NULL) {
+        perror("malloc");
+        return pObj;
+    }
+    pObj->val = val;
+    pObj->next = NULL;
+
+    return pObj;
+}
+void freeList(struct ListNode *pObj) {
+    if (pObj == NULL) {
+        return;
+    }
+
+    struct ListNode *pFree;
+    while (pObj) {
+        pFree = pObj;
+        pObj = pObj->next;
+        free(pFree);
+        pFree = NULL;
+    }
+}
+
+#endif  // LISTNODE_H
+#ifndef HASH_H
+#define HASH_H
+
+struct hashTable {
+    int key;
+    struct ListNode *val;
+    UT_hash_handle hh;
+};
+void hashAddItem(struct hashTable **obj, int key, int val) {
+    struct ListNode *p = createList(val);
+
+    struct hashTable *pEntry = NULL;
+    HASH_FIND_INT(*obj, &key, pEntry);
+    if (pEntry == NULL) {
+        pEntry = (struct hashTable *)malloc(sizeof(struct hashTable));
+        if (pEntry == NULL) {
+            perror("malloc");
+            return;
+        }
+        pEntry->key = key;
+        pEntry->val = p;
+        HASH_ADD_INT(*obj, key, pEntry);
+    } else {
+        p->next = pEntry->val;
+        pEntry->val = p;
+    }
+}
+struct ListNode *hashGetItem(struct hashTable **obj, int key) {
+    struct ListNode *pRetVal = NULL;
+
+    struct hashTable *pEntry = NULL;
+    HASH_FIND_INT(*obj, &key, pEntry);
+    if (pEntry == NULL) {
+        return pRetVal;
+    }
+    pRetVal = pEntry->val;
+
+    return pRetVal;
+}
+void hashFree(struct hashTable **pObj) {
+    struct hashTable *pCurrent = NULL;
+    struct hashTable *pTmp = NULL;
+    HASH_ITER(hh, *pObj, pCurrent, pTmp) {
+        HASH_DEL(*pObj, pCurrent);
+        freeList(pCurrent->val);
+        pCurrent->val = NULL;
+        free(pCurrent);
+        pCurrent = NULL;
+    }
+}
+
+#endif  // HASH_H
+#define MODULO (int)(1e9 + 7)
+int colorTheGrid(int m, int n) {
+    int retVal = 0;
+
+    // Hash mapping stores all valid coloration schemes for a single row that meet the requirements
+    // The key represents mask, and the value represents the ternary string of mask (stored as a list)
+    struct hashTable *valid = NULL;
+    // Enumerate masks that meet the requirements within the range [0, 3^m)
+    int mask_end = pow(3, m);
+    for (int mask = 0; mask < mask_end; ++mask) {
+        int mm = mask;
+        int color[m];
+        for (int i = 0; i < m; ++i) {
+            color[i] = mm % 3;
+            mm /= 3;
+        }
+
+        bool check = true;
+        for (int i = 0; i < m - 1; ++i) {
+            if (color[i] == color[i + 1]) {
+                check = false;
+                break;
+            }
+        }
+        if (check == true) {
+            for (int i = 0; i < m; i++) {
+                hashAddItem(&valid, mask, color[i]);
+            }
+        }
+    }
+
+    // Preprocess all (mask1, mask2) binary tuples, satisfying mask1 and mask2 When adjacent rows,
+    // the colors of the two cells in the same column are different
+    struct hashTable *adjacent = NULL;
+    for (struct hashTable *pEntry1 = valid; pEntry1; pEntry1 = pEntry1->hh.next) {
+        int mask1 = pEntry1->key;
+        for (struct hashTable *pEntry2 = valid; pEntry2; pEntry2 = pEntry2->hh.next) {
+            int mask2 = pEntry2->key;
+
+            bool check = true;
+            for (struct ListNode *p1 = pEntry1->val, *p2 = pEntry2->val; p1 && p2; p1 = p1->next, p2 = p2->next) {
+                if (p1->val == p2->val) {
+                    check = false;
+                    break;
+                }
+            }
+            if (check == true) {
+                hashAddItem(&adjacent, mask1, mask2);
+            }
+        }
+    }
+
+    int f[mask_end];
+    memset(f, 0, sizeof(f));
+    for (struct hashTable *pEntry = valid; pEntry; pEntry = pEntry->hh.next) {
+        int mask = pEntry->key;
+        f[mask] = 1;
+    }
+    for (int i = 1; i < n; ++i) {
+        int g[mask_end];
+        memset(g, 0, sizeof(g));
+        for (struct hashTable *pEntry1 = valid; pEntry1; pEntry1 = pEntry1->hh.next) {
+            int mask2 = pEntry1->key;
+            for (struct ListNode *p = hashGetItem(&adjacent, mask2); p != NULL; p = p->next) {
+                int mask1 = p->val;
+                g[mask2] += f[mask1];
+                if (g[mask2] >= MODULO) {
+                    g[mask2] -= MODULO;
+                }
+            }
+        }
+        memcpy(f, g, sizeof(f));
+    }
+
+    hashFree(&valid);
+    hashFree(&adjacent);
+
+    for (int i = 0; i < mask_end; i++) {
+        retVal += f[i];
+        if (retVal >= MODULO) {
+            retVal -= MODULO;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    const int MODULO = 1e9 + 7;
+
+   public:
+    int colorTheGrid(int m, int n) {
+        int retVal = 0;
+
+        // Hash mapping stores all valid coloration schemes for a single row that meet the requirements
+        // The key represents mask, and the value represents the ternary string of mask (stored as a list)
+        unordered_map<int, vector<int>> valid;
+        // Enumerate masks that meet the requirements within the range [0, 3^m)
+        int mask_end = pow(3, m);
+        for (int mask = 0; mask < mask_end; ++mask) {
+            vector<int> color;
+            int mm = mask;
+            for (int i = 0; i < m; ++i) {
+                color.push_back(mm % 3);
+                mm /= 3;
+            }
+
+            bool check = true;
+            for (int i = 0; i < m - 1; ++i) {
+                if (color[i] == color[i + 1]) {
+                    check = false;
+                    break;
+                }
+            }
+            if (check == true) {
+                valid[mask] = move(color);
+            }
+        }
+
+        // Preprocess all (mask1, mask2) binary tuples, satisfying mask1 and mask2 When adjacent rows,
+        // the colors of the two cells in the same column are different
+        unordered_map<int, vector<int>> adjacent;
+        for (const auto& [mask1, color1] : valid) {
+            for (const auto& [mask2, color2] : valid) {
+                bool check = true;
+                for (int i = 0; i < m; ++i) {
+                    if (color1[i] == color2[i]) {
+                        check = false;
+                        break;
+                    }
+                }
+                if (check == true) {
+                    adjacent[mask1].push_back(mask2);
+                }
+            }
+        }
+
+        vector<int> f(mask_end);
+        for (const auto& [mask, _] : valid) {
+            f[mask] = 1;
+        }
+        for (int i = 1; i < n; ++i) {
+            vector<int> g(mask_end);
+            for (const auto& [mask2, _] : valid) {
+                for (int mask1 : adjacent[mask2]) {
+                    g[mask2] += f[mask1];
+                    if (g[mask2] >= MODULO) {
+                        g[mask2] -= MODULO;
+                    }
+                }
+            }
+            f = move(g);
+        }
+
+        for (int num : f) {
+            retVal += num;
+            if (retVal >= MODULO) {
+                retVal -= MODULO;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.MODULO = 10 ** 9 + 7
+
+    def colorTheGrid(self, m: int, n: int) -> int:
+        retVal = 0
+
+        # Hash mapping stores all valid coloration schemes for a single row that meet the requirements
+        # The key represents mask, and the value represents the ternary string of mask (stored as a list)
+        valid = dict()
+        # Enumerate masks that meet the requirements within the range [0, 3^m)
+        for mask in range(3**m):
+            color = list()
+            mm = mask
+            for _ in range(m):
+                color.append(mm % 3)
+                mm //= 3
+
+            if any(color[i] == color[i + 1] for i in range(m - 1)):
+                continue
+
+            valid[mask] = color
+
+        # Preprocess all (mask1, mask2) binary tuples, satisfying mask1 and mask2 When adjacent rows,
+        # the colors of the two cells in the same column are different
+        adjacent = defaultdict(list)
+        for mask1, color1 in valid.items():
+            for mask2, color2 in valid.items():
+                if not any(x == y for x, y in zip(color1, color2)):
+                    adjacent[mask1].append(mask2)
+
+        f = [int(mask in valid) for mask in range(3**m)]
+        for i in range(1, n):
+            g = [0] * (3**m)
+            for mask2 in valid.keys():
+                for mask1 in adjacent[mask2]:
+                    g[mask2] += f[mask1]
+                    if g[mask2] >= self.MODULO:
+                        g[mask2] -= self.MODULO
+            f = g
+
+        retVal = sum(f) % self.MODULO
+
+        return retVal
+```
+
+</details>
+
 ## [1937. Maximum Number of Points with Cost](https://leetcode.com/problems/maximum-number-of-points-with-cost/)  2105
 
 - [Official](https://leetcode.com/problems/maximum-number-of-points-with-cost/editorial/)
