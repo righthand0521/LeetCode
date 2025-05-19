@@ -8292,6 +8292,144 @@ class Solution:
 
 </details>
 
+## [3024. Type of Triangle](https://leetcode.com/problems/type-of-triangle/)  1134
+
+- [Official](https://leetcode.com/problems/type-of-triangle/editorial/)
+- [Official](https://leetcode.cn/problems/type-of-triangle/solutions/3670439/san-jiao-xing-lei-xing-by-leetcode-solut-we7x/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed integer array nums of size 3 which can form the sides of a triangle.
+- A triangle is called equilateral if it has all sides of equal length.
+- A triangle is called isosceles if it has exactly two sides of equal length.
+- A triangle is called scalene if all its sides are of different lengths.
+
+Return a string representing the type of triangle that can be formed or "none" if it cannot form a triangle.
+
+Example 1:
+Input: nums = [3,3,3]
+Output: "equilateral"
+Explanation: Since all the sides are of equal length, therefore, it will form an equilateral triangle.
+
+Example 2:
+Input: nums = [3,4,5]
+Output: "scalene"
+Explanation:
+nums[0] + nums[1] = 3 + 4 = 7, which is greater than nums[2] = 5.
+nums[0] + nums[2] = 3 + 5 = 8, which is greater than nums[1] = 4.
+nums[1] + nums[2] = 4 + 5 = 9, which is greater than nums[0] = 3.
+Since the sum of the two sides is greater than the third side for all three cases, therefore, it can form a triangle.
+As all the sides are of different lengths, it will form a scalene triangle.
+
+Constraints:
+nums.length == 3
+1 <= nums[i] <= 100
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. The condition for a valid triangle is that for any two sides,
+   the sum of their lengths must be greater than the third side.
+2. Simply count the number of unique edge lengths after checking it’s a valid triangle.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define NONE_STR "none"
+#define EQUILATERAL_STR "equilateral"
+#define ISOSCELES_STR "isosceles"
+#define SCALENE_STR "scalene"
+int compareInteger(const void* n1, const void* n2) {
+    // ascending order
+    return (*(int*)n1 > *(int*)n2);
+}
+char* triangleType(int* nums, int numsSize) {
+    char* pRetVal;
+
+    qsort(nums, numsSize, sizeof(int), compareInteger);
+    if (nums[0] + nums[1] <= nums[2]) {
+        pRetVal = NONE_STR;
+    } else if (nums[0] == nums[2]) {
+        pRetVal = EQUILATERAL_STR;
+    } else if ((nums[0] == nums[1]) || (nums[1] == nums[2])) {
+        pRetVal = ISOSCELES_STR;
+    } else {
+        pRetVal = SCALENE_STR;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    string none = "none";
+    string equilateral = "equilateral";
+    string isosceles = "isosceles";
+    string scalene = "scalene";
+
+   public:
+    string triangleType(vector<int>& nums) {
+        string retVal;
+
+        sort(nums.begin(), nums.end());
+        if (nums[0] + nums[1] <= nums[2]) {
+            retVal = none;
+        } else if (nums[0] == nums[2]) {
+            retVal = equilateral;
+        } else if ((nums[0] == nums[1]) || (nums[1] == nums[2])) {
+            retVal = isosceles;
+        } else {
+            retVal = scalene;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.none = "none"
+        self.equilateral = "equilateral"
+        self.isosceles = "isosceles"
+        self.scalene = "scalene"
+
+    def triangleType(self, nums: List[int]) -> str:
+        retVal = ""
+
+        nums.sort()
+        if nums[0] + nums[1] <= nums[2]:
+            retVal = self.none
+        elif nums[0] == nums[2]:
+            retVal = self.equilateral
+        elif (nums[0] == nums[1]) or (nums[1] == nums[2]):
+            retVal = self.isosceles
+        else:
+            retVal = self.scalene
+
+        return retVal
+```
+
+</details>
+
 ## [3272. Find the Count of Good Integers](https://leetcode.com/problems/find-the-count-of-good-integers/)  2382
 
 - [Official](https://leetcode.com/problems/find-the-count-of-good-integers/editorial/)
