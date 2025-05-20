@@ -3865,3 +3865,165 @@ class Solution:
 ```
 
 </details>
+
+## [3355. Zero Array Transformation I](https://leetcode.com/problems/zero-array-transformation-i/)  1591
+
+- [Official](https://leetcode.com/problems/zero-array-transformation-i/editorial/)
+- [Official](https://leetcode.cn/problems/zero-array-transformation-i/solutions/3674711/ling-shu-zu-bian-huan-i-by-leetcode-solu-7q94/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array nums of length n and a 2D array queries, where queries[i] = [li, ri].
+
+For each queries[i]:
+- Select a subset of indices within the range [li, ri] in nums.
+- Decrement the values at the selected indices by 1.
+
+A Zero Array is an array where all elements are equal to 0.
+
+Return true if it is possible to transform nums into a Zero Array after processing all the queries sequentially,
+otherwise return false.
+
+Example 1:
+Input: nums = [1,0,1], queries = [[0,2]]
+Output: true
+Explanation:
+For i = 0:
+Select the subset of indices as [0, 2] and decrement the values at these indices by 1.
+The array will become [0, 0, 0], which is a Zero Array.
+
+Example 2:
+Input: nums = [4,3,2,1], queries = [[1,3],[0,2]]
+Output: false
+Explanation:
+For i = 0:
+Select the subset of indices as [1, 2, 3] and decrement the values at these indices by 1.
+The array will become [4, 2, 1, 0].
+For i = 1:
+Select the subset of indices as [0, 1, 2] and decrement the values at these indices by 1.
+The array will become [3, 1, 0, 0], which is not a Zero Array.
+
+Constraints:
+1 <= nums.length <= 10^5
+0 <= nums[i] <= 10^5
+1 <= queries.length <= 10^5
+queries[i].length == 2
+0 <= li <= ri < nums.length
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Can we use difference array and prefix sum to check if an index can be made zero?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool isZeroArray(int* nums, int numsSize, int** queries, int queriesSize, int* queriesColSize) {
+    bool retVal = true;
+
+    int deltaArray[numsSize + 1];
+    memset(deltaArray, 0, sizeof(deltaArray));
+    int left, right;
+    for (int i = 0; i < queriesSize; i++) {
+        left = queries[i][0];
+        right = queries[i][1];
+        deltaArray[left] += 1;
+        deltaArray[right + 1] -= 1;
+    }
+
+    int operationCounts[numsSize + 1];
+    memset(operationCounts, 0, sizeof(operationCounts));
+    int currentOperations = 0;
+    for (int i = 0; i < numsSize + 1; i++) {
+        currentOperations += deltaArray[i];
+        operationCounts[i] = currentOperations;
+    }
+
+    for (int i = 0; i < numsSize; i++) {
+        if (operationCounts[i] < nums[i]) {
+            retVal = false;
+            break;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool isZeroArray(vector<int>& nums, vector<vector<int>>& queries) {
+        bool retVal = true;
+
+        int numsSize = nums.size();
+
+        vector<int> deltaArray(numsSize + 1, 0);
+        for (const auto& query : queries) {
+            int left = query[0];
+            int right = query[1];
+            deltaArray[left] += 1;
+            deltaArray[right + 1] -= 1;
+        }
+
+        vector<int> operationCounts;
+        int currentOperations = 0;
+        for (int delta : deltaArray) {
+            currentOperations += delta;
+            operationCounts.push_back(currentOperations);
+        }
+
+        for (int i = 0; i < numsSize; ++i) {
+            if (operationCounts[i] < nums[i]) {
+                retVal = false;
+                break;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def isZeroArray(self, nums: List[int], queries: List[List[int]]) -> bool:
+        retVal = True
+
+        numsSize = len(nums)
+
+        deltaArray = [0] * (numsSize + 1)
+        for left, right in queries:
+            deltaArray[left] += 1
+            deltaArray[right + 1] -= 1
+
+        operationCounts = []
+        currentOperations = 0
+        for delta in deltaArray:
+            currentOperations += delta
+            operationCounts.append(currentOperations)
+
+        for operations, target in zip(operationCounts, nums):
+            if operations < target:
+                retVal = False
+                break
+
+        return retVal
+```
+
+</details>
