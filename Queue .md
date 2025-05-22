@@ -7114,3 +7114,352 @@ class Solution:
 ```
 
 </details>
+
+## [3362. Zero Array Transformation III](https://leetcode.com/problems/zero-array-transformation-iii/)  2423
+
+- [Official](https://leetcode.com/problems/zero-array-transformation-iii/editorial/)
+- [Official](https://leetcode.cn/problems/zero-array-transformation-iii/solutions/3674726/ling-shu-zu-bian-huan-iii-by-leetcode-so-ptvl/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array nums of length n and a 2D array queries where queries[i] = [li, ri].
+
+Each queries[i] represents the following action on nums:
+- Decrement the value at each index in the range [li, ri] in nums by at most 1.
+- The amount by which the value is decremented can be chosen independently for each index.
+
+A Zero Array is an array with all its elements equal to 0.
+
+Return the maximum number of elements that can be removed from queries,
+such that nums can still be converted to a zero array using the remaining queries.
+If it is not possible to convert nums to a zero array, return -1.
+
+Example 1:
+Input: nums = [2,0,2], queries = [[0,2],[0,2],[1,1]]
+Output: 1
+Explanation:
+After removing queries[2], nums can still be converted to a zero array.
+Using queries[0], decrement nums[0] and nums[2] by 1 and nums[1] by 0.
+Using queries[1], decrement nums[0] and nums[2] by 1 and nums[1] by 0.
+
+Example 2:
+Input: nums = [1,1,1,1], queries = [[1,3],[0,2],[1,3],[1,2]]
+Output: 2
+Explanation:
+We can remove queries[2] and queries[3].
+
+Example 3:
+Input: nums = [1,2,3,4], queries = [[0,3]]
+Output: -1
+Explanation:
+nums cannot be converted to a zero array even after using all the queries.
+
+Constraints:
+1 <= nums.length <= 10^5
+0 <= nums[i] <= 10^5
+1 <= queries.length <= 10^5
+queries[i].length == 2
+0 <= li <= ri < nums.length
+```
+
+<details><summary>Hint</summary>
+
+```text
+1, Sort the queries.
+2. We need to greedily pick the queries with farthest ending point first.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#ifndef HEAP_H
+#define HEAP_H
+
+#define MIN_QUEUE_SIZE (64)
+
+typedef struct Element {
+    int data;
+} Element;
+typedef bool (*compare)(const void *, const void *);
+typedef struct PriorityQueue {
+    Element *arr;
+    int capacity;
+    int queueSize;
+    compare lessFunc;
+} PriorityQueue;
+
+#if (0)
+static bool less(const void *a, const void *b) {
+    bool retVal = false;
+
+    Element *e1 = (Element *)a;
+    Element *e2 = (Element *)b;
+    retVal = (e1->data > e2->data);
+
+    return retVal;
+}
+#endif
+static bool greater(const void *a, const void *b) {
+    bool retVal = false;
+
+    Element *e1 = (Element *)a;
+    Element *e2 = (Element *)b;
+    retVal = (e1->data < e2->data);
+
+    return retVal;
+}
+static void memswap(void *m1, void *m2, size_t size) {
+    int tmp;
+    unsigned char *a = (unsigned char *)m1;
+    unsigned char *b = (unsigned char *)m2;
+    while (size--) {
+        tmp = *a;
+        *a = *b;
+        *b = tmp;
+
+        a++;
+        b++;
+    }
+}
+static void swap(Element *arr, int i, int j) {
+    //
+    memswap(&arr[i], &arr[j], sizeof(Element));
+}
+static void down(Element *arr, int size, int i, compare cmpFunc) {
+    for (int k = 2 * i + 1; k < size; k = 2 * k + 1) {
+        if ((k + 1 < size) && (cmpFunc(&arr[k], &arr[k + 1]))) {
+            k++;
+        }
+
+        if (cmpFunc(&arr[k], &arr[(k - 1) / 2])) {
+            break;
+        }
+
+        swap(arr, k, (k - 1) / 2);
+    }
+}
+PriorityQueue *createPriorityQueue(compare cmpFunc) {
+    PriorityQueue *pObj = NULL;
+
+    pObj = (PriorityQueue *)malloc(sizeof(PriorityQueue));
+    if (pObj == NULL) {
+        perror("malloc");
+        return pObj;
+    }
+    pObj->capacity = MIN_QUEUE_SIZE;
+    pObj->arr = (Element *)malloc(sizeof(Element) * pObj->capacity);
+    if (pObj->arr == NULL) {
+        perror("malloc");
+        free(pObj);
+        pObj = NULL;
+        return pObj;
+    }
+    pObj->queueSize = 0;
+    pObj->lessFunc = cmpFunc;
+
+    return pObj;
+}
+void heapfiy(PriorityQueue *obj) {
+    for (int i = obj->queueSize / 2 - 1; i >= 0; i--) {
+        down(obj->arr, obj->queueSize, i, obj->lessFunc);
+    }
+}
+void enQueue(PriorityQueue *obj, Element *e) {
+    // we need to alloc more space, just twice space size
+    if (obj->queueSize == obj->capacity) {
+        obj->capacity *= 2;
+        obj->arr = realloc(obj->arr, sizeof(Element) * obj->capacity);
+    }
+    memcpy(&obj->arr[obj->queueSize], e, sizeof(Element));
+
+    for (int i = obj->queueSize; i > 0 && obj->lessFunc(&obj->arr[(i - 1) / 2], &obj->arr[i]); i = (i - 1) / 2) {
+        swap(obj->arr, i, (i - 1) / 2);
+    }
+    obj->queueSize++;
+}
+Element *deQueue(PriorityQueue *obj) {
+    Element *pRetVal = NULL;
+
+    swap(obj->arr, 0, obj->queueSize - 1);
+    down(obj->arr, obj->queueSize - 1, 0, obj->lessFunc);
+    pRetVal = &obj->arr[obj->queueSize - 1];
+    obj->queueSize--;
+
+    return pRetVal;
+}
+bool isEmpty(const PriorityQueue *obj) {
+    bool retVal = false;
+
+    retVal = (obj->queueSize == 0);
+
+    return retVal;
+}
+Element *front(const PriorityQueue *obj) {
+    Element *pRetVal = NULL;
+
+    if (obj->queueSize != 0) {
+        pRetVal = &obj->arr[0];
+    }
+
+    return pRetVal;
+}
+void clear(PriorityQueue *obj) {
+    //
+    obj->queueSize = 0;
+}
+int size(const PriorityQueue *obj) {
+    int retVal = obj->queueSize;
+
+    //
+    return retVal;
+}
+void freeQueue(PriorityQueue *obj) {
+    free(obj->arr);
+    obj->arr = NULL;
+    free(obj);
+    obj = NULL;
+}
+
+#endif  // HEAP_H
+int compareIntArray(const void *a, const void *b) {
+    int *p1 = *(int **)a;
+    int *p2 = *(int **)b;
+
+    // ascending order
+    return (p1[0] > p2[0]);
+}
+int maxRemoval(int *nums, int numsSize, int **queries, int queriesSize, int *queriesColSize) {
+    int retVal = -1;
+
+    qsort(queries, queriesSize, sizeof(int *), compareIntArray);
+
+    PriorityQueue *heap = createPriorityQueue(greater);
+
+    int deltaArray[numsSize + 1];
+    memset(deltaArray, 0, sizeof(deltaArray));
+    int operations = 0;
+
+    Element e;
+    int end;
+    int j = 0;
+    for (int i = 0; i < numsSize; i++) {
+        operations += deltaArray[i];
+
+        while ((j < queriesSize) && (queries[j][0] == i)) {
+            e = (Element){queries[j][1]};
+            enQueue(heap, &e);
+            j++;
+        }
+
+        while ((operations < nums[i]) && (isEmpty(heap) == false) && (front(heap)->data >= i)) {
+            operations += 1;
+            end = front(heap)->data;
+            deQueue(heap);
+            deltaArray[end + 1] -= 1;
+        }
+
+        if (operations < nums[i]) {
+            freeQueue(heap);
+            return retVal;
+        }
+    }
+    retVal = size(heap);
+
+    //
+    freeQueue(heap);
+    heap = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maxRemoval(vector<int>& nums, vector<vector<int>>& queries) {
+        int retVal = -1;
+
+        int queriesSize = queries.size();
+        sort(queries.begin(), queries.end(), [](const vector<int>& a, const vector<int>& b) {
+            // ascending order
+            return a[0] < b[0];
+        });
+
+        priority_queue<int> heap;
+
+        int numsSize = nums.size();
+        vector<int> deltaArray(numsSize + 1, 0);
+        int operations = 0;
+        for (int i = 0, j = 0; i < numsSize; ++i) {
+            operations += deltaArray[i];
+
+            while ((j < queriesSize) && (queries[j][0] == i)) {
+                heap.push(queries[j][1]);
+                ++j;
+            }
+
+            while ((operations < nums[i]) && (heap.empty() == false) && (heap.top() >= i)) {
+                operations += 1;
+                deltaArray[heap.top() + 1] -= 1;
+                heap.pop();
+            }
+
+            if (operations < nums[i]) {
+                return retVal;
+            }
+        }
+        retVal = heap.size();
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxRemoval(self, nums: List[int], queries: List[List[int]]) -> int:
+        retVal = -1
+
+        queries.sort(key=lambda x: x[0])
+        queriesSize = len(queries)
+
+        heap = []
+
+        numsSize = len(nums)
+        deltaArray = [0] * (numsSize + 1)
+        operations = 0
+
+        j = 0
+        for i, num in enumerate(nums):
+            operations += deltaArray[i]
+
+            while (j < queriesSize) and (queries[j][0] == i):
+                heappush(heap, -queries[j][1])
+                j += 1
+
+            while (operations < num) and heap and (-heap[0] >= i):
+                operations += 1
+                deltaArray[-heappop(heap) + 1] -= 1
+
+            if operations < num:
+                return retVal
+
+        retVal = len(heap)
+
+        return retVal
+```
+
+</details>
