@@ -8778,6 +8778,129 @@ class Solution:
 
 </details>
 
+## [2942. Find Words Containing Character](https://leetcode.com/problems/find-words-containing-character/)  1182
+
+- [Official](https://leetcode.com/problems/find-words-containing-character/editorial/)
+- [Official](https://leetcode.cn/problems/find-words-containing-character/solutions/3674716/cha-zhao-bao-han-gei-ding-zi-fu-de-dan-c-ee7m/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed array of strings words and a character x.
+
+Return an array of indices representing the words that contain the character x.
+
+Note that the returned array may be in any order.
+
+Example 1:
+Input: words = ["leet","code"], x = "e"
+Output: [0,1]
+Explanation: "e" occurs in both words: "leet", and "code". Hence, we return indices 0 and 1.
+
+Example 2:
+Input: words = ["abc","bcd","aaaa","cbc"], x = "a"
+Output: [0,2]
+Explanation: "a" occurs in "abc", and "aaaa". Hence, we return indices 0 and 2.
+
+Example 3:
+Input: words = ["abc","bcd","aaaa","cbc"], x = "z"
+Output: []
+Explanation: "z" does not occur in any of the words. Hence, we return an empty array.
+
+Constraints:
+1 <= words.length <= 50
+1 <= words[i].length <= 50
+x is a lowercase English letter.
+words[i] consists only of lowercase English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use two nested loops.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* findWordsContaining(char** words, int wordsSize, char x, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    pRetVal = (int*)malloc(wordsSize * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, wordsSize * sizeof(int));
+
+    int wordSize;
+    for (int i = 0; i < wordsSize; ++i) {
+        wordSize = strlen(words[i]);
+        for (int j = 0; j < wordSize; ++j) {
+            if (words[i][j] == x) {
+                pRetVal[(*returnSize)++] = i;
+                break;
+            }
+        }
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> findWordsContaining(vector<string>& words, char x) {
+        vector<int> retVal;
+
+        int wordsSize = words.size();
+        for (int i = 0; i < wordsSize; ++i) {
+            int wordSize = words[i].size();
+            for (int j = 0; j < wordSize; ++j) {
+                if (words[i][j] == x) {
+                    retVal.emplace_back(i);
+                    break;
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def findWordsContaining(self, words: List[str], x: str) -> List[int]:
+        retVal = []
+
+        for index, word in enumerate(words):
+            if x in word:
+                retVal.append(index)
+
+        return retVal
+```
+
+</details>
+
 ## [3042. Count Prefix and Suffix Pairs I](https://leetcode.com/problems/count-prefix-and-suffix-pairs-i/)  1214
 
 - [Official](https://leetcode.com/problems/count-prefix-and-suffix-pairs-i/editorial/)
