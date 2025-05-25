@@ -559,7 +559,6 @@ class Solution:
 
 ## [2131. Longest Palindrome by Concatenating Two Letter Words](https://leetcode.com/problems/longest-palindrome-by-concatenating-two-letter-words/)  1556
 
-- [Official](https://leetcode.com/problems/longest-palindrome-by-concatenating-two-letter-words/solutions/2715749/longest-palindrome-by-concatenating-two-letter-words/)
 - [Official](https://leetcode.cn/problems/longest-palindrome-by-concatenating-two-letter-words/solutions/1202034/lian-jie-liang-zi-mu-dan-ci-de-dao-de-zu-vs99/)
 
 <details><summary>Description</summary>
@@ -598,131 +597,58 @@ words[i].length == 2
 words[i] consists of lowercase English letters.
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. A palindrome must be mirrored over the center. Suppose we have a palindrome.
+   If we prepend the word "ab" on the left, what must we append on the right to keep it a palindrome?
+2. We must append "ba" on the right.
+   The number of times we can do this is the minimum of (occurrences of "ab") and (occurrences of "ba").
+3. For words that are already palindromes,
+   e.g. "aa", we can prepend and append these in pairs as described in the previous hint.
+   We can also use exactly one in the middle to form an even longer palindrome.
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
 
 ```c
-#if 0   // Time Limit Exceeded
-#define MAX_WORD_LENGTH     (4)
-bool search(char** pRecord, int pRecordSize, char* pSearch)
-{
-    int i;
-    for (i=0; i<pRecordSize; ++i)
-    {
-        // printf("%2d: %s; %s\n", i, pRecord[i], pSearch);
-        if (strcmp(pRecord[i], pSearch) == 0)
-        {
-            memset(pRecord[i], 0, MAX_WORD_LENGTH*sizeof(char));
-            return true;
-        }
-    }
-
-    return false;
-}
-int longestPalindrome(char ** words, int wordsSize){
+#define MAX_LETTERS (26)  // words[i] consists of lowercase English letters.
+int longestPalindrome(char** words, int wordsSize) {
     int retVal = 0;
 
-    int i, j;
-
-    char** pRecord = (char**)malloc(wordsSize*sizeof(char*));
-    if (pRecord == NULL)
-    {
-        perror("malloc");
-        return retVal;
+    int frequencySize = MAX_LETTERS * MAX_LETTERS;  // words[i].length == 2
+    int frequency[frequencySize];
+    memset(frequency, 0, sizeof(frequency));
+    for (int i = 0; i < wordsSize; i++) {
+        int idx = (words[i][0] - 'a') * 26 + (words[i][1] - 'a');
+        frequency[idx]++;
     }
-    for (i=0; i<wordsSize; ++i)
-    {
-        pRecord[i] = (char*)malloc(MAX_WORD_LENGTH*sizeof(char));
-        if (pRecord[i] == NULL)
-        {
-            perror("malloc");
-            for (j=0; j<i; ++j)
-            {
-                free(pRecord[j]);
-                pRecord[j] = NULL;
+
+    bool middle = false;
+    for (int i = 0; i < frequencySize; i++) {
+        if (frequency[i] == 0) {
+            continue;
+        }
+        int reverseWord = (i % 26) * 26 + (i / 26);
+        if (i == reverseWord) {
+            if (frequency[i] % 2 == 1) {
+                middle = true;
             }
-            free(pRecord);
-            pRecord = NULL;
-            return retVal;
-        }
-        memset(pRecord[i], 0, MAX_WORD_LENGTH*sizeof(char));
-    }
-
-    bool isHit = false;
-    for (i=0; i<wordsSize; ++i)
-    {
-        isHit = search(pRecord, i+1, words[i]);
-        if (isHit == false)
-        {
-            pRecord[i][0] = words[i][1];
-            pRecord[i][1] = words[i][0];
-            continue;
-        }
-        retVal += 4;
-    }
-    for (i=0; i<wordsSize; ++i)
-    {
-        //printf("%2d: %s\n", i, pRecord[i]);
-        if (strlen(pRecord[i]) == 0)
-        {
-            continue;
-        }
-
-        if (pRecord[i][0] == pRecord[i][1])
-        {
-            retVal += 2;
-            break;
+            retVal += (2 * (frequency[i] / 2 * 2));
+        } else if (i > reverseWord) {
+            retVal += (4 * fmin(frequency[i], frequency[reverseWord]));
         }
     }
-
-    for (i=0; i<wordsSize; ++i)
-    {
-        free(pRecord[i]);
-        pRecord[i] = NULL;
-    }
-    free(pRecord);
-    pRecord = NULL;
-
-    return retVal;
-}
-#else
-int longestPalindrome(char ** words, int wordsSize){
-    int retVal = 0;
-
-    // words[i] consists of lowercase English letters.
-#define MAX_LETTERS     (26)
-#define MAX_RECORD      (MAX_LETTERS*MAX_LETTERS)
-    int RECORD[MAX_RECORD] = {0};
-
-    int index;
-    int i;
-    for (i=0; i<wordsSize; ++i)
-    {
-        index = ((words[i][0]-'a') * MAX_LETTERS) + (words[i][1]-'a');
-        if (RECORD[index] == 0)
-        {
-            index = ((words[i][1]-'a') * MAX_LETTERS) + (words[i][0]-'a');
-            ++RECORD[index];
-            continue;
-        }
-        retVal += 4;
-        --RECORD[index];
-    }
-
-    for (i=0; i<MAX_LETTERS; ++i)
-    {
-        index = (i * MAX_LETTERS) + i;
-        if (RECORD[index] != 0)
-        {
-            retVal += 2;
-            break;
-        }
+    if (middle == true) {
+        retVal += 2;
     }
 
     return retVal;
 }
-#endif
 ```
 
 </details>
@@ -730,65 +656,31 @@ int longestPalindrome(char ** words, int wordsSize){
 <details><summary>C++</summary>
 
 ```c++
-#define HASH_MAP                    (0)
-#define TWO_DIMENSIONAL_ARRAY       (1)
-
 class Solution {
-public:
+   public:
     int longestPalindrome(vector<string>& words) {
         int retVal = 0;
 
-        bool central = false;
-
-#if (HASH_MAP)
-        cout << "A Hash Map Approach" << "\n";
-
-        unordered_map<string, int> count;
+        unordered_map<string, int> frequency;
         for (const string& word : words) {
-            count[word]++;
+            frequency[word]++;
         }
 
-        for (const auto& [word, countOfTheWord] : count) {
-            // if the word is a palindrome
-            if (word[0] == word[1]) {
-                if (countOfTheWord % 2 == 0) {
-                    retVal += countOfTheWord;
-                } else {
-                    retVal += countOfTheWord - 1;
-                    central = true;
+        bool middle = false;
+        for (const auto& [word, count] : frequency) {
+            string reverseWord = string(1, word[1]) + word[0];
+            if (word == reverseWord) {
+                if (count % 2 == 1) {
+                    middle = true;
                 }
-            // consider a pair of non-palindrome words such that one is the
-            // reverse of another ({word[1], word[0]} is the reversed word)
-            } else if (word[0] < word[1] && count.count({word[1], word[0]})) {
-                retVal += 2 * min(countOfTheWord, count[{word[1], word[0]}]);
+                retVal += (2 * (count / 2 * 2));
+            } else if (word > reverseWord) {
+                retVal += (4 * min(count, frequency[reverseWord]));
             }
         }
-#elif (TWO_DIMENSIONAL_ARRAY)
-        cout << "A Two-Dimensional Array Approach" << "\n";
-
-        constexpr int alphabetSize = 26;
-        vector count(alphabetSize, vector<int>(alphabetSize));
-        for (const string& word : words) {
-            count[word[0]-'a'][word[1]-'a']++;
+        if (middle == true) {
+            retVal += 2;
         }
-
-        for (int i=0; i<alphabetSize; ++i) {
-            if (count[i][i] % 2 == 0) {
-                retVal += count[i][i];
-            } else {
-                retVal += count[i][i] - 1;
-                central = true;
-            }
-            for (int j=(i+1); j<alphabetSize; ++j) {
-                retVal += (2 * min(count[i][j], count[j][i]));
-            }
-        }
-#endif
-
-        if (central) {
-            retVal++;
-        }
-        retVal *= 2;
 
         return retVal;
     }
@@ -801,56 +693,22 @@ public:
 
 ```python
 class Solution:
-    def __init__(self):
-        self.method = 2
-
-        if self.method == 1:
-            print("A Hash Map Approach")
-        elif self.method == 2:
-            print("A Two-Dimensional Array Approach")
-        print()
-
     def longestPalindrome(self, words: List[str]) -> int:
         retVal = 0
 
-        central = False
-        if self.method == 1:
-            # a count variable contains the number of occurrences of each word
-            count = Counter(words)
+        frequency = Counter(words)
 
-            for word, count_of_the_word in count.items():
-                # if the word is a palindrome
-                if word[0] == word[1]:
-                    if count_of_the_word % 2 == 0:
-                        retVal += count_of_the_word
-                    else:
-                        retVal += count_of_the_word - 1
-                        central = True
-                # consider a pair of non-palindrome words,
-                # such that one is the reverse of another word[1] + word[0] is the reversed word
-                elif word[0] < word[1]:
-                    retVal += 2 * min(count_of_the_word,
-                                      count[word[1] + word[0]])
-        elif self.method == 2:
-            alphabet_size = 26
-            count = [[0 for j in range(alphabet_size)]
-                     for i in range(alphabet_size)]
-
-            for word in words:
-                count[ord(word[0]) - ord('a')][ord(word[1]) - ord('a')] += 1
-
-            for i in range(alphabet_size):
-                if count[i][i] % 2 == 0:
-                    retVal += count[i][i]
-                else:
-                    retVal += count[i][i] - 1
-                    central = True
-                for j in range(i + 1, alphabet_size):
-                    retVal += 2 * min(count[i][j], count[j][i])
-
-        if central:
-            retVal += 1
-        retVal = 2 * retVal
+        middle = False
+        for word, count in frequency.items():
+            reverseWord = word[1] + word[0]
+            if word == reverseWord:
+                if count % 2 == 1:
+                    middle = True
+                retVal += (2 * (count // 2 * 2))
+            elif word > reverseWord:
+                retVal += (4 * min(frequency[word], frequency[reverseWord]))
+        if middle == True:
+            retVal += 2
 
         return retVal
 ```

@@ -1,124 +1,42 @@
+#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#if 0  // Time Limit Exceeded
-#define MAX_WORD_LENGTH (4)
-bool search(char** pRecord, int pRecordSize, char* pSearch)
-{
-    int i;
-    for (i=0; i<pRecordSize; ++i)
-    {
-        // printf("%2d: %s; %s\n", i, pRecord[i], pSearch);
-        if (strcmp(pRecord[i], pSearch) == 0)
-        {
-            memset(pRecord[i], 0, MAX_WORD_LENGTH*sizeof(char));
-            return true;
-        }
-    }
-
-    return false;
-}
-int longestPalindrome(char ** words, int wordsSize){
-    int retVal = 0;
-
-    int i, j;
-
-    char** pRecord = (char**)malloc(wordsSize*sizeof(char*));
-    if (pRecord == NULL)
-    {
-        perror("malloc");
-        return retVal;
-    }
-    for (i=0; i<wordsSize; ++i)
-    {
-        pRecord[i] = (char*)malloc(MAX_WORD_LENGTH*sizeof(char));
-        if (pRecord[i] == NULL)
-        {
-            perror("malloc");
-            for (j=0; j<i; ++j)
-            {
-                free(pRecord[j]);
-                pRecord[j] = NULL;
-            }
-            free(pRecord);
-            pRecord = NULL;
-            return retVal;
-        }
-        memset(pRecord[i], 0, MAX_WORD_LENGTH*sizeof(char));
-    }
-
-    bool isHit = false;
-    for (i=0; i<wordsSize; ++i)
-    {
-        isHit = search(pRecord, i+1, words[i]);
-        if (isHit == false)
-        {
-            pRecord[i][0] = words[i][1];
-            pRecord[i][1] = words[i][0];
-            continue;
-        }
-        retVal += 4;
-    }
-    for (i=0; i<wordsSize; ++i)
-    {
-        //printf("%2d: %s\n", i, pRecord[i]);
-        if (strlen(pRecord[i]) == 0)
-        {
-            continue;
-        }
-
-        if (pRecord[i][0] == pRecord[i][1])
-        {
-            retVal += 2;
-            break;
-        }
-    }
-
-    for (i=0; i<wordsSize; ++i)
-    {
-        free(pRecord[i]);
-        pRecord[i] = NULL;
-    }
-    free(pRecord);
-    pRecord = NULL;
-
-    return retVal;
-}
-#else
+#define MAX_LETTERS (26)  // words[i] consists of lowercase English letters.
 int longestPalindrome(char** words, int wordsSize) {
     int retVal = 0;
 
-    // words[i] consists of lowercase English letters.
-#define MAX_LETTERS (26)
-#define MAX_RECORD (MAX_LETTERS * MAX_LETTERS)
-    int RECORD[MAX_RECORD] = {0};
-
-    int index;
-    int i;
-    for (i = 0; i < wordsSize; ++i) {
-        index = ((words[i][0] - 'a') * MAX_LETTERS) + (words[i][1] - 'a');
-        if (RECORD[index] == 0) {
-            index = ((words[i][1] - 'a') * MAX_LETTERS) + (words[i][0] - 'a');
-            ++RECORD[index];
-            continue;
-        }
-        retVal += 4;
-        --RECORD[index];
+    int frequencySize = MAX_LETTERS * MAX_LETTERS;  // words[i].length == 2
+    int frequency[frequencySize];
+    memset(frequency, 0, sizeof(frequency));
+    for (int i = 0; i < wordsSize; i++) {
+        int idx = (words[i][0] - 'a') * 26 + (words[i][1] - 'a');
+        frequency[idx]++;
     }
 
-    for (i = 0; i < MAX_LETTERS; ++i) {
-        index = (i * MAX_LETTERS) + i;
-        if (RECORD[index] != 0) {
-            retVal += 2;
-            break;
+    bool middle = false;
+    for (int i = 0; i < frequencySize; i++) {
+        if (frequency[i] == 0) {
+            continue;
         }
+        int reverseWord = (i % 26) * 26 + (i / 26);
+        if (i == reverseWord) {
+            if (frequency[i] % 2 == 1) {
+                middle = true;
+            }
+            retVal += (2 * (frequency[i] / 2 * 2));
+        } else if (i > reverseWord) {
+            retVal += (4 * fmin(frequency[i], frequency[reverseWord]));
+        }
+    }
+    if (middle == true) {
+        retVal += 2;
     }
 
     return retVal;
 }
-#endif
 
 int main(int argc, char** argv) {
 #define MAX_SIZE (100000)
