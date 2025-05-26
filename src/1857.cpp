@@ -7,8 +7,10 @@
 using namespace std;
 
 class Solution {
+   private:
+    constexpr static int colorsOptions = 26;  // colors consists of lowercase English letters.
+
    public:
-#define COLORS_MAX_SIZE (26)  // colors consists of lowercase English letters.
     int largestPathValue(string colors, vector<vector<int>>& edges) {
         int retVal = -1;
 
@@ -23,7 +25,7 @@ class Solution {
 
         //
         int colorsFound = 0;
-        vector<array<int, COLORS_MAX_SIZE>> colorsRecord(colorsSize);
+        vector<array<int, colorsOptions>> colorsRecord(colorsSize);
         queue<int> colorsQueue;
         for (int i = 0; i < colorsSize; ++i) {
             if (indegree[i] == 0) {
@@ -40,7 +42,7 @@ class Solution {
             for (int v : adjacent[u]) {
                 --indegree[v];
 
-                for (int c = 0; c < COLORS_MAX_SIZE; ++c) {
+                for (int c = 0; c < colorsOptions; ++c) {
                     colorsRecord[v][c] = max(colorsRecord[v][c], colorsRecord[u][c]);
                 }
 

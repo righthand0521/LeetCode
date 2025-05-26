@@ -1,11 +1,11 @@
-import sys
 import logging
-from typing import List, Optional
-from collections import defaultdict, deque, Counter
-from functools import cache, lru_cache
+import sys
 from bisect import bisect_left, bisect_right
+from collections import Counter, defaultdict, deque
+from functools import cache, lru_cache
+from heapq import heapify, heappop, heappush
 from itertools import accumulate
-from heapq import heapify, heappush, heappop
+from typing import List, Optional
 
 
 def logging_setting():
@@ -22,8 +22,7 @@ def logging_setting():
 
 class Solution:
     def __init__(self):
-        # colors consists of lowercase English letters.
-        self.colorsOptions = 26
+        self.colorsOptions = 26  # colors consists of lowercase English letters.
 
     def largestPathValue(self, colors: str, edges: List[List[int]]) -> int:
         retVal = -1
@@ -53,8 +52,7 @@ class Solution:
                 indegree[v] -= 1
 
                 for c in range(self.colorsOptions):
-                    colorsRecord[v][c] = max(
-                        colorsRecord[v][c], colorsRecord[u][c])
+                    colorsRecord[v][c] = max(colorsRecord[v][c], colorsRecord[u][c])
 
                 if indegree[v] == 0:
                     colorsQueue.append(v)
@@ -93,12 +91,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)
