@@ -628,6 +628,13 @@
 
 </details>
 
+<details><summary>Maximize the Number of Target Nodes After Connecting Trees</summary>
+
+- [3372. Maximize the Number of Target Nodes After Connecting Trees I](https://leetcode.com/problems/maximize-the-number-of-target-nodes-after-connecting-trees-i/)
+- [3373. Maximize the Number of Target Nodes After Connecting Trees II](https://leetcode.com/problems/maximize-the-number-of-target-nodes-after-connecting-trees-ii/)
+
+</details>
+
 ## Two Pointers
 
 <details><summary>3Sum</summary>
