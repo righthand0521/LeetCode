@@ -3576,7 +3576,8 @@ class Solution:
 
 ## [2359. Find Closest Node to Given Two Nodes](https://leetcode.com/problems/find-closest-node-to-given-two-nodes/)  1714
 
-- [Official](https://leetcode.com/problems/find-closest-node-to-given-two-nodes/solutions/2864716/find-closest-node-to-given-two-nodes/)
+- [Official](https://leetcode.com/problems/find-closest-node-to-given-two-nodes/editorial/)
+- [Official](https://leetcode.cn/problems/find-closest-node-to-given-two-nodes/solutions/3677387/zhao-dao-chi-gei-ding-liang-ge-jie-dian-8f8gp/)
 
 <details><summary>Description</summary>
 
@@ -3617,6 +3618,16 @@ edges[i] != i
 0 <= node1, node2 < n
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. How can you find the shortest distance from one node to all nodes in the graph?
+2. Use BFS to find the shortest distance from both node1 and node2 to all nodes in the graph.
+   Then iterate over all nodes, and find the node with the minimum max distance.
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
@@ -3634,10 +3645,8 @@ void dfs(int node, int* edges, int* dist, int* visit) {
 int closestMeetingNode(int* edges, int edgesSize, int node1, int node2) {
     int retVal = -1;
 
-    int i;
-
     int dist1[edgesSize];
-    for (i = 0; i < edgesSize; ++i) {
+    for (int i = 0; i < edgesSize; ++i) {
         dist1[i] = INT_MAX;
     }
     dist1[node1] = 0;
@@ -3646,7 +3655,7 @@ int closestMeetingNode(int* edges, int edgesSize, int node1, int node2) {
     dfs(node1, edges, dist1, visit1);
 
     int dist2[edgesSize];
-    for (i = 0; i < edgesSize; ++i) {
+    for (int i = 0; i < edgesSize; ++i) {
         dist2[i] = INT_MAX;
     }
     dist2[node2] = 0;
@@ -3655,7 +3664,7 @@ int closestMeetingNode(int* edges, int edgesSize, int node1, int node2) {
     dfs(node2, edges, dist2, visit2);
 
     int minDist = INT_MAX;
-    for (i = 0; i < edgesSize; ++i) {
+    for (int i = 0; i < edgesSize; ++i) {
         if (minDist > fmax(dist1[i], dist2[i])) {
             retVal = i;
             minDist = fmax(dist1[i], dist2[i]);
@@ -3677,7 +3686,7 @@ class Solution {
         visit[node] = true;
 
         int neighbor = edges[node];
-        if ((neighbor != -1) && (!visit[neighbor])) {
+        if ((neighbor != -1) && (visit[neighbor] == false)) {
             dist[neighbor] = 1 + dist[node];
             dfs(neighbor, edges, dist, visit);
         }
@@ -3685,20 +3694,20 @@ class Solution {
     int closestMeetingNode(vector<int>& edges, int node1, int node2) {
         int retVal = -1;
 
-        int n = edges.size();
+        int edgesSize = edges.size();
 
-        vector<int> dist1(n, numeric_limits<int>::max());
+        vector<int> dist1(edgesSize, numeric_limits<int>::max());
         dist1[node1] = 0;
-        vector<bool> visit1(n);
+        vector<bool> visit1(edgesSize, false);
         dfs(node1, edges, dist1, visit1);
 
-        vector<int> dist2(n, numeric_limits<int>::max());
+        vector<int> dist2(edgesSize, numeric_limits<int>::max());
         dist2[node2] = 0;
-        vector<bool> visit2(n);
+        vector<bool> visit2(edgesSize, false);
         dfs(node2, edges, dist2, visit2);
 
         int minDist = numeric_limits<int>::max();
-        for (int currNode = 0; currNode < n; ++currNode) {
+        for (int currNode = 0; currNode < edgesSize; ++currNode) {
             if (minDist > max(dist1[currNode], dist2[currNode])) {
                 retVal = currNode;
                 minDist = max(dist1[currNode], dist2[currNode]);
@@ -3708,6 +3717,44 @@ class Solution {
         return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def dfs(self, node: int, edges: List[int], dist: List[int], visit: List[bool]) -> None:
+        visit[node] = True
+
+        neighbor = edges[node]
+        if (neighbor != -1) and (visit[neighbor] == False):
+            dist[neighbor] = 1 + dist[node]
+            self.dfs(neighbor, edges, dist, visit)
+
+    def closestMeetingNode(self, edges: List[int], node1: int, node2: int) -> int:
+        retVal = -1
+
+        edgesSize = len(edges)
+
+        dist1 = [float('inf')] * edgesSize
+        dist1[node1] = 0
+        visit1 = [False] * edgesSize
+        self.dfs(node1, edges, dist1, visit1)
+
+        dist2 = [float('inf')] * edgesSize
+        dist2[node2] = 0
+        visit2 = [False] * edgesSize
+        self.dfs(node2, edges, dist2, visit2)
+
+        minDist = float('inf')
+        for currNode in range(edgesSize):
+            if minDist > max(dist1[currNode], dist2[currNode]):
+                retVal = currNode
+                minDist = max(dist1[currNode], dist2[currNode])
+
+        return retVal
 ```
 
 </details>

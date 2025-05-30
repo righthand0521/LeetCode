@@ -16,10 +16,8 @@ void dfs(int node, int* edges, int* dist, int* visit) {
 int closestMeetingNode(int* edges, int edgesSize, int node1, int node2) {
     int retVal = -1;
 
-    int i;
-
     int dist1[edgesSize];
-    for (i = 0; i < edgesSize; ++i) {
+    for (int i = 0; i < edgesSize; ++i) {
         dist1[i] = INT_MAX;
     }
     dist1[node1] = 0;
@@ -28,7 +26,7 @@ int closestMeetingNode(int* edges, int edgesSize, int node1, int node2) {
     dfs(node1, edges, dist1, visit1);
 
     int dist2[edgesSize];
-    for (i = 0; i < edgesSize; ++i) {
+    for (int i = 0; i < edgesSize; ++i) {
         dist2[i] = INT_MAX;
     }
     dist2[node2] = 0;
@@ -37,7 +35,7 @@ int closestMeetingNode(int* edges, int edgesSize, int node1, int node2) {
     dfs(node2, edges, dist2, visit2);
 
     int minDist = INT_MAX;
-    for (i = 0; i < edgesSize; ++i) {
+    for (int i = 0; i < edgesSize; ++i) {
         if (minDist > fmax(dist1[i], dist2[i])) {
             retVal = i;
             minDist = fmax(dist1[i], dist2[i]);
@@ -56,6 +54,13 @@ int main(int argc, char** argv) {
         int node2;
     } testCase[] = {{{2, 2, 3, -1}, 4, 0, 1}, {{1, 2, -1}, 3, 0, 2}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: edges = [2,2,3,-1], node1 = 0, node2 = 1
+     *  Output: 2
+     *
+     *  Input: edges = [1,2,-1], node1 = 0, node2 = 2
+     *  Output: 2
+     */
 
     int answer = 0;
     int i, j;
