@@ -8407,6 +8407,105 @@ class Solution:
 
 </details>
 
+## [2928. Distribute Candies Among Children I](https://leetcode.com/problems/distribute-candies-among-children-ii/)  1393
+
+- [Official](https://leetcode.cn/problems/distribute-candies-among-children-i/solutions/2791755/gei-xiao-peng-you-men-fen-tang-guo-i-by-9cgew/)
+
+<details><summary>Description</summary>
+
+```text
+You are given two positive integers n and limit.
+
+Return the total number of ways to distribute n candies among 3 children such that no child gets more than limit candies.
+
+Example 1:
+Input: n = 5, limit = 2
+Output: 3
+Explanation: There are 3 ways to distribute 5 candies such that no child gets more than 2 candies:
+(1, 2, 2), (2, 1, 2) and (2, 2, 1).
+
+Example 2:
+Input: n = 3, limit = 3
+Output: 10
+Explanation: There are 10 ways to distribute 3 candies such that no child gets more than 3 candies:
+(0, 0, 3), (0, 1, 2), (0, 2, 1), (0, 3, 0), (1, 0, 2), (1, 1, 1), (1, 2, 0), (2, 0, 1), (2, 1, 0) and (3, 0, 0).
+
+Constraints:
+1 <= n <= 50
+1 <= limit <= 50
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use three nested for loops to check all the triplets.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int distributeCandies(int n, int limit) {
+    int retVal = 0;
+
+    int minLimit = fmin(limit, n);
+    for (int i = 0; i <= minLimit; i++) {
+        if ((n - i) > (2 * limit)) {
+            continue;
+        }
+        retVal += (fmin(n - i, limit) - fmax(0, n - i - limit) + 1);
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int distributeCandies(int n, int limit) {
+        int retVal = 0;
+
+        int minLimit = min(limit, n);
+        for (int i = 0; i <= minLimit; i++) {
+            if ((n - i) > (2 * limit)) {
+                continue;
+            }
+            retVal += (min(n - i, limit) - max(0, n - i - limit) + 1);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def distributeCandies(self, n: int, limit: int) -> int:
+        retVal = 0
+
+        minLimit = min(limit, n)
+        for i in range(minLimit + 1):
+            if (n - i) > (2 * limit):
+                continue
+            retVal += (min(n - i, limit) - max(0, n - i - limit) + 1)
+
+        return retVal
+```
+
+</details>
+
 ## [2929. Distribute Candies Among Children II](https://leetcode.com/problems/distribute-candies-among-children-ii/)  1701
 
 - [Official](https://leetcode.com/problems/distribute-candies-among-children-ii/editorial/)

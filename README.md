@@ -514,6 +514,13 @@
 
 </details>
 
+<details><summary>Distribute Candies Among Children</summary>
+
+- [2928. Distribute Candies Among Children I](https://leetcode.com/problems/distribute-candies-among-children-ii/)
+- [2929. Distribute Candies Among Children II](https://leetcode.com/problems/distribute-candies-among-children-ii/)
+
+</details>
+
 ## Prefix Sum
 
 <details><summary>Find Pivot Index</summary>
