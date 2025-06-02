@@ -1305,11 +1305,9 @@ n == ratings.length
 int candy(int* ratings, int ratingsSize) {
     int retVal = 0;
 
-    int i;
-
     int left[ratingsSize];
     memset(left, 0, sizeof(left));
-    for (i = 0; i < ratingsSize; i++) {
+    for (int i = 0; i < ratingsSize; i++) {
         if ((i > 0) && (ratings[i] > ratings[i - 1])) {
             left[i] = left[i - 1] + 1;
         } else {
@@ -1318,7 +1316,7 @@ int candy(int* ratings, int ratingsSize) {
     }
 
     int right = 0;
-    for (i = ratingsSize - 1; i >= 0; i--) {
+    for (int i = ratingsSize - 1; i >= 0; i--) {
         if ((i < ratingsSize - 1) && (ratings[i] > ratings[i + 1])) {
             right++;
         } else {
