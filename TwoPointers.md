@@ -5858,3 +5858,187 @@ class Solution:
 ```
 
 </details>
+
+## [3403. Find the Lexicographically Largest String From the Box I](https://leetcode.com/problems/find-the-lexicographically-largest-string-from-the-box-i/)  1761
+
+- [Official](https://leetcode.com/problems/find-the-lexicographically-largest-string-from-the-box-i/editorial/)
+- [Official](https://leetcode.cn/problems/find-the-lexicographically-largest-string-from-the-box-i/solutions/3685906/cong-he-zi-zhong-zhao-chu-zi-dian-xu-zui-eg0v/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string word, and an integer numFriends.
+
+Alice is organizing a game for her numFriends friends. There are multiple rounds in the game, where in each round:
+- word is split into numFriends non-empty strings, such that no previous round has had the exact same split.
+- All the split words are put into a box.
+
+Find the lexicographically largest string from the box after all the rounds are finished.
+
+Example 1:
+Input: word = "dbca", numFriends = 2
+Output: "dbc"
+Explanation:
+All possible splits are:
+"d" and "bca".
+"db" and "ca".
+"dbc" and "a".
+
+Example 2:
+Input: word = "gggg", numFriends = 4
+Output: "g"
+Explanation:
+The only possible split is: "g", "g", "g", and "g".
+
+Constraints:
+1 <= word.length <= 5 * 10^3
+word consists only of lowercase English letters.
+1 <= numFriends <= word.length
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Find lexicographically largest substring of size n - numFriends + 1 or less starting at every index.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+char* lastSubstring(char* s) {
+    char* pRetVal = NULL;
+
+    int sSize = strlen(s);
+    int i = 0;
+    int j = 1;
+    while (j < sSize) {
+        int k = 0;
+        while ((j + k < sSize) && (s[i + k] == s[j + k])) {
+            k++;
+        }
+
+        if ((j + k < sSize) && (s[i + k] < s[j + k])) {
+            int t = i;
+            i = j;
+            j = fmax(j + 1, t + k + 1);
+        } else {
+            j = j + k + 1;
+        }
+    }
+    pRetVal = s + i;
+
+    return pRetVal;
+}
+char* answerString(char* word, int numFriends) {
+    char* pRetVal = word;
+
+    if (numFriends == 1) {
+        return pRetVal;
+    }
+
+    char* last = lastSubstring(word);
+    int lastSize = strlen(last);
+    int wordSize = strlen(word);
+    int len = fmin(lastSize, wordSize - numFriends + 1);
+    last[len] = '\0';
+
+    pRetVal = last;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    string lastSubstring(string s) {
+        string retVal = "";
+
+        int sSize = s.size();
+        int i = 0;
+        int j = 1;
+        while (j < sSize) {
+            int k = 0;
+            while ((j + k < sSize) && (s[i + k] == s[j + k])) {
+                k++;
+            }
+
+            if ((j + k < sSize) && (s[i + k] < s[j + k])) {
+                int tmp = i;
+                i = j;
+                j = max(j + 1, tmp + k + 1);
+            } else {
+                j = j + k + 1;
+            }
+        }
+        retVal = s.substr(i, sSize - i);
+
+        return retVal;
+    }
+
+   public:
+    string answerString(string word, int numFriends) {
+        string retVal = word;
+
+        if (numFriends == 1) {
+            return retVal;
+        }
+
+        string last = lastSubstring(word);
+        int lastSize = last.size();
+        int wordSize = word.size();
+        retVal = last.substr(0, min(lastSize, wordSize - numFriends + 1));
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def lastSubstring(self, s: str) -> str:
+        retVal = ""
+
+        sSize = len(s)
+        i = 0
+        j = 1
+        while j < sSize:
+            k = 0
+            while (j + k < sSize) and (s[i + k] == s[j + k]):
+                k += 1
+
+            if (j + k < sSize) and (s[i + k] < s[j + k]):
+                i, j = j, max(j + 1, i + k + 1)
+            else:
+                j = j + k + 1
+        retVal = s[i:]
+
+        return retVal
+
+    def answerString(self, word: str, numFriends: int) -> str:
+        retVal = word
+
+        if numFriends == 1:
+            return retVal
+
+        last = self.lastSubstring(word)
+        lastSize = len(last)
+        wordSize = len(word)
+        retVal = last[: min(lastSize, wordSize - numFriends + 1)]
+
+        return retVal
+```
+
+</details>
