@@ -6,10 +6,9 @@
 using namespace std;
 
 class Solution {
-   public:
-// s1, s2, and baseStr consist of lowercase English letters.
-#define MAX_UNION_FIND (26)
-    array<int, MAX_UNION_FIND> UnionFind;
+   private:
+    static const int maxUnionFind = 26;  // s1, s2, and baseStr consist of lowercase English letters.
+    array<int, maxUnionFind> UnionFind;
 
     int find(int idx) {
         while (UnionFind[idx] != idx) {
@@ -32,10 +31,11 @@ class Solution {
         }
     }
 
+   public:
     string smallestEquivalentString(string s1, string s2, string baseStr) {
         string retVal;
 
-        for (long unsigned int i = 0; i < MAX_UNION_FIND; ++i) {
+        for (long unsigned int i = 0; i < maxUnionFind; ++i) {
             UnionFind[i] = i;
         }
 
@@ -60,6 +60,16 @@ int main(int argc, char **argv) {
     vector<subject> testData{
         {"parker", "morris", "parser"}, {"hello", "world", "hold"}, {"leetcode", "programs", "sourcecode"}};
     int numberOfTestCase = testData.size();
+    /* Example
+     *  Input: s1 = "parker", s2 = "morris", baseStr = "parser"
+     *  Output: "makkek"
+     *
+     *  Input: s1 = "hello", s2 = "world", baseStr = "hold"
+     *  Output: "hdld"
+     *
+     *  Input: s1 = "leetcode", s2 = "programs", baseStr = "sourcecode"
+     *  Output: "aauaaaaada"
+     */
 
     Solution cSolution;
     string answer;

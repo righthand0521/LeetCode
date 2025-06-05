@@ -200,7 +200,7 @@ class Solution:
 
 ## [1061. Lexicographically Smallest Equivalent String](https://leetcode.com/problems/lexicographically-smallest-equivalent-string/)
 
-- [Official](https://leetcode.com/problems/lexicographically-smallest-equivalent-string/solutions/2867563/lexicographically-smallest-equivalent-string/)
+- [Official](https://leetcode.cn/problems/lexicographically-smallest-equivalent-string/solutions/3687876/an-zi-dian-xu-pai-lie-zui-xiao-de-deng-x-rfy2/)
 
 <details><summary>Description</summary>
 
@@ -208,35 +208,38 @@ class Solution:
 You are given two strings of the same length s1 and s2 and a string baseStr.
 
 We say s1[i] and s2[i] are equivalent characters.
+- For example, if s1 = "abc" and s2 = "cde", then we have 'a' == 'c', 'b' == 'd', and 'c' == 'e'.
 
-For example, if s1 = "abc" and s2 = "cde", then we have 'a' == 'c', 'b' == 'd', and 'c' == 'e'.
 Equivalent characters follow the usual rules of any equivalence relation:
+- Reflexivity: 'a' == 'a'.
+- Symmetry: 'a' == 'b' implies 'b' == 'a'.
+- Transitivity: 'a' == 'b' and 'b' == 'c' implies 'a' == 'c'.
 
-Reflexivity: 'a' == 'a'.
-Symmetry: 'a' == 'b' implies 'b' == 'a'.
-Transitivity: 'a' == 'b' and 'b' == 'c' implies 'a' == 'c'.
-For example, given the equivalency information from s1 = "abc" and s2 = "cde", "acd" and "aab"
-are equivalent strings of baseStr = "eed", and "aab" is the lexicographically smallest equivalent string of baseStr.
+For example, given the equivalency information from s1 = "abc" and s2 = "cde", "acd" and "aab" are
+equivalent strings of baseStr = "eed", and "aab" is the lexicographically smallest equivalent string of baseStr.
 
 Return the lexicographically smallest equivalent string of baseStr by using the equivalency information from s1 and s2.
 
 Example 1:
 Input: s1 = "parker", s2 = "morris", baseStr = "parser"
 Output: "makkek"
-Explanation: Based on the equivalency information in s1 and s2, we can group their characters as [m,p], [a,o], [k,r,s], [e,i].
+Explanation:
+Based on the equivalency information in s1 and s2, we can group their characters as [m,p], [a,o], [k,r,s], [e,i].
 The characters in each group are equivalent and sorted in lexicographical order.
 So the answer is "makkek".
 
 Example 2:
 Input: s1 = "hello", s2 = "world", baseStr = "hold"
 Output: "hdld"
-Explanation: Based on the equivalency information in s1 and s2, we can group their characters as [h,w], [d,e,o], [l,r].
+Explanation:
+Based on the equivalency information in s1 and s2, we can group their characters as [h,w], [d,e,o], [l,r].
 So only the second letter 'o' in baseStr is changed to 'd', the answer is "hdld".
 
 Example 3:
 Input: s1 = "leetcode", s2 = "programs", baseStr = "sourcecode"
 Output: "aauaaaaada"
-Explanation: We group the equivalent characters in s1 and s2 as [a,o,e,r,s,c], [l,p], [g,t] and [d,m],
+Explanation:
+We group the equivalent characters in s1 and s2 as [a,o,e,r,s,c], [l,p], [g,t] and [d,m],
 thus all letters in baseStr except 'u' and 'd' are transformed to 'a', the answer is "aauaaaaada".
 
 Constraints:
@@ -273,29 +276,26 @@ void join(int* pUnionFind, int idx1, int idx2) {
 char* smallestEquivalentString(char* s1, char* s2, char* baseStr) {
     char* pRetVal = NULL;
 
-    int i;
-
-// s1, s2, and baseStr consist of lowercase English letters.
-#define MAX_UNION_FIND (26)
+#define MAX_UNION_FIND (26)  // s1, s2, and baseStr consist of lowercase English letters.
     int UnionFind[MAX_UNION_FIND];
-    for (i = 0; i < MAX_UNION_FIND; ++i) {
+    for (int i = 0; i < MAX_UNION_FIND; ++i) {
         UnionFind[i] = i;
     }
 
-    int len = strlen(s1);
-    for (i = 0; i < len; ++i) {
+    int s1Size = strlen(s1);
+    for (int i = 0; i < s1Size; ++i) {
         join(UnionFind, s1[i] - 'a', s2[i] - 'a');
     }
 
-    len = strlen(baseStr);
-    int returnSize = len + 1;
+    int baseStrSize = strlen(baseStr);
+    int returnSize = baseStrSize + 1;
     pRetVal = (char*)malloc(returnSize * sizeof(char));
     if (pRetVal == NULL) {
         perror("malloc");
         return pRetVal;
     }
     memset(pRetVal, 0, returnSize * sizeof(char));
-    for (i = 0; i < len; ++i) {
+    for (int i = 0; i < baseStrSize; ++i) {
         pRetVal[i] = (char)(find(UnionFind, baseStr[i] - 'a') + 'a');
     }
 
@@ -309,10 +309,9 @@ char* smallestEquivalentString(char* s1, char* s2, char* baseStr) {
 
 ```c++
 class Solution {
-   public:
-// s1, s2, and baseStr consist of lowercase English letters.
-#define MAX_UNION_FIND (26)
-    array<int, MAX_UNION_FIND> UnionFind;
+   private:
+    static const int maxUnionFind = 26;  // s1, s2, and baseStr consist of lowercase English letters.
+    array<int, maxUnionFind> UnionFind;
 
     int find(int idx) {
         while (UnionFind[idx] != idx) {
@@ -335,10 +334,11 @@ class Solution {
         }
     }
 
+   public:
     string smallestEquivalentString(string s1, string s2, string baseStr) {
         string retVal;
 
-        for (long unsigned int i = 0; i < MAX_UNION_FIND; ++i) {
+        for (long unsigned int i = 0; i < maxUnionFind; ++i) {
             UnionFind[i] = i;
         }
 
@@ -353,6 +353,47 @@ class Solution {
         return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class UnionFind:
+    def __init__(self, n) -> None:
+        self.uf = list(range(n))
+
+    def find(self, x) -> int:
+        retVal = 0
+
+        if self.uf[x] != x:
+            self.uf[x] = self.find(self.uf[x])
+        retVal = self.uf[x]
+
+        return retVal
+
+    def unite(self, x, y) -> None:
+        x = self.find(x)
+        y = self.find(y)
+        if x == y:
+            return
+
+        if x > y:
+            x, y = y, x
+        self.uf[y] = x
+
+
+class Solution:
+    def smallestEquivalentString(self, s1: str, s2: str, baseStr: str) -> str:
+        retVal = ""
+
+        uf = UnionFind(26)  # s1, s2, and baseStr consist of lowercase English letters.
+        for a, b in zip(s1, s2):
+            uf.unite(ord(a) - ord('a'), ord(b) - ord('a'))
+        retVal = ''.join(chr(ord('a') + uf.find(ord(c) - ord('a'))) for c in baseStr)
+
+        return retVal
 ```
 
 </details>
