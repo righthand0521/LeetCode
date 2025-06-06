@@ -7516,6 +7516,178 @@ class Solution:
 
 </details>
 
+## [2434. Using a Robot to Print the Lexicographically Smallest String](https://leetcode.com/problems/using-a-robot-to-print-the-lexicographically-smallest-string/)  1953
+
+- [Official](https://leetcode.com/problems/using-a-robot-to-print-the-lexicographically-smallest-string/editorial/)
+- [Official](https://leetcode.cn/problems/using-a-robot-to-print-the-lexicographically-smallest-string/solutions/3687053/shi-yong-ji-qi-ren-da-yin-zi-dian-xu-zui-hwvo/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string s and a robot that currently holds an empty string t.
+Apply one of the following operations until s and t are both empty:
+- Remove the first character of a string s and give it to the robot.
+  The robot will append this character to the string t.
+- Remove the last character of a string t and give it to the robot.
+  The robot will write this character on paper.
+
+Return the lexicographically smallest string that can be written on the paper.
+
+Example 1:
+Input: s = "zza"
+Output: "azz"
+Explanation: Let p denote the written string.
+Initially p="", s="zza", t="".
+Perform first operation three times p="", s="", t="zza".
+Perform second operation three times p="azz", s="", t="".
+
+Example 2:
+Input: s = "bac"
+Output: "abc"
+Explanation: Let p denote the written string.
+Perform first operation twice p="", s="c", t="ba".
+Perform second operation twice p="ab", s="c", t="".
+Perform first operation p="ab", s="", t="c".
+Perform second operation p="abc", s="", t="".
+
+Example 3:
+Input: s = "bdda"
+Output: "addb"
+Explanation: Let p denote the written string.
+Initially p="", s="bdda", t="".
+Perform first operation four times p="", s="", t="bdda".
+Perform second operation four times p="addb", s="", t="".
+
+Constraints:
+1 <= s.length <= 10^5
+s consists of only English lowercase letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. If there are some character “a” ’ s in the string, they can be written on paper before anything else.
+2. Every character in the string before the last “a” should be written in reversed order.
+3. After the robot writes every “a” on paper, the same holds for other characters “b”, ”c”, …etc.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+char* robotWithString(char* s) {
+    char* pRetVal = NULL;
+
+    int sSize = strlen(s);
+
+    pRetVal = (char*)malloc((sSize + 1) * sizeof(char));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, ((sSize + 1) * sizeof(char)));
+    int returnSize = 0;
+
+    int frequency[26] = {0};  // s consists of only English lowercase letters.
+    memset(frequency, 0, sizeof(frequency));
+    for (int i = 0; i < sSize; i++) {
+        frequency[s[i] - 'a']++;
+    }
+
+    int characterStackTop = 0;
+    char* characterStack = (char*)malloc(sSize * sizeof(char));
+    if (characterStack == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    char minCharacter = 'a';
+    for (int i = 0; i < sSize; i++) {
+        characterStack[characterStackTop++] = s[i];
+        frequency[s[i] - 'a']--;
+
+        while ((minCharacter != 'z') && (frequency[minCharacter - 'a'] == 0)) {
+            minCharacter++;
+        }
+
+        while ((characterStackTop > 0) && (characterStack[characterStackTop - 1] <= minCharacter)) {
+            pRetVal[returnSize++] = characterStack[--characterStackTop];
+        }
+    }
+    pRetVal[returnSize] = '\0';
+
+    //
+    free(characterStack);
+    characterStack = NULL;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    string robotWithString(string s) {
+        string retVal;
+
+        unordered_map<char, int> frequency;
+        for (char c : s) {
+            frequency[c]++;
+        }
+        stack<char> characterStack;
+        char minCharacter = 'a';
+        for (char c : s) {
+            characterStack.emplace(c);
+            frequency[c]--;
+
+            while ((minCharacter != 'z') && (frequency[minCharacter] == 0)) {
+                minCharacter++;
+            }
+
+            while ((characterStack.empty() == false) && (characterStack.top() <= minCharacter)) {
+                retVal += characterStack.top();
+                characterStack.pop();
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def robotWithString(self, s: str) -> str:
+        retVal = ""
+
+        frequency = Counter(s)
+        characterStack = []
+        minCharacter = "a"
+        for c in s:
+            characterStack.append(c)
+            frequency[c] -= 1
+
+            while (minCharacter != "z") and (frequency[minCharacter] == 0):
+                minCharacter = chr(ord(minCharacter) + 1)
+
+            while (characterStack) and (characterStack[-1] <= minCharacter):
+                retVal += characterStack.pop()
+
+        return retVal
+```
+
+</details>
+
 ## [2486. Append Characters to String to Make Subsequence](https://leetcode.com/problems/append-characters-to-string-to-make-subsequence/)  1362
 
 - [Official](https://leetcode.com/problems/append-characters-to-string-to-make-subsequence/editorial/)
