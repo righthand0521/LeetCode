@@ -9329,3 +9329,212 @@ class Solution:
 ```
 
 </details>
+
+## [3170. Lexicographically Minimum String After Removing Stars](https://leetcode.com/problems/lexicographically-minimum-string-after-removing-stars/)  1772
+
+- [Official](https://leetcode.com/problems/lexicographically-minimum-string-after-removing-stars/editorial/)
+- [Official](https://leetcode.cn/problems/lexicographically-minimum-string-after-removing-stars/solutions/3687879/shan-chu-xing-hao-yi-hou-zi-dian-xu-zui-u847n/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string s. It may contain any number of '*' characters. Your task is to remove all '*' characters.
+
+While there is a '*', do the following operation:
+- Delete the leftmost '*' and the smallest non-'*' character to its left.
+  If there are several smallest characters, you can delete any of them.
+
+Return the lexicographically smallest resulting string after removing all '*' characters.
+
+Example 1:
+Input: s = "aaba*"
+Output: "aab"
+Explanation:
+We should delete one of the 'a' characters with '*'. If we choose s[3], s becomes the lexicographically smallest.
+
+Example 2:
+Input: s = "abc"
+Output: "abc"
+Explanation:
+There is no '*' in the string.
+
+Constraints:
+1 <= s.length <= 10^5
+s consists only of lowercase English letters and '*'.
+The input is generated such that it is possible to delete all '*' characters.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MAX_LETTERS (26)  // s consists only of lowercase English letters and '*'.
+typedef struct {
+    int* data;
+    int size;
+    int capacity;
+} Stack;
+Stack* createStack(int capacity) {
+    Stack* pObj = NULL;
+
+    pObj = (Stack*)malloc(sizeof(Stack));
+    if (pObj == NULL) {
+        perror("malloc");
+        return pObj;
+    }
+    pObj->data = (int*)malloc(capacity * sizeof(int));
+    if (pObj->data == NULL) {
+        perror("malloc");
+        free(pObj);
+        pObj = NULL;
+        return pObj;
+    }
+    pObj->size = 0;
+    pObj->capacity = capacity;
+
+    return pObj;
+}
+void push(Stack* stack, int value) {
+    if (stack->size < stack->capacity) {
+        stack->data[stack->size++] = value;
+    }
+}
+int pop(Stack* stack) {
+    int retVal = -1;
+
+    if (stack->size > 0) {
+        retVal = stack->data[--stack->size];
+    }
+
+    return retVal;
+}
+int isEmpty(Stack* stack) {
+    int retVal = (stack->size == 0);
+
+    return retVal;
+}
+void freeStack(Stack* stack) {
+    free(stack->data);
+    stack->data = NULL;
+    free(stack);
+    stack = NULL;
+}
+char* clearStars(char* s) {
+    char* pRetVal = NULL;
+
+    int sSize = strlen(s);
+
+    Stack* lettersStack[MAX_LETTERS];
+    for (int i = 0; i < MAX_LETTERS; i++) {
+        lettersStack[i] = createStack(sSize);
+        if (lettersStack[i] == NULL) {
+            perror("createStack");
+            for (int j = 0; j < i; j++) {
+                freeStack(lettersStack[j]);
+            }
+            return pRetVal;
+        }
+    }
+    for (int i = 0; s[i] != '\0'; i++) {
+        if (s[i] != '*') {
+            push(lettersStack[s[i] - 'a'], i);
+            continue;
+        }
+        for (int j = 0; j < MAX_LETTERS; j++) {
+            if (isEmpty(lettersStack[j]) == 0) {
+                s[pop(lettersStack[j])] = '*';
+                break;
+            }
+        }
+    }
+
+    int returnSize = 0;
+    pRetVal = calloc(sSize + 1, sizeof(char));
+    if (pRetVal != NULL) {
+        for (int i = 0; i < sSize; i++) {
+            if (s[i] != '*') {
+                pRetVal[returnSize++] = s[i];
+            }
+        }
+    } else {
+        perror("calloc");
+    }
+
+    // Free the stacks
+    for (int i = 0; i < MAX_LETTERS; i++) {
+        freeStack(lettersStack[i]);
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    const int letters = 26;  // s consists only of lowercase English letters and '*'.
+
+   public:
+    string clearStars(string s) {
+        string retVal = "";
+
+        vector<stack<int>> lettersStack(letters);
+        int sSize = s.size();
+        for (int i = 0; i < sSize; i++) {
+            if (s[i] != '*') {
+                lettersStack[s[i] - 'a'].push(i);
+                continue;
+            }
+            for (int j = 0; j < letters; j++) {
+                if (lettersStack[j].empty() == false) {
+                    s[lettersStack[j].top()] = '*';
+                    lettersStack[j].pop();
+                    break;
+                }
+            }
+        }
+
+        for (int i = 0; i < sSize; i++) {
+            if (s[i] != '*') {
+                retVal += s[i];
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self):
+        self.letters = 26  # s consists only of lowercase English letters and '*'.
+
+    def clearStars(self, s: str) -> str:
+        retVal = ""
+
+        lettersStack = [[] for _ in range(self.letters)]
+        sArray = list(s)
+        for i, c in enumerate(sArray):
+            if c != "*":
+                lettersStack[ord(c) - ord("a")].append(i)
+                continue
+            for j in range(self.letters):
+                if lettersStack[j]:
+                    sArray[lettersStack[j].pop()] = "*"
+                    break
+        retVal = "".join(c for c in sArray if c != "*")
+
+        return retVal
+```
+
+</details>
