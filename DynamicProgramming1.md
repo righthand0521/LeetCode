@@ -259,6 +259,180 @@ class Solution:
 
 </details>
 
+## [10. Regular Expression Matching](https://leetcode.com/problems/regular-expression-matching/)
+
+- [Official](https://leetcode.com/problems/regular-expression-matching/editorial/)
+- [Official](https://leetcode.cn/problems/regular-expression-matching/solutions/295977/zheng-ze-biao-da-shi-pi-pei-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*' where:
+- '.' Matches any single character.​​​​
+- '*' Matches zero or more of the preceding element.
+
+The matching should cover the entire input string (not partial).
+
+Example 1:
+Input: s = "aa", p = "a"
+Output: false
+Explanation: "a" does not match the entire string "aa".
+
+Example 2:
+Input: s = "aa", p = "a*"
+Output: true
+Explanation: '*' means zero or more of the preceding element, 'a'. Therefore, by repeating 'a' once, it becomes "aa".
+
+Example 3:
+Input: s = "ab", p = ".*"
+Output: true
+Explanation: ".*" means "zero or more (*) of any character (.)".
+
+Constraints:
+1 <= s.length <= 20
+1 <= p.length <= 20
+s contains only lowercase English letters.
+p contains only lowercase English letters, '.', and '*'.
+It is guaranteed for each appearance of the character '*', there will be a previous valid character to match.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool matches(char* s, char* p, int i, int j) {
+    bool retVal = false;
+
+    if (i == 0) {
+        retVal = false;
+    } else if (p[j - 1] == '.') {
+        retVal = true;
+    } else {
+        retVal = (s[i - 1] == p[j - 1]);
+    }
+
+    return retVal;
+}
+bool isMatch(char* s, char* p) {
+    bool retVal = false;
+
+    int sSize = strlen(s);
+    int pSize = strlen(p);
+    int dp[sSize + 1][pSize + 1];
+    memset(dp, false, sizeof(dp));
+    dp[0][0] = true;
+    for (int i = 0; i <= sSize; ++i) {
+        for (int j = 1; j <= pSize; ++j) {
+            if (p[j - 1] == '*') {
+                dp[i][j] |= dp[i][j - 2];
+                if (matches(s, p, i, j - 1) == true) {
+                    dp[i][j] |= dp[i - 1][j];
+                }
+            } else {
+                if (matches(s, p, i, j) == true) {
+                    dp[i][j] |= dp[i - 1][j - 1];
+                }
+            }
+        }
+    }
+    retVal = dp[sSize][pSize];
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    bool matches(string s, string p, int i, int j) {
+        bool retVal = false;
+
+        if (i == 0) {
+            retVal = false;
+        } else if (p[j - 1] == '.') {
+            retVal = true;
+        } else {
+            retVal = (s[i - 1] == p[j - 1]);
+        }
+
+        return retVal;
+    };
+
+   public:
+    bool isMatch(string s, string p) {
+        bool retVal = false;
+
+        int sSize = s.size();
+        int pSize = p.size();
+        vector<vector<int>> dp(sSize + 1, vector<int>(pSize + 1));
+        dp[0][0] = true;
+        for (int i = 0; i <= sSize; ++i) {
+            for (int j = 1; j <= pSize; ++j) {
+                if (p[j - 1] == '*') {
+                    dp[i][j] |= dp[i][j - 2];
+                    if (matches(s, p, i, j - 1) == true) {
+                        dp[i][j] |= dp[i - 1][j];
+                    }
+                } else {
+                    if (matches(s, p, i, j) == true) {
+                        dp[i][j] |= dp[i - 1][j - 1];
+                    }
+                }
+            }
+        }
+        retVal = dp[sSize][pSize];
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def matches(self, s: str, p: str, i: int, j: int) -> bool:
+        retVal = False
+
+        if i == 0:
+            retVal = False
+        elif p[j - 1] == '.':
+            retVal = True
+        else:
+            retVal = (s[i - 1] == p[j - 1])
+
+        return retVal
+
+    def isMatch(self, s: str, p: str) -> bool:
+        retVal = False
+
+        sSize = len(s)
+        pSize = len(p)
+        dp = [[False] * (pSize + 1) for _ in range(sSize + 1)]
+        dp[0][0] = True
+        for i in range(sSize + 1):
+            for j in range(1, pSize + 1):
+                if p[j - 1] == '*':
+                    dp[i][j] |= dp[i][j - 2]
+                    if self.matches(s, p, i, j - 1) == True:
+                        dp[i][j] |= dp[i - 1][j]
+                else:
+                    if self.matches(s, p, i, j) == True:
+                        dp[i][j] |= dp[i - 1][j - 1]
+        retVal = dp[sSize][pSize]
+
+        return retVal
+```
+
+</details>
+
 ## [42. Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/)
 
 - [Official](https://leetcode.cn/problems/trapping-rain-water/solutions/692342/jie-yu-shui-by-leetcode-solution-tuvc/)
