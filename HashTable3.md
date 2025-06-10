@@ -6162,3 +6162,139 @@ class Solution:
 ```
 
 </details>
+
+## [3442. Maximum Difference Between Even and Odd Frequency I](https://leetcode.com/problems/maximum-difference-between-even-and-odd-frequency-i/)  1220
+
+- [Official](https://leetcode.com/problems/maximum-difference-between-even-and-odd-frequency-i/editorial/)
+- [Official](https://leetcode.cn/problems/maximum-difference-between-even-and-odd-frequency-i/solutions/3692731/qi-ou-pin-ci-jian-de-zui-da-chai-zhi-i-b-wy8k/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string s consisting of lowercase English letters.
+
+Your task is to find the maximum difference diff = a1 - a2
+between the frequency of characters a1 and a2 in the string such that:
+- a1 has an odd frequency in the string.
+- a2 has an even frequency in the string.
+
+Return this maximum difference.
+
+Example 1:
+Input: s = "aaaaabbc"
+Output: 3
+Explanation:
+The character 'a' has an odd frequency of 5, and 'b' has an even frequency of 2.
+The maximum difference is 5 - 2 = 3.
+
+Example 2:
+Input: s = "abcabcab"
+Output: 1
+Explanation:
+The character 'a' has an odd frequency of 3, and 'c' has an even frequency of 2.
+The maximum difference is 3 - 2 = 1.
+
+Constraints:
+3 <= s.length <= 100
+s consists only of lowercase English letters.
+s contains at least one character with an odd frequency and one with an even frequency.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use a frequency map to identify the maximum odd and minimum even frequencies. Then, calculate their difference.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MAX_LETTERS (26)  // s consists only of lowercase English letters.
+int maxDifference(char* s) {
+    int retVal = 0;
+
+    int frequency[MAX_LETTERS];
+    memset(frequency, 0, sizeof(frequency));
+    for (int i = 0; s[i] != '\0'; ++i) {
+        frequency[s[i] - 'a']++;
+    }
+
+    int value;
+    int maxOdd = 0;
+    int minEven = strlen(s);
+    for (int i = 0; i < MAX_LETTERS; ++i) {
+        value = frequency[i];
+        if (value == 0) {
+            continue;  // Skip letters that do not appear in the string.
+        }
+
+        if (value % 2 == 1) {
+            if (value > maxOdd) {
+                maxOdd = value;
+            }
+        } else {
+            if (value < minEven) {
+                minEven = value;
+            }
+        }
+    }
+    retVal = maxOdd - minEven;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maxDifference(string s) {
+        int retVal = 0;
+
+        unordered_map<char, int> frequency;
+        for (char c : s) {
+            frequency[c]++;
+        }
+
+        int maxOdd = 0;
+        int minEven = s.size();
+        for (const auto& [key, value] : frequency) {
+            if (value % 2 == 1) {
+                maxOdd = max(maxOdd, value);
+            } else {
+                minEven = min(minEven, value);
+            }
+        }
+        retVal = maxOdd - minEven;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxDifference(self, s: str) -> int:
+        retVal = 0
+
+        frequency = Counter(s)
+
+        maxOdd = max(i for i in frequency.values() if i % 2 == 1)
+        minEven = min(i for i in frequency.values() if i % 2 == 0)
+        retVal = maxOdd - minEven
+
+        return retVal
+```
+
+</details>
