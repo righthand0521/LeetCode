@@ -3968,3 +3968,98 @@ class Solution:
 ```
 
 </details>
+
+## [3423. Maximum Difference Between Adjacent Elements in a Circular Array](https://leetcode.com/problems/maximum-difference-between-adjacent-elements-in-a-circular-array/)  1184
+
+- [Official](https://leetcode.com/problems/maximum-difference-between-adjacent-elements-in-a-circular-array/editorial/)
+- [Official](https://leetcode.cn/problems/maximum-difference-between-adjacent-elements-in-a-circular-array/solutions/3692736/xun-huan-shu-zu-zhong-xiang-lin-yuan-su-q5nq3/)
+
+<details><summary>Description</summary>
+
+```text
+Given a circular array nums, find the maximum absolute difference between adjacent elements.
+
+Note: In a circular array, the first and last elements are adjacent.
+
+Example 1:
+Input: nums = [1,2,4]
+Output: 3
+Explanation:
+Because nums is circular, nums[0] and nums[2] are adjacent. They have the maximum absolute difference of |4 - 1| = 3.
+
+Example 2:
+Input: nums = [-5,-10,-5]
+Output: 5
+Explanation:
+The adjacent elements nums[0] and nums[1] have the maximum absolute difference of |-5 - (-10)| = 5.
+
+Constraints:
+2 <= nums.length <= 100
+-100 <= nums[i] <= 100
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Traverse from the second element to the last element and check the difference of every adjacent pair.
+2. The edge case is to check the difference between the first and last elements.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int maxAdjacentDistance(int* nums, int numsSize) {
+    int retVal = 0;
+
+    retVal = fmax(retVal, abs(nums[0] - nums[numsSize - 1]));
+    for (int i = 1; i < numsSize; ++i) {
+        retVal = fmax(retVal, abs(nums[i] - nums[i - 1]));
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maxAdjacentDistance(vector<int>& nums) {
+        int retVal = 0;
+
+        int numsSize = nums.size();
+        retVal = max(retVal, abs(nums[0] - nums[numsSize - 1]));
+        for (int i = 1; i < numsSize; ++i) {
+            retVal = max(retVal, abs(nums[i] - nums[i - 1]));
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxAdjacentDistance(self, nums: List[int]) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+        retVal = max(retVal, abs(nums[0] - nums[numsSize-1]))
+        for i in range(1, numsSize):
+            retVal = max(retVal, abs(nums[i] - nums[i-1]))
+
+        return retVal
+```
+
+</details>
