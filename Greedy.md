@@ -7998,6 +7998,151 @@ class Solution:
 
 </details>
 
+## [2566. Maximum Difference by Remapping a Digit](https://leetcode.com/problems/maximum-difference-by-remapping-a-digit/)  1396
+
+- [Official](https://leetcode.com/problems/maximum-difference-by-remapping-a-digit/editorial/)
+- [Official](https://leetcode.cn/problems/maximum-difference-by-remapping-a-digit/solutions/3690212/ti-huan-yi-ge-shu-zi-hou-de-zui-da-chai-3oyg4/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer num.
+You know that Bob will sneakily remap one of the 10 possible digits (0 to 9) to another digit.
+
+Return the difference between the maximum and minimum values Bob can make by remapping exactly one digit in num.
+
+Notes:
+- When Bob remaps a digit d1 to another digit d2, Bob replaces all occurrences of d1 in num with d2.
+- Bob can remap a digit to itself, in which case num does not change.
+- Bob can remap different digits for obtaining minimum and maximum values respectively.
+- The resulting number after remapping can contain leading zeroes.
+
+Example 1:
+Input: num = 11891
+Output: 99009
+Explanation:
+To achieve the maximum value, Bob can remap the digit 1 to the digit 9 to yield 99899.
+To achieve the minimum value, Bob can remap the digit 1 to the digit 0, yielding 890.
+The difference between these two numbers is 99009.
+
+Example 2:
+Input: num = 90
+Output: 99
+Explanation:
+The maximum value that can be returned by the function is 99 (if 0 is replaced by 9)
+and the minimum value that can be returned by the function is 0 (if 9 is replaced by 0).
+Thus, we return 99.
+
+Constraints:
+- 1 <= num <= 10^8
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Try to remap the first non-nine digit to 9 to obtain the maximum number.
+2. Try to remap the first non-zero digit to 0 to obtain the minimum number.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int minMaxDifference(int num) {
+    int retVal = 0;
+
+#define MAX_NUM_SIZE (16)  // - 1 <= num <= 10^8
+
+    char numMaxStr[MAX_NUM_SIZE];
+    memset(numMaxStr, 0, sizeof(numMaxStr));
+    snprintf(numMaxStr, sizeof(numMaxStr), "%d", num);
+    int idx = 0;
+    while ((numMaxStr[idx] != '\0') && (numMaxStr[idx] == '9')) {
+        idx++;
+    }
+    if (numMaxStr[idx] != '\0') {
+        char a = numMaxStr[idx];
+        for (int i = 0; numMaxStr[i] != '\0'; i++) {
+            if (numMaxStr[i] == a) {
+                numMaxStr[i] = '9';
+            }
+        }
+    }
+
+    char numMinStr[MAX_NUM_SIZE];
+    memset(numMinStr, 0, sizeof(numMinStr));
+    snprintf(numMinStr, sizeof(numMinStr), "%d", num);
+    char b = numMinStr[0];
+    for (int i = 0; numMinStr[i] != '\0'; i++) {
+        if (numMinStr[i] == b) {
+            numMinStr[i] = '0';
+        }
+    }
+
+    retVal = atoi(numMaxStr) - atoi(numMinStr);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minMaxDifference(int num) {
+        int retVal = 0;
+
+        string numMaxStr = to_string(num);
+        size_t idx = numMaxStr.find_first_not_of('9');
+        if (idx != string::npos) {
+            char a = numMaxStr[idx];
+            replace(numMaxStr.begin(), numMaxStr.end(), a, '9');
+        }
+
+        string numMinStr = to_string(num);
+        char b = numMinStr[0];
+        replace(numMinStr.begin(), numMinStr.end(), b, '0');
+
+        retVal = stoi(numMaxStr) - stoi(numMinStr);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minMaxDifference(self, num: int) -> int:
+        retVal = 0
+
+        numMaxStr = str(num)
+        numMaxStrSize = len(numMaxStr)
+        idx = 0
+        while (idx < numMaxStrSize) and (numMaxStr[idx] == "9"):
+            idx += 1
+        if idx < numMaxStrSize:
+            numMaxStr = numMaxStr.replace(numMaxStr[idx], "9")
+
+        numMinStr = str(num)
+        numMinStr = numMinStr.replace(numMinStr[0], "0")
+
+        retVal = int(numMaxStr) - int(numMinStr)
+
+        return retVal
+```
+
+</details>
+
 ## [2870. Minimum Number of Operations to Make Array Empty](https://leetcode.com/problems/minimum-number-of-operations-to-make-array-empty/)  1392
 
 - [Official](https://leetcode.com/problems/minimum-number-of-operations-to-make-array-empty/editorial/)
