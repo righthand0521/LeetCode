@@ -3962,6 +3962,194 @@ class Solution:
 
 </details>
 
+## [1432. Max Difference You Can Get From Changing an Integer](https://leetcode.com/problems/max-difference-you-can-get-from-changing-an-integer/)  1426
+
+- [Official](https://leetcode.com/problems/max-difference-you-can-get-from-changing-an-integer/editorial/)
+- [Official](https://leetcode.cn/problems/max-difference-you-can-get-from-changing-an-integer/solutions/514358/gai-bian-yi-ge-zheng-shu-neng-de-dao-de-0byhw/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer num. You will apply the following steps to num two separate times:
+- Pick a digit x (0 <= x <= 9).
+- Pick another digit y (0 <= y <= 9). Note y can be equal to x.
+- Replace all the occurrences of x in the decimal representation of num by y.
+
+Let a and b be the two results from applying the operation to num independently.
+
+Return the max difference between a and b.
+
+Note that neither a nor b may have any leading zeros, and must not be 0.
+
+Example 1:
+Input: num = 555
+Output: 888
+Explanation: The first time pick x = 5 and y = 9 and store the new integer in a.
+The second time pick x = 5 and y = 1 and store the new integer in b.
+We have now a = 999 and b = 111 and max difference = 888
+
+Example 2:
+Input: num = 9
+Output: 8
+Explanation: The first time pick x = 9 and y = 9 and store the new integer in a.
+The second time pick x = 9 and y = 1 and store the new integer in b.
+We have now a = 9 and b = 1 and max difference = 8
+
+Constraints:
+1 <= num <= 10^8
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. We need to get the max and min value after changing num and the answer is max - min.
+2. Use brute force, try all possible changes and keep the minimum and maximum values.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+void replace(char* s, char x, char y) {
+    for (int i = 0; s[i]; ++i) {
+        if (s[i] == x) {
+            s[i] = y;
+        }
+    }
+}
+int maxDiff(int num) {
+    int retVal = 0;
+
+#define MAX_NUMS_SIZE (16)  // 1 <= num <= 10^8
+
+    // Find a high position and replace it with 9.
+    char maxNum[MAX_NUMS_SIZE];
+    snprintf(maxNum, sizeof(maxNum), "%d", num);
+    for (int i = 0; maxNum[i]; ++i) {
+        if (maxNum[i] != '9') {
+            replace(maxNum, maxNum[i], '9');
+            break;
+        }
+    }
+
+    // Replace the most significant bit with 1
+    // Or find a high-order digit that is not equal to the highest digit and replace it with 0.
+    char minNum[MAX_NUMS_SIZE];
+    snprintf(minNum, sizeof(minNum), "%d", num);
+    for (int i = 0; minNum[i]; ++i) {
+        char digit = minNum[i];
+        if (i == 0) {
+            if (digit != '1') {
+                replace(minNum, digit, '1');
+                break;
+            }
+        } else {
+            if (digit != '0' && digit != minNum[0]) {
+                replace(minNum, digit, '0');
+                break;
+            }
+        }
+    }
+
+    retVal = atoi(maxNum) - atoi(minNum);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    static void replace(string& s, char x, char y) {
+        for (char& digit : s) {
+            if (digit == x) {
+                digit = y;
+            }
+        }
+    }
+
+   public:
+    int maxDiff(int num) {
+        int retVal = 0;
+
+        // Find a high position and replace it with 9.
+        string maxNum = to_string(num);
+        for (char digit : maxNum) {
+            if (digit != '9') {
+                replace(maxNum, digit, '9');
+                break;
+            }
+        }
+
+        // Replace the most significant bit with 1
+        // Or find a high-order digit that is not equal to the highest digit and  replace it with 0.
+        string minNum = to_string(num);
+        int minNumSize = minNum.size();
+        for (int i = 0; i < minNumSize; ++i) {
+            char digit = minNum[i];
+            if (i == 0) {
+                if (digit != '1') {
+                    replace(minNum, digit, '1');
+                    break;
+                }
+            } else {
+                if (digit != '0' && digit != minNum[0]) {
+                    replace(minNum, digit, '0');
+                    break;
+                }
+            }
+        }
+
+        retVal = stoi(maxNum) - stoi(minNum);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxDiff(self, num: int) -> int:
+        retVal = 0
+
+        # Find a high position and replace it with 9.
+        maxNum = str(num)
+        for digit in maxNum:
+            if digit != "9":
+                maxNum = maxNum.replace(digit, "9")
+                break
+
+        # Replace the most significant bit with 1
+        # Or find a high-order digit that is not equal to the highest digit and replace it with 0.
+        minNum = str(num)
+        for i, digit in enumerate(minNum):
+            if i == 0:
+                if digit != "1":
+                    minNum = minNum.replace(digit, "1")
+                    break
+            else:
+                if (digit != "0") and (digit != minNum[0]):
+                    minNum = minNum.replace(digit, "0")
+                    break
+
+        retVal = int(maxNum) - int(minNum)
+
+        return retVal
+```
+
+</details>
+
 ## [1481. Least Number of Unique Integers after K Removals](https://leetcode.com/problems/least-number-of-unique-integers-after-k-removals/)  1284
 
 - [Official](https://leetcode.com/problems/least-number-of-unique-integers-after-k-removals/editorial/)
