@@ -9,25 +9,16 @@ class Solution {
     int maximumDifference(vector<int>& nums) {
         int retVal = -1;  // If no such i and j exists, return -1.
 
-        // 1 <= nums[i] <= 10^9
-        int minNum = 1e9 + 1;
-        int maxNum = 1e9 + 1;
-        for (auto num : nums) {
-            if (minNum > num) {
-                minNum = num;
-                maxNum = num;
-                continue;
-            }
+        int numsSize = nums.size();
 
-            if (maxNum < num) {
-                maxNum = num;
+        int minNum = nums[0];
+        for (int i = 1; i < numsSize; ++i) {
+            if (nums[i] > minNum) {
+                retVal = max(retVal, nums[i] - minNum);
+            } else {
+                minNum = nums[i];
             }
-
-            retVal = max(retVal, maxNum - minNum);
         }
-
-        // find the maximum difference between nums[i] and nums[j], such that 0 <= i < j < n and nums[i] < nums[j].
-        retVal = (retVal == 0) ? -1 : retVal;
 
         return retVal;
     }

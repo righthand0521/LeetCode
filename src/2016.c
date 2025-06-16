@@ -6,19 +6,14 @@
 int maximumDifference(int* nums, int numsSize) {
     int retVal = -1;  // If no such i and j exists, return -1.
 
-    int i = 0;
-    int j;
-    for (j = 1; j < numsSize; ++j) {
-        if (nums[j] < nums[i]) {
-            i = j;
-            continue;
+    int minNum = nums[0];
+    for (int i = 1; i < numsSize; ++i) {
+        if (nums[i] > minNum) {
+            retVal = fmax(retVal, nums[i] - minNum);
+        } else {
+            minNum = nums[i];
         }
-
-        retVal = fmax(retVal, nums[j] - nums[i]);
     }
-
-    // find the maximum difference between nums[i] and nums[j], such that 0 <= i < j < n and nums[i] < nums[j].
-    retVal = (retVal == 0) ? -1 : retVal;
 
     return retVal;
 }

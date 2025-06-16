@@ -159,6 +159,9 @@ class Solution:
 
 ## [2016. Maximum Difference Between Increasing Elements](https://leetcode.com/problems/maximum-difference-between-increasing-elements/)  1246
 
+- [Official](https://leetcode.com/problems/maximum-difference-between-increasing-elements/editorial/)
+- [Official](https://leetcode.cn/problems/maximum-difference-between-increasing-elements/solutions/1283206/zeng-liang-yuan-su-zhi-jian-de-zui-da-ch-i0wk/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -193,6 +196,15 @@ n == nums.length
 1 <= nums[i] <= 10^9
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. Could you keep track of the minimum element visited while traversing?
+2. We have a potential candidate for the answer if the prefix min is lesser than nums[i].
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
@@ -201,19 +213,14 @@ n == nums.length
 int maximumDifference(int* nums, int numsSize) {
     int retVal = -1;  // If no such i and j exists, return -1.
 
-    int i = 0;
-    int j;
-    for (j = 1; j < numsSize; ++j) {
-        if (nums[j] < nums[i]) {
-            i = j;
-            continue;
+    int minNum = nums[0];
+    for (int i = 1; i < numsSize; ++i) {
+        if (nums[i] > minNum) {
+            retVal = fmax(retVal, nums[i] - minNum);
+        } else {
+            minNum = nums[i];
         }
-
-        retVal = fmax(retVal, nums[j] - nums[i]);
     }
-
-    // find the maximum difference between nums[i] and nums[j], such that 0 <= i < j < n and nums[i] < nums[j].
-    retVal = (retVal == 0) ? -1 : retVal;
 
     return retVal;
 }
@@ -229,29 +236,41 @@ class Solution {
     int maximumDifference(vector<int>& nums) {
         int retVal = -1;  // If no such i and j exists, return -1.
 
-        // 1 <= nums[i] <= 10^9
-        int minNum = 1e9 + 1;
-        int maxNum = 1e9 + 1;
-        for (auto num : nums) {
-            if (minNum > num) {
-                minNum = num;
-                maxNum = num;
-                continue;
-            }
+        int numsSize = nums.size();
 
-            if (maxNum < num) {
-                maxNum = num;
+        int minNum = nums[0];
+        for (int i = 1; i < numsSize; ++i) {
+            if (nums[i] > minNum) {
+                retVal = max(retVal, nums[i] - minNum);
+            } else {
+                minNum = nums[i];
             }
-
-            retVal = max(retVal, maxNum - minNum);
         }
-
-        // find the maximum difference between nums[i] and nums[j], such that 0 <= i < j < n and nums[i] < nums[j].
-        retVal = (retVal == 0) ? -1 : retVal;
 
         return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maximumDifference(self, nums: List[int]) -> int:
+        retVal = -1  # If no such i and j exists, return -1.
+
+        numsSize = len(nums)
+
+        minNum = nums[0]
+        for i in range(1, numsSize):
+            if nums[i] > minNum:
+                retVal = max(retVal, nums[i] - minNum)
+            else:
+                minNum = nums[i]
+
+        return retVal
 ```
 
 </details>
