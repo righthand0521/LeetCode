@@ -8993,3 +8993,204 @@ class Solution:
 ```
 
 </details>
+
+## [3405. Count the Number of Arrays with K Matching Adjacent Elements](https://leetcode.com/problems/count-the-number-of-arrays-with-k-matching-adjacent-elements/)  2309
+
+- [Official](https://leetcode.com/problems/count-the-number-of-arrays-with-k-matching-adjacent-elements/editorial/)
+- [Official](https://leetcode.cn/problems/count-the-number-of-arrays-with-k-matching-adjacent-elements/solutions/3693518/tong-ji-qia-hao-you-k-ge-xiang-deng-xian-uxt4/)
+
+<details><summary>Description</summary>
+
+```text
+You are given three integers n, m, k. A good array arr of size n is defined as follows:
+- Each element in arr is in the inclusive range [1, m].
+- Exactly k indices i (where 1 <= i < n) satisfy the condition arr[i - 1] == arr[i].
+
+Return the number of good arrays that can be formed.
+
+Since the answer may be very large, return it modulo 109 + 7.
+
+Example 1:
+Input: n = 3, m = 2, k = 1
+Output: 4
+Explanation:
+There are 4 good arrays. They are [1, 1, 2], [1, 2, 2], [2, 1, 1] and [2, 2, 1].
+Hence, the answer is 4.
+
+Example 2:
+Input: n = 4, m = 2, k = 2
+Output: 6
+Explanation:
+The good arrays are [1, 1, 1, 2], [1, 1, 2, 2], [1, 2, 2, 2], [2, 1, 1, 1], [2, 2, 1, 1] and [2, 2, 2, 1].
+Hence, the answer is 6.
+
+Example 3:
+Input: n = 5, m = 2, k = 0
+Output: 2
+Explanation:
+The good arrays are [1, 2, 1, 2, 1] and [2, 1, 2, 1, 2]. Hence, the answer is 2.
+
+Constraints:
+1 <= n <= 10^5
+1 <= m <= 10^5
+0 <= k <= n - 1
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. The first position arr[0] has m choices.
+2. For each of the remaining n - 1 indices, 0 < i < n, select k positions from left to right and set arr[i] = arr[i - 1].
+3. For all other indices, set arr[i] != arr[i - 1] with (m - 1) choices for each of the n - 1 - k positions.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MODULO (int)(1e9 + 7)
+#define MAX_NUMBER (int)(1e5)  // 1 <= n <= 10^5, 1 <= m <= 10^5
+long long factory[MAX_NUMBER];
+long long incertFactory[MAX_NUMBER];
+long long qpower(long long x, int n) {
+    long long retVal = 1;
+
+    while (n) {
+        if (n & 1) {
+            retVal = retVal * x % MODULO;
+        }
+        x = x * x % MODULO;
+        n >>= 1;
+    }
+
+    return retVal;
+}
+long long combine(int n, int m) {
+    long long retVal = factory[n] * incertFactory[m] % MODULO * incertFactory[n - m] % MODULO;
+
+    return retVal;
+}
+int countGoodArrays(int n, int m, int k) {
+    int retVal = 0;
+
+    if (factory[0] == 0) {
+        factory[0] = 1;
+        for (int i = 1; i < MAX_NUMBER; i++) {
+            factory[i] = factory[i - 1] * i % MODULO;
+        }
+
+        incertFactory[MAX_NUMBER - 1] = qpower(factory[MAX_NUMBER - 1], MODULO - 2);
+        for (int i = MAX_NUMBER - 1; i > 0; i--) {
+            incertFactory[i - 1] = incertFactory[i] * i % MODULO;
+        }
+    }
+    retVal = combine(n - 1, k) * m % MODULO * qpower(m - 1, n - k - 1) % MODULO;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+static const int maxNumber = 1e5;  // // 1 <= n <= 10^5, 1 <= m <= 10^5
+vector<long long> factory(maxNumber);
+vector<long long> incertFactory(maxNumber);
+class Solution {
+   private:
+    static constexpr int MODULO = 1e9 + 7;
+
+    long long qpower(long long x, int n) {
+        long long retVal = 1;
+
+        while (n) {
+            if (n & 1) {
+                retVal = retVal * x % MODULO;
+            }
+            x = x * x % MODULO;
+            n >>= 1;
+        }
+
+        return retVal;
+    }
+    long long combine(int n, int m) {
+        long long retVal = factory[n] * incertFactory[m] % MODULO * incertFactory[n - m] % MODULO;
+
+        return retVal;
+    }
+
+   public:
+    int countGoodArrays(int n, int m, int k) {
+        int retVal = 0;
+
+        if (factory[0] == 0) {
+            factory[0] = 1;
+            for (int i = 1; i < maxNumber; i++) {
+                factory[i] = factory[i - 1] * i % MODULO;
+            }
+
+            incertFactory[maxNumber - 1] = qpower(factory[maxNumber - 1], MODULO - 2);
+            for (int i = maxNumber - 1; i; i--) {
+                incertFactory[i - 1] = incertFactory[i] * i % MODULO;
+            }
+        }
+        retVal = combine(n - 1, k) * m % MODULO * qpower(m - 1, n - k - 1) % MODULO;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+maxNumber = 10**5  # 1 <= n <= 10^5, 1 <= m <= 10^5
+factory = [0] * maxNumber
+incertFactory = [0] * maxNumber
+
+
+class Solution:
+    def __init__(self):
+        self.MODULO = 10 ** 9 + 7
+
+    def qpower(self, x, n):
+        retVal = 1
+
+        while n:
+            if n & 1:
+                retVal = retVal * x % self.MODULO
+            x = x * x % self.MODULO
+            n >>= 1
+
+        return retVal
+
+    def combine(self, n, m):
+        retVal = factory[n] * incertFactory[m] % self.MODULO * incertFactory[n - m] % self.MODULO
+
+        return retVal
+
+    def countGoodArrays(self, n: int, m: int, k: int) -> int:
+        retVal = 0
+
+        if factory[0] == 0:
+            factory[0] = 1
+            for i in range(1, maxNumber):
+                factory[i] = factory[i - 1] * i % self.MODULO
+
+            incertFactory[maxNumber - 1] = self.qpower(factory[maxNumber - 1], self.MODULO - 2)
+            for i in range(maxNumber - 1, 0, -1):
+                incertFactory[i - 1] = incertFactory[i] * i % self.MODULO
+
+        retVal = self.combine(n - 1, k) * m % self.MODULO * self.qpower(m - 1, n - k - 1) % self.MODULO
+
+        return retVal
+```
+
+</details>
