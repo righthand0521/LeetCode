@@ -6981,6 +6981,164 @@ char* capitalizeTitle(char* title) {
 
 </details>
 
+## [2138. Divide a String Into Groups of Size k](https://leetcode.com/problems/divide-a-string-into-groups-of-size-k/)  1273
+
+- [Official](https://leetcode.com/problems/divide-a-string-into-groups-of-size-k/editorial/)
+- [Official](https://leetcode.cn/problems/divide-a-string-into-groups-of-size-k/solutions/1233149/jiang-zi-fu-chuan-chai-fen-wei-ruo-gan-c-264k/)
+
+<details><summary>Description</summary>
+
+```text
+A string s can be partitioned into groups of size k using the following procedure:
+- The first group consists of the first k characters of the string,
+  the second group consists of the next k characters of the string,
+  and so on. Each element can be a part of exactly one group.
+- For the last group, if the string does not have k characters remaining, a character fill is used to complete the group.
+
+Note that the partition is done so that after removing the fill character from the last group (if it exists)
+and concatenating all the groups in order, the resultant string should be s.
+
+Given the string s, the size of each group k and the character fill,
+return a string array denoting the composition of every group s has been divided into, using the above procedure.
+
+Example 1:
+Input: s = "abcdefghi", k = 3, fill = "x"
+Output: ["abc","def","ghi"]
+Explanation:
+The first 3 characters "abc" form the first group.
+The next 3 characters "def" form the second group.
+The last 3 characters "ghi" form the third group.
+Since all groups can be completely filled by characters from the string, we do not need to use fill.
+Thus, the groups formed are "abc", "def", and "ghi".
+
+Example 2:
+Input: s = "abcdefghij", k = 3, fill = "x"
+Output: ["abc","def","ghi","jxx"]
+Explanation:
+Similar to the previous example, we are forming the first three groups "abc", "def", and "ghi".
+For the last group, we can only use the character 'j' from the string. To complete this group, we add 'x' twice.
+Thus, the 4 groups formed are "abc", "def", "ghi", and "jxx".
+
+Constraints:
+1 <= s.length <= 100
+s consists of lowercase English letters only.
+1 <= k <= 100
+fill is a lowercase English letter.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Using the length of the string and k, can you count the number of groups the string can be divided into?
+2. Try completing each group using characters from the string.
+   If there aren’t enough characters for the last group, use the fill character to complete the group.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+char** divideString(char* s, int k, char fill, int* returnSize) {
+    char** pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    int sSize = strlen(s);
+    int numberOfStrings = (sSize + k - 1) / k;
+
+    pRetVal = (char**)malloc(numberOfStrings * sizeof(char*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    for (int i = 0; i < numberOfStrings; ++i) {
+        pRetVal[i] = (char*)malloc((k + 1) * sizeof(char));
+        if (pRetVal[i] == NULL) {
+            perror("malloc");
+            for (int j = 0; j < i; ++j) {
+                free(pRetVal[j]);
+                pRetVal[j] = NULL;
+            }
+            free(pRetVal);
+            pRetVal = NULL;
+            return pRetVal;
+        }
+    }
+
+    int start, end;
+    for (int i = 0; i < numberOfStrings; ++i) {
+        start = i * k;
+        end = start + k;
+        if (end > sSize) {
+            end = sSize;
+        }
+        strncpy(pRetVal[i], s + start, end - start);
+        if (end - start < k) {
+            memset(pRetVal[i] + (end - start), fill, k - (end - start));
+        }
+        pRetVal[i][k] = '\0';
+
+        (*returnSize)++;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<string> divideString(string s, int k, char fill) {
+        vector<string> retVal;
+
+        int sSize = s.size();
+        int numberOfSubstrings = (sSize + k - 1) / k;
+        for (int i = 0; i < numberOfSubstrings; ++i) {
+            string part = s.substr(i * k, k);
+            int partSize = part.size();
+            if (partSize < k) {
+                part += string(k - partSize, fill);
+            }
+            retVal.emplace_back(part);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def divideString(self, s: str, k: int, fill: str) -> List[str]:
+        retVal = []
+
+        sSize = len(s)
+        for i in range(0, sSize, k):
+            part = s[i:i + k]
+            partSize = len(part)
+            if partSize < k:
+                part += (fill * (k - partSize))
+            retVal.append(part)
+
+        return retVal
+```
+
+</details>
+
 ## [2185. Counting Words With a Given Prefix](https://leetcode.com/problems/counting-words-with-a-given-prefix/)  1167
 
 - [Official](https://leetcode.com/problems/counting-words-with-a-given-prefix/editorial/)
