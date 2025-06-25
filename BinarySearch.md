@@ -5902,6 +5902,291 @@ class Solution:
 
 </details>
 
+## [2040. Kth Smallest Product of Two Sorted Arrays](https://leetcode.com/problems/kth-smallest-product-of-two-sorted-arrays/)  2040
+
+- [Official](https://leetcode.cn/problems/kth-smallest-product-of-two-sorted-arrays/solutions/3698504/liang-ge-you-xu-shu-zu-de-di-k-xiao-chen-5qt9/)
+
+<details><summary>Description</summary>
+
+```text
+Given two sorted 0-indexed integer arrays nums1 and nums2 as well as an integer k,
+return the kth (1-based) smallest product of nums1[i] * nums2[j] where 0 <= i < nums1.length and 0 <= j < nums2.length.
+
+Example 1:
+Input: nums1 = [2,5], nums2 = [3,4], k = 2
+Output: 8
+Explanation: The 2 smallest products are:
+- nums1[0] * nums2[0] = 2 * 3 = 6
+- nums1[0] * nums2[1] = 2 * 4 = 8
+The 2nd smallest product is 8.
+
+Example 2:
+Input: nums1 = [-4,-2,0,3], nums2 = [2,4], k = 6
+Output: 0
+Explanation: The 6 smallest products are:
+- nums1[0] * nums2[1] = (-4) * 4 = -16
+- nums1[0] * nums2[0] = (-4) * 2 = -8
+- nums1[1] * nums2[1] = (-2) * 4 = -8
+- nums1[1] * nums2[0] = (-2) * 2 = -4
+- nums1[2] * nums2[0] = 0 * 2 = 0
+- nums1[2] * nums2[1] = 0 * 4 = 0
+The 6th smallest product is 0.
+
+Example 3:
+Input: nums1 = [-2,-1,0,1,2], nums2 = [-3,-1,2,4,5], k = 3
+Output: -6
+Explanation: The 3 smallest products are:
+- nums1[0] * nums2[4] = (-2) * 5 = -10
+- nums1[0] * nums2[3] = (-2) * 4 = -8
+- nums1[4] * nums2[0] = 2 * (-3) = -6
+The 3rd smallest product is -6.
+
+Constraints:
+1 <= nums1.length, nums2.length <= 5 * 10^4
+-10^5 <= nums1[i], nums2[j] <= 10^5
+1 <= k <= nums1.length * nums2.length
+nums1 and nums2 are sorted.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Can we split this problem into four cases depending on the sign of the numbers?
+2. Can we binary search the value?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+long long kthSmallestProduct(int* nums1, int nums1Size, int* nums2, int nums2Size, long long k) {
+    long long retVal = 0;
+
+    int pos1 = 0;
+    while ((pos1 < nums1Size) && (nums1[pos1] < 0)) {
+        pos1++;
+    }
+    int pos2 = 0;
+    while ((pos2 < nums2Size) && (nums2[pos2] < 0)) {
+        pos2++;
+    }
+
+    long long count, i1, i2;
+    long long middle;
+    long long left = -1e10;
+    long long right = 1e10;
+    while (left <= right) {
+        middle = (left + right) / 2;
+        count = 0;
+
+        i1 = 0, i2 = pos2 - 1;
+        while ((i1 < pos1) && (i2 >= 0)) {
+            if ((long long)nums1[i1] * nums2[i2] > middle) {
+                i1++;
+            } else {
+                count += (pos1 - i1);
+                i2--;
+            }
+        }
+
+        i1 = pos1;
+        i2 = nums2Size - 1;
+        while ((i1 < nums1Size) && (i2 >= pos2)) {
+            if ((long long)nums1[i1] * nums2[i2] > middle) {
+                i2--;
+            } else {
+                count += (i2 - pos2 + 1);
+                i1++;
+            }
+        }
+
+        i1 = 0;
+        i2 = pos2;
+        while ((i1 < pos1) && (i2 < nums2Size)) {
+            if ((long long)nums1[i1] * nums2[i2] > middle) {
+                i2++;
+            } else {
+                count += (nums2Size - i2);
+                i1++;
+            }
+        }
+
+        i1 = pos1;
+        i2 = 0;
+        while ((i1 < nums1Size) && (i2 < pos2)) {
+            if ((long long)nums1[i1] * nums2[i2] > middle) {
+                i1++;
+            } else {
+                count += (nums1Size - i1);
+                i2++;
+            }
+        }
+
+        if (count < k) {
+            left = middle + 1;
+        } else {
+            right = middle - 1;
+        }
+    }
+    retVal = left;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    long long kthSmallestProduct(vector<int>& nums1, vector<int>& nums2, long long k) {
+        long long retVal = 0;
+
+        int nums1Size = nums1.size();
+        int nums2Size = nums2.size();
+
+        int pos1 = 0;
+        while ((pos1 < nums1Size) && (nums1[pos1] < 0)) {
+            pos1++;
+        }
+        int pos2 = 0;
+        while ((pos2 < nums2Size) && (nums2[pos2] < 0)) {
+            pos2++;
+        }
+
+        long long left = -1e10;
+        long long right = 1e10;
+        while (left <= right) {
+            long long middle = (left + right) / 2;
+            long long count = 0;
+
+            for (int i1 = 0, i2 = pos2 - 1; i1 < pos1 && i2 >= 0;) {
+                if (static_cast<long long>(nums1[i1]) * nums2[i2] > middle) {
+                    i1++;
+                } else {
+                    count += (pos1 - i1);
+                    i2--;
+                }
+            }
+
+            for (int i1 = pos1, i2 = nums2Size - 1; i1 < nums1Size && i2 >= pos2;) {
+                if (static_cast<long long>(nums1[i1]) * nums2[i2] > middle) {
+                    i2--;
+                } else {
+                    count += (i2 - pos2 + 1);
+                    i1++;
+                }
+            }
+
+            for (int i1 = 0, i2 = pos2; i1 < pos1 && i2 < nums2Size;) {
+                if (static_cast<long long>(nums1[i1]) * nums2[i2] > middle) {
+                    i2++;
+                } else {
+                    count += (nums2Size - i2);
+                    i1++;
+                }
+            }
+
+            for (int i1 = pos1, i2 = 0; i1 < nums1Size && i2 < pos2;) {
+                if (static_cast<long long>(nums1[i1]) * nums2[i2] > middle) {
+                    i1++;
+                } else {
+                    count += (nums1Size - i1);
+                    i2++;
+                }
+            }
+
+            if (count < k) {
+                left = middle + 1;
+            } else {
+                right = middle - 1;
+            }
+        }
+        retVal = left;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def kthSmallestProduct(self, nums1: List[int], nums2: List[int], k: int) -> int:
+        retVal = 0
+
+        nums1Size = len(nums1)
+        nums2Size = len(nums2)
+
+        pos1 = 0
+        while (pos1 < nums1Size) and (nums1[pos1] < 0):
+            pos1 += 1
+        pos2 = 0
+        while (pos2 < nums2Size) and (nums2[pos2] < 0):
+            pos2 += 1
+
+        left = int(-1e10)
+        right = int(1e10)
+        while left <= right:
+            middle = (left + right) // 2
+            count = 0
+
+            i1 = 0
+            i2 = pos2 - 1
+            while (i1 < pos1) and (i2 >= 0):
+                if nums1[i1] * nums2[i2] > middle:
+                    i1 += 1
+                else:
+                    count += (pos1 - i1)
+                    i2 -= 1
+
+            i1 = pos1
+            i2 = nums2Size - 1
+            while (i1 < nums1Size) and (i2 >= pos2):
+                if nums1[i1] * nums2[i2] > middle:
+                    i2 -= 1
+                else:
+                    count += (i2 - pos2 + 1)
+                    i1 += 1
+
+            i1 = 0
+            i2 = pos2
+            while (i1 < pos1) and (i2 < nums2Size):
+                if nums1[i1] * nums2[i2] > middle:
+                    i2 += 1
+                else:
+                    count += (nums2Size - i2)
+                    i1 += 1
+
+            i1 = pos1
+            i2 = 0
+            while (i1 < nums1Size) and (i2 < pos2):
+                if nums1[i1] * nums2[i2] > middle:
+                    i1 += 1
+                else:
+                    count += (nums1Size - i1)
+                    i2 += 1
+
+            if count < k:
+                left = middle + 1
+            else:
+                right = middle - 1
+
+        retVal = left
+
+        return retVal
+```
+
+</details>
+
 ## [2064. Minimized Maximum of Products Distributed to Any Store](https://leetcode.com/problems/minimized-maximum-of-products-distributed-to-any-store/)  1885
 
 - [Official](https://leetcode.com/problems/minimized-maximum-of-products-distributed-to-any-store/editorial/)
