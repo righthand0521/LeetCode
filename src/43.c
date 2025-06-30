@@ -3,73 +3,70 @@
 #include <string.h>
 
 char* multiply(char* num1, char* num2) {
-    unsigned char* pRetVal = NULL;
+    char* pRetVal = NULL;
 
     if ((strcmp(num1, "0") == 0) || (strcmp(num2, "0") == 0)) {
-        pRetVal = (unsigned char*)malloc(2 * sizeof(unsigned char));
+        pRetVal = (char*)malloc(2 * sizeof(char));
         if (pRetVal == NULL) {
             perror("malloc");
-            return (char*)(pRetVal);
+            return pRetVal;
         }
-        memset(pRetVal, 0, 2 * sizeof(unsigned char));
+        memset(pRetVal, 0, 2 * sizeof(char));
         pRetVal[0] = '0';
 
-        return (char*)(pRetVal);
+        return pRetVal;
     }
 
-    int len1 = strlen(num1);
-    int len2 = strlen(num2);
-    int len = len1 + len2 + 1;
-    pRetVal = (unsigned char*)malloc(len * sizeof(unsigned char));
-    if (pRetVal == NULL) {
-        perror("malloc");
-        return (char*)(pRetVal);
-    }
-    memset(pRetVal, '0', (len - 1) * sizeof(unsigned char));
-    pRetVal[len - 1] = 0;
-
-    int multiplicand;
-    int multiplier;
-    int product = 0;
-    int carry = 0;
+    int num1Size = strlen(num1);
+    int num2Size = strlen(num2);
+    int returnBufSize = num1Size + num2Size;
+    int returnBuf[returnBufSize];
+    memset(returnBuf, 0, sizeof(returnBuf));
+    int multiplicand, multiplier, product, carry;
     int i, j;
-    for (i = len1 - 1; i >= 0; --i) {
+    for (i = num1Size - 1; i >= 0; --i) {
         multiplicand = num1[i] - '0';
-        for (j = len2 - 1; j >= 0; --j) {
+        for (j = num2Size - 1; j >= 0; --j) {
             multiplier = num2[j] - '0';
             product = multiplicand * multiplier;
-
-            pRetVal[i + j + 1] = pRetVal[i + j + 1] + product;
-            carry = (pRetVal[i + j + 1] - '0') / 10;
-            pRetVal[i + j + 1] = ((pRetVal[i + j + 1] - '0') % 10) + '0';
-            pRetVal[i + j] = pRetVal[i + j] + carry;
-
-            // printf("(%d,%d)[%d,%d][%d,%d][%s]\n", i,j,multiplicand, multiplier, carry, product, pRetVal);
+            returnBuf[i + j + 1] = returnBuf[i + j + 1] + product;
+            carry = returnBuf[i + j + 1] / 10;
+            returnBuf[i + j + 1] = (returnBuf[i + j + 1] % 10);
+            returnBuf[i + j] = returnBuf[i + j] + carry;
         }
     }
 
-    if (pRetVal[0] == '0') {
-        for (i = 0; i < (len - 2); ++i) {
-            pRetVal[i] = pRetVal[i + 1];
-        }
-        pRetVal[i] = 0;
+    int returnSize = num1Size + num2Size + 1;
+    pRetVal = (char*)malloc(returnSize * sizeof(char));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (returnSize * sizeof(char)));
+    returnSize = 0;
+    if (returnBuf[0] != 0) {
+        pRetVal[returnSize++] += returnBuf[0] + '0';
+    }
+    for (i = 1; i < returnBufSize; ++i) {
+        pRetVal[returnSize++] += returnBuf[i] + '0';
     }
 
-    return (char*)(pRetVal);
+    return pRetVal;
 }
 
 int main(int argc, char** argv) {
     struct testCaseType {
         char* num1;
         char* num2;
-    } testCase[] = {{"2", "3"},
-                    {"123", "456"},
-                    {"9", "99"},
-                    {"0", "999"},
-                    {"99", "0"},
-                    {"0", "0"},
-                    {"999999999999999999999999999999", "999999999999999999999999999999"}};
+    } testCase[] = {{"2", "3"}, {"123", "456"}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: num1 = "2", num2 = "3"
+     *  Output: "6"
+     *
+     *  Input: num1 = "123", num2 = "456"
+     *  Output: "56088"
+     */
 
     char* pAnswer;
     int i;

@@ -233,6 +233,171 @@ class Solution:
 
 </details>
 
+## [43. Multiply Strings](https://leetcode.com/problems/multiply-strings/)
+
+- [Official](https://leetcode.com/problems/multiply-strings/editorial/)
+- [Official](https://leetcode.cn/problems/multiply-strings/solutions/372098/zi-fu-chuan-xiang-cheng-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+Given two non-negative integers num1 and num2 represented as strings,
+return the product of num1 and num2, also represented as a string.
+
+Note: You must not use any built-in BigInteger library or convert the inputs to integer directly.
+
+Example 1:
+Input: num1 = "2", num2 = "3"
+Output: "6"
+
+Example 2:
+Input: num1 = "123", num2 = "456"
+Output: "56088"
+
+Constraints:
+- 1 <= num1.length, num2.length <= 200
+- num1 and num2 consist of digits only.
+- Both num1 and num2 do not contain any leading zero, except the number 0 itself.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+char* multiply(char* num1, char* num2) {
+    char* pRetVal = NULL;
+
+    if ((strcmp(num1, "0") == 0) || (strcmp(num2, "0") == 0)) {
+        pRetVal = (char*)malloc(2 * sizeof(char));
+        if (pRetVal == NULL) {
+            perror("malloc");
+            return pRetVal;
+        }
+        memset(pRetVal, 0, 2 * sizeof(char));
+        pRetVal[0] = '0';
+
+        return pRetVal;
+    }
+
+    int num1Size = strlen(num1);
+    int num2Size = strlen(num2);
+    int returnBufSize = num1Size + num2Size;
+    int returnBuf[returnBufSize];
+    memset(returnBuf, 0, sizeof(returnBuf));
+    int multiplicand, multiplier, product, carry;
+    int i, j;
+    for (i = num1Size - 1; i >= 0; --i) {
+        multiplicand = num1[i] - '0';
+        for (j = num2Size - 1; j >= 0; --j) {
+            multiplier = num2[j] - '0';
+            product = multiplicand * multiplier;
+            returnBuf[i + j + 1] = returnBuf[i + j + 1] + product;
+            carry = returnBuf[i + j + 1] / 10;
+            returnBuf[i + j + 1] = (returnBuf[i + j + 1] % 10);
+            returnBuf[i + j] = returnBuf[i + j] + carry;
+        }
+    }
+
+    int returnSize = num1Size + num2Size + 1;
+    pRetVal = (char*)malloc(returnSize * sizeof(char));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (returnSize * sizeof(char)));
+    returnSize = 0;
+    if (returnBuf[0] != 0) {
+        pRetVal[returnSize++] += returnBuf[0] + '0';
+    }
+    for (i = 1; i < returnBufSize; ++i) {
+        pRetVal[returnSize++] += returnBuf[i] + '0';
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    string multiply(string num1, string num2) {
+        string retVal = "";
+
+        if ((num1 == "0") || (num2 == "0")) {
+            retVal = "0";
+            return retVal;
+        }
+
+        int num1Size = num1.size();
+        int num2Size = num2.size();
+        int returnSize = num1Size + num2Size;
+        vector<int> returnBuf(returnSize, 0);
+        for (int i = num1Size - 1; i >= 0; --i) {
+            int multiplicand = num1[i] - '0';
+            for (int j = num2Size - 1; j >= 0; --j) {
+                int multiplier = num2[j] - '0';
+                int product = multiplicand * multiplier;
+                returnBuf[i + j + 1] = returnBuf[i + j + 1] + product;
+                int carry = (returnBuf[i + j + 1]) / 10;
+                returnBuf[i + j + 1] = (returnBuf[i + j + 1] % 10);
+                returnBuf[i + j] = returnBuf[i + j] + carry;
+            }
+        }
+
+        if (returnBuf[0] != 0) {
+            retVal += to_string(returnBuf[0]);
+        }
+        for (int i = 1; i < returnSize; ++i) {
+            retVal += to_string(returnBuf[i]);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def multiply(self, num1: str, num2: str) -> str:
+        retVal = ""
+
+        if (num1 == "0") or (num2 == "0"):
+            retVal = "0"
+            return retVal
+
+        num1Size = len(num1)
+        num2Size = len(num2)
+        returnSize = num1Size + num2Size
+        returnBuf = [0] * returnSize
+        for i in range(num1Size - 1, -1, -1):
+            multiplicand = int(num1[i])
+            for j in range(num2Size - 1, -1, -1):
+                multiplier = int(num2[j])
+                product = multiplicand * multiplier
+                returnBuf[i + j + 1] = int(returnBuf[i + j + 1]) + product
+                carry = int(returnBuf[i + j + 1]) // 10
+                returnBuf[i + j + 1] = int(int(returnBuf[i + j + 1]) % 10)
+                returnBuf[i + j] = int(returnBuf[i + j]) + carry
+
+        if returnBuf[0] != 0:
+            retVal += str(returnBuf[0])
+        for i in returnBuf[1:]:
+            retVal += str(i)
+
+        return retVal
+```
+
+</details>
+
 ## [50. Pow(x, n)](https://leetcode.com/problems/powx-n/)
 
 - [Official](https://leetcode.com/problems/powx-n/editorial/)
