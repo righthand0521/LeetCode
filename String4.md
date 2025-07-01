@@ -513,3 +513,109 @@ class Solution:
 ```
 
 </details>
+
+## [3330. Find the Original Typed String I](https://leetcode.com/problems/find-the-original-typed-string-i/)  1338
+
+- [Official](https://leetcode.com/problems/find-the-original-typed-string-i/editorial/)
+- [Official](https://leetcode.cn/problems/find-the-original-typed-string-i/solutions/3706276/zhao-dao-chu-shi-shu-ru-zi-fu-chuan-i-by-y2ve/)
+
+<details><summary>Description</summary>
+
+```text
+Alice is attempting to type a specific string on her computer.
+However, she tends to be clumsy and may press a key for too long, resulting in a character being typed multiple times.
+
+Although Alice tried to focus on her typing, she is aware that she may still have done this at most once.
+
+You are given a string word, which represents the final output displayed on Alice's screen.
+
+Return the total number of possible original strings that Alice might have intended to type.
+
+Example 1:
+Input: word = "abbcccc"
+Output: 5
+Explanation:
+The possible strings are: "abbcccc", "abbccc", "abbcc", "abbc", and "abcccc".
+
+Example 2:
+Input: word = "abcd"
+Output: 1
+Explanation:
+The only possible string is "abcd".
+
+Example 3:
+Input: word = "aaaa"
+Output: 4
+
+Constraints:
+1 <= word.length <= 100
+word consists only of lowercase English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Any group of consecutive characters might have been the mistake.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int possibleStringCount(char* word) {
+    int retVal = 1;
+
+    int wordSize = strlen(word);
+    for (int i = 1; i < wordSize; ++i) {
+        if (word[i - 1] == word[i]) {
+            retVal += 1;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int possibleStringCount(string word) {
+        int retVal = 1;
+
+        int wordSize = word.size();
+        for (int i = 1; i < wordSize; ++i) {
+            if (word[i - 1] == word[i]) {
+                retVal += 1;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def possibleStringCount(self, word: str) -> int:
+        retVal = 1
+
+        wordSize = len(word)
+        for i in range(1, wordSize):
+            if word[i-1] == word[i]:
+                retVal += 1
+
+        return retVal
+```
+
+</details>
