@@ -1,62 +1,95 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-int numDifferentIntegers(char* word) {
+#include "uthash/uthash.h"  // https://troydhanson.github.io/uthash/
+
+struct hashTable {
+    char *key;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *current;
+    struct hashTable *tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%s\n", pFree->key);
+        HASH_DEL(pFree, current);
+        free(current->key);
+        free(current);
+    }
+}
+int numDifferentIntegers(char *word) {
     int retVal = 0;
 
-    int len = strlen(word);
-    char Record[len][len];
-    memset(Record, 0, sizeof(Record));
-    int row = 0;
-    int col = 0;
+    struct hashTable *pHashTable = NULL;
+    struct hashTable *pTemp;
+    char *pKey;
 
-    int i, j;
-    for (i = 0; i < len; ++i) {
-        if ((word[i] >= '0') && (word[i] <= '9')) {
-            // the leading zeros are ignored
-            if ((col == 1) && (Record[row][0] == '0')) {
-                --col;
-            }
-            Record[row][col] = word[i];
-            ++col;
-            continue;
+    int wordSize = strlen(word);
+    int left = 0, right;
+    while (1) {
+        while ((left < wordSize) && (isdigit(word[left]) == 0)) {
+            left++;
         }
-        if (col != 0) {
-            ++row;
-        }
-        col = 0;
-    }
-
-    for (i = 0; i < len; ++i) {
-        if (strlen(Record[i]) == 0) {
+        if (left == wordSize) {
             break;
         }
-        ++retVal;
 
-        // check different integers
-        for (j = 0; j < i; ++j) {
-            if (strcmp(Record[i], Record[j]) == 0) {
-                --retVal;
+        right = left;
+        while ((right < wordSize) && (isdigit(word[right]) != 0)) {
+            right++;
+        }
+
+        while ((right - left > 1) && (word[left] == '0')) {
+            left++;
+        }
+        pKey = (char *)malloc((right - left + 1) * sizeof(char));
+        if (pKey == NULL) {
+            perror("malloc");
+            break;
+        }
+        strncpy(pKey, word + left, right - left);
+        pKey[right - left] = '\0';
+        pTemp = NULL;
+        HASH_FIND_STR(pHashTable, pKey, pTemp);
+        if (pTemp == NULL) {
+            pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
                 break;
             }
+            pTemp->key = pKey;
+            HASH_ADD_STR(pHashTable, key, pTemp);
+        } else {
+            free(pKey);
+            pKey = NULL;
         }
+
+        left = right;
     }
+
+    retVal = HASH_COUNT(pHashTable);
+    freeAll(pHashTable);
 
     return retVal;
 }
 
-int main(int argc, char** argv) {
-#define MAX_SIZE (1000)
+int main(int argc, char **argv) {
     struct testCaseType {
-        char word[MAX_SIZE];
-    } testCase[] = {{"a123bc34d8ef34"},
-                    {"leet1234code234"},
-                    {"a1b01c001"},
-                    {"a123bc34d8ef"},
-                    {"0a0"},
-                    {"4w31am0ets6sl5go5ufytjtjpb7b0sxqbee2blg9ss"}};
+        char *word;
+    } testCase[] = {{"a123bc34d8ef34"}, {"leet1234code234"}, {"a1b01c001"}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: word = "a123bc34d8ef34"
+     *  Output: 3
+     *
+     *  Input: word = "leet1234code234"
+     *  Output: 2
+     *
+     *  Input: word = "a1b01c001"
+     *  Output: 1
+     */
 
     int answer = 0;
     int i;

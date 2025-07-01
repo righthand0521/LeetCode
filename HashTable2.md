@@ -4219,6 +4219,205 @@ int secondHighest(char* s) {
 
 </details>
 
+## [1805. Number of Different Integers in a String](https://leetcode.com/problems/number-of-different-integers-in-a-string/)  1333
+
+- [Official](https://leetcode.cn/problems/number-of-different-integers-in-a-string/solutions/2006870/zi-fu-chuan-zhong-bu-tong-zheng-shu-de-s-vxly/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string word that consists of digits and lowercase English letters.
+
+You will replace every non-digit character with a space. For example, "a123bc34d8ef34" will become " 123  34 8  34".
+Notice that you are left with some integers that are separated by at least one space: "123", "34", "8", and "34".
+
+Return the number of different integers after performing the replacement operations on word.
+
+Two integers are considered different if their decimal representations without any leading zeros are different.
+
+Example 1:
+Input: word = "a123bc34d8ef34"
+Output: 3
+Explanation: The three different integers are "123", "34", and "8". Notice that "34" is only counted once.
+
+Example 2:
+Input: word = "leet1234code234"
+Output: 2
+
+Example 3:
+Input: word = "a1b01c001"
+Output: 1
+Explanation: The three integers "1", "01", and "001" all represent the same integer because
+the leading zeros are ignored when comparing their decimal values.
+
+Constraints:
+1 <= word.length <= 1000
+word consists of digits and lowercase English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Try to split the string so that each integer is in a different string.
+2. Try to remove each integer's leading zeroes and compare the strings to find how many of them are unique.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    char *key;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *current;
+    struct hashTable *tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%s\n", pFree->key);
+        HASH_DEL(pFree, current);
+        free(current->key);
+        free(current);
+    }
+}
+int numDifferentIntegers(char *word) {
+    int retVal = 0;
+
+    struct hashTable *pHashTable = NULL;
+    struct hashTable *pTemp;
+    char *pKey;
+
+    int wordSize = strlen(word);
+    int left = 0, right;
+    while (1) {
+        while ((left < wordSize) && (isdigit(word[left]) == 0)) {
+            left++;
+        }
+        if (left == wordSize) {
+            break;
+        }
+
+        right = left;
+        while ((right < wordSize) && (isdigit(word[right]) != 0)) {
+            right++;
+        }
+
+        while ((right - left > 1) && (word[left] == '0')) {
+            left++;
+        }
+        pKey = (char *)malloc((right - left + 1) * sizeof(char));
+        if (pKey == NULL) {
+            perror("malloc");
+            break;
+        }
+        strncpy(pKey, word + left, right - left);
+        pKey[right - left] = '\0';
+        pTemp = NULL;
+        HASH_FIND_STR(pHashTable, pKey, pTemp);
+        if (pTemp == NULL) {
+            pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                break;
+            }
+            pTemp->key = pKey;
+            HASH_ADD_STR(pHashTable, key, pTemp);
+        } else {
+            free(pKey);
+            pKey = NULL;
+        }
+
+        left = right;
+    }
+
+    retVal = HASH_COUNT(pHashTable);
+    freeAll(pHashTable);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int numDifferentIntegers(string word) {
+        int retVal = 0;
+
+        unordered_set<string> hashTable;
+
+        int wordSize = word.size();
+        int left = 0;
+        while (true) {
+            while ((left < wordSize) && (isdigit(word[left]) == false)) {
+                left++;
+            }
+            if (left == wordSize) {
+                break;
+            }
+
+            int right = left;
+            while ((right < wordSize) && (isdigit(word[right]) == true)) {
+                right++;
+            }
+
+            while ((right - left > 1) && (word[left] == '0')) {
+                left++;
+            }
+            hashTable.insert(word.substr(left, right - left));
+
+            left = right;
+        }
+
+        retVal = hashTable.size();
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def numDifferentIntegers(self, word: str) -> int:
+        retVal = 0
+
+        hashTable = set()
+
+        wordSize = len(word)
+        left = 0
+        while True:
+            while (left < wordSize) and (word[left].isdigit() == False):
+                left += 1
+            if left == wordSize:
+                break
+
+            right = left
+            while (right < wordSize) and (word[right].isdigit() == True):
+                right += 1
+
+            while (right - left > 1) and (word[left] == '0'):
+                left += 1
+            hashTable.add(word[left:right])
+
+            left = right
+
+        retVal = len(hashTable)
+
+        return retVal
+```
+
+</details>
+
 ## [1807. Evaluate the Bracket Pairs of a String](https://leetcode.com/problems/evaluate-the-bracket-pairs-of-a-string/)  1481
 
 - [Official](https://leetcode.cn/problems/evaluate-the-bracket-pairs-of-a-string/solutions/2055952/ti-huan-zi-fu-chuan-zhong-de-gua-hao-nei-y8d3/)
