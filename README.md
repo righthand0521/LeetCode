@@ -521,6 +521,13 @@
 
 </details>
 
+<details><summary>Find the K-th Character in String Game</summary>
+
+- [3304. Find the K-th Character in String Game I](https://leetcode.com/problems/find-the-k-th-character-in-string-game-i/)
+- [3307. Find the K-th Character in String Game II](https://leetcode.com/problems/find-the-k-th-character-in-string-game-ii/)
+
+</details>
+
 ## Prefix Sum
 
 <details><summary>Find Pivot Index</summary>
