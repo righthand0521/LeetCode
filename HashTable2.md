@@ -1655,7 +1655,7 @@ class Solution:
 
 ## [1394. Find Lucky Integer in an Array](https://leetcode.com/problems/find-lucky-integer-in-an-array)  1118
 
-- [Official](https://leetcode.cn/problems/find-lucky-integer-in-an-array/solutions/186438/zhao-chu-shu-zu-zhong-de-xing-yun-shu-by-leetcode-/)
+- [Official](https://leetcode.cn/problems/find-lucky-integer-in-an-array/solutions/186438/zhao-chu-shu-zu-zhong-de-xing-yun-shu-by-leetcode/)
 
 <details><summary>Description</summary>
 
@@ -1684,32 +1684,120 @@ Constraints:
 1 <= arr[i] <= 500
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. Count the frequency of each integer in the array.
+2. Get all lucky numbers and return the largest of them.
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
 
 ```c
-int findLucky(int* arr, int arrSize) {
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *current;
+    struct hashTable *tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int findLucky(int *arr, int arrSize) {
     int retVal = -1;
 
-#define MAX_HASH_SIZE (500 + 1)
-    int HashTable[MAX_HASH_SIZE];
-    memset(HashTable, 0, sizeof(HashTable));
+    struct hashTable *pHashTable = NULL;
+    struct hashTable *pTemp;
+    int key;
+    for (int i = 0; i < arrSize; ++i) {
+        key = arr[i];
 
-    int i;
-    for (i = 0; i < arrSize; ++i) {
-        ++HashTable[arr[i]];
-    }
-
-    for (i = (MAX_HASH_SIZE - 1); i > 0; --i) {
-        if (i == HashTable[i]) {
-            retVal = i;
-            break;
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTable, &key, pTemp);
+        if (pTemp == NULL) {
+            pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                freeAll(pHashTable);
+                return retVal;
+            }
+            pTemp->key = key;
+            pTemp->value = 1;
+            HASH_ADD_INT(pHashTable, key, pTemp);
+        } else {
+            pTemp->value += 1;
         }
     }
 
+    struct hashTable *pCurrent = NULL;
+    pTemp = NULL;
+    HASH_ITER(hh, pHashTable, pCurrent, pTemp) {
+        if (pCurrent->key == pCurrent->value) {
+            retVal = fmax(retVal, pCurrent->key);
+        }
+        HASH_DEL(pHashTable, pCurrent);
+        free(pCurrent);
+        pCurrent = NULL;
+    }
+
+    //
+    freeAll(pHashTable);
+
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int findLucky(vector<int>& arr) {
+        int retVal = -1;
+
+        unordered_map<int, int> hashTable;
+        for (int value : arr) {
+            hashTable[value]++;
+        }
+        for (const auto& [key, count] : hashTable) {
+            if (key == count) {
+                retVal = max(retVal, key);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def findLucky(self, arr: List[int]) -> int:
+        retVal = -1
+
+        hashTable = defaultdict(int)
+        for value in arr:
+            hashTable[value] += 1
+        for key, count in hashTable.items():
+            if key == count:
+                retVal = max(retVal, key)
+
+        return retVal
 ```
 
 </details>
