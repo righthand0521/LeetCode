@@ -4945,6 +4945,259 @@ public:
 
 </details>
 
+## [1865. Finding Pairs With a Certain Sum](https://leetcode.com/problems/finding-pairs-with-a-certain-sum/)  1680
+
+- [Official](https://leetcode.com/problems/finding-pairs-with-a-certain-sum/editorial/)
+- [Official](https://leetcode.cn/problems/finding-pairs-with-a-certain-sum/solutions/779095/zhao-chu-he-wei-zhi-ding-zhi-de-xia-biao-m17s/)
+
+<details><summary>Description</summary>
+
+```text
+You are given two integer arrays nums1 and nums2.
+You are tasked to implement a data structure that supports queries of two types:
+1. Add a positive integer to an element of a given index in the array nums2.
+2. Count the number of pairs (i, j)
+   such that nums1[i] + nums2[j] equals a given value (0 <= i < nums1.length and 0 <= j < nums2.length).
+
+Implement the FindSumPairs class:
+- FindSumPairs(int[] nums1, int[] nums2)
+  Initializes the FindSumPairs object with two integer arrays nums1 and nums2.
+- void add(int index, int val)
+  Adds val to nums2[index], i.e., apply nums2[index] += val.
+- int count(int tot)
+  Returns the number of pairs (i, j) such that nums1[i] + nums2[j] == tot.
+
+Example 1:
+Input
+["FindSumPairs", "count", "add", "count", "count", "add", "add", "count"]
+[[[1, 1, 2, 2, 2, 3], [1, 4, 5, 2, 5, 4]], [7], [3, 2], [8], [4], [0, 1], [1, 1], [7]]
+Output
+[null, 8, null, 2, 1, null, null, 11]
+Explanation
+FindSumPairs findSumPairs = new FindSumPairs([1, 1, 2, 2, 2, 3], [1, 4, 5, 2, 5, 4]);
+findSumPairs.count(7);  // return 8; pairs (2,2), (3,2), (4,2), (2,4), (3,4), (4,4)
+                           make 2 + 5 and pairs (5,1), (5,5) make 3 + 4
+findSumPairs.add(3, 2); // now nums2 = [1,4,5,4,5,4]
+findSumPairs.count(8);  // return 2; pairs (5,2), (5,4) make 3 + 5
+findSumPairs.count(4);  // return 1; pair (5,0) makes 3 + 1
+findSumPairs.add(0, 1); // now nums2 = [2,4,5,4,5,4]
+findSumPairs.add(1, 1); // now nums2 = [2,5,5,4,5,4]
+findSumPairs.count(7);  // return 11; pairs (2,1), (2,2), (2,4), (3,1), (3,2), (3,4), (4,1), (4,2), (4,4)
+                           make 2 + 5 and pairs (5,3), (5,5) make 3 + 4
+
+Constraints:
+1 <= nums1.length <= 1000
+1 <= nums2.length <= 10^5
+1 <= nums1[i] <= 10^9
+1 <= nums2[i] <= 10^5
+0 <= index < nums2.length
+1 <= val <= 10^5
+1 <= tot <= 10^9
+At most 1000 calls are made to add and count each.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. The length of nums1 is small in comparison to that of nums2
+2. If we iterate over elements of nums1 we just need to find the count of tot - element for all elements in nums1
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#ifndef HASHTABLE_H
+#define HASHTABLE_H
+
+typedef struct {
+    int key;
+    int val;
+    UT_hash_handle hh;
+} HashItem;
+HashItem *hashFindItem(HashItem **obj, int key) {
+    HashItem *pEntry = NULL;
+    HASH_FIND_INT(*obj, &key, pEntry);
+    return pEntry;
+}
+bool hashAddItem(HashItem **obj, int key, int val) {
+    if (hashFindItem(obj, key)) {
+        return false;
+    }
+    HashItem *pEntry = (HashItem *)malloc(sizeof(HashItem));
+    pEntry->key = key;
+    pEntry->val = val;
+    HASH_ADD_INT(*obj, key, pEntry);
+    return true;
+}
+bool hashSetItem(HashItem **obj, int key, int val) {
+    HashItem *pEntry = hashFindItem(obj, key);
+    if (!pEntry) {
+        hashAddItem(obj, key, val);
+    } else {
+        pEntry->val = val;
+    }
+    return true;
+}
+int hashGetItem(HashItem **obj, int key, int defaultVal) {
+    HashItem *pEntry = hashFindItem(obj, key);
+    if (!pEntry) {
+        return defaultVal;
+    }
+    return pEntry->val;
+}
+void hashFree(HashItem **obj) {
+    HashItem *curr = NULL, *tmp = NULL;
+    HASH_ITER(hh, *obj, curr, tmp) {
+        HASH_DEL(*obj, curr);
+        free(curr);
+    }
+}
+
+#endif  // HASHTABLE_H
+typedef struct {
+    int *nums1;
+    int nums2Size;
+    int *nums2;
+    int nums1Size;
+    HashItem *frequency;
+} FindSumPairs;
+FindSumPairs *findSumPairsCreate(int *nums1, int nums1Size, int *nums2, int nums2Size) {
+    FindSumPairs *pObj = NULL;
+
+    pObj = (FindSumPairs *)malloc(sizeof(FindSumPairs));
+    if (pObj == NULL) {
+        perror("malloc");
+        return pObj;
+    }
+    pObj->nums1 = nums1;
+    pObj->nums1Size = nums1Size;
+    pObj->nums2 = nums2;
+    pObj->nums2Size = nums2Size;
+    pObj->frequency = NULL;
+    for (int i = 0; i < nums2Size; i++) {
+        hashSetItem(&pObj->frequency, nums2[i], hashGetItem(&pObj->frequency, nums2[i], 0) + 1);
+    }
+
+    return pObj;
+}
+void findSumPairsAdd(FindSumPairs *obj, int index, int val) {
+    hashSetItem(&obj->frequency, obj->nums2[index], hashGetItem(&obj->frequency, obj->nums2[index], 0) - 1);
+    obj->nums2[index] += val;
+    hashSetItem(&obj->frequency, obj->nums2[index], hashGetItem(&obj->frequency, obj->nums2[index], 0) + 1);
+}
+int findSumPairsCount(FindSumPairs *obj, int tot) {
+    int retVal = 0;
+
+    for (int i = 0; i < obj->nums1Size; i++) {
+        int rest = tot - obj->nums1[i];
+        if (hashFindItem(&obj->frequency, rest)) {
+            retVal += hashGetItem(&obj->frequency, rest, 0);
+        }
+    }
+
+    return retVal;
+}
+void findSumPairsFree(FindSumPairs *obj) {
+    hashFree(&obj->frequency);
+    free(obj);
+}
+/**
+ * Your FindSumPairs struct will be instantiated and called as such:
+ * FindSumPairs* obj = findSumPairsCreate(nums1, nums1Size, nums2, nums2Size);
+ * findSumPairsAdd(obj, index, val);
+ * int param_2 = findSumPairsCount(obj, tot);
+ * findSumPairsFree(obj);
+ */
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class FindSumPairs {
+   private:
+    vector<int> nums1;
+    vector<int> nums2;
+    unordered_map<int, int> frequency;
+
+   public:
+    FindSumPairs(vector<int>& nums1, vector<int>& nums2) {
+        this->nums1 = nums1;
+        this->nums2 = nums2;
+        for (int num : nums2) {
+            ++frequency[num];
+        }
+    }
+    void add(int index, int val) {
+        --frequency[nums2[index]];
+        nums2[index] += val;
+        ++frequency[nums2[index]];
+    }
+    int count(int tot) {
+        int retVal = 0;
+
+        for (int num : nums1) {
+            int value = tot - num;
+            if (frequency.count(value)) {
+                retVal += frequency[value];
+            }
+        }
+
+        return retVal;
+    }
+};
+/**
+ * Your FindSumPairs object will be instantiated and called as such:
+ * FindSumPairs* obj = new FindSumPairs(nums1, nums2);
+ * obj->add(index,val);
+ * int param_2 = obj->count(tot);
+ */
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class FindSumPairs:
+    def __init__(self, nums1: List[int], nums2: List[int]):
+        self.nums1 = nums1
+        self.nums2 = nums2
+        self.frequency = Counter(nums2)
+
+    def add(self, index: int, val: int) -> None:
+        _nums2 = self.nums2
+        _frequency = self.frequency
+
+        _frequency[_nums2[index]] -= 1
+        _nums2[index] += val
+        _frequency[_nums2[index]] += 1
+
+    def count(self, tot: int) -> int:
+        retVal = 0
+
+        _nums1 = self.nums1
+        _frequency = self.frequency
+        for num in _nums1:
+            value = tot - num
+            if value in _frequency:
+                retVal += _frequency[value]
+
+        return retVal
+
+# Your FindSumPairs object will be instantiated and called as such:
+# obj = FindSumPairs(nums1, nums2)
+# obj.add(index,val)
+# param_2 = obj.count(tot)
+```
+
+</details>
+
 ## [1897. Redistribute Characters to Make All Strings Equal](https://leetcode.com/problems/redistribute-characters-to-make-all-strings-equal/)  1309
 
 - [Official](https://leetcode.com/problems/redistribute-characters-to-make-all-strings-equal/editorial/)
