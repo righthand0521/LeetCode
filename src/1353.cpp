@@ -7,7 +7,6 @@ using namespace std;
 
 class Solution {
    public:
-    // https://leetcode.com/problems/maximum-number-of-events-that-can-be-attended/solutions/510263/java-c-python-priority-queue/
     int maxEvents(vector<vector<int>>& events) {
         int retVal = 0;
 

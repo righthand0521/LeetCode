@@ -365,6 +365,168 @@ class Solution:
 
 </details>
 
+## [1353. Maximum Number of Events That Can Be Attended](https://leetcode.com/problems/maximum-number-of-events-that-can-be-attended/)  2015
+
+- [Official](https://leetcode.com/problems/maximum-number-of-events-that-can-be-attended/editorial/)
+- [Official](https://leetcode.cn/problems/maximum-number-of-events-that-can-be-attended/solutions/101227/zui-duo-ke-yi-can-jia-de-hui-yi-shu-mu-by-leetcode/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an array of events where events[i] = [startDayi, endDayi].
+Every event i starts at startDayi and ends at endDayi.
+
+You can attend an event i at any day d where startTimei <= d <= endTimei.
+You can only attend one event at any time d.
+
+Return the maximum number of events you can attend.
+
+Example 1:
+Input: events = [[1,2],[2,3],[3,4]]
+Output: 3
+Explanation: You can attend all the three events.
+One way to attend them all is as shown.
+Attend the first event on day 1.
+Attend the second event on day 2.
+Attend the third event on day 3.
+
+Example 2:
+Input: events= [[1,2],[2,3],[3,4],[1,2]]
+Output: 4
+
+Constraints:
+1 <= events.length <= 10^5
+events[i].length == 2
+1 <= startDayi <= endDayi <= 10^5
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Sort the events by the start time and in case of tie by the end time in ascending order.
+2. Loop over the sorted events. Attend as much as you can and keep the last day occupied.
+   When you try to attend new event keep in mind the first day you can attend a new event in.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareIntArray(const void* a1, const void* a2) {
+    int* p1 = *(int**)a1;
+    int* p2 = *(int**)a2;
+
+    // ascending order
+    return (p1[1] > p2[1]);
+}
+int maxEvents(int** events, int eventsSize, int* eventsColSize) {
+    int retVal = 0;
+
+    qsort(events, eventsSize, sizeof(int*), compareIntArray);
+
+#define MAX_EVENTS_SIZE (100000 + 4)  // 1 <= events.length <= 10^5
+    int* hash = (int*)calloc(MAX_EVENTS_SIZE, sizeof(int));
+    if (hash == NULL) {
+        perror("calloc");
+        return retVal;
+    }
+
+    int temp = 0;
+    int prev = 0;
+    int i, j;
+    for (i = 0; i < eventsSize; ++i) {
+        j = (events[i][0] >= prev) ? (fmax(events[i][0], temp)) : (events[i][0]);
+        while (j <= events[i][1]) {
+            if (hash[j] == 0) {
+                hash[j] = 1;
+                temp = j + 1;
+                prev = events[i][0];
+                ++retVal;
+                break;
+            }
+
+            ++j;
+        }
+    }
+
+    free(hash);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maxEvents(vector<vector<int>>& events) {
+        int retVal = 0;
+
+        sort(events.begin(), events.end());
+
+        int eventsIndex = 0;
+        int eventsSize = events.size();
+        int startDay = 0;
+        priority_queue<int, vector<int>, greater<int>> minHeap;
+        while ((minHeap.size() > 0) || (eventsIndex < eventsSize)) {
+            if (minHeap.size() == 0) {
+                startDay = events[eventsIndex][0];
+            }
+
+            while ((eventsIndex < eventsSize) && (events[eventsIndex][0] <= startDay)) {
+                minHeap.push(events[eventsIndex++][1]);
+            }
+
+            minHeap.pop();
+            ++retVal;
+            ++startDay;
+            while ((minHeap.size() > 0) && (minHeap.top() < startDay)) {
+                minHeap.pop();
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxEvents(self, events: List[List[int]]) -> int:
+        retVal = 0
+
+        events.sort(reverse=1)
+
+        minHeap = []
+        startDay = 0
+        while events or minHeap:
+            if not minHeap:
+                startDay = events[-1][0]
+
+            while events and events[-1][0] <= startDay:
+                heappush(minHeap, events.pop()[1])
+
+            heappop(minHeap)
+            retVal += 1
+            startDay += 1
+            while minHeap and minHeap[0] < startDay:
+                heappop(minHeap)
+
+        return retVal
+```
+
+</details>
+
 ## [1402. Reducing Dishes](https://leetcode.com/problems/reducing-dishes/)  1679
 
 - [Official](https://leetcode.cn/problems/reducing-dishes/solutions/198214/zuo-cai-shun-xu-by-leetcode-solution/)

@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-// https://leetcode.cn/problems/maximum-number-of-events-that-can-be-attended/solutions/732656/1353-zui-duo-ke-yi-can-jia-de-hui-yi-shu-zrks/
 int compareIntArray(const void* a1, const void* a2) {
     int* p1 = *(int**)a1;
     int* p2 = *(int**)a2;
