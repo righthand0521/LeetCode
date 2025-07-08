@@ -28,15 +28,12 @@ class Solution:
             return retVal
 
         if events[index][0] <= previousEndDay:
-            retVal = self.dfs(events, eventsSize, k, dp,
-                              index + 1, count, previousEndDay)
+            retVal = self.dfs(events, eventsSize, k, dp, index + 1, count, previousEndDay)
         elif dp[count][index] != -1:
             retVal = dp[count][index]
         else:
-            ans1 = self.dfs(events, eventsSize, k, dp,
-                            index + 1, count, previousEndDay)
-            ans2 = self.dfs(events, eventsSize, k, dp, index + 1,
-                            count + 1, events[index][1]) + events[index][2]
+            ans1 = self.dfs(events, eventsSize, k, dp, index + 1, count, previousEndDay)
+            ans2 = self.dfs(events, eventsSize, k, dp, index + 1, count + 1, events[index][1]) + events[index][2]
             retVal = max(ans1, ans2)
             dp[count][index] = retVal
 
@@ -52,8 +49,7 @@ class Solution:
         index = 0
         count = 0
         previousEndDay = -1
-        retVal = self.dfs(events, eventsSize, k, dp,
-                          index, count, previousEndDay)
+        retVal = self.dfs(events, eventsSize, k, dp, index, count, previousEndDay)
 
         return retVal
 
@@ -66,10 +62,11 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for events, k in zip([[[1, 2, 4], [3, 4, 3], [2, 3, 1]],
-                              [[1, 2, 4], [3, 4, 3], [2, 3, 10]],
-                              [[1, 1, 1], [2, 2, 2], [3, 3, 3], [4, 4, 4]]],
-                             [2, 2, 3]):
+        for events, k in [
+            [[[1, 2, 4], [3, 4, 3], [2, 3, 1]], 2],
+            [[[1, 2, 4], [3, 4, 3], [2, 3, 10]], 2],
+            [[[1, 1, 1], [2, 2, 2], [3, 3, 3], [4, 4, 4]], 3]
+        ]:
             # /* Example
             #  *  Input: events = [[1,2,4],[3,4,3],[2,3,1]], k = 2
             #  *  Output: 7
@@ -87,12 +84,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

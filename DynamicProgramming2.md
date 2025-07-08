@@ -7158,6 +7158,7 @@ int maxHeight(int** cuboids, int cuboidsSize, int* cuboidsColSize) {
 ## [1751. Maximum Number of Events That Can Be Attended II](https://leetcode.com/problems/maximum-number-of-events-that-can-be-attended-ii/)  2040
 
 - [Official](https://leetcode.com/problems/maximum-number-of-events-that-can-be-attended-ii/editorial/)
+- [Official](https://leetcode.cn/problems/maximum-number-of-events-that-can-be-attended-ii/solutions/3702630/zui-duo-ke-yi-can-jia-de-hui-yi-shu-mu-i-icul/)
 
 <details><summary>Description</summary>
 
