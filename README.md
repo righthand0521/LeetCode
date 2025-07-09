@@ -409,6 +409,13 @@
 
 </details>
 
+<details><summary>Reschedule Meetings for Maximum Free Time</summary>
+
+- [3439. Reschedule Meetings for Maximum Free Time I](https://leetcode.com/problems/reschedule-meetings-for-maximum-free-time-i/)
+- [3440. Reschedule Meetings for Maximum Free Time II](https://leetcode.com/problems/reschedule-meetings-for-maximum-free-time-ii/)
+
+</details>
+
 ## Hash Table
 
 <details><summary>Merge Two 2D Arrays</summary>
