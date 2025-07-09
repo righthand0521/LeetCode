@@ -811,3 +811,140 @@ class Solution:
 ```
 
 </details>
+
+## [3439. Reschedule Meetings for Maximum Free Time I](https://leetcode.com/problems/reschedule-meetings-for-maximum-free-time-i/)  1728
+
+- [Official](https://leetcode.com/problems/reschedule-meetings-for-maximum-free-time-i/editorial/)
+- [Official](https://leetcode.cn/problems/reschedule-meetings-for-maximum-free-time-i/solutions/3712357/zhong-xin-an-pai-hui-yi-de-dao-zui-duo-k-wm8c/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer eventTime denoting the duration of an event,
+where the event occurs from time t = 0 to time t = eventTime.
+
+You are also given two integer arrays startTime and endTime, each of length n.
+These represent the start and end time of n non-overlapping meetings,
+where the ith meeting occurs during the time [startTime[i], endTime[i]].
+
+You can reschedule at most k meetings by moving their start time while maintaining the same duration,
+to maximize the longest continuous period of free time during the event.
+
+The relative order of all the meetings should stay the same and they should remain non-overlapping.
+
+Return the maximum amount of free time possible after rearranging the meetings.
+
+Note that the meetings can not be rescheduled to a time outside the event.
+
+Example 1:
+Input: eventTime = 5, k = 1, startTime = [1,3], endTime = [2,5]
+Output: 2
+Explanation:
+Reschedule the meeting at [1, 2] to [2, 3], leaving no meetings during the time [0, 2].
+
+Example 2:
+Input: eventTime = 10, k = 1, startTime = [0,2,9], endTime = [1,4,10]
+Output: 6
+Explanation:
+Reschedule the meeting at [2, 4] to [1, 3], leaving no meetings during the time [3, 9].
+
+Example 3:
+Input: eventTime = 5, k = 2, startTime = [0,1,2,3,4], endTime = [1,2,3,4,5]
+Output: 0
+Explanation:
+There is no time during the event not occupied by meetings.
+
+Constraints:
+1 <= eventTime <= 10^9
+n == startTime.length == endTime.length
+2 <= n <= 10^5
+1 <= k <= n
+0 <= startTime[i] < endTime[i] <= eventTime
+endTime[i] <= startTime[i + 1] where i lies in the range [0, n - 2].
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. In a sequence of K meetings and K + 1 gaps,
+   you could move all meetings to the start of the sequence to get the max free time.
+2. Use a sliding window of K + 1 size to store sum of gaps and take the maximum.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int maxFreeTime(int eventTime, int k, int* startTime, int startTimeSize, int* endTime, int endTimeSize) {
+    int retVal = 0;
+
+    int t = 0, left, right;
+    for (int i = 0; i < startTimeSize; i++) {
+        t += (endTime[i] - startTime[i]);
+        left = (i <= k - 1) ? (0) : (endTime[i - k]);
+        right = (i == startTimeSize - 1) ? (eventTime) : (startTime[i + 1]);
+        if (right - left - t > retVal) {
+            retVal = right - left - t;
+        }
+        if (i >= k - 1) {
+            t -= (endTime[i - k + 1] - startTime[i - k + 1]);
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maxFreeTime(int eventTime, int k, vector<int>& startTime, vector<int>& endTime) {
+        int retVal = 0;
+
+        int startTimeSize = startTime.size();
+        int t = 0;
+        for (int i = 0; i < startTimeSize; i++) {
+            t += (endTime[i] - startTime[i]);
+            int left = (i <= k - 1) ? (0) : (endTime[i - k]);
+            int right = (i == startTimeSize - 1) ? (eventTime) : (startTime[i + 1]);
+            retVal = max(retVal, right - left - t);
+            if (i >= k - 1) {
+                t -= (endTime[i - k + 1] - startTime[i - k + 1]);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxFreeTime(self, eventTime: int, k: int, startTime: List[int], endTime: List[int]) -> int:
+        retVal = 0
+
+        startTimeSize = len(startTime)
+        t = 0
+        for i in range(startTimeSize):
+            t += (endTime[i] - startTime[i])
+            left = 0 if i <= k - 1 else endTime[i - k]
+            right = eventTime if i == startTimeSize - 1 else startTime[i + 1]
+            retVal = max(retVal, right - left - t)
+            if i >= k - 1:
+                t -= (endTime[i - k + 1] - startTime[i - k + 1])
+
+        return retVal
+```
+
+</details>
