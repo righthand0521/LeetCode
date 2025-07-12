@@ -7673,6 +7673,312 @@ class Solution:
 
 </details>
 
+## [1900. The Earliest and Latest Rounds Where Players Compete](https://leetcode.com/problems/the-earliest-and-latest-rounds-where-players-compete/)  2454
+
+- [Official](https://leetcode.com/problems/the-earliest-and-latest-rounds-where-players-compete/editorial/)
+- [Official](https://leetcode.cn/problems/the-earliest-and-latest-rounds-where-players-compete/solutions/826013/zui-jia-yun-dong-yuan-de-bi-pin-hui-he-b-lhuo/)
+
+<details><summary>Description</summary>
+
+```text
+There is a tournament where n players are participating.
+The players are standing in a single row and are numbered from 1 to n based on their initial standing position
+(player 1 is the first player in the row, player 2 is the second player in the row, etc.).
+
+The tournament consists of multiple rounds (starting from round number 1).
+In each round, the ith player from the front of the row competes against the ith player from the end of the row,
+and the winner advances to the next round.
+When the number of players is odd for the current round,
+the player in the middle automatically advances to the next round.
+- For example, if the row consists of players 1, 2, 4, 6, 7
+  - Player 1 competes against player 7.
+  - Player 2 competes against player 6.
+  - Player 4 automatically advances to the next round.
+
+After each round is over,
+the winners are lined back up in the row based on the original ordering assigned to them initially (ascending order).
+
+The players numbered firstPlayer and secondPlayer are the best in the tournament.
+They can win against any other player before they compete against each other.
+If any two other players compete against each other, either of them might win,
+and thus you may choose the outcome of this round.
+
+Given the integers n, firstPlayer, and secondPlayer, return an integer array containing two values,
+the earliest possible round number and the latest possible round number
+in which these two players will compete against each other, respectively.
+
+Example 1:
+Input: n = 11, firstPlayer = 2, secondPlayer = 4
+Output: [3,4]
+Explanation:
+One possible scenario which leads to the earliest round number:
+First round: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+Second round: 2, 3, 4, 5, 6, 11
+Third round: 2, 3, 4
+One possible scenario which leads to the latest round number:
+First round: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+Second round: 1, 2, 3, 4, 5, 6
+Third round: 1, 2, 4
+Fourth round: 2, 4
+
+Example 2:
+Input: n = 5, firstPlayer = 1, secondPlayer = 5
+Output: [1,1]
+Explanation: The players numbered 1 and 5 compete in the first round.
+There is no way to make them compete in any other round.
+
+Constraints:
+2 <= n <= 28
+1 <= firstPlayer < secondPlayer <= n
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Brute force using bitmasks and simulate the rounds.
+2. Calculate each state one time and save its solution.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define DP_SIZE (30)  // 2 <= n <= 28, 1 <= firstPlayer < secondPlayer <= n.
+int F[DP_SIZE][DP_SIZE][DP_SIZE] = {0};
+int G[DP_SIZE][DP_SIZE][DP_SIZE] = {0};
+void dp(int n, int f, int s, int* earliest, int* latest) {
+    if (F[n][f][s]) {
+        *earliest = F[n][f][s];
+        *latest = G[n][f][s];
+        return;
+    }
+
+    if (f + s == n + 1) {
+        (*earliest) = 1;
+        (*latest) = 1;
+        return;
+    }
+
+    // F(n,f,s) = F(n,n+1-s,n+1-f)
+    int x, y;
+    if (f + s > n + 1) {
+        dp(n, n + 1 - s, n + 1 - f, &x, &y);
+        F[n][f][s] = x;
+        G[n][f][s] = y;
+        (*earliest) = x;
+        (*latest) = y;
+        return;
+    }
+
+    int minEarliest = INT_MAX;
+    int maxLatest = INT_MIN;
+    int nHalf = (n + 1) / 2;
+    int sPrime, middle;
+    int i, j;
+    if (s <= nHalf) {  // On the left or in the middle
+        for (i = 0; i < f; ++i) {
+            for (j = 0; j < s - f; ++j) {
+                dp(nHalf, i + 1, i + j + 2, &x, &y);
+                if (x < minEarliest) {
+                    minEarliest = x;
+                }
+                if (y > maxLatest) {
+                    maxLatest = y;
+                }
+            }
+        }
+    } else {  // s on the right
+        sPrime = n + 1 - s;
+        middle = (n - 2 * sPrime + 1) / 2;
+        for (i = 0; i < f; ++i) {
+            for (j = 0; j < sPrime - f; ++j) {
+                dp(nHalf, i + 1, i + j + middle + 2, &x, &y);
+                if (x < minEarliest) {
+                    minEarliest = x;
+                }
+                if (y > maxLatest) {
+                    maxLatest = y;
+                }
+            }
+        }
+    }
+
+    F[n][f][s] = minEarliest + 1;
+    G[n][f][s] = maxLatest + 1;
+    (*earliest) = F[n][f][s];
+    (*latest) = G[n][f][s];
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* earliestAndLatest(int n, int firstPlayer, int secondPlayer, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+    pRetVal = (int*)malloc(2 * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+
+    // F(n,f,s) = F(n,s,f)
+    int temp;
+    if (firstPlayer > secondPlayer) {
+        temp = firstPlayer;
+        firstPlayer = secondPlayer;
+        secondPlayer = temp;
+    }
+
+    int earliest, latest;
+    dp(n, firstPlayer, secondPlayer, &earliest, &latest);
+    pRetVal[0] = earliest;
+    pRetVal[1] = latest;
+    (*returnSize) = 2;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    static const int dpSize = 30;  // 2 <= n <= 28, 1 <= firstPlayer < secondPlayer <= n.
+    int F[dpSize][dpSize][dpSize];
+    int G[dpSize][dpSize][dpSize];
+
+   public:
+    pair<int, int> dp(int n, int f, int s) {
+        pair<int, int> retVal;
+
+        if (F[n][f][s]) {
+            retVal = {F[n][f][s], G[n][f][s]};
+            return retVal;
+        }
+
+        if (f + s == n + 1) {
+            retVal = {1, 1};
+            return retVal;
+        }
+
+        // F(n,f,s)=F(n,n+1-s,n+1-f)
+        if (f + s > n + 1) {
+            tie(F[n][f][s], G[n][f][s]) = dp(n, n + 1 - s, n + 1 - f);
+            retVal = {F[n][f][s], G[n][f][s]};
+            return retVal;
+        }
+
+        int earliest = numeric_limits<int>::max();
+        int latest = numeric_limits<int>::min();
+        int nHalf = (n + 1) / 2;
+
+        // On the left or in the middle
+        if (s <= nHalf) {
+            for (int i = 0; i < f; ++i) {
+                for (int j = 0; j < s - f; ++j) {
+                    auto [x, y] = dp(nHalf, i + 1, i + j + 2);
+                    earliest = min(earliest, x);
+                    latest = max(latest, y);
+                }
+            }
+        } else {  // s on the right
+            int sPrime = n + 1 - s;
+            int middle = (n - 2 * sPrime + 1) / 2;
+            for (int i = 0; i < f; ++i) {
+                for (int j = 0; j < sPrime - f; ++j) {
+                    auto [x, y] = dp(nHalf, i + 1, i + j + middle + 2);
+                    earliest = min(earliest, x);
+                    latest = max(latest, y);
+                }
+            }
+        }
+
+        retVal = {F[n][f][s] = earliest + 1, G[n][f][s] = latest + 1};
+
+        return retVal;
+    }
+
+    vector<int> earliestAndLatest(int n, int firstPlayer, int secondPlayer) {
+        vector<int> retVal;
+
+        // F(n,f,s) = F(n,s,f)
+        if (firstPlayer > secondPlayer) {
+            swap(firstPlayer, secondPlayer);
+        }
+
+        memset(F, 0, sizeof(F));
+        memset(G, 0, sizeof(G));
+        auto [earliest, latest] = dp(n, firstPlayer, secondPlayer);
+        retVal = {earliest, latest};
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    @cache
+    def dp(self, n: int, f: int, s: int) -> List[int]:
+        retVal = []
+
+        if f + s == n + 1:
+            retVal = [1, 1]
+            return retVal
+
+        # F(n,f,s)=F(n,n+1-s,n+1-f)
+        if f + s > n + 1:
+            retVal = self.dp(n, n + 1 - s, n + 1 - f)
+            return retVal
+
+        earliest = float("inf")
+        latest = float("-inf")
+        nHalf = (n + 1) // 2
+
+        if s <= nHalf:  # s On the left or in the middle
+            for i in range(f):
+                for j in range(s - f):
+                    tmp = self.dp(nHalf, i + 1, i + j + 2)
+                    earliest = min(earliest, tmp[0])
+                    latest = max(latest, tmp[1])
+        else:  # s on the right
+            sPrime = n + 1 - s
+            middle = (n - 2 * sPrime + 1) // 2
+            for i in range(f):
+                for j in range(sPrime - f):
+                    tmp = self.dp(nHalf, i + 1, i + j + middle + 2)
+                    earliest = min(earliest, tmp[0])
+                    latest = max(latest, tmp[1])
+
+        retVal = [earliest + 1, latest + 1]
+
+        return retVal
+
+    def earliestAndLatest(self, n: int, firstPlayer: int, secondPlayer: int) -> List[int]:
+        retVal = []
+
+        # F(n,f,s) = F(n,s,f)
+        if firstPlayer > secondPlayer:
+            firstPlayer, secondPlayer = secondPlayer, firstPlayer
+
+        retVal = self.dp(n, firstPlayer, secondPlayer)
+        self.dp.cache_clear()
+
+        return retVal
+```
+
+</details>
+
 ## [1931. Painting a Grid With Three Different Colors](https://leetcode.com/problems/painting-a-grid-with-three-different-colors/)  2170
 
 - [Official](https://leetcode.com/problems/painting-a-grid-with-three-different-colors/editorial/)
