@@ -416,6 +416,13 @@
 
 </details>
 
+<details><summary>Assign Cookies</summary>
+
+- [455. Assign Cookies](https://leetcode.com/problems/assign-cookies/)
+- [2410. Maximum Matching of Players With Trainers](https://leetcode.com/problems/maximum-matching-of-players-with-trainers/)
+
+</details>
+
 ## Hash Table
 
 <details><summary>Merge Two 2D Arrays</summary>

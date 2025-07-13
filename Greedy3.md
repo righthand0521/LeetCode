@@ -1662,6 +1662,7 @@ class Solution:
 
 ## [2410. Maximum Matching of Players With Trainers](https://leetcode.com/problems/maximum-matching-of-players-with-trainers/)  1381
 
+- [Official](https://leetcode.com/problems/maximum-matching-of-players-with-trainers/editorial/)
 - [Official](https://leetcode.cn/problems/maximum-matching-of-players-with-trainers/solutions/1850596/yun-dong-yuan-he-xun-lian-shi-de-zui-da-3icgd/)
 
 <details><summary>Description</summary>
@@ -1697,6 +1698,8 @@ Each player can only be matched with one trainer, so the maximum answer is 1.
 Constraints:
 1 <= players.length, trainers.length <= 10^5
 1 <= players[i], trainers[j] <= 10^9
+
+Note: This question is the same as 445: Assign Cookies.
 ```
 
 <details><summary>Hint</summary>
