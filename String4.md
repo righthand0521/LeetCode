@@ -241,6 +241,165 @@ class Solution:
 
 </details>
 
+## [3136. Valid Word](https://leetcode.com/problems/valid-word/)  1249
+
+- [Official](https://leetcode.com/problems/valid-word/editorial/)
+- [Official](https://leetcode.cn/problems/valid-word/solutions/3717148/you-xiao-dan-ci-by-leetcode-solution-qege/)
+
+<details><summary>Description</summary>
+
+```text
+A word is considered valid if:
+- It contains a minimum of 3 characters.
+- It contains only digits (0-9), and English letters (uppercase and lowercase).
+- It includes at least one vowel.
+- It includes at least one consonant.
+
+You are given a string word.
+
+Return true if word is valid, otherwise, return false.
+
+Notes:
+- 'a', 'e', 'i', 'o', 'u', and their uppercases are vowels.
+- A consonant is an English letter that is not a vowel.
+
+Example 1:
+Input: word = "234Adas"
+Output: true
+Explanation:
+This word satisfies the conditions.
+
+Example 2:
+Input: word = "b3"
+Output: false
+Explanation:
+The length of this word is fewer than 3, and does not have a vowel.
+
+Example 3:
+Input: word = "a3$e"
+Output: false
+Explanation:
+This word contains a '$' character and does not have a consonant.
+
+Constraints:
+1 <= word.length <= 20
+word consists of English uppercase and lowercase letters, digits, '@', '#', and '$'.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use if-else to check all the conditions.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool isValid(char* word) {
+    bool retVal = false;
+
+    int wordSize = strlen(word);
+    if (wordSize < 3) {
+        return retVal;
+    }
+
+    bool hasVowel = false;
+    bool hasConsonant = false;
+    for (int i = 0; i < wordSize; ++i) {
+        char c = word[i];
+        if (isalpha(c)) {
+            c = tolower(c);
+            if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u') {
+                hasVowel = true;
+            } else {
+                hasConsonant = true;
+            }
+        } else if (isdigit(c)) {
+            continue;
+        } else {
+            return retVal;
+        }
+    }
+    retVal = hasVowel && hasConsonant;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool isValid(string word) {
+        bool retVal = false;
+
+        int wordSize = word.size();
+        if (wordSize < 3) {
+            return retVal;
+        }
+
+        bool hasVowel = false;
+        bool hasConsonant = false;
+        for (char c : word) {
+            if (isalpha(c)) {
+                c = tolower(c);
+                if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u') {
+                    hasVowel = true;
+                } else {
+                    hasConsonant = true;
+                }
+            } else if (isdigit(c)) {
+                continue;
+            } else {
+                return retVal;
+            }
+        }
+        retVal = hasVowel && hasConsonant;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def isValid(self, word: str) -> bool:
+        retVal = False
+
+        wordSize = len(word)
+        if wordSize < 3:
+            return retVal
+
+        hasVowel = False
+        hasConsonant = False
+        for c in word:
+            if c.isalpha():
+                if c.lower() in "aeiou":
+                    hasVowel = True
+                else:
+                    hasConsonant = True
+            elif c.isdigit():
+                continue
+            else:
+                return retVal
+        retVal = hasVowel and hasConsonant
+
+        return retVal
+```
+
+</details>
+
 ## [3163. String Compression III](https://leetcode.com/problems/string-compression-iii/)  2697
 
 - [Official](https://leetcode.com/problems/string-compression-iii/editorial/)
