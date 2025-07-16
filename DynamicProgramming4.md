@@ -124,6 +124,118 @@ class Solution:
 
 </details>
 
+## [3202. Find the Maximum Length of Valid Subsequence II](https://leetcode.com/problems/find-the-maximum-length-of-valid-subsequence-ii/)  1973
+
+- [Official](https://leetcode.com/problems/find-the-maximum-length-of-valid-subsequence-ii/editorial/)
+- [Official](https://leetcode.cn/problems/find-the-maximum-length-of-valid-subsequence-ii/solutions/3718001/zhao-chu-you-xiao-zi-xu-lie-de-zui-da-ch-6s7c/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array nums and a positive integer k.
+
+A subsequence sub of nums with length x is called valid if it satisfies:
+- (sub[0] + sub[1]) % k == (sub[1] + sub[2]) % k == ... == (sub[x - 2] + sub[x - 1]) % k.
+
+Return the length of the longest valid subsequence of nums.
+
+Example 1:
+Input: nums = [1,2,3,4,5], k = 2
+Output: 5
+Explanation:
+The longest valid subsequence is [1, 2, 3, 4, 5].
+
+Example 2:
+Input: nums = [1,4,2,3,1,4], k = 3
+Output: 4
+Explanation:
+The longest valid subsequence is [1, 4, 1, 4].
+
+Constraints:
+2 <= nums.length <= 10^3
+1 <= nums[i] <= 10^7
+1 <= k <= 10^3
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Fix the value of (subs[0] + subs[1]) % k from the k possible values. Let it be val.
+2. Let dp[i] store the maximum length of a subsequence with its last element x such that x % k == i.
+3. Answer for a subsequence ending at index y is dp[(k + val - (y % k)) % k] + 1.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int maximumLength(int* nums, int numsSize, int k) {
+    int retVal = 0;
+
+    int dp[k][k];
+    memset(dp, 0, sizeof(dp));
+    for (int i = 0; i < numsSize; i++) {
+        int num = nums[i] % k;
+        for (int prev = 0; prev < k; prev++) {
+            dp[prev][num] = dp[num][prev] + 1;
+            if (dp[prev][num] > retVal) {
+                retVal = dp[prev][num];
+            }
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maximumLength(vector<int>& nums, int k) {
+        int retVal = 0;
+
+        vector<vector<int>> dp(k, vector<int>(k, 0));
+        for (int num : nums) {
+            num %= k;
+            for (int prev = 0; prev < k; ++prev) {
+                dp[prev][num] = dp[num][prev] + 1;
+                retVal = max(retVal, dp[prev][num]);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maximumLength(self, nums: List[int], k: int) -> int:
+        retVal = 0
+
+        dp = [[0] * k for _ in range(k)]
+        for num in nums:
+            num %= k
+            for prev in range(k):
+                dp[prev][num] = dp[num][prev] + 1
+                retVal = max(retVal, dp[prev][num])
+
+        return retVal
+```
+
+</details>
+
 ## [3333. Find the Original Typed String II](https://leetcode.com/problems/find-the-original-typed-string-ii/)  2628
 
 - [Official](https://leetcode.com/problems/find-the-original-typed-string-ii/editorial/)

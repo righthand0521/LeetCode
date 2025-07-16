@@ -311,6 +311,13 @@
 
 </details>
 
+<details><summary>Find the Maximum Length of Valid Subsequence</summary>
+
+- [3201. Find the Maximum Length of Valid Subsequence I](https://leetcode.com/problems/find-the-maximum-length-of-valid-subsequence-i/)
+- [3202. Find the Maximum Length of Valid Subsequence II](https://leetcode.com/problems/find-the-maximum-length-of-valid-subsequence-ii/)
+
+</details>
+
 ## Graph
 
 <details><summary>Topological Sort</summary>
