@@ -1,5 +1,129 @@
 # Dynamic Programming
 
+## [3201. Find the Maximum Length of Valid Subsequence I](https://leetcode.com/problems/find-the-maximum-length-of-valid-subsequence-i/)  1663
+
+- [Official](https://leetcode.com/problems/find-the-maximum-length-of-valid-subsequence-i/editorial/)
+- [Official](https://leetcode.cn/problems/find-the-maximum-length-of-valid-subsequence-i/solutions/3717152/zhao-chu-you-xiao-zi-xu-lie-de-zui-da-ch-1n3j/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array nums.
+
+A subsequence sub of nums with length x is called valid if it satisfies:
+- (sub[0] + sub[1]) % 2 == (sub[1] + sub[2]) % 2 == ... == (sub[x - 2] + sub[x - 1]) % 2.
+
+Return the length of the longest valid subsequence of nums.
+
+A subsequence is an array that can be derived from another array
+by deleting some or no elements without changing the order of the remaining elements.
+
+Example 1:
+Input: nums = [1,2,3,4]
+Output: 4
+Explanation:
+The longest valid subsequence is [1, 2, 3, 4].
+
+Example 2:
+Input: nums = [1,2,1,1,2,1,2]
+Output: 6
+Explanation:
+The longest valid subsequence is [1, 2, 1, 2, 1, 2].
+
+Example 3:
+Input: nums = [1,3]
+Output: 2
+Explanation:
+The longest valid subsequence is [1, 3].
+
+Constraints:
+2 <= nums.length <= 2 * 10^5
+1 <= nums[i] <= 10^7
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. The possible sequence either contains all even elements, all odd elements,
+   alternate even odd, or alternate odd even elements.
+2. Considering only the parity of elements, there are only 4 possibilities and we can try all of them.
+3. When selecting an element with any parity, try to select the earliest one.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int maximumLength(int* nums, int numsSize) {
+    int retVal = 0;
+
+    int patterns[4][2] = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
+    for (int i = 0; i < 4; i++) {
+        int cnt = 0;
+        for (int j = 0; j < numsSize; j++) {
+            if (nums[j] % 2 == patterns[i][cnt % 2]) {
+                cnt++;
+            }
+        }
+        if (cnt > retVal) {
+            retVal = cnt;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maximumLength(vector<int>& nums) {
+        int retVal = 0;
+
+        vector<vector<int>> patterns = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
+        for (auto& pattern : patterns) {
+            int cnt = 0;
+            for (int num : nums) {
+                if (num % 2 == pattern[cnt % 2]) {
+                    cnt++;
+                }
+            }
+            retVal = max(retVal, cnt);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maximumLength(self, nums: List[int]) -> int:
+        retVal = 0
+
+        for pattern in [[0, 0], [0, 1], [1, 0], [1, 1]]:
+            cnt = 0
+            for num in nums:
+                if num % 2 == pattern[cnt % 2]:
+                    cnt += 1
+            retVal = max(retVal, cnt)
+
+        return retVal
+```
+
+</details>
+
 ## [3333. Find the Original Typed String II](https://leetcode.com/problems/find-the-original-typed-string-ii/)  2628
 
 - [Official](https://leetcode.com/problems/find-the-original-typed-string-ii/editorial/)
