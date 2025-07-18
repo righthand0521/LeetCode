@@ -5085,6 +5085,366 @@ class Solution:
 
 </details>
 
+## [2163. Minimum Difference in Sums After Removal of Elements](https://leetcode.com/problems/minimum-difference-in-sums-after-removal-of-elements/)  2225
+
+- [Official](https://leetcode.com/problems/minimum-difference-in-sums-after-removal-of-elements/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-difference-in-sums-after-removal-of-elements/solutions/1249409/shan-chu-yuan-su-hou-he-de-zui-xiao-chai-ah0j/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed integer array nums consisting of 3 * n elements.
+
+You are allowed to remove any subsequence of elements of size exactly n from nums.
+The remaining 2 * n elements will be divided into two equal parts:
+- The first n elements belonging to the first part and their sum is sumfirst.
+- The next n elements belonging to the second part and their sum is sumsecond.
+
+The difference in sums of the two parts is denoted as sumfirst - sumsecond.
+- For example, if sumfirst = 3 and sumsecond = 2, their difference is 1.
+- Similarly, if sumfirst = 2 and sumsecond = 3, their difference is -1.
+
+Return the minimum difference possible between the sums of the two parts after the removal of n elements.
+
+Example 1:
+Input: nums = [3,1,2]
+Output: -1
+Explanation:
+Here, nums has 3 elements, so n = 1.
+Thus we have to remove 1 element from nums and divide the array into two equal parts.
+- If we remove nums[0] = 3, the array will be [1,2]. The difference in sums of the two parts will be 1 - 2 = -1.
+- If we remove nums[1] = 1, the array will be [3,2]. The difference in sums of the two parts will be 3 - 2 = 1.
+- If we remove nums[2] = 2, the array will be [3,1]. The difference in sums of the two parts will be 3 - 1 = 2.
+The minimum difference between sums of the two parts is min(-1,1,2) = -1.
+
+Example 2:
+Input: nums = [7,9,5,8,1,3]
+Output: 1
+Explanation:
+Here n = 2. So we must remove 2 elements and divide the remaining array into two parts containing two elements each.
+If we remove nums[2] = 5 and nums[3] = 8, the resultant array will be [7,9,1,3].
+The difference in sums will be (7+9) - (1+3) = 12.
+To obtain the minimum difference, we should remove nums[1] = 9 and nums[4] = 1.
+The resultant array becomes [7,5,8,3]. The difference in sums of the two parts is (7+5) - (8+3) = 1.
+It can be shown that it is not possible to obtain a difference smaller than 1.
+
+Constraints:
+nums.length == 3 * n
+1 <= n <= 10^5
+1 <= nums[i] <= 10^5
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. The lowest possible difference can be obtained when the sum of the first n elements in the resultant array is minimum,
+   and the sum of the next n elements is maximum.
+2. For every index i,
+   think about how you can find the minimum possible sum of n elements with indices lesser or equal to i, if possible.
+3. Similarly, for every index i,
+   try to find the maximum possible sum of n elements with indices greater or equal to i, if possible.
+4. Now for all indices, check if we can consider it as the partitioning index and hence find the answer.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#ifndef PRIORITY_QUEUE_H
+#define PRIORITY_QUEUE_H
+
+#define MIN_QUEUE_SIZE (64)
+
+typedef struct Element {
+    int data[1];
+} Element;
+typedef bool (*compare)(const void *, const void *);
+typedef struct PriorityQueue {
+    Element *arr;
+    int capacity;
+    int queueSize;
+    compare lessFunc;
+} PriorityQueue;
+
+Element *createElement(int x, int y) {
+    Element *pObj = NULL;
+
+    pObj = (Element *)malloc(sizeof(Element));
+    if (pObj == NULL) {
+        perror("malloc");
+        return pObj;
+    }
+    pObj->data[0] = x;
+    pObj->data[1] = y;
+
+    return pObj;
+}
+static bool less(const void *a, const void *b) {
+    bool retVal = false;
+
+    Element *e1 = (Element *)a;
+    Element *e2 = (Element *)b;
+    retVal = (e1->data[0] > e2->data[0]);
+
+    return retVal;
+}
+static bool greater(const void *a, const void *b) {
+    bool retVal = false;
+
+    Element *e1 = (Element *)a;
+    Element *e2 = (Element *)b;
+    retVal = (e1->data[0] < e2->data[0]);
+
+    return retVal;
+}
+static void memswap(void *m1, void *m2, size_t size) {
+    unsigned char *a = (unsigned char *)m1;
+    unsigned char *b = (unsigned char *)m2;
+    while (size--) {
+        *b = *b ^ *a;
+        *a = *b ^ *a;
+        *b = *b ^ *a;
+        a++;
+        b++;
+    }
+}
+static void swap(Element *arr, int i, int j) {
+    //
+    memswap(&arr[i], &arr[j], sizeof(Element));
+}
+static void down(Element *arr, int size, int i, compare cmpFunc) {
+    for (int k = 2 * i + 1; k < size; k = 2 * k + 1) {
+        if (k + 1 < size && cmpFunc(&arr[k], &arr[k + 1])) {
+            k++;
+        }
+        if (cmpFunc(&arr[k], &arr[(k - 1) / 2])) {
+            break;
+        }
+        swap(arr, k, (k - 1) / 2);
+    }
+}
+PriorityQueue *createPriorityQueue(compare cmpFunc) {
+    PriorityQueue *pObj = NULL;
+
+    pObj = (PriorityQueue *)malloc(sizeof(PriorityQueue));
+    if (pObj == NULL) {
+        perror("malloc");
+        return pObj;
+    }
+    pObj->capacity = MIN_QUEUE_SIZE;
+    pObj->arr = (Element *)malloc(sizeof(Element) * pObj->capacity);
+    if (pObj->arr == NULL) {
+        perror("malloc");
+        return pObj;
+    }
+    pObj->queueSize = 0;
+    pObj->lessFunc = cmpFunc;
+
+    return pObj;
+}
+void heapfiy(PriorityQueue *obj) {
+    for (int i = obj->queueSize / 2 - 1; i >= 0; i--) {
+        down(obj->arr, obj->queueSize, i, obj->lessFunc);
+    }
+}
+void enQueue(PriorityQueue *obj, Element *e) {
+    // we need to alloc more space, just twice space size
+    if (obj->queueSize == obj->capacity) {
+        obj->capacity *= 2;
+        obj->arr = realloc(obj->arr, sizeof(Element) * obj->capacity);
+    }
+    memcpy(&obj->arr[obj->queueSize], e, sizeof(Element));
+    for (int i = obj->queueSize; i > 0 && obj->lessFunc(&obj->arr[(i - 1) / 2], &obj->arr[i]); i = (i - 1) / 2) {
+        swap(obj->arr, i, (i - 1) / 2);
+    }
+    obj->queueSize++;
+}
+Element *deQueue(PriorityQueue *obj) {
+    Element *pRetVal = NULL;
+
+    swap(obj->arr, 0, obj->queueSize - 1);
+    down(obj->arr, obj->queueSize - 1, 0, obj->lessFunc);
+    pRetVal = &obj->arr[obj->queueSize - 1];
+    obj->queueSize--;
+
+    return pRetVal;
+}
+bool isEmpty(const PriorityQueue *obj) {
+    bool retVal = (obj->queueSize == 0);
+
+    return retVal;
+}
+Element *front(const PriorityQueue *obj) {
+    Element *pRetVal = NULL;
+
+    if (obj->queueSize != 0) {
+        pRetVal = &obj->arr[0];
+    }
+
+    return pRetVal;
+}
+void clear(PriorityQueue *obj) {
+    //
+    obj->queueSize = 0;
+}
+int size(const PriorityQueue *obj) {
+    int retVal = obj->queueSize;
+
+    return retVal;
+}
+void freeQueue(PriorityQueue *obj) {
+    free(obj->arr);
+    obj->arr = NULL;
+    free(obj);
+    obj = NULL;
+}
+
+#endif  // PRIORITY_QUEUE_H
+long long minimumDifference(int *nums, int numsSize) {
+    long long retVal = 0;
+
+    int n = numsSize / 3;
+
+    // max heap
+    long long sum = 0;
+    PriorityQueue *maxHeap = createPriorityQueue(greater);
+    for (int i = 0; i < n; ++i) {
+        sum += nums[i];
+        Element e;
+        e.data[0] = nums[i];
+        enQueue(maxHeap, &e);
+    }
+    long long part1[n + 1];
+    memset(part1, 0, sizeof(part1));
+    part1[0] = sum;
+    for (int i = n; i < n * 2; ++i) {
+        sum += nums[i];
+        Element e;
+        e.data[0] = nums[i];
+        enQueue(maxHeap, &e);
+        sum -= front(maxHeap)->data[0];
+        deQueue(maxHeap);
+        part1[i - (n - 1)] = sum;
+    }
+    freeQueue(maxHeap);
+
+    // min heap
+    long long part2 = 0;
+    PriorityQueue *minHeap = createPriorityQueue(less);
+    for (int i = n * 3 - 1; i >= n * 2; --i) {
+        part2 += nums[i];
+        Element e;
+        e.data[0] = nums[i];
+        enQueue(minHeap, &e);
+    }
+    retVal = part1[n] - part2;
+    for (int i = n * 2 - 1; i >= n; --i) {
+        part2 += nums[i];
+        Element e;
+        e.data[0] = nums[i];
+        enQueue(minHeap, &e);
+        part2 -= front(minHeap)->data[0];
+        deQueue(minHeap);
+        retVal = fmin(retVal, part1[i - n] - part2);
+    }
+    freeQueue(minHeap);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    long long minimumDifference(vector<int>& nums) {
+        long long retVal = 0;
+
+        int n = nums.size() / 3;
+
+        // max heap
+        long long sum = 0;
+        priority_queue<int> maxHeap;
+        for (int i = 0; i < n; ++i) {
+            sum += nums[i];
+            maxHeap.push(nums[i]);
+        }
+        vector<long long> part1(n + 1);
+        part1[0] = sum;
+        for (int i = n; i < n * 2; ++i) {
+            sum += nums[i];
+            maxHeap.push(nums[i]);
+            sum -= maxHeap.top();
+            maxHeap.pop();
+            part1[i - (n - 1)] = sum;
+        }
+
+        // min heap
+        long long part2 = 0;
+        priority_queue<int, vector<int>, greater<int>> minHeap;
+        for (int i = n * 3 - 1; i >= n * 2; --i) {
+            part2 += nums[i];
+            minHeap.push(nums[i]);
+        }
+        retVal = part1[n] - part2;
+        for (int i = n * 2 - 1; i >= n; --i) {
+            part2 += nums[i];
+            minHeap.push(nums[i]);
+            part2 -= minHeap.top();
+            minHeap.pop();
+            retVal = min(retVal, part1[i - n] - part2);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minimumDifference(self, nums: List[int]) -> int:
+        retVal = 0
+
+        n = len(nums) // 3
+
+        # max heap
+        total = sum(nums[:n])
+        part1 = [0] * (n + 1)
+        part1[0] = total
+        maxHeap = [-x for x in nums[:n]]
+        heapify(maxHeap)
+        for i in range(n, n * 2):
+            total += nums[i]
+            heappush(maxHeap, -nums[i])
+            total -= -heappop(maxHeap)
+            part1[i - (n - 1)] = total
+
+        # min heap
+        part2 = sum(nums[n * 2:])
+        minHeap = nums[n * 2:]
+        heapify(minHeap)
+        retVal = part1[n] - part2
+        for i in range(n * 2 - 1, n - 1, -1):
+            part2 += nums[i]
+            heappush(minHeap, nums[i])
+            part2 -= heappop(minHeap)
+            retVal = min(retVal, part1[i - n] - part2)
+
+        return retVal
+```
+
+</details>
+
 ## [2336. Smallest Number in Infinite Set](https://leetcode.com/problems/smallest-number-in-infinite-set/)  1375
 
 <details><summary>Description</summary>
