@@ -1860,6 +1860,290 @@ class Solution:
 
 </details>
 
+## [1948. Delete Duplicate Folders in System](https://leetcode.com/problems/delete-duplicate-folders-in-system/)  2533
+
+- [Official](https://leetcode.com/problems/delete-duplicate-folders-in-system/editorial/)
+- [Official](https://leetcode.cn/problems/delete-duplicate-folders-in-system/solutions/895642/shan-chu-xi-tong-zhong-de-zhong-fu-wen-j-ic32/)
+
+<details><summary>Description</summary>
+
+```text
+Due to a bug, there are many duplicate folders in a file system.
+You are given a 2D array paths, where paths[i] is an array
+representing an absolute path to the ith folder in the file system.
+- For example, ["one", "two", "three"] represents the path "/one/two/three".
+
+Two folders (not necessarily on the same level) are identical
+if they contain the same non-empty set of identical subfolders and underlying subfolder structure.
+The folders do not need to be at the root level to be identical.
+If two or more folders are identical, then mark the folders as well as all their subfolders.
+- For example, folders "/a" and "/b" in the file structure below are identical.
+  They (as well as their subfolders) should all be marked:
+  - /a
+  - /a/x
+  - /a/x/y
+  - /a/z
+  - /b
+  - /b/x
+  - /b/x/y
+  - /b/z
+- However, if the file structure also included the path "/b/w", then the folders "/a" and "/b" would not be identical.
+  Note that "/a/x" and "/b/x" would still be considered identical even with the added folder.
+
+Once all the identical folders and their subfolders have been marked, the file system will delete all of them.
+The file system only runs the deletion once,
+so any folders that become identical after the initial deletion are not deleted.
+
+Return the 2D array ans containing the paths of the remaining folders after deleting all the marked folders.
+The paths may be returned in any order.
+
+Example 1:
+   /
+ / | \
+a  c  d
+|  |  |
+b  b  a
+Input: paths = [["a"],["c"],["d"],["a","b"],["c","b"],["d","a"]]
+Output: [["d"],["d","a"]]
+Explanation:
+The file structure is as shown.
+Folders "/a" and "/c" (and their subfolders) are marked for deletion because they both contain an empty
+folder named "b".
+
+Example 2:
+   /
+ / | \
+a  c  w
+|  |  |
+b  b  y
+|
+x
+|
+y
+Input: paths = [["a"],["c"],["a","b"],["c","b"],["a","b","x"],["a","b","x","y"],["w"],["w","y"]]
+Output: [["c"],["c","b"],["a"],["a","b"]]
+Explanation:
+The file structure is as shown.
+Folders "/a/b/x" and "/w" (and their subfolders) are marked for deletion
+because they both contain an empty folder named "y".
+Note that folders "/a" and "/c" are identical after the deletion,
+but they are not deleted because they were not marked beforehand.
+
+Example 3:
+  /
+ / \
+a   c
+|   |
+b   d
+Input: paths = [["a","b"],["c","d"],["c"],["a"]]
+Output: [["c"],["c","d"],["a"],["a","b"]]
+Explanation:
+All folders are unique in the file system.
+Note that the returned array can be in a different order as the order does not matter.
+
+Constraints:
+1 <= paths.length <= 2 * 10^4
+1 <= paths[i].length <= 500
+1 <= paths[i][j].length <= 10
+1 <= sum(paths[i][j].length) <= 2 * 10^5
+path[i][j] consists of lowercase English letters.
+No two paths lead to the same folder.
+For any folder not at the root level, its parent folder will also be in the input.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Can we use a trie to build the folder structure?
+2. Can we utilize hashing to hash the folder structures?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+char*** deleteDuplicateFolder(char*** paths, int pathsSize, int* pathsColSize, int* returnSize,
+                              int** returnColumnSizes) {
+    char*** pRetVal = NULL;
+
+    (*returnSize) = 0;
+    (*returnColumnSizes) = NULL;
+
+    // TODO: Delete Duplicate Folders in System
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+struct Trie {
+    string serial;                          // current node structure's serialized representation
+    unordered_map<string, Trie*> children;  // current node's child nodes
+};
+class Solution {
+   private:
+    // post-order traversal based on depth-first search, calculate the serialized representation of each node structure
+    void construct(Trie* node, unordered_map<string, int>& frequency) {
+        // if it is a leaf node, then the serialization is represented as an empty string, and no operation is required.
+        if (node->children.empty()) {
+            return;
+        }
+
+        // if it is not a leaf node,
+        // the serialization representation of the child node structure needs to be calculated first.
+        vector<string> v;
+        for (const auto& [folder, child] : node->children) {
+            construct(child, frequency);
+            v.push_back(folder + "(" + child->serial + ")");
+        }
+
+        // to prevent issues with order, sorting is needed
+        sort(v.begin(), v.end());
+        for (string& s : v) {
+            node->serial += move(s);
+        }
+
+        // add to hash table
+        ++frequency[node->serial];
+    };
+    void operate(Trie* node, unordered_map<string, int>& frequency, vector<string>& path,
+                 vector<vector<string>>& retVal) {
+        // if the serialization appears more than once in the hash table, it needs to be deleted.
+        if (frequency[node->serial] > 1) {
+            return;
+        }
+
+        // otherwise add the path to the answer
+        if (path.empty() == false) {
+            retVal.push_back(path);
+        }
+
+        for (const auto& [folder, child] : node->children) {
+            path.push_back(folder);
+            operate(child, frequency, path, retVal);
+            path.pop_back();
+        }
+    };
+
+   public:
+    vector<vector<string>> deleteDuplicateFolder(vector<vector<string>>& paths) {
+        vector<vector<string>> retVal;
+
+        // root node
+        Trie* root = new Trie();
+        for (const vector<string>& path : paths) {
+            Trie* current = root;
+            for (const string& node : path) {
+                if (!current->children.count(node)) {
+                    current->children[node] = new Trie();
+                }
+                current = current->children[node];
+            }
+        }
+
+        // hash table records the occurrence times of each serialized representation
+        unordered_map<string, int> frequency;
+        construct(root, frequency);
+
+        // record the path from the root node to the current node.
+        vector<string> path;
+        operate(root, frequency, path, retVal);
+
+        // free memory
+        for (const auto& [folder, child] : root->children) {
+            delete child;
+        }
+        delete root;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Trie:
+    serial: str = ""  # current node structure's serialized representation
+    children: dict  # current node's child nodes
+
+    def __init__(self):
+        self.children = dict()
+
+
+class Solution:
+    # post-order traversal based on depth-first search, calculate the serialized representation of each node structure
+    def construct(self, node: Trie, frequency: Counter) -> None:
+        # if it is a leaf node, then the serialization is represented as an empty string, and no operation is required.
+        if not node.children:
+            return
+
+        # if it is not a leaf node, the serialization representation of the child node structure needs to be calculated first.
+        v = list()
+        for folder, child in node.children.items():
+            self.construct(child, frequency)
+            v.append(folder + "(" + child.serial + ")")
+
+        # to prevent issues with order, sorting is needed
+        v.sort()
+        node.serial = "".join(v)
+
+        # add to hash table
+        frequency[node.serial] += 1
+
+    def operate(self, node: Trie, frequency: Counter, path: List[str], retVal: List[List[str]]) -> None:
+        # if the serialization appears more than once in the hash table, it needs to be deleted.
+        if frequency[node.serial] > 1:
+            return
+
+        # otherwise add the path to the answer
+        if path:
+            retVal.append(path[:])
+
+        for folder, child in node.children.items():
+            path.append(folder)
+            self.operate(child, frequency, path, retVal)
+            path.pop()
+
+    def deleteDuplicateFolder(self, paths: List[List[str]]) -> List[List[str]]:
+        retVal = []
+
+        # root node
+        root = Trie()
+        for path in paths:
+            current = root
+            for node in path:
+                if node not in current.children:
+                    current.children[node] = Trie()
+                current = current.children[node]
+
+        # hash table records the occurrence times of each serialized representation
+        frequency = Counter()
+
+        self.construct(root, frequency)
+
+        path = list()  # record the path from the root node to the current node.
+        self.operate(root, frequency, path, retVal)
+
+        return retVal
+```
+
+</details>
+
 ## [2416. Sum of Prefix Scores of Strings](https://leetcode.com/problems/sum-of-prefix-scores-of-strings/)  1725
 
 - [Official](https://leetcode.com/problems/sum-of-prefix-scores-of-strings/editorial/)
