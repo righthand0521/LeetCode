@@ -4012,6 +4012,158 @@ class Solution:
 
 </details>
 
+## [1695. Maximum Erasure Value](https://leetcode.com/problems/maximum-erasure-value/)  1528
+
+- [Official](https://leetcode.cn/problems/maximum-erasure-value/solutions/3719982/shan-chu-zi-shu-zu-de-zui-da-de-fen-by-l-jp9y/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an array of positive integers nums and want to erase a subarray containing unique elements.
+The score you get by erasing the subarray is equal to the sum of its elements.
+
+Return the maximum score you can get by erasing exactly one subarray.
+
+An array b is called to be a subarray of a if it forms a contiguous subsequence of a,
+that is, if it is equal to a[l],a[l+1],...,a[r] for some (l,r).
+
+Example 1:
+Input: nums = [4,2,4,5,6]
+Output: 17
+Explanation: The optimal subarray here is [2,4,5,6].
+
+Example 2:
+Input: nums = [5,2,1,2,5,2,1,2,5]
+Output: 8
+Explanation: The optimal subarray here is [5,2,1] or [1,2,5].
+
+Constraints:
+1 <= nums.length <= 10^5
+1 <= nums[i] <= 10^4
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. The main point here is for the subarray to contain unique elements for each index.
+   Only the first subarrays starting from that index have unique elements.
+2. This can be solved using the two pointers technique
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *current;
+    struct hashTable *tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int maximumUniqueSubarray(int *nums, int numsSize) {
+    int retVal = 0;
+
+    int prefixsum[numsSize + 1];
+    memset(prefixsum, 0, sizeof(prefixsum));
+
+    struct hashTable *pHashTable = NULL;
+    struct hashTable *pTemp;
+    int previous = 0;
+    int num;
+    for (int i = 0; i < numsSize; ++i) {
+        prefixsum[i + 1] = prefixsum[i] + nums[i];
+
+        num = nums[i];
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTable, &num, pTemp);
+        if (pTemp == NULL) {
+            previous = fmax(previous, 0);
+
+            pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                break;
+            }
+            pTemp->key = nums[i];
+            pTemp->value = i + 1;
+            HASH_ADD_INT(pHashTable, key, pTemp);
+        } else {
+            previous = fmax(previous, pTemp->value);
+            pTemp->value = i + 1;
+        }
+        retVal = fmax(retVal, prefixsum[i + 1] - prefixsum[previous]);
+    }
+
+    //
+    freeAll(pHashTable);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maximumUniqueSubarray(vector<int>& nums) {
+        int retVal = 0;
+
+        int numsSize = nums.size();
+
+        vector<int> prefixsum(numsSize + 1);
+        unordered_map<int, int> frequency;
+        int previous = 0;
+        for (int i = 0; i < numsSize; ++i) {
+            prefixsum[i + 1] = prefixsum[i] + nums[i];
+            previous = max(previous, frequency[nums[i]]);
+            retVal = max(retVal, prefixsum[i + 1] - prefixsum[previous]);
+            frequency[nums[i]] = i + 1;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maximumUniqueSubarray(self, nums: List[int]) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+
+        prefixsum = [0] * (numsSize + 1)
+        frequency = {}
+        previous = 0
+        for i in range(numsSize):
+            prefixsum[i + 1] = prefixsum[i] + nums[i]
+            previous = max(previous, frequency.get(nums[i], 0))
+            retVal = max(retVal, prefixsum[i + 1] - prefixsum[previous])
+            frequency[nums[i]] = i + 1
+
+        return retVal
+```
+
+</details>
+
 ## [1726. Tuple with Same Product](https://leetcode.com/problems/tuple-with-same-product/)  1530
 
 - [Official](https://leetcode.com/problems/tuple-with-same-product/editorial/)
