@@ -954,3 +954,160 @@ class Solution:
 ```
 
 </details>
+
+## [3487. Maximum Unique Subarray Sum After Deletion](https://leetcode.com/problems/maximum-unique-subarray-sum-after-deletion/)  1399
+
+- [Official](https://leetcode.com/problems/maximum-unique-subarray-sum-after-deletion/editorial/)
+- [Official](https://leetcode.cn/problems/maximum-unique-subarray-sum-after-deletion/solutions/3724108/shan-chu-hou-de-zui-da-zi-shu-zu-yuan-su-b7l6/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array nums.
+
+You are allowed to delete any number of elements from nums without making it empty.
+After performing the deletions, select a subarray of nums such that:
+
+All elements in the subarray are unique.
+The sum of the elements in the subarray is maximized.
+Return the maximum sum of such a subarray.
+
+Example 1:
+Input: nums = [1,2,3,4,5]
+Output: 15
+Explanation:
+Select the entire array without deleting any element to obtain the maximum sum.
+
+Example 2:
+Input: nums = [1,1,0,1,1]
+Output: 1
+Explanation:
+Delete the element nums[0] == 1, nums[1] == 1, nums[2] == 0, and nums[3] == 1.
+Select the entire array [1] to obtain the maximum sum.
+
+Example 3:
+Input: nums = [1,2,-1,-2,1,0,-1]
+Output: 3
+Explanation:
+Delete the elements nums[2] == -1 and nums[3] == -2,
+and select the subarray [2, 1] from [1, 2, 1, 0, -1] to obtain the maximum sum.
+
+Constraints:
+1 <= nums.length <= 100
+-100 <= nums[i] <= 100
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. If the maximum element in the array is less than zero, the answer is the maximum element.
+2. Otherwise, the answer is the sum of all unique values that are greater than or equal to zero.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *current;
+    struct hashTable *tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d\n", pFree->key);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int maxSum(int *nums, int numsSize) {
+    int retVal = 0;
+
+    int maxNum = nums[0];
+    int sumOfPositiveNumsSet = 0;
+    struct hashTable *pPositiveNumsSet = NULL;
+    struct hashTable *pTemp;
+    int key;
+    for (int i = 0; i < numsSize; i++) {
+        maxNum = fmax(maxNum, nums[i]);
+
+        if (nums[i] <= 0) {
+            continue;
+        }
+
+        key = nums[i];
+        pTemp = NULL;
+        HASH_FIND_INT(pPositiveNumsSet, &key, pTemp);
+        if (pTemp != NULL) {
+            continue;
+        }
+        pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+        if (pTemp == NULL) {
+            perror("malloc");
+            goto exit;
+        }
+        pTemp->key = key;
+        HASH_ADD_INT(pPositiveNumsSet, key, pTemp);
+        sumOfPositiveNumsSet += key;
+    }
+
+    if (HASH_COUNT(pPositiveNumsSet) == 0) {
+        retVal = maxNum;
+    } else {
+        retVal = sumOfPositiveNumsSet;
+    }
+
+exit:
+    freeAll(pPositiveNumsSet);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maxSum(vector<int>& nums) {
+        int retVal = 0;
+
+        unordered_set<int> positiveNumsSet;
+        for (int num : nums) {
+            if (num > 0) {
+                positiveNumsSet.emplace(num);
+            }
+        }
+        if (positiveNumsSet.empty()) {
+            retVal = *max_element(nums.begin(), nums.end());
+        } else {
+            retVal = accumulate(positiveNumsSet.begin(), positiveNumsSet.end(), 0);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxSum(self, nums: List[int]) -> int:
+        retVal = 0
+
+        positiveNumsSet = set([num for num in nums if num > 0])
+        retVal = max(nums) if len(positiveNumsSet) == 0 else sum(positiveNumsSet)
+
+        return retVal
+```
+
+</details>
