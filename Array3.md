@@ -905,6 +905,9 @@ class Solution:
 
 ## [2210. Count Hills and Valleys in an Array](https://leetcode.com/problems/count-hills-and-valleys-in-an-array/)  1354
 
+- [Official](https://leetcode.com/problems/count-hills-and-valleys-in-an-array/editorial/)
+- [Official](https://leetcode.cn/problems/count-hills-and-valleys-in-an-array/solutions/1374467/tong-ji-shu-zu-zhong-feng-he-gu-de-shu-l-ca7e/)
+
 <details><summary>Description</summary>
 
 ```text
