@@ -52,11 +52,12 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for clips, time in zip(
-            [[[0, 2], [4, 6], [8, 10], [1, 9], [1, 5], [5, 9]],
-             [[0, 1], [1, 2]],
-             [[0, 1], [6, 8], [0, 2], [5, 6], [0, 4], [0, 3], [6, 7], [1, 3], [4, 7], [1, 4], [2, 5], [2, 6], [3, 4], [4, 5], [5, 7], [6, 9]]],
-                [10, 5, 9]):
+        for clips, time in [
+            [[[0, 2], [4, 6], [8, 10], [1, 9], [1, 5], [5, 9]], 10],
+            [[[0, 1], [1, 2]], 5],
+            [[[0, 1], [6, 8], [0, 2], [5, 6], [0, 4], [0, 3], [6, 7], [1, 3], [4, 7], [1, 4],
+              [2, 5], [2, 6], [3, 4], [4, 5], [5, 7], [6, 9]], 9]
+        ]:
             # /* Example
             #  *  Input: clips = [[0,2],[4,6],[8,10],[1,9],[1,5],[5,9]], time = 10
             #  *  Output: 3
@@ -74,12 +75,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

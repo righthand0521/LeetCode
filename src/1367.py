@@ -39,11 +39,11 @@ class Solution:
         retVal = False
 
         if head is None:
-            retVal= True
+            retVal = True
         elif root is None:
-            retVal= False
+            retVal = False
         elif head.val != root.val:
-            retVal= False
+            retVal = False
         else:
             retVal = self.dfs(head.next, root.left) or self.dfs(head.next, root.right)
 
@@ -97,12 +97,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

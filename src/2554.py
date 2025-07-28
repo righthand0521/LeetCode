@@ -62,20 +62,17 @@ if __name__ == "__main__":
             #  *  Input: banned = [11], n = 7, maxSum = 50
             #  *  Output: 7
             #  */
-            logging.info("Input: banned = %s, n = %s, maxSum = %s",
-                         banned, n, maxSum)
+            logging.info("Input: banned = %s, n = %s, maxSum = %s", banned, n, maxSum)
 
             retVal = pSolution.maxCount(banned, n, maxSum)
             logging.info("Output: %s", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

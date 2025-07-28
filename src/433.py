@@ -54,7 +54,8 @@ if __name__ == "__main__":
         for start, end, bank in zip(
             ["AACCGGTT", "AACCGGTT", "AAAAACCC"],
             ["AACCGGTA", "AAACGGTA", "AACCCCCC"],
-            [["AACCGGTA"], ["AACCGGTA", "AACCGCTA", "AAACGGTA"], ["AAAACCCC", "AAACCCCC", "AACCCCCC"]]):
+            [["AACCGGTA"], ["AACCGGTA", "AACCGCTA", "AAACGGTA"], ["AAAACCCC", "AAACCCCC", "AACCCCCC"]]
+        ):
             # /* Example
             #  *  Input: start = "AACCGGTT", end = "AACCGGTA", bank = ["AACCGGTA"]
             #  *  Output: 1
@@ -72,12 +73,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

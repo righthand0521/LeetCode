@@ -50,13 +50,11 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for n, flights, src, dst, k in zip([4, 3, 3],
-                                           [[[0, 1, 100], [1, 2, 100], [2, 0, 100], [1, 3, 600], [2, 3, 200]],
-                                            [[0, 1, 100], [1, 2, 100], [0, 2, 500]],
-                                            [[0, 1, 100], [1, 2, 100], [0, 2, 500]]],
-                                           [0, 0, 0],
-                                           [3, 2, 2],
-                                           [1, 1, 0]):
+        for n, flights, src, dst, k in [
+            [4, [[0, 1, 100], [1, 2, 100], [2, 0, 100], [1, 3, 600], [2, 3, 200]], 0, 3, 1],
+            [3, [[0, 1, 100], [1, 2, 100], [0, 2, 500]], 0, 2, 1],
+            [3, [[0, 1, 100], [1, 2, 100], [0, 2, 500]], 0, 2, 0]
+        ]:
             # /* Example
             #  *  Input: n = 4, flights = [[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]], src = 0, dst = 3, k = 1
             #  *  Output: 700
@@ -75,12 +73,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

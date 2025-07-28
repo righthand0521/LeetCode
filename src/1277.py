@@ -31,7 +31,7 @@ class Solution:
             for y in range(col):
                 if matrix[x][y] == 0:
                     continue
-                dp[x + 1][y + 1] = (min(dp[x][y + 1],dp[x + 1][y], dp[x][y]) + 1)
+                dp[x + 1][y + 1] = (min(dp[x][y + 1], dp[x + 1][y], dp[x][y]) + 1)
                 retVal += dp[x + 1][y + 1]
 
         return retVal
@@ -60,12 +60,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

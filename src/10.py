@@ -62,7 +62,7 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for s, p in zip(["aa", "aa", "ab"], ["a", "a*", ".*"]):
+        for s, p in [["aa", "a"], ["aa", "a*"], ["ab", ".*"]]:
             # /* Example
             #  *  Input: s = "aa", p = "a"
             #  *  Output: false

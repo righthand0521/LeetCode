@@ -56,8 +56,11 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for tokens in [["2", "1", "+", "3", "*"], ["4", "13", "5", "/", "+"],
-                       ["10", "6", "9", "3", "+", "-11", "*", "/", "*", "17", "+", "5", "+"]]:
+        for tokens in [
+            ["2", "1", "+", "3", "*"],
+            ["4", "13", "5", "/", "+"],
+            ["10", "6", "9", "3", "+", "-11", "*", "/", "*", "17", "+", "5", "+"]
+        ]:
             # /* Example
             #  *  Input: tokens = ["2","1","+","3","*"]
             #  *  Output: 9
@@ -75,12 +78,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

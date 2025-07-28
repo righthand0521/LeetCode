@@ -95,8 +95,7 @@ if __name__ == "__main__":
             #  *  Input: root = [1], target = 1, k = 3
             #  *  Output: []
             #  */
-            logging.info("Input: root = %s, target = %s, k = %s",
-                         root, target, k)
+            logging.info("Input: root = %s, target = %s, k = %s", root, target, k)
 
             root = TreeNode().buildTree(root)
             if target == 5:
@@ -108,12 +107,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

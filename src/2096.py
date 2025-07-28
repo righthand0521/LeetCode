@@ -104,8 +104,7 @@ if __name__ == "__main__":
             #  *  Input: root = [2,1], startValue = 2, destValue = 1
             #  *  Output: "L"
             #  */
-            logging.info(
-                "Input: root = %s, startValue = %s, destValue = %s", root, startValue, destValue)
+            logging.info("Input: root = %s, startValue = %s, destValue = %s", root, startValue, destValue)
 
             retVal = pSolution.getDirections(
                 TreeNode().buildTree(root), startValue, destValue)
@@ -113,12 +112,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

@@ -65,7 +65,7 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for x, n in zip([2.00000, 2.10000, 2.00000], [10, 3, -2]):
+        for x, n in [[2.00000, 10], [2.10000, 3], [2.00000, -2]]:
             # /* Example
             #  *  Input: x = 2.00000, n = 10
             #  *  Output: 1024.00000
@@ -83,12 +83,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

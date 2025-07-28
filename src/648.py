@@ -66,20 +66,17 @@ if __name__ == "__main__":
             #  *  Input: dictionary = ["a","b","c"], sentence = "aadsfasf absbs bbab cadsfafs"
             #  *  Output: "a a b c"
             #  */
-            logging.info("Input: dictionary = %s, sentence = \"%s\"",
-                         dictionary, sentence)
+            logging.info("Input: dictionary = %s, sentence = \"%s\"", dictionary, sentence)
 
             retVal = pSolution.replaceWords(dictionary, sentence)
             logging.info("Output: \"%s\"", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

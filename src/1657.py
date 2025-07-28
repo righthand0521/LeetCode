@@ -65,20 +65,17 @@ if __name__ == "__main__":
             #  *  Input: word1 = "uau", word2 = "ssx"
             #  *  Output: false
             #  */
-            logging.info(
-                "Input: word1 = \"%s\", word2 = \"%s\"", word1, word2)
+            logging.info("Input: word1 = \"%s\", word2 = \"%s\"", word1, word2)
 
             retVal = pSolution.closeStrings(word1, word2)
             logging.info("Output: %s", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

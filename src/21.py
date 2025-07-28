@@ -60,7 +60,7 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for l1, l2 in zip([[1, 2, 4], [], []], [[1, 3, 4], [], [0]]):
+        for l1, l2 in [[[1, 2, 4], [1, 3, 4]], [[], []], [[], [0]]]:
             # /* Example
             #  *  Input: list1 = [1,2,4], list2 = [1,3,4]
             #  *  Output: [1,1,2,3,4,4]
@@ -80,12 +80,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

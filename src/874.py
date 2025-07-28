@@ -84,20 +84,17 @@ if __name__ == "__main__":
             #  *  Input: commands = [6,-1,-1,6], obstacles = []
             #  *  Output: 36
             #  */
-            logging.info("Input: stones = %s, obstacles = %s",
-                         commands, obstacles)
+            logging.info("Input: commands = %s, obstacles = %s", commands, obstacles)
 
             retVal = pSolution.robotSim(commands, obstacles)
             logging.info("Output: %d", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

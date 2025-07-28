@@ -52,8 +52,7 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for pushed, popped in zip([[1, 2, 3, 4, 5], [1, 2, 3, 4, 5], [1, 0]],
-                                  [[4, 5, 3, 2, 1], [4, 3, 5, 1, 2], [1, 0]]):
+        for pushed, popped in [[[1, 2, 3, 4, 5], [4, 5, 3, 2, 1]], [[1, 2, 3, 4, 5], [4, 3, 5, 1, 2]], [[1, 0], [1, 0]]]:
             # /* Example
             #  *  Input: pushed = [1,2,3,4,5], popped = [4,5,3,2,1]
             #  *  Output: true
@@ -71,12 +70,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

@@ -85,20 +85,17 @@ if __name__ == "__main__":
             #  *  Input: k = 3, rowConditions = [[1,2],[2,3],[3,1],[2,3]], colConditions = [[2,1]]
             #  *  Output: []
             #  */
-            logging.info("Input: k = %s, rowConditions = %s, colConditions = %s",
-                         k, rowConditions, colConditions)
+            logging.info("Input: k = %s, rowConditions = %s, colConditions = %s", k, rowConditions, colConditions)
 
             retVal = pSolution.buildMatrix(k, rowConditions, colConditions)
             logging.info("Output: %s", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

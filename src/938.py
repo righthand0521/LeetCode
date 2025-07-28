@@ -62,9 +62,7 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for root, low, high in zip([[10, 5, 15, 3, 7, None, 18], [10, 5, 15, 3, 7, 13, 18, 1, None, 6]],
-                                   [7, 6],
-                                   [15, 10]):
+        for root, low, high in [[[10, 5, 15, 3, 7, None, 18], 7, 15], [[10, 5, 15, 3, 7, 13, 18, 1, None, 6], 6, 10]]:
             # /* Example
             #  *  Input: root = [10,5,15,3,7,null,18], low = 7, high = 15
             #  *  Output: 32
@@ -72,8 +70,7 @@ if __name__ == "__main__":
             #  *  Input: root = [10,5,15,3,7,13,18,1,null,6], low = 6, high = 10
             #  *  Output: 23
             #  */
-            logging.info("Input: root = %s, low = %s, high = %s",
-                         root, low, high)
+            logging.info("Input: root = %s, low = %s, high = %s", root, low, high)
 
             root = TreeNode().buildTree(root)
 
@@ -82,12 +79,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

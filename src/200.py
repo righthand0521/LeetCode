@@ -58,14 +58,10 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for grid in [[["1", "1", "1", "1", "0"],
-                      ["1", "1", "0", "1", "0"],
-                      ["1", "1", "0", "0", "0"],
-                      ["0", "0", "0", "0", "0"]],
-                     [["1", "1", "0", "0", "0"],
-                      ["1", "1", "0", "0", "0"],
-                      ["0", "0", "1", "0", "0"],
-                      ["0", "0", "0", "1", "1"]]]:
+        for grid in [
+            [["1", "1", "1", "1", "0"], ["1", "1", "0", "1", "0"], ["1", "1", "0", "0", "0"], ["0", "0", "0", "0", "0"]],
+            [["1", "1", "0", "0", "0"], ["1", "1", "0", "0", "0"], ["0", "0", "1", "0", "0"], ["0", "0", "0", "1", "1"]]
+        ]:
             # /* Example
             #  *  Input: grid = [
             #  *    ["1","1","1","1","0"],
@@ -90,12 +86,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

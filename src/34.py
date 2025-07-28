@@ -64,7 +64,7 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for nums, target in zip([[5, 7, 7, 8, 8, 10], [5, 7, 7, 8, 8, 10], [], [1], [2, 2]], [8, 6, 0, 1, 2]):
+        for nums, target in [[[5, 7, 7, 8, 8, 10], 8], [[5, 7, 7, 8, 8, 10], 6], [[], 0], [[1], 1], [[2, 2], 2]]:
             # /* Example
             #  *  Input: nums = [5,7,7,8,8,10], target = 8
             #  *  Output: [3,4]
@@ -88,12 +88,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

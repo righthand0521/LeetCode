@@ -59,20 +59,17 @@ if __name__ == "__main__":
             #  *  Input: colors = "aabaa", neededTime = [1,2,3,4,1]
             #  *  Output: 2
             #  */
-            logging.info("Input: colors = \"%s\", neededTime = %s",
-                         colors, neededTime)
+            logging.info("Input: colors = \"%s\", neededTime = %s", colors, neededTime)
 
             retVal = pSolution.minCost(colors, neededTime)
             logging.info("Output: %s", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

@@ -41,7 +41,7 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for derived in [[1,1,0], [1,1], [1,0]]:
+        for derived in [[1, 1, 0], [1, 1], [1, 0]]:
             # /* Example
             #  *  Input: derived = [1,1,0]
             #  *  Output: true
@@ -59,12 +59,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

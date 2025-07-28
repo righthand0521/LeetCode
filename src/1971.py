@@ -65,20 +65,17 @@ if __name__ == "__main__":
             #  *  Input: n = 6, edges = [[0,1],[0,2],[3,5],[5,4],[4,3]], source = 0, destination = 5
             #  *  Output: false
             #  */
-            logging.info("Input: n = %s, edges = %s, source = %s, destination = %s",
-                         n, edges, source, destination)
+            logging.info("Input: n = %s, edges = %s, source = %s, destination = %s", n, edges, source, destination)
 
             retVal = pSolution.validPath(n, edges, source, destination)
             logging.info("Output: %s", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

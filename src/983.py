@@ -45,8 +45,11 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for days, costs in zip([[1, 4, 6, 7, 8, 20], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 30, 31], [1, 4, 6, 7, 8, 20]],
-                               [[2, 7, 15], [2, 7, 15], [7, 2, 15]]):
+        for days, costs in [
+                [[1, 4, 6, 7, 8, 20], [2, 7, 15]],
+                [[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 30, 31], [2, 7, 15]],
+                [[1, 4, 6, 7, 8, 20], [7, 2, 15]]
+        ]:
             # /* Example
             #  *  Input: days = [1,4,6,7,8,20], costs = [2,7,15]
             #  *  Output: 11
@@ -64,12 +67,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

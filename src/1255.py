@@ -122,20 +122,17 @@ if __name__ == "__main__":
             #  *  score = [0,0,1,1,1,0,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0,0,0]
             #  *  Output: 0
             #  */
-            logging.info("Input: words = %s, letters = %s, score = %s",
-                         words, letters, score)
+            logging.info("Input: words = %s, letters = %s, score = %s", words, letters, score)
 
             retVal = pSolution.maxScoreWords(words, letters, score)
             logging.info("Output: %s", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

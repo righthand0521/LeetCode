@@ -51,20 +51,17 @@ if __name__ == "__main__":
             #  *  Input: timeSeries = [1,2], duration = 2
             #  *  Output: 3
             #  */
-            logging.info("Input: timeSeries = %s, duration = %s",
-                         timeSeries, duration)
+            logging.info("Input: timeSeries = %s, duration = %s", timeSeries, duration)
 
             retVal = pSolution.findPoisonedDuration(timeSeries, duration)
             logging.info("Output: %s", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

@@ -47,9 +47,12 @@ class Solution:
         numsSize = len(nums)
         while tripleStartIndex <= numsSize - k:
             # Update the sums using the sliding window technique
-            currentWindowSumSingle = currentWindowSumSingle - nums[singleStartIndex - 1] + nums[singleStartIndex + k - 1]
-            currentWindowSumDouble = currentWindowSumDouble - nums[doubleStartIndex - 1] + nums[doubleStartIndex + k - 1]
-            currentWindowSumTriple = currentWindowSumTriple - nums[tripleStartIndex - 1] + nums[tripleStartIndex + k - 1]
+            currentWindowSumSingle = currentWindowSumSingle - \
+                nums[singleStartIndex - 1] + nums[singleStartIndex + k - 1]
+            currentWindowSumDouble = currentWindowSumDouble - \
+                nums[doubleStartIndex - 1] + nums[doubleStartIndex + k - 1]
+            currentWindowSumTriple = currentWindowSumTriple - \
+                nums[tripleStartIndex - 1] + nums[tripleStartIndex + k - 1]
 
             # Update the best single subarray start index if a better sum is found
             if currentWindowSumSingle > bestSingleSum:
@@ -103,12 +106,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

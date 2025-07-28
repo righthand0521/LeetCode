@@ -73,7 +73,7 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for haystack, needle in zip(["sadbutsad", "leetcode", "mississippi"], ["sad", "leeto", "issip"]):
+        for haystack, needle in [["sadbutsad", "sad"], ["leetcode", "leeto"], ["mississippi", "issip"]]:
             # /* Example
             # *  Input: haystack = "sadbutsad", needle = "sad"
             # *  Output: 0
@@ -92,12 +92,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

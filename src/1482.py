@@ -73,20 +73,17 @@ if __name__ == "__main__":
             #  *  Input: bloomDay = [7,7,7,7,12,7,7], m = 2, k = 3
             #  *  Output: 12
             #  */
-            logging.info("Input: bloomDay = %s, m = %s, k = %s",
-                         bloomDay, m, k)
+            logging.info("Input: bloomDay = %s, m = %s, k = %s", bloomDay, m, k)
 
             retVal = pSolution.minDays(bloomDay, m, k)
             logging.info("Output: %s", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

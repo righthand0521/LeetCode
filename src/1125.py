@@ -66,12 +66,23 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for req_skills, people in zip(
-            [["java", "nodejs", "reactjs"], ["algorithms",
-                                             "math", "java", "reactjs", "csharp", "aws"]],
-            [[["java"], ["nodejs"], ["nodejs", "reactjs"]],
-             [["algorithms", "math", "java"], ["algorithms", "math", "reactjs"], ["java", "csharp", "aws"],
-              ["reactjs", "csharp"], ["csharp", "math"], ["aws", "java"]]]):
+        for req_skills, people in [
+            [
+                ["java", "nodejs", "reactjs"],
+                [["java"], ["nodejs"], ["nodejs", "reactjs"]]
+            ],
+            [
+                ["algorithms", "math", "java", "reactjs", "csharp", "aws"],
+                [
+                    ["algorithms", "math", "java"],
+                    ["algorithms", "math", "reactjs"],
+                    ["java", "csharp", "aws"],
+                    ["reactjs", "csharp"],
+                    ["csharp", "math"],
+                    ["aws", "java"]
+                ]
+            ]
+        ]:
             # /* Example
             #  *  Input: req_skills = ["java","nodejs","reactjs"], people = [["java"],["nodejs"],["nodejs","reactjs"]]
             #  *  Output: [0,2]
@@ -81,20 +92,17 @@ if __name__ == "__main__":
             #  *  ["reactjs","csharp"],["csharp","math"],["aws","java"]]
             #  *  Output: [1,2]
             #  */
-            logging.info("Input: req_skills = %s, people = %s",
-                         req_skills, people)
+            logging.info("Input: req_skills = %s, people = %s", req_skills, people)
 
             retVal = pSolution.smallestSufficientTeam(req_skills, people)
             logging.info("Output: %s", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

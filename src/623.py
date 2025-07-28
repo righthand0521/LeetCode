@@ -69,8 +69,7 @@ if __name__ == "__main__":
             #  *  Input: root = [4,2,null,3,1], val = 1, depth = 3
             #  *  Output: [4,2,null,1,1,3,null,null,1]
             #  */
-            logging.info("Input: root = %s, val = %s, depth = %s",
-                         root, val, depth)
+            logging.info("Input: root = %s, val = %s, depth = %s", root, val, depth)
 
             root = TreeNode().buildTree(root)
             retVal = pSolution.addOneRow(root, val, depth)
@@ -79,12 +78,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

@@ -82,7 +82,7 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for s, numRows in zip(["PAYPALISHIRING", "PAYPALISHIRING"], [3, 4]):
+        for s, numRows in [["PAYPALISHIRING", 3], ["PAYPALISHIRING", 4]]:
             # /* Example
             #  *  Input: s = "PAYPALISHIRING", numRows = 3
             #  *  Output: "PAHNAPLSIIGYIR"
@@ -97,12 +97,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

@@ -76,7 +76,7 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for head, k in zip([[1, 2, 3, 4, 5], [1, 2, 3, 4, 5]], [2, 3]):
+        for head, k in [[[1, 2, 3, 4, 5], 2], [[1, 2, 3, 4, 5], 3]]:
             # /* Example
             #  *  Input: head = [1,2,3,4,5], k = 2
             #  *  Output: [2,1,4,3,5]
@@ -92,12 +92,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

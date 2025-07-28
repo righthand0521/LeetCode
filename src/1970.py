@@ -94,20 +94,17 @@ if __name__ == "__main__":
             #  *  Input: row = 3, col = 3, cells = [[1,2],[2,1],[3,3],[2,2],[1,1],[1,3],[2,3],[3,2],[3,1]]
             #  *  Output: 3
             #  */
-            logging.info("Input: row = %s, col = %s, cells = %s",
-                         row, col, cells)
+            logging.info("Input: row = %s, col = %s, cells = %s", row, col, cells)
 
             retVal = pSolution.latestDayToCross(row, col, cells)
             logging.info("Output: %s", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

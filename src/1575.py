@@ -69,20 +69,17 @@ if __name__ == "__main__":
             #  *  Input: locations = [5,2,1], start = 0, finish = 2, fuel = 3
             #  *  Output: 0
             #  */
-            logging.info("Input: locations = %s, start = %s, finish = %s, fuel = %s",
-                         locations, start, finish, fuel)
+            logging.info("Input: locations = %s, start = %s, finish = %s, fuel = %s", locations, start, finish, fuel)
 
             retVal = pSolution.countRoutes(locations, start, finish, fuel)
             logging.info("Output: %s", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

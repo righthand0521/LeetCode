@@ -93,20 +93,17 @@ if __name__ == "__main__":
             #  *  Input: n = 6, headID = 2, manager = [2,2,-1,2,2,2], informTime = [0,0,1,0,0,0]
             #  *  Output: 1
             #  */
-            logging.info("n = %s, headID = %s, manager = %s, informTime = %s",
-                         n, headID, manager, informTime)
+            logging.info("n = %s, headID = %s, manager = %s, informTime = %s", n, headID, manager, informTime)
 
             retVal = pSolution.numOfMinutes(n, headID, manager, informTime)
             logging.info("Output: %s", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

@@ -51,10 +51,11 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for tasks, n in zip([["A", "A", "A", "B", "B", "B"],
-                             ["A", "C", "A", "B", "D", "B"],
-                             ["A", "A", "A", "B", "B", "B"]],
-                            [2, 1, 3]):
+        for tasks, n in [
+            [["A", "A", "A", "B", "B", "B"], 2],
+            [["A", "C", "A", "B", "D", "B"], 1],
+            [["A", "A", "A", "B", "B", "B"], 3]
+        ]:
             # /* Example
             #  *  Input: tasks = ["A","A","A","B","B","B"], n = 2
             #  *  Output: 8
@@ -72,12 +73,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

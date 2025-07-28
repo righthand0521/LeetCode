@@ -61,10 +61,10 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for words1, words2 in zip([["amazon", "apple", "facebook", "google", "leetcode"],
-                                   ["amazon", "apple", "facebook", "google", "leetcode"]],
-                                  [["e", "o"],
-                                   ["l", "e"]]):
+        for words1, words2 in [
+            [["amazon", "apple", "facebook", "google", "leetcode"], ["e", "o"]],
+            [["amazon", "apple", "facebook", "google", "leetcode"], ["l", "e"]]
+        ]:
             # /* Example
             #  *  Input: words1 = ["amazon","apple","facebook","google","leetcode"], words2 = ["e","o"]
             #  *  Output: ["facebook","google","leetcode"]
@@ -79,12 +79,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

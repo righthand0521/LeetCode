@@ -56,7 +56,6 @@ class Solution:
                     if (i > 0) and (k + 1 < colSize):
                         f = dp[i-1][j][k+1]
 
-
                     g = -1
                     if (i > 0) and (j + 1 < colSize) and (k > 0):
                         g = dp[i-1][j+1][k-1]
@@ -109,12 +108,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

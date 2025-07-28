@@ -54,20 +54,17 @@ if __name__ == "__main__":
             #  *  Input: sentence = "i am tired", searchWord = "you"
             #  *  Output: -1
             #  */
-            logging.info("Input: sentence = \"%s\", searchWord = %s",
-                         sentence, searchWord)
+            logging.info("Input: sentence = \"%s\", searchWord = %s", sentence, searchWord)
 
             retVal = pSolution.isPrefixOfWord(sentence, searchWord)
             logging.info("Output: %s", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

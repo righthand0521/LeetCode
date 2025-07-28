@@ -68,20 +68,17 @@ if __name__ == "__main__":
             #  *  Input: times = [[3,10],[1,5],[2,6]], targetFriend = 0
             #  *  Output: 2
             #  */
-            logging.info("Input: times = %s, targetFriend = %s",
-                         times, targetFriend)
+            logging.info("Input: times = %s, targetFriend = %s", times, targetFriend)
 
             retVal = pSolution.smallestChair(times, targetFriend)
             logging.info("Output: %s", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

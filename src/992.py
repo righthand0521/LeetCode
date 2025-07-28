@@ -31,7 +31,7 @@ class Solution:
 
             hashTableSize = len(hashTable)
             while hashTableSize > k:
-                leftValue= nums[left]
+                leftValue = nums[left]
                 hashTable[leftValue] -= 1
                 if hashTable[leftValue] == 0:
                     del hashTable[leftValue]
@@ -74,12 +74,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

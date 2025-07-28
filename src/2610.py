@@ -50,7 +50,7 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for nums in [[1,3,4,1,2,3,1], [1,2,3,4]]:
+        for nums in [[1, 3, 4, 1, 2, 3, 1], [1, 2, 3, 4]]:
             # /* Example
             #  *  Input: nums = [1,3,4,1,2,3,1]
             #  *  Output: [[1,3,4,2],[1,3],[1]]
@@ -65,12 +65,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

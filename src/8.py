@@ -74,8 +74,16 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for s in ["42", "   -42", "4193 with words", "words and 987", "+-12", "20000000000000000000",
-                  "  0000000000012345678", "00000-42a1234", "  +  413", "-91283472332"]:
+        for s in [
+            "42",
+            "   -42", "4193 with words",
+            "words and 987", "+-12",
+            "20000000000000000000",
+            "  0000000000012345678",
+            "00000-42a1234",
+            "  +  413",
+            "-91283472332"
+        ]:
             # /* Example
             #  *  Input: s = "42"
             #  *  Output: 42
@@ -114,12 +122,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

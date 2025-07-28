@@ -22,8 +22,8 @@ def logging_setting():
 
 class Solution:
     def __init__(self) -> None:
-        self.nextSlot = {"0": "1", "1": "2", "2": "3", "3": "4", "4": "5",
-                         "5": "6", "6": "7", "7": "8", "8": "9", "9": "0"}
+        self.nextSlot = {"0": "1", "1": "2", "2": "3", "3": "4",
+                         "4": "5", "5": "6", "6": "7", "7": "8", "8": "9", "9": "0"}
         self.prevSlot = {"0": "9", "1": "0", "2": "1", "3": "2", "4": "3",
                          "5": "4", "6": "5", "7": "6", "8": "7", "9": "8"}
 
@@ -75,9 +75,11 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for deadends, target in zip([["0201", "0101", "0102", "1212", "2002"], ["8888"],
-                                     ["8887", "8889", "8878", "8898", "8788", "8988", "7888", "9888"]],
-                                    ["0202", "0009", "8888"]):
+        for deadends, target in [
+            [["0201", "0101", "0102", "1212", "2002"], "0202"],
+            [["8888"], "0009"],
+            [["8887", "8889", "8878", "8898", "8788", "8988", "7888", "9888"], "8888"]
+        ]:
             # /* Example
             #  *  Input: deadends = ["0201","0101","0102","1212","2002"], target = "0202"
             #  *  Output: 6
@@ -88,20 +90,17 @@ if __name__ == "__main__":
             #  *  Input: deadends = ["8887","8889","8878","8898","8788","8988","7888","9888"], target = "8888"
             #  *  Output: -1
             #  */
-            logging.info("Input: deadends = %s, target = \"%s\"",
-                         deadends, target)
+            logging.info("Input: deadends = %s, target = \"%s\"", deadends, target)
 
             retVal = pSolution.openLock(deadends, target)
             logging.info("Output: %s", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

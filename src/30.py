@@ -73,8 +73,11 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for s, words in zip(["barfoothefoobarman", "wordgoodgoodgoodbestword", "barfoofoobarthefoobarman"],
-                            [["foo", "bar"], ["word", "good", "best", "word"], ["bar", "foo", "the"]]):
+        for s, words in [
+            ["barfoothefoobarman", ["foo", "bar"]],
+            ["wordgoodgoodgoodbestword", ["word", "good", "best", "word"]],
+            ["barfoofoobarthefoobarman", ["bar", "foo", "the"]]
+        ]:
             # /* Example
             #  *  Input: s = "barfoothefoobarman", words = ["foo","bar"]
             #  *  Output: [0,9]
@@ -92,12 +95,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

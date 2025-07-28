@@ -57,9 +57,10 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for routes, source, target in zip([[[1, 2, 7], [3, 6, 7]], [[7, 12], [4, 5, 15], [6], [15, 19], [9, 12, 13]]],
-                                          [1, 15],
-                                          [6, 12]):
+        for routes, source, target in [
+            [[[1, 2, 7], [3, 6, 7]], 1, 6],
+            [[[7, 12], [4, 5, 15], [6], [15, 19], [9, 12, 13]], 15, 12]
+        ]:
             # /* Example
             #  *  Input: routes = [[1,2,7],[3,6,7]], source = 1, target = 6
             #  *  Output: 2
@@ -67,20 +68,17 @@ if __name__ == "__main__":
             #  *  Input: routes = [[7,12],[4,5,15],[6],[15,19],[9,12,13]], source = 15, target = 12
             #  *  Output: -1
             #  */
-            logging.info("Input: routes = %s, source = %s, target = %s",
-                         routes, source, target)
+            logging.info("Input: routes = %s, source = %s, target = %s", routes, source, target)
 
             retVal = pSolution.numBusesToDestination(routes, source, target)
             logging.info("Output: %d", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

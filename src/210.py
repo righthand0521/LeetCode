@@ -76,20 +76,17 @@ if __name__ == "__main__":
             #  *  Input: numCourses = 3, prerequisites = [[1,0],[1,2],[0,1]]
             #  *  Output: []
             #  */
-            logging.info("Input: numCourses = %s, prerequisites = %s",
-                         numCourses, prerequisites)
+            logging.info("Input: numCourses = %s, prerequisites = %s", numCourses, prerequisites)
 
             retVal = pSolution.findOrder(numCourses, prerequisites)
             logging.info("Output: %s", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

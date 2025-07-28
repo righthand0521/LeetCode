@@ -52,7 +52,7 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for dividend, divisor in zip([10, 7, -1, 1, 2, -2147483648, -2147483648], [3, -3, -1, 2, 2, -1, 1]):
+        for dividend, divisor in [[10, 3], [7, -3]]:
             # /* Example
             #  *  Input: dividend = 10, divisor = 3
             #  *  Output: 3
@@ -60,20 +60,17 @@ if __name__ == "__main__":
             #  *  Input: dividend = 7, divisor = -3
             #  *  Output: -2
             #  */
-            logging.info("Input: dividend = %s, divisor = %s",
-                         dividend, divisor)
+            logging.info("Input: dividend = %s, divisor = %s", dividend, divisor)
 
             retVal = pSolution.divide(dividend, divisor)
             logging.info("Output: %s", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

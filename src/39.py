@@ -59,7 +59,7 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for candidates, target in zip([[2, 3, 6, 7], [2, 3, 5], [2]], [7, 8, 1]):
+        for candidates, target in [[[2, 3, 6, 7], 7], [[2, 3, 5], 8], [[2], 1]]:
             # /* Example
             #  *  Input: candidates = [2,3,6,7], target = 7
             #  *  Output: [[2,2,3],[7]]
@@ -70,20 +70,17 @@ if __name__ == "__main__":
             #  *  Input: candidates = [2], target = 1
             #  *  Output: []
             #  */
-            logging.info("Input: candidates = %s, target = %s",
-                         candidates, target)
+            logging.info("Input: candidates = %s, target = %s", candidates, target)
 
             retVal = pSolution.combinationSum(candidates, target)
             logging.info("Output: %s", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

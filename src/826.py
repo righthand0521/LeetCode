@@ -48,9 +48,10 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for difficulty, profit, worker in zip([[2, 4, 6, 8, 10], [85, 47, 57]],
-                                              [[10, 20, 30, 40, 50], [24, 66, 99]],
-                                              [[4, 5, 6, 7], [40, 25, 25]]):
+        for difficulty, profit, worker in [
+            [[2, 4, 6, 8, 10], [10, 20, 30, 40, 50], [4, 5, 6, 7]],
+            [[85, 47, 57], [24, 66, 99], [40, 25, 25]]
+        ]:
             # /* Example
             #  *  Input: difficulty = [2,4,6,8,10], profit = [10,20,30,40,50], worker = [4,5,6,7]
             #  *  Output: 100
@@ -66,12 +67,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

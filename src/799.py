@@ -59,20 +59,17 @@ if __name__ == "__main__":
             #  *  Input: poured = 100000009, query_row = 33, query_glass = 17
             #  *  Output: 1.00000
             #  */
-            logging.info("Input: poured = %s, query_row = %s, query_glass = %s",
-                         poured, query_row, query_glass)
+            logging.info("Input: poured = %s, query_row = %s, query_glass = %s", poured, query_row, query_glass)
 
             retVal = pSolution.champagneTower(poured, query_row, query_glass)
             logging.info("Output: %.5f", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

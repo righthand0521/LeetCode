@@ -58,10 +58,11 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for s, wordDict in zip(["catsanddog", "pineapplepenapple", "catsandog"],
-                               [["cat", "cats", "and", "sand", "dog"],
-                                ["apple", "pen", "applepen", "pine", "pineapple"],
-                                ["cats", "dog", "sand", "and", "cat"]]):
+        for s, wordDict in [
+            ["catsanddog", ["cat", "cats", "and", "sand", "dog"]],
+            ["pineapplepenapple", ["apple", "pen", "applepen", "pine", "pineapple"]],
+            ["catsandog", ["cats", "dog", "sand", "and", "cat"]]
+        ]:
             # /* Example
             #  *  Input: s = "catsanddog", wordDict = ["cat","cats","and","sand","dog"]
             #  *  Output: ["cats and dog","cat sand dog"]
@@ -79,12 +80,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

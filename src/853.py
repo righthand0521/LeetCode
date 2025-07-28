@@ -44,9 +44,11 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for target, position, speed in zip([12, 10, 100],
-                                           [[10, 8, 0, 5, 3], [3], [0, 2, 4]],
-                                           [[2, 4, 1, 1, 3], [3], [4, 2, 1]]):
+        for target, position, speed in [
+            [12, [10, 8, 0, 5, 3], [2, 4, 1, 1, 3]],
+            [10, [3], [3]],
+            [100, [0, 2, 4], [4, 2, 1]]
+        ]:
             # /* Example
             #  *  Input: target = 12, position = [10,8,0,5,3], speed = [2,4,1,1,3]
             #  *  Output: 3
@@ -65,12 +67,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

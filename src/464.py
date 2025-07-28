@@ -69,20 +69,17 @@ if __name__ == "__main__":
             #  *  Input: maxChoosableInteger = 10, desiredTotal = 1
             #  *  Output: true
             #  */
-            logging.info("Input: maxChoosableInteger = %s, desiredTotal = %s",
-                         maxChoosableInteger, desiredTotal)
+            logging.info("Input: maxChoosableInteger = %s, desiredTotal = %s", maxChoosableInteger, desiredTotal)
 
             retVal = pSolution.canIWin(maxChoosableInteger, desiredTotal)
             logging.info("Output: %s", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

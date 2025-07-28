@@ -67,8 +67,7 @@ if __name__ == "__main__":
             #  *  Input: head = [5], left = 1, right = 1
             #  *  Output: [5]
             #  */
-            logging.info("Input: head = %s, left = %s, right = %s",
-                         head, left, right)
+            logging.info("Input: head = %s, left = %s, right = %s", head, left, right)
 
             pHead = ListNode.buildList(head)
             pHead = pSolution.reverseBetween(pHead, left, right)
@@ -76,12 +75,10 @@ if __name__ == "__main__":
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

@@ -68,20 +68,17 @@ if __name__ == "__main__":
             #  *  Input: nums1 = [1,2], nums2 = [3], k = 3
             #  *  Output: [[1,3],[2,3]]
             #  */
-            logging.info("Input: nums1 = %s, nums2 = %s, k = %s",
-                         nums1, nums2, k)
+            logging.info("Input: nums1 = %s, nums2 = %s, k = %s", nums1, nums2, k)
 
             retVal = pSolution.kSmallestPairs(nums1, nums2, k)
             logging.info("Output: %s", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

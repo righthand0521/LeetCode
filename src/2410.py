@@ -58,20 +58,17 @@ if __name__ == "__main__":
             #  *  Input: players = [1,1,1], trainers = [10]
             #  *  Output: 1
             #  */
-            logging.info("Input: players = %s, trainers = %s",
-                         players, trainers)
+            logging.info("Input: players = %s, trainers = %s", players, trainers)
 
             retVal = pSolution.matchPlayersAndTrainers(players, trainers)
             logging.info("Output: %d", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

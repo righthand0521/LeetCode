@@ -53,20 +53,17 @@ if __name__ == "__main__":
             #  *  Input: candies = [12,1,12], extraCandies = 10
             #  *  Output: [true,false,true]
             #  */
-            logging.info("Input: candies = %s, extraCandies = %s",
-                         candies, extraCandies)
+            logging.info("Input: candies = %s, extraCandies = %s", candies, extraCandies)
 
             retVal = pSolution.kidsWithCandies(candies, extraCandies)
             logging.info("Output: %s", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

@@ -21,8 +21,7 @@ def logging_setting():
 
 
 class Solution:
-    def backtracking(self, candidates: List[int], target: int, start: int, combine: List[int],
-                     answer: List[List[int]]) -> None:
+    def backtracking(self, candidates: List[int], target: int, start: int, combine: List[int], answer: List[List[int]]) -> None:
         if target == 0:
             answer.append(combine[:])
             return
@@ -65,7 +64,7 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for candidates, target in zip([[10, 1, 2, 7, 6, 1, 5], [2, 5, 2, 1, 2]], [8, 5]):
+        for candidates, target in [[[10, 1, 2, 7, 6, 1, 5], 8], [[2, 5, 2, 1, 2], 5]]:
             # /* Example
             #  *  Input: candidates = [10,1,2,7,6,1,5], target = 8
             #  *  Output: [[1,1,6],[1,2,5],[1,7],[2,6]]
@@ -73,20 +72,17 @@ if __name__ == "__main__":
             #  *  Input: candidates = [2,5,2,1,2], target = 5
             #  *  Output: [[1,2,2],[5]]
             #  */
-            logging.info("Input: candidates = %s, target = %s",
-                         candidates, target)
+            logging.info("Input: candidates = %s, target = %s", candidates, target)
 
             retVal = pSolution.combinationSum2(candidates, target)
             logging.info("Output: %s", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)

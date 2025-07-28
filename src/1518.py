@@ -51,20 +51,17 @@ if __name__ == "__main__":
             #  *  Input: numBottles = 15, numExchange = 4
             #  *  Output: 19
             #  */
-            logging.info("Input: numBottles = %s, numExchange = %s",
-                         numBottles, numExchange)
+            logging.info("Input: numBottles = %s, numExchange = %s", numBottles, numExchange)
 
             retVal = pSolution.numWaterBottles(numBottles, numExchange)
             logging.info("Output: %s", retVal)
 
             print()
     except KeyboardInterrupt as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
     except Exception as exception:
-        logging.error("%s: %s", exception.__class__.__name__,
-                      exception, exc_info=True)
+        logging.error("%s: %s", exception.__class__.__name__, exception, exc_info=True)
         pass
 
     sys.exit(0)
