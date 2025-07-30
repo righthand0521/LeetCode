@@ -3708,6 +3708,9 @@ class Solution:
 
 ## [2419. Longest Subarray With Maximum Bitwise AND](https://leetcode.com/problems/longest-subarray-with-maximum-bitwise-and/)  1495
 
+- [Official](https://leetcode.com/problems/longest-subarray-with-maximum-bitwise-and/editorial/)
+- [Official](https://leetcode.cn/problems/longest-subarray-with-maximum-bitwise-and/solutions/3726046/an-wei-yu-zui-da-de-zui-chang-zi-shu-zu-w0t3f/)
+
 <details><summary>Description</summary>
 
 ```text
