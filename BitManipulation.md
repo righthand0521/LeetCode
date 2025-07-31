@@ -2188,6 +2188,171 @@ class Solution:
 
 </details>
 
+## [898. Bitwise ORs of Subarrays](https://leetcode.com/problems/bitwise-ors-of-subarrays/)  2133
+
+- [Official](https://leetcode.com/problems/bitwise-ors-of-subarrays/editorial/)
+- [Official](https://leetcode.cn/problems/bitwise-ors-of-subarrays/solutions/18772/zi-shu-zu-an-wei-huo-cao-zuo-by-leetcode/)
+
+<details><summary>Description</summary>
+
+```text
+Given an integer array arr, return the number of distinct bitwise ORs of all the non-empty subarrays of arr.
+
+The bitwise OR of a subarray is the bitwise OR of each integer in the subarray.
+The bitwise OR of a subarray of one integer is that integer.
+
+A subarray is a contiguous non-empty sequence of elements within an array.
+
+Example 1:
+Input: arr = [0]
+Output: 1
+Explanation: There is only one possible result: 0.
+
+Example 2:
+Input: arr = [1,1,2]
+Output: 3
+Explanation: The possible subarrays are [1], [1], [2], [1, 1], [1, 2], [1, 1, 2].
+These yield the results 1, 1, 2, 1, 3, 3.
+There are 3 unique values, so the answer is 3.
+
+Example 3:
+Input: arr = [1,2,4]
+Output: 6
+Explanation: The possible results are 1, 2, 3, 4, 6, and 7.
+
+Constraints:
+1 <= arr.length <= 5 * 10^4
+0 <= arr[i] <= 10^9
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    // int value;
+    UT_hash_handle hh;
+};
+bool addKey(struct hashTable **pObj, int key) {
+    bool retVal = true;
+
+    struct hashTable *pTemp = NULL;
+    HASH_FIND_INT(*pObj, &key, pTemp);
+    if (pTemp != NULL) {
+        return retVal;
+    }
+
+    pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+    if (pTemp == NULL) {
+        perror("malloc");
+        retVal = false;
+    } else {
+        pTemp->key = key;
+        HASH_ADD_INT(*pObj, key, pTemp);
+    }
+
+    return retVal;
+}
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *current;
+    struct hashTable *tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d\n", pFree->key);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int subarrayBitwiseORs(int *arr, int arrSize) {
+    int retVal = 0;
+
+    if (arrSize < 2) {
+        return arrSize;
+    }
+
+    struct hashTable *result = NULL;
+    int key;
+    bool isValid = true;
+    for (int i = 0; i < arrSize; i++) {
+        key = arr[i];
+        isValid = addKey(&result, key);
+        if (isValid == false) {
+            goto exit;
+        }
+
+        for (int j = i - 1; j >= 0; j--) {
+            if ((arr[j] & arr[i]) == arr[i]) {
+                break;
+            }
+            arr[j] |= arr[i];
+
+            key = arr[j];
+            isValid = addKey(&result, key);
+            if (isValid == false) {
+                goto exit;
+            }
+        }
+    }
+    retVal = HASH_COUNT(result);
+
+exit:
+    freeAll(result);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int subarrayBitwiseORs(vector<int>& arr) {
+        int retVal = 0;
+
+        unordered_set<int> result;
+        unordered_set<int> current;
+        current.insert(0);
+        for (int x : arr) {
+            unordered_set<int> current2;
+            for (int y : current) {
+                current2.insert(x | y);
+            }
+            current2.insert(x);
+            current = current2;
+            result.insert(current.begin(), current.end());
+        }
+        retVal = result.size();
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def subarrayBitwiseORs(self, arr: List[int]) -> int:
+        retVal = 0
+
+        result = set()
+        current = {0}
+        for x in arr:
+            current = {x | y for y in current} | {x}
+            result |= current
+        retVal = len(result)
+
+        return retVal
+```
+
+</details>
+
 ## [995. Minimum Number of K Consecutive Bit Flips](https://leetcode.com/problems/minimum-number-of-k-consecutive-bit-flips/)  1835
 
 - [Official](https://leetcode.com/problems/minimum-number-of-k-consecutive-bit-flips/editorial/)
