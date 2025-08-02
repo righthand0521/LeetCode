@@ -2292,6 +2292,232 @@ class Solution:
 
 </details>
 
+## [2561. Rearranging Fruits](https://leetcode.com/problems/rearranging-fruits/)  2221
+
+- [Official](https://leetcode.com/problems/rearranging-fruits/editorial/)
+- [Official](https://leetcode.cn/problems/rearranging-fruits/solutions/3729209/zhong-pai-shui-guo-by-leetcode-solution-9z2g/)
+
+<details><summary>Description</summary>
+
+```text
+You have two fruit baskets containing n fruits each.
+You are given two 0-indexed integer arrays basket1 and basket2 representing the cost of fruit in each basket.
+You want to make both baskets equal. To do so, you can use the following operation as many times as you want:
+- Chose two indices i and j, and swap the ith fruit of basket1 with the jth fruit of basket2.
+- The cost of the swap is min(basket1[i],basket2[j]).
+
+Two baskets are considered equal if sorting them according to the fruit cost makes them exactly the same baskets.
+
+Return the minimum cost to make both the baskets equal or -1 if impossible.
+
+Example 1:
+Input: basket1 = [4,2,2,2], basket2 = [1,4,1,2]
+Output: 1
+Explanation:
+Swap index 1 of basket1 with index 0 of basket2, which has cost 1. Now basket1 = [4,1,2,2] and basket2 = [2,4,1,2].
+Rearranging both the arrays makes them equal.
+
+Example 2:
+Input: basket1 = [2,3,4,1], basket2 = [3,2,5,1]
+Output: -1
+Explanation:
+It can be shown that it is impossible to make both the baskets equal.
+
+Constraints:
+basket1.length == basket2.length
+1 <= basket1.length <= 10^5
+1 <= basket1[i],basket2[i] <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Create two frequency maps for both arrays, and find the minimum element among all elements of both arrays.
+2. Check if the sum of frequencies of an element in both arrays is odd, if so return -1
+3. Store the elements that need to be swapped in a vector, and sort it.
+4. Can we reduce swapping cost with the help of minimum element?
+5. Calculate the minimum cost of swapping.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+bool updateFrequency(struct hashTable **pObj, int key, int value) {
+    bool retVal = true;
+
+    struct hashTable *pTemp = NULL;
+    HASH_FIND_INT(*pObj, &key, pTemp);
+    if (pTemp == NULL) {
+        pTemp = (struct hashTable *)malloc(sizeof(struct hashTable));
+        if (pTemp == NULL) {
+            perror("malloc");
+            retVal = false;
+        } else {
+            pTemp->key = key;
+            pTemp->value = value;
+            HASH_ADD_INT(*pObj, key, pTemp);
+        }
+    } else {
+        pTemp->value += value;
+    }
+
+    return retVal;
+}
+void freeAll(struct hashTable *pFree) {
+    struct hashTable *current;
+    struct hashTable *tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int compareInteger(const void *n1, const void *n2) {
+    // ascending order
+    return (*(int *)n1 > *(int *)n2);
+}
+long long minCost(int *basket1, int basket1Size, int *basket2, int basket2Size) {
+    long long retVal = 0;
+
+    struct hashTable *frequency = NULL;
+    int minValue = INT_MAX;
+    for (int i = 0; i < basket1Size; i++) {
+        updateFrequency(&frequency, basket1[i], 1);
+        minValue = fmin(minValue, basket1[i]);
+    }
+    for (int i = 0; i < basket2Size; i++) {
+        updateFrequency(&frequency, basket2[i], -1);
+        minValue = fmin(minValue, basket2[i]);
+    }
+
+    int merge[basket1Size + basket2Size];
+    memset(merge, 0, sizeof(merge));
+    int mergeSize = 0;
+    struct hashTable *pCurrent;
+    struct hashTable *pTmp;
+    HASH_ITER(hh, frequency, pCurrent, pTmp) {
+        int c = pCurrent->value;
+        if (c % 2 != 0) {
+            freeAll(frequency);
+            retVal = -1;
+            return retVal;
+        }
+
+        for (int i = 0; i < abs(c) / 2; i++) {
+            merge[mergeSize++] = pCurrent->key;
+        }
+    }
+
+    if (mergeSize == 0) {
+        freeAll(frequency);
+        return retVal;
+    }
+    qsort(merge, mergeSize, sizeof(int), compareInteger);
+
+    for (int i = 0; i < mergeSize / 2; i++) {
+        retVal += fmin(merge[i], minValue * 2);
+    }
+
+    //
+    freeAll(frequency);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    long long minCost(vector<int>& basket1, vector<int>& basket2) {
+        long long retVal = 0;
+
+        unordered_map<int, int> frequency;
+        int minValue = numeric_limits<int>::max();
+        for (int b1 : basket1) {
+            frequency[b1]++;
+            minValue = min(minValue, b1);
+        }
+        for (int b2 : basket2) {
+            frequency[b2]--;
+            minValue = min(minValue, b2);
+        }
+
+        vector<int> merge;
+        for (auto [key, value] : frequency) {
+            if (value % 2 != 0) {
+                retVal = -1;
+                return retVal;
+            }
+            for (int i = 0; i < abs(value) / 2; ++i) {
+                merge.emplace_back(key);
+            }
+        }
+
+        if (merge.empty()) {
+            return retVal;
+        }
+        sort(merge.begin(), merge.end());
+
+        int mergeSize = merge.size();
+        for (int i = 0; i < mergeSize / 2; i++) {
+            retVal += min(merge[i], minValue * 2);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minCost(self, basket1: List[int], basket2: List[int]) -> int:
+        retVal = -1
+
+        frequency = Counter()
+
+        minValue = float("inf")
+        for b1 in basket1:
+            frequency[b1] += 1
+            minValue = min(minValue, b1)
+        for b2 in basket2:
+            frequency[b2] -= 1
+            minValue = min(minValue, b2)
+
+        merge = []
+        for key, value in frequency.items():
+            if value % 2 != 0:
+                return retVal
+            merge.extend([key] * (abs(value) // 2))
+
+        if not merge:
+            retVal = 0
+            return retVal
+        merge.sort()
+
+        retVal = sum(min(2 * minValue, x) for x in merge[: len(merge) // 2])
+
+        return retVal
+```
+
+</details>
+
 ## [2566. Maximum Difference by Remapping a Digit](https://leetcode.com/problems/maximum-difference-by-remapping-a-digit/)  1396
 
 - [Official](https://leetcode.com/problems/maximum-difference-by-remapping-a-digit/editorial/)
