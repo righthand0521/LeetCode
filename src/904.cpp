@@ -10,10 +10,7 @@ class Solution {
     int totalFruit(vector<int>& fruits) {
         int retVal = 0;
 
-        unordered_map<int, int> hashTable;
-        int len = fruits.size();
-        int head = 0;
-        int tail = 0;
+        int fruitsSize = fruits.size();
         /* Example
          *          +--------------------------------------------+-----------------------------+
          *          | 3 | 3 | 3 | 1 | 2 | 1 | 1 | 2 | 3 | 3 | 4  |                             |
@@ -37,14 +34,20 @@ class Solution {
          *    head  |                             7 > 8          |  max: 3 > 3             | 5 |
          *          +--------------------------------------------+-------------------------+---+
          */
-        while (tail < len) {
-            hashTable[fruits[tail]]++;
+        unordered_map<int, int> frequency;
+        int frequencySize;
+        int head = 0;
+        int tail = 0;
+        while (tail < fruitsSize) {
+            frequency[fruits[tail]]++;
+            frequencySize = frequency.size();
 
-            while (hashTable.size() > 2) {
-                hashTable[fruits[head]]--;
-                if (hashTable[fruits[head]] == 0) {
-                    hashTable.erase(fruits[head]);
+            while (frequencySize > 2) {
+                frequency[fruits[head]]--;
+                if (frequency[fruits[head]] == 0) {
+                    frequency.erase(fruits[head]);
                 }
+                frequencySize = frequency.size();
                 head++;
             }
             retVal = max(retVal, tail - head + 1);
@@ -62,6 +65,19 @@ int main(int argc, char** argv) {
     };
     vector<subject> testData{{{1, 2, 1}}, {{0, 1, 2, 2}}, {{1, 2, 3, 2, 2}}, {{3, 3, 3, 1, 2, 1, 1, 2, 3, 3, 4}}};
     int numberOfTestCase = testData.size();
+    /* Example
+     *  Input: fruits = [1,2,1]
+     *  Output: 3
+     *
+     *  Input: fruits = [0,1,2,2]
+     *  Output: 3
+     *
+     *  Input: fruits = [1,2,3,2,2]
+     *  Output: 4
+     *
+     *  Input: fruits = [3,3,3,1,2,1,1,2,3,3,4]
+     *  Output: 5
+     */
 
     Solution cSolution;
     int answer;
