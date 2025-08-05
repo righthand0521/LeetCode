@@ -137,6 +137,13 @@
 
 </details>
 
+<details><summary>Fruits Into Baskets</summary>
+
+- [3477. Fruits Into Baskets II](https://leetcode.com/problems/fruits-into-baskets-ii/description/)
+- [3479. Fruits Into Baskets III](https://leetcode.com/problems/fruits-into-baskets-iii/)
+
+</details>
+
 ## Bit Manipulation
 
 <details><summary>Single Number</summary>
