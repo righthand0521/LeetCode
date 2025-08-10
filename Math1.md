@@ -3470,6 +3470,113 @@ bool isIdealPermutation(int* nums, int numsSize) {
 
 </details>
 
+## [869. Reordered Power of 2](https://leetcode.com/problems/reordered-power-of-2/)  1505
+
+- [Official](https://leetcode.cn/problems/reordered-power-of-2/solutions/1068761/zhong-xin-pai-xu-de-dao-2-de-mi-by-leetc-4fvs/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer n.
+We reorder the digits in any order (including the original order) such that the leading digit is not zero.
+
+Return true if and only if we can do this so that the resulting number is a power of two.
+
+Example 1:
+Input: n = 1
+Output: true
+
+Example 2:
+Input: n = 10
+Output: false
+
+Constraints:
+1 <= n <= 10^9
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+long counter(int n) {
+    long retVal = 0;
+
+    for (; n; n /= 10) {
+        retVal += pow(10, n % 10);
+    }
+
+    return retVal;
+}
+bool reorderedPowerOf2(int n) {
+    bool retVal = false;
+
+    long c = counter(n);
+    for (int i = 0; i < 31; i++) {
+        if (counter(1 << i) == c) {
+            retVal = true;
+            break;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    long counter(int n) {
+        long retVal = 0;
+
+        for (; n; n /= 10) {
+            retVal += pow(10, n % 10);
+        }
+
+        return retVal;
+    }
+
+   public:
+    bool reorderedPowerOf2(int n) {
+        bool retVal = false;
+
+        long c = counter(n);
+        for (int i = 0; i < 32; i++) {
+            if (counter(1 << i) == c) {
+                retVal = true;
+                break;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def reorderedPowerOf2(self, n: int) -> bool:
+        retVal = False
+
+        c = Counter(str(n))
+        for i in range(30):
+            if Counter(str(1 << i)) == c:
+                retVal = True
+                break
+
+        return retVal
+```
+
+</details>
+
 ## [908. Smallest Range I](https://leetcode.com/problems/smallest-range-i/)  1298
 
 - [Official](https://leetcode.cn/problems/smallest-range-i/solutions/1449819/zui-xiao-chai-zhi-i-by-leetcode-solution-7lcl/)
