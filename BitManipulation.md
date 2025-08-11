@@ -4444,6 +4444,176 @@ class Solution:
 
 </details>
 
+## [2438. Range Product Queries of Powers](https://leetcode.com/problems/range-product-queries-of-powers/)  1610
+
+- [Official](https://leetcode.com/problems/range-product-queries-of-powers/editorial/)
+- [Official](https://leetcode.cn/problems/range-product-queries-of-powers/solutions/3741778/er-de-mi-shu-zu-zhong-cha-xun-fan-wei-ne-ygou/)
+
+<details><summary>Description</summary>
+
+```text
+Given a positive integer n, there exists a 0-indexed array called powers,
+composed of the minimum number of powers of 2 that sum to n.
+The array is sorted in non-decreasing order, and there is only one way to form the array.
+
+You are also given a 0-indexed 2D integer array queries, where queries[i] = [lefti, righti].
+Each queries[i] represents a query where you have to find the product of all powers[j] with lefti <= j <= righti.
+
+Return an array answers, equal in length to queries, where answers[i] is the answer to the ith query.
+Since the answer to the ith query may be too large, each answers[i] should be returned modulo 10^9 + 7.
+
+Example 1:
+Input: n = 15, queries = [[0,1],[2,2],[0,3]]
+Output: [2,4,64]
+Explanation:
+For n = 15, powers = [1,2,4,8]. It can be shown that powers cannot be a smaller size.
+Answer to 1st query: powers[0] * powers[1] = 1 * 2 = 2.
+Answer to 2nd query: powers[2] = 4.
+Answer to 3rd query: powers[0] * powers[1] * powers[2] * powers[3] = 1 * 2 * 4 * 8 = 64.
+Each answer modulo 109 + 7 yields the same answer, so [2,4,64] is returned.
+
+Example 2:
+Input: n = 2, queries = [[0,0]]
+Output: [2]
+Explanation:
+For n = 2, powers = [2].
+The answer to the only query is powers[0] = 2. The answer modulo 109 + 7 is the same, so [2] is returned.
+
+Constraints:
+1 <= n <= 10^9
+1 <= queries.length <= 10^5
+0 <= starti <= endi < powers.length
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. The powers array can be created using the binary representation of n.
+2. Once powers is formed, the products can be taken using brute force.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MODULO (int)(1e9 + 7)  // Since the answer can be very large, return it modulo 10^9 + 7.
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* productQueries(int n, int** queries, int queriesSize, int* queriesColSize, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    int bins[32];
+    memset(bins, 0, sizeof(bins));
+    int binsSize = 0;
+    int rep = 1;
+    while (n > 0) {
+        if (n % 2 == 1) {
+            bins[binsSize++] = rep;
+        }
+        n /= 2;
+        rep *= 2;
+    }
+
+    pRetVal = (int*)malloc(queriesSize * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, queriesSize * sizeof(int));
+
+    int right, left;
+    long long cur;
+    for (int i = 0; i < queriesSize; i++) {
+        cur = 1;
+
+        left = queries[i][0];
+        right = queries[i][1];
+        for (int j = left; j <= right; j++) {
+            cur = (cur * bins[j]) % MODULO;
+        }
+        pRetVal[i] = (int)cur;
+    }
+    (*returnSize) = queriesSize;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    static constexpr int MODULO = 1e9 + 7;  // Since the answer can be very large, return it modulo 10^9 + 7.
+
+   public:
+    vector<int> productQueries(int n, vector<vector<int>>& queries) {
+        vector<int> retVal;
+
+        vector<int> bins;
+        int rep = 1;
+        while (n > 0) {
+            if (n % 2 == 1) {
+                bins.emplace_back(rep);
+            }
+            n /= 2;
+            rep *= 2;
+        }
+
+        for (const auto& query : queries) {
+            int left = query[0];
+            int right = query[1];
+            int cur = 1;
+            for (int i = left; i <= right; ++i) {
+                cur = static_cast<long long>(cur) * bins[i] % MODULO;
+            }
+            retVal.emplace_back(cur);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.MODULO = 10 ** 9 + 7   # Since the answer can be very large, return it modulo 10^9 + 7.
+
+    def productQueries(self, n: int, queries: List[List[int]]) -> List[int]:
+        retVal = []
+
+        bins = []
+        rep = 1
+        while n > 0:
+            if n % 2 == 1:
+                bins.append(rep)
+            n //= 2
+            rep *= 2
+
+        for left, right in queries:
+            cur = 1
+            for i in range(left, right + 1):
+                cur = cur * bins[i] % self.MODULO
+            retVal.append(cur)
+
+        return retVal
+```
+
+</details>
+
 ## [2683. Neighboring Bitwise XOR](https://leetcode.com/problems/neighboring-bitwise-xor/)  1517
 
 - [Official](https://leetcode.com/problems/neighboring-bitwise-xor/editorial/)
