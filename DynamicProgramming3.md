@@ -2064,6 +2064,143 @@ class Solution:
 
 </details>
 
+## [2787. Ways to Express an Integer as Sum of Powers](https://leetcode.com/problems/ways-to-express-an-integer-as-sum-of-powers/)  1818
+
+- [Official](https://leetcode.com/problems/ways-to-express-an-integer-as-sum-of-powers/editorial/)
+- [Official](https://leetcode.cn/problems/ways-to-express-an-integer-as-sum-of-powers/solutions/3741781/jiang-yi-ge-shu-zi-biao-shi-cheng-mi-de-bb9ip/)
+
+<details><summary>Description</summary>
+
+```text
+Given two positive integers n and x.
+
+Return the number of ways n can be expressed as the sum of the xth power of unique positive integers, in other words,
+the number of sets of unique integers [n1, n2, ..., nk] where n = n1^x + n2^x + ... + nk^x.
+
+Since the result can be very large, return it modulo 10^9 + 7.
+
+For example, if n = 160 and x = 3, one way to express n is n = 2^3 + 3^3 + 5^3.
+
+Example 1:
+Input: n = 10, x = 2
+Output: 1
+Explanation: We can express n as the following: n = 3^2 + 1^2 = 10.
+It can be shown that it is the only way to express 10 as the sum of the 2nd power of unique integers.
+
+Example 2:
+Input: n = 4, x = 1
+Output: 2
+Explanation: We can express n in the following ways:
+- n = 4^1 = 4.
+- n = 3^1 + 1^1 = 4.
+
+Constraints:
+1 <= n <= 300
+1 <= x <= 5
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. You can use dynamic programming,
+   where dp[k][j] represents the number of ways to express k as the sum of the x-th power of unique positive integers
+   such that the biggest possible number we use is j.
+2. To calculate dp[k][j],
+   you can iterate over the numbers smaller than j and try to use each one as a power of x to make our sum k.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MODULO (int)(1e9 + 7)  // Since the answer can be very large, return it modulo 10^9 + 7.
+int numberOfWays(int n, int x) {
+    int retVal = 0;
+
+    int dp[n + 1];
+    memset(dp, 0, sizeof(dp));
+    dp[0] = 1;
+
+    for (int i = 1; i <= n; i++) {
+        int val = (int)pow(i, x);
+        if (val > n) {
+            break;
+        }
+
+        for (int j = n; j >= val; j--) {
+            dp[j] = (dp[j] + dp[j - val]) % MODULO;
+        }
+    }
+    retVal = dp[n];
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    static constexpr int MODULO = 1e9 + 7;  // Since the answer can be very large, return it modulo 10^9 + 7.
+
+   public:
+    int numberOfWays(int n, int x) {
+        int retVal = 0;
+
+        vector<long long> dp(n + 1);
+        dp[0] = 1;
+        for (int i = 1; i <= n; i++) {
+            long long val = pow(i, x);
+            if (val > n) {
+                break;
+            }
+
+            for (int j = n; j >= val; j--) {
+                dp[j] = (dp[j] + dp[j - val]) % MODULO;
+            }
+        }
+        retVal = dp[n];
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.MODULO = 10 ** 9 + 7   # Since the answer can be very large, return it modulo 10^9 + 7.
+
+    def numberOfWays(self, n: int, x: int) -> int:
+        retVal = 0
+
+        dp = [0] * (n + 1)
+        dp[0] = 1
+        for i in range(1, n + 1):
+            val = i**x
+            if val > n:
+                break
+
+            for j in range(n, val - 1, -1):
+                dp[j] = (dp[j] + dp[j - val]) % self.MODULO
+
+        retVal = dp[n]
+
+        return retVal
+```
+
+</details>
+
 ## [2900. Longest Unequal Adjacent Groups Subsequence I](https://leetcode.com/problems/longest-unequal-adjacent-groups-subsequence-i/)  1468
 
 - [Official](https://leetcode.com/problems/longest-unequal-adjacent-groups-subsequence-i/editorial/)
