@@ -668,6 +668,8 @@ class Solution:
 
 ## [1323. Maximum 69 Number](https://leetcode.com/problems/maximum-69-number/)  1193
 
+- [Official](https://leetcode.cn/problems/maximum-69-number/solutions/101258/6-he-9-zu-cheng-de-zui-da-shu-zi-by-leetcode-solut/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -699,6 +701,15 @@ Constraints:
 1 <= num <= 10^4
 num consists of only 6 and 9 digits.
 ```
+
+<details><summary>Hint</summary>
+
+```text
+1. Convert the number in an array of its digits.
+2. Brute force on every digit to get the maximum number.
+```
+
+</details>
 
 </details>
 
@@ -755,6 +766,28 @@ public:
         return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maximum69Number(self, num: int) -> int:
+        retVal = num
+
+        base = 0
+        if retVal != 0:
+            base = 10 ** int(log10(retVal))
+
+        while base > 0:
+            if (retVal // base) % 10 == 6:
+                retVal += 3 * base
+                break
+            base = base // 10
+
+        return retVal
 ```
 
 </details>

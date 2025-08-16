@@ -34,6 +34,16 @@ int main(int argc, char **argv) {
     };
     vector<subject> testData{{9669}, {9996}, {9999}};
     int numberOfTestCase = testData.size();
+    /* Example
+     *  Input: num = 9669
+     *  Output: 9969
+     *
+     *  Input: num = 9996
+     *  Output: 9999
+     *
+     *  Input: num = 9999
+     *  Output: 9999
+     */
 
     Solution cSolution;
     int answer;

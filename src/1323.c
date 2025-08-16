@@ -28,6 +28,16 @@ int main(int argc, char **argv) {
         int num;
     } testCase[] = {{9669}, {9996}, {9999}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: num = 9669
+     *  Output: 9969
+     *
+     *  Input: num = 9996
+     *  Output: 9999
+     *
+     *  Input: num = 9999
+     *  Output: 9999
+     */
 
     int answer = 0;
     int i;
