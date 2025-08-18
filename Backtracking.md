@@ -2628,6 +2628,267 @@ class Solution {
 
 </details>
 
+## [679. 24 Game](https://leetcode.com/problems/24-game/)
+
+- [Official](https://leetcode.cn/problems/24-game/solutions/384138/24-dian-you-xi-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array cards of length 4. You have four cards, each containing a number in the range [1, 9].
+You should arrange the numbers on these cards in a mathematical expression
+using the operators ['+', '-', '*', '/'] and the parentheses '(' and ')' to get the value 24.
+
+You are restricted with the following rules:
+- The division operator '/' represents real division, not integer division.
+  - For example, 4 / (1 - 2 / 3) = 4 / (1 / 3) = 12.
+- Every operation done is between two numbers. In particular, we cannot use '-' as a unary operator.
+  - For example, if cards = [1, 1, 1, 1], the expression "-1 - 1 - 1 - 1" is not allowed.
+- You cannot concatenate numbers together
+  - For example, if cards = [1, 2, 1, 2], the expression "12 + 12" is not valid.
+
+Return true if you can get such expression that evaluates to 24, and false otherwise.
+
+Example 1:
+Input: cards = [4,1,8,7]
+Output: true
+Explanation: (8-4) * (7-1) = 24
+
+Example 2:
+Input: cards = [1,2,1,2]
+Output: false
+
+Constraints:
+cards.length == 4
+1 <= cards[i] <= 9
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MAX_CARDS_SIZE (20)
+const int TARGET = 24;
+const double EPSILON = 1e-6;
+enum Operation { ADD = 0, MULTIPLY = 1, SUBTRACT = 2, DIVIDE = 3 };
+bool backtracking(double* doubleCards, int doubleCardsSize) {
+    bool retVal = false;
+
+    if (doubleCardsSize == 0) {
+        return retVal;
+    } else if (doubleCardsSize == 1) {
+        retVal = fabs(doubleCards[0] - TARGET) < EPSILON;
+        return retVal;
+    }
+
+    double copyDoubleCards[MAX_CARDS_SIZE];
+    for (int i = 0; i < doubleCardsSize; i++) {
+        for (int j = 0; j < doubleCardsSize; j++) {
+            if (i == j) {
+                continue;
+            }
+
+            memset(copyDoubleCards, 0, sizeof(copyDoubleCards));
+            int copyDoubleCardsSize = 0;
+            for (int k = 0; k < doubleCardsSize; k++) {
+                if ((k != i) && (k != j)) {
+                    copyDoubleCards[copyDoubleCardsSize++] = doubleCards[k];
+                }
+            }
+
+            for (int k = 0; k < 4; k++) {
+                if ((k < 2) && (i > j)) {
+                    continue;
+                }
+
+                if (k == ADD) {
+                    copyDoubleCards[copyDoubleCardsSize++] = doubleCards[i] + doubleCards[j];
+                } else if (k == MULTIPLY) {
+                    copyDoubleCards[copyDoubleCardsSize++] = doubleCards[i] * doubleCards[j];
+                } else if (k == SUBTRACT) {
+                    copyDoubleCards[copyDoubleCardsSize++] = doubleCards[i] - doubleCards[j];
+                } else if (k == DIVIDE) {
+                    if (fabs(doubleCards[j]) < EPSILON) {
+                        continue;
+                    }
+                    copyDoubleCards[copyDoubleCardsSize++] = doubleCards[i] / doubleCards[j];
+                }
+
+                if (backtracking(copyDoubleCards, copyDoubleCardsSize) == true) {
+                    retVal = true;
+                    return retVal;
+                }
+                copyDoubleCardsSize--;
+            }
+        }
+    }
+
+    return retVal;
+}
+bool judgePoint24(int* cards, int cardsSize) {
+    bool retVal = false;
+
+    double doubleCards[MAX_CARDS_SIZE];
+    memset(doubleCards, 0, sizeof(doubleCards));
+    int doubleCardsSize = 0;
+    for (int i = 0; i < cardsSize; i++) {
+        doubleCards[doubleCardsSize++] = cards[i];
+    }
+    retVal = backtracking(doubleCards, doubleCardsSize);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    static constexpr int TARGET = 24;
+    static constexpr double EPSILON = 1e-6;
+    enum Operation { ADD = 0, MULTIPLY = 1, SUBTRACT = 2, DIVIDE = 3 };
+
+    bool backtracking(vector<double>& cards) {
+        bool retVal = false;
+
+        int cardsSize = cards.size();
+        if (cardsSize == 0) {
+            return retVal;
+        } else if (cardsSize == 1) {
+            retVal = fabs(cards[0] - TARGET) < EPSILON;
+            return retVal;
+        }
+
+        for (int i = 0; i < cardsSize; i++) {
+            for (int j = 0; j < cardsSize; j++) {
+                if (i == j) {
+                    continue;
+                }
+
+                vector<double> copyDoubleCards = vector<double>();
+                for (int k = 0; k < cardsSize; k++) {
+                    if ((k != i) && (k != j)) {
+                        copyDoubleCards.emplace_back(cards[k]);
+                    }
+                }
+
+                for (int k = 0; k < 4; k++) {
+                    if ((k < 2) && (i > j)) {
+                        continue;
+                    }
+
+                    if (k == ADD) {
+                        copyDoubleCards.emplace_back(cards[i] + cards[j]);
+                    } else if (k == MULTIPLY) {
+                        copyDoubleCards.emplace_back(cards[i] * cards[j]);
+                    } else if (k == SUBTRACT) {
+                        copyDoubleCards.emplace_back(cards[i] - cards[j]);
+                    } else if (k == DIVIDE) {
+                        if (fabs(cards[j]) < EPSILON) {
+                            continue;
+                        }
+                        copyDoubleCards.emplace_back(cards[i] / cards[j]);
+                    }
+
+                    if (backtracking(copyDoubleCards) == true) {
+                        retVal = true;
+                        return retVal;
+                    }
+                    copyDoubleCards.pop_back();
+                }
+            }
+        }
+
+        return retVal;
+    }
+
+   public:
+    bool judgePoint24(vector<int>& cards) {
+        bool retVal = false;
+
+        vector<double> doubleCards;
+        for (const int& card : cards) {
+            doubleCards.emplace_back(static_cast<double>(card));
+        }
+        retVal = backtracking(doubleCards);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.TARGET = 24
+        self.EPSILON = 1e-6
+        self.ADD = 0
+        self.MULTIPLY = 1
+        self.SUBTRACT = 2
+        self.DIVIDE = 3
+
+    def backtracking(self, cards: List[int]) -> bool:
+        retVal = False
+
+        if not cards:
+            return retVal
+
+        cardsSize = len(cards)
+        if cardsSize == 1:
+            retVal = abs(cards[0] - self.TARGET) < self.EPSILON
+            return retVal
+
+        for i, x in enumerate(cards):
+            for j, y in enumerate(cards):
+                if i == j:
+                    continue
+
+                newCards = list()
+                for k, z in enumerate(cards):
+                    if (k != i) and (k != j):
+                        newCards.append(z)
+
+                for k in range(4):
+                    if (k < 2) and (i > j):
+                        continue
+
+                    if k == self.ADD:
+                        newCards.append(x + y)
+                    elif k == self.MULTIPLY:
+                        newCards.append(x * y)
+                    elif k == self.SUBTRACT:
+                        newCards.append(x - y)
+                    elif k == self.DIVIDE:
+                        if abs(y) < self.EPSILON:
+                            continue
+                        newCards.append(x / y)
+
+                    if self.backtracking(newCards) == True:
+                        retVal = True
+                        return retVal
+
+                    newCards.pop()
+
+        return retVal
+
+    def judgePoint24(self, cards: List[int]) -> bool:
+        retVal = False
+
+        retVal = self.backtracking(cards)
+
+        return retVal
+```
+
+</details>
+
 ## [784. Letter Case Permutation](https://leetcode.com/problems/letter-case-permutation)  1341
 
 - [Official](https://leetcode.cn/problems/letter-case-permutation/solutions/1934375/zi-mu-da-xiao-xie-quan-pai-lie-by-leetco-cwpx/)
