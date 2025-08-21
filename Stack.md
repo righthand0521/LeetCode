@@ -5807,6 +5807,176 @@ class Solution:
 
 </details>
 
+## [1504. Count Submatrices With All Ones](https://leetcode.com/problems/count-submatrices-with-all-ones/)  1845
+
+- [Official](https://leetcode.com/problems/count-submatrices-with-all-ones/editorial/)
+- [Official](https://leetcode.cn/problems/count-submatrices-with-all-ones/solutions/336410/tong-ji-quan-1-zi-ju-xing-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+Given an m x n binary matrix mat, return the number of submatrices that have all ones.
+
+Example 1:
+Input: mat = [[1,0,1],[1,1,0],[1,1,0]]
+Output: 13
+Explanation:
+There are 6 rectangles of side 1x1.
+There are 2 rectangles of side 1x2.
+There are 3 rectangles of side 2x1.
+There is 1 rectangle of side 2x2.
+There is 1 rectangle of side 3x1.
+Total number of rectangles = 6 + 2 + 3 + 1 + 1 = 13.
+
+Example 2:
+Input: mat = [[0,1,1,0],[0,1,1,1],[1,1,1,0]]
+Output: 24
+Explanation:
+There are 8 rectangles of side 1x1.
+There are 5 rectangles of side 1x2.
+There are 2 rectangles of side 1x3.
+There are 4 rectangles of side 2x1.
+There are 2 rectangles of side 2x2.
+There are 2 rectangles of side 3x1.
+There is 1 rectangle of side 3x2.
+Total number of rectangles = 8 + 5 + 2 + 4 + 2 + 2 + 1 = 24.
+
+Constraints:
+1 <= m, n <= 150
+mat[i][j] is either 0 or 1.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. For each row i, create an array nums where: if mat[i][j] == 0 then nums[j] = 0 else nums[j] = nums[j-1] +1.
+2. In the row i, number of rectangles between column j and k(inclusive) and ends in row i,
+   is equal to SUM(min(nums[j, .. idx])) where idx go from j to k.
+   Expected solution is O(n^3).
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int numSubmat(int** mat, int matSize, int* matColSize) {
+    int retVal = 0;
+
+    int colSize = matColSize[0];
+
+    int heights[colSize];
+    memset(heights, 0, sizeof(heights));
+
+    int monotonicStack[colSize + 1][3];
+    int monotonicStackTop = 0;
+    for (int r = 0; r < matSize; r++) {
+        for (int i = 0; i < colSize; i++) {
+            heights[i] = (mat[r][i] == 0) ? (0) : (heights[i] + 1);
+        }
+
+        monotonicStackTop = 0;
+        monotonicStack[monotonicStackTop][0] = -1;
+        monotonicStack[monotonicStackTop][1] = 0;
+        monotonicStack[monotonicStackTop][2] = -1;
+        monotonicStackTop++;
+        for (int i = 0; i < colSize; i++) {
+            int h = heights[i];
+            while ((monotonicStackTop > 0) && (monotonicStack[monotonicStackTop - 1][2] >= h)) {
+                monotonicStackTop--;
+            }
+
+            int j = monotonicStack[monotonicStackTop - 1][0];
+            int prev = monotonicStack[monotonicStackTop - 1][1];
+            int cur = prev + (i - j) * h;
+            monotonicStack[monotonicStackTop][0] = i;
+            monotonicStack[monotonicStackTop][1] = cur;
+            monotonicStack[monotonicStackTop][2] = h;
+            monotonicStackTop++;
+
+            retVal += cur;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int numSubmat(vector<vector<int>>& mat) {
+        int retVal = 0;
+
+        int matColSize = mat[0].size();
+
+        vector<int> heights(matColSize, 0);
+        for (const auto& row : mat) {
+            for (int i = 0; i < matColSize; ++i) {
+                heights[i] = (row[i] == 0) ? 0 : heights[i] + 1;
+            }
+
+            stack<vector<int>> monotonicStack;
+            monotonicStack.push({-1, 0, -1});
+            for (int i = 0; i < matColSize; ++i) {
+                int h = heights[i];
+                while (monotonicStack.top()[2] >= h) {
+                    monotonicStack.pop();
+                }
+
+                auto& top = monotonicStack.top();
+                int j = top[0];
+                int prev = top[1];
+                int cur = prev + (i - j) * h;
+                monotonicStack.push({i, cur, h});
+
+                retVal += cur;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def numSubmat(self, mat: List[List[int]]) -> int:
+        retVal = 0
+
+        matColSize = len(mat[0])
+        heights = [0] * matColSize
+
+        for row in mat:
+            for i, x in enumerate(row):
+                heights[i] = 0 if x == 0 else heights[i] + 1
+
+            monotonicStack = [[-1, 0, -1]]
+            for i, h in enumerate(heights):
+                while monotonicStack[-1][2] >= h:
+                    monotonicStack.pop()
+
+                j, prev, _ = monotonicStack[-1]
+                cur = prev + (i - j) * h
+                monotonicStack.append([i, cur, h])
+
+                retVal += cur
+
+        return retVal
+```
+
+</details>
+
 ## [1544. Make The String Great](https://leetcode.com/problems/make-the-string-great/)  1344
 
 - [Official](https://leetcode.cn/problems/make-the-string-great/solutions/382513/zheng-li-zi-fu-chuan-by-leetcode-solution/)
