@@ -235,6 +235,141 @@ class Solution:
 
 </details>
 
+## [3195. Find the Minimum Area to Cover All Ones I](https://leetcode.com/problems/find-the-minimum-area-to-cover-all-ones-i/)  1348
+
+- [Official](https://leetcode.com/problems/find-the-minimum-area-to-cover-all-ones-i/editorial/)
+- [Official](https://leetcode.cn/problems/find-the-minimum-area-to-cover-all-ones-i/solutions/3751483/bao-han-suo-you-1-de-zui-xiao-ju-xing-mi-zty7/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 2D binary array grid. Find a rectangle with horizontal and vertical sides with the smallest area,
+such that all the 1's in grid lie inside this rectangle.
+
+Return the minimum possible area of the rectangle.
+
+Example 1:
+Input: grid = [[0,1,0],[1,0,1]]
+Output: 6
+Explanation:
+The smallest rectangle has a height of 2 and a width of 3, so it has an area of 2 * 3 = 6.
+
+Example 2:
+Input: grid = [[1,0],[0,0]]
+Output: 1
+Explanation:
+The smallest rectangle has both height and width 1, so its area is 1 * 1 = 1.
+
+Constraints:
+1 <= grid.length, grid[i].length <= 1000
+grid[i][j] is either 0 or 1.
+The input is generated such that there is at least one 1 in grid.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Find the minimum and maximum coordinates of a cell with a value of 1 in both directions.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int minimumArea(int** grid, int gridSize, int* gridColSize) {
+    int retVal = 0;
+
+    int rowSize = gridSize;
+    int colSize = gridColSize[0];
+
+    int minRow = rowSize;
+    int maxRow = 0;
+    int minCol = colSize;
+    int maxCol = 0;
+    for (int x = 0; x < rowSize; x++) {
+        for (int y = 0; y < colSize; y++) {
+            if (grid[x][y] == 1) {
+                minRow = fmin(minRow, x);
+                maxRow = fmax(maxRow, x);
+                minCol = fmin(minCol, y);
+                maxCol = fmax(maxCol, y);
+            }
+        }
+    }
+    retVal = (maxRow - minRow + 1) * (maxCol - minCol + 1);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minimumArea(vector<vector<int>>& grid) {
+        int retVal = 0;
+
+        int gridSize = grid.size();
+        int gridColSize = grid[0].size();
+
+        int minRow = gridSize;
+        int maxRow = 0;
+        int minCol = gridColSize;
+        int maxCol = 0;
+        for (int x = 0; x < gridSize; x++) {
+            for (int y = 0; y < gridColSize; y++) {
+                if (grid[x][y] == 1) {
+                    minRow = min(minRow, x);
+                    maxRow = max(maxRow, x);
+                    minCol = min(minCol, y);
+                    maxCol = max(maxCol, y);
+                }
+            }
+        }
+        retVal = (maxRow - minRow + 1) * (maxCol - minCol + 1);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minimumArea(self, grid: List[List[int]]) -> int:
+        retVal = 0
+
+        gridSize = len(grid)
+        gridColSize = len(grid[0])
+
+        minRow = gridSize
+        maxRow = 0
+        minCol = gridColSize
+        maxCol = 0
+        for x in range(gridSize):
+            for y in range(gridColSize):
+                if grid[x][y] == 1:
+                    minRow = min(minRow, x)
+                    maxRow = max(maxRow, x)
+                    minCol = min(minCol, y)
+                    maxCol = max(maxCol, y)
+
+        retVal = (maxRow - minRow + 1) * (maxCol - minCol + 1)
+
+        return retVal
+```
+
+</details>
+
 ## [3206. Alternating Groups I](https://leetcode.com/problems/alternating-groups-i/)  1223
 
 - [Official](https://leetcode.cn/problems/alternating-groups-i/)
