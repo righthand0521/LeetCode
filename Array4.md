@@ -370,6 +370,344 @@ class Solution:
 
 </details>
 
+## [3197. Find the Minimum Area to Cover All Ones II](https://leetcode.com/problems/find-the-minimum-area-to-cover-all-ones-ii/)  2541
+
+- [Official](https://leetcode.com/problems/find-the-minimum-area-to-cover-all-ones-ii/editorial/)
+- [Official](https://leetcode.cn/problems/find-the-minimum-area-to-cover-all-ones-ii/solutions/3756159/bao-han-suo-you-1-de-zui-xiao-ju-xing-mi-ioth/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 2D binary array grid.
+You need to find 3 non-overlapping rectangles having non-zero areas with horizontal and vertical sides
+such that all the 1's in grid lie inside these rectangles.
+
+Return the minimum possible sum of the area of these rectangles.
+
+Note that the rectangles are allowed to touch.
+
+Example 1:
+Input: grid = [[1,0,1],[1,1,1]]
+Output: 5
+Explanation:
+The 1's at (0, 0) and (1, 0) are covered by a rectangle of area 2.
+The 1's at (0, 2) and (1, 2) are covered by a rectangle of area 2.
+The 1 at (1, 1) is covered by a rectangle of area 1.
+
+Example 2:
+Input: grid = [[1,0,1,0],[0,1,0,1]]
+Output: 5
+Explanation:
+The 1's at (0, 0) and (0, 2) are covered by a rectangle of area 3.
+The 1 at (1, 1) is covered by a rectangle of area 1.
+The 1 at (1, 3) is covered by a rectangle of area 1.
+
+Constraints:
+1 <= grid.length, grid[i].length <= 30
+grid[i][j] is either 0 or 1.
+The input is generated such that there are at least three 1's in grid.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Consider covering using 2 rectangles. As the rectangles don’t overlap,
+   one of the rectangles must either be vertically above or horizontally left to the other.
+2. To find the minimum area, check all possible vertical and horizontal splits.
+3. For 3 rectangles, extend the idea to first covering using one rectangle,
+   and then try splitting leftover ones both horizontally and vertically.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int minimumSum2(int** grid, int gridSize, int* gridColSize, int u, int d, int l, int r) {
+    int min_i = gridSize, max_i = 0;
+    int min_j = gridColSize[0], max_j = 0;
+    for (int i = u; i <= d; i++) {
+        for (int j = l; j <= r; j++) {
+            if (grid[i][j] == 1) {
+                min_i = fmin(min_i, i);
+                min_j = fmin(min_j, j);
+                max_i = fmax(max_i, i);
+                max_j = fmax(max_j, j);
+            }
+        }
+    }
+    return min_i <= max_i ? (max_i - min_i + 1) * (max_j - min_j + 1) : INT_MAX / 3;
+}
+int solve(int** grid, int gridSize, int* gridColSize) {
+    int retVal = 0;
+
+    int rowSize = gridSize;
+    int colSize = gridColSize[0];
+    int x, y, z;
+    retVal = rowSize * colSize;
+    for (int i = 0; i + 1 < rowSize; i++) {
+        for (int j = 0; j + 1 < colSize; j++) {
+            x = minimumSum2(grid, rowSize, gridColSize, 0, i, 0, colSize - 1);
+            y = minimumSum2(grid, rowSize, gridColSize, i + 1, rowSize - 1, 0, j);
+            z = minimumSum2(grid, rowSize, gridColSize, i + 1, rowSize - 1, j + 1, colSize - 1);
+            retVal = fmin(retVal, x + y + z);
+
+            x = minimumSum2(grid, rowSize, gridColSize, 0, i, 0, j);
+            y = minimumSum2(grid, rowSize, gridColSize, 0, i, j + 1, colSize - 1);
+            z = minimumSum2(grid, rowSize, gridColSize, i + 1, rowSize - 1, 0, colSize - 1);
+            retVal = fmin(retVal, x + y + z);
+        }
+    }
+    for (int i = 0; i + 2 < rowSize; i++) {
+        for (int j = i + 1; j + 1 < rowSize; j++) {
+            x = minimumSum2(grid, rowSize, gridColSize, 0, i, 0, colSize - 1);
+            y = minimumSum2(grid, rowSize, gridColSize, i + 1, j, 0, colSize - 1);
+            z = minimumSum2(grid, rowSize, gridColSize, j + 1, rowSize - 1, 0, colSize - 1);
+            retVal = fmin(retVal, x + y + z);
+        }
+    }
+
+    return retVal;
+}
+int** rotate(int** grid, int gridSize, int* gridColSize, int* returnSize, int** returnColSizes) {
+    int** pRetVal = NULL;
+
+    int rowSize = gridSize;
+    int colSize = gridColSize[0];
+
+    (*returnSize) = 0;
+    (*returnColSizes) = (int*)malloc(colSize * sizeof(int));
+    if ((*returnColSizes) == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    pRetVal = (int**)malloc(colSize * sizeof(int*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        free((*returnColSizes));
+        (*returnColSizes) = NULL;
+        return pRetVal;
+    }
+    for (int i = 0; i < colSize; i++) {
+        pRetVal[i] = (int*)malloc(rowSize * sizeof(int));
+        if (pRetVal[i] == NULL) {
+            perror("malloc");
+            for (int j = 0; j < i; j++) {
+                free(pRetVal[j]);
+                pRetVal[j] = NULL;
+            }
+            free((*returnColSizes));
+            (*returnColSizes) = NULL;
+            free(pRetVal);
+            pRetVal = NULL;
+            return pRetVal;
+        }
+        (*returnColSizes)[i] = rowSize;
+    }
+
+    for (int i = 0; i < rowSize; i++) {
+        for (int j = 0; j < colSize; j++) {
+            pRetVal[colSize - j - 1][i] = grid[i][j];
+        }
+    }
+    (*returnSize) = colSize;
+
+    return pRetVal;
+}
+int minimumSum(int** grid, int gridSize, int* gridColSize) {
+    int retVal = 0;
+
+    int rotateGridSize = 0;
+    int* rotateGridColSizes = NULL;
+    int** rotateGrid = rotate(grid, gridSize, gridColSize, &rotateGridSize, &rotateGridColSizes);
+    if (rotateGrid != NULL) {
+        retVal = fmin(solve(grid, gridSize, gridColSize), solve(rotateGrid, rotateGridSize, rotateGridColSizes));
+    }
+
+    //
+    for (int i = 0; i < rotateGridSize; i++) {
+        free(rotateGrid[i]);
+        rotateGrid[i] = NULL;
+    }
+    free(rotateGrid);
+    rotateGrid = NULL;
+    free(rotateGridColSizes);
+    rotateGridColSizes = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int minimumSum2(vector<vector<int>> &grid, int u, int d, int l, int r) {
+        int retVal = 0;
+
+        int minRow = grid.size();
+        int maxRow = 0;
+        int minCol = grid[0].size();
+        int maxCol = 0;
+        for (int i = u; i <= d; i++) {
+            for (int j = l; j <= r; j++) {
+                if (grid[i][j] == 1) {
+                    minRow = min(minRow, i);
+                    minCol = min(minCol, j);
+                    maxRow = max(maxRow, i);
+                    maxCol = max(maxCol, j);
+                }
+            }
+        }
+        retVal = numeric_limits<int>::max() / 3;
+        if (minRow <= maxRow) {
+            retVal = (maxRow - minRow + 1) * (maxCol - minCol + 1);
+        }
+
+        return retVal;
+    }
+    int solve(vector<vector<int>> &grid) {
+        int retVal = 0;
+
+        int gridSize = grid.size();
+        int gridColSize = grid[0].size();
+
+        int x, y, z;
+        retVal = gridSize * gridColSize;
+        for (int i = 0; i + 1 < gridSize; i++) {
+            for (int j = 0; j + 1 < gridColSize; j++) {
+                x = minimumSum2(grid, 0, i, 0, gridColSize - 1);
+                y = minimumSum2(grid, i + 1, gridSize - 1, 0, j);
+                z = minimumSum2(grid, i + 1, gridSize - 1, j + 1, gridColSize - 1);
+                retVal = min(retVal, x + y + z);
+
+                x = minimumSum2(grid, 0, i, 0, j);
+                y = minimumSum2(grid, 0, i, j + 1, gridColSize - 1);
+                z = minimumSum2(grid, i + 1, gridSize - 1, 0, gridColSize - 1);
+                retVal = min(retVal, x + y + z);
+            }
+        }
+
+        for (int i = 0; i + 2 < gridSize; i++) {
+            for (int j = i + 1; j + 1 < gridSize; j++) {
+                x = minimumSum2(grid, 0, i, 0, gridColSize - 1);
+                y = minimumSum2(grid, i + 1, j, 0, gridColSize - 1);
+                z = minimumSum2(grid, j + 1, gridSize - 1, 0, gridColSize - 1);
+                retVal = min(retVal, x + y + z);
+            }
+        }
+
+        return retVal;
+    }
+    vector<vector<int>> rotate(vector<vector<int>> &grid) {
+        vector<vector<int>> retVal;
+
+        int gridSize = grid.size();
+        int gridColSize = grid[0].size();
+        retVal.resize(gridColSize, vector<int>(gridSize));
+        for (int i = 0; i < gridSize; i++) {
+            for (int j = 0; j < gridColSize; j++) {
+                retVal[gridColSize - j - 1][i] = grid[i][j];
+            }
+        }
+
+        return retVal;
+    }
+
+   public:
+    int minimumSum(vector<vector<int>> &grid) {
+        int retVal = 0;
+
+        auto rotateGrid = rotate(grid);
+        retVal = min(solve(grid), solve(rotateGrid));
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minimumSum2(self, grid: List[List[int]], u: int, d: int, l: int, r: int) -> int:
+        retVal = 0
+
+        minRow = len(grid)
+        maxRow = 0
+        minCol = len(grid[0])
+        maxCol = 0
+        for i in range(u, d + 1):
+            for j in range(l, r + 1):
+                if grid[i][j] == 1:
+                    minRow = min(minRow, i)
+                    minCol = min(minCol, j)
+                    maxRow = max(maxRow, i)
+                    maxCol = max(maxCol, j)
+
+        retVal = ((maxRow - minRow + 1) * (maxCol - minCol + 1) if minRow <= maxRow else sys.maxsize // 3)
+
+        return retVal
+
+    def rotate(self, grid: List[List[int]]) -> List[List[int]]:
+        retVal = []
+
+        gridSize = len(grid)
+        gridColSize = len(grid[0]) if gridSize > 0 else 0
+
+        retVal = [[0] * gridSize for _ in range(gridColSize)]
+        for i in range(gridSize):
+            for j in range(gridColSize):
+                retVal[gridColSize - j - 1][i] = grid[i][j]
+
+        return retVal
+
+    def solve(self, grid: List[List[int]]) -> int:
+        retVal = 0
+
+        gridSize = len(grid)
+        gridColSize = len(grid[0]) if gridSize > 0 else 0
+        retVal = gridSize * gridColSize
+
+        for i in range(gridSize - 1):
+            for j in range(gridColSize - 1):
+                x = self.minimumSum2(grid, 0, i, 0, gridColSize - 1)
+                y = self.minimumSum2(grid, i + 1, gridSize - 1, 0, j)
+                z = self.minimumSum2(grid, i + 1, gridSize - 1, j + 1, gridColSize - 1)
+                retVal = min(retVal, x + y + z)
+
+                x = self.minimumSum2(grid, 0, i, 0, j)
+                y = self.minimumSum2(grid, 0, i, j + 1, gridColSize - 1)
+                z = self.minimumSum2(grid, i + 1, gridSize - 1, 0, gridColSize - 1)
+                retVal = min(retVal, x + y + z)
+
+        for i in range(gridSize - 2):
+            for j in range(i + 1, gridSize - 1):
+                x = self.minimumSum2(grid, 0, i, 0, gridColSize - 1)
+                y = self.minimumSum2(grid, i + 1, j, 0, gridColSize - 1)
+                z = self.minimumSum2(grid, j + 1, gridSize - 1, 0, gridColSize - 1)
+                retVal = min(retVal, x + y + z)
+
+        return retVal
+
+    def minimumSum(self, grid: List[List[int]]) -> int:
+        retVal = 0
+
+        rotateGrid = self.rotate(grid)
+        retVal = min(self.solve(grid), self.solve(rotateGrid))
+
+        return retVal
+```
+
+</details>
+
 ## [3206. Alternating Groups I](https://leetcode.com/problems/alternating-groups-i/)  1223
 
 - [Official](https://leetcode.cn/problems/alternating-groups-i/)

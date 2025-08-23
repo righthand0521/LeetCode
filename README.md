@@ -46,6 +46,13 @@
 
 </details>
 
+<details><summary>Find the Minimum Area to Cover All Ones</summary>
+
+- [3195. Find the Minimum Area to Cover All Ones I](https://leetcode.com/problems/find-the-minimum-area-to-cover-all-ones-i/)
+- [3197. Find the Minimum Area to Cover All Ones II](https://leetcode.com/problems/find-the-minimum-area-to-cover-all-ones-ii/)
+
+</details>
+
 ## Backtracking
 
 <details><summary>Combination Sum</summary>
