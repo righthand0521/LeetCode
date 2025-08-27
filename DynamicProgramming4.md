@@ -1448,3 +1448,269 @@ class Solution:
 ```
 
 </details>
+
+## [3459. Length of Longest V-Shaped Diagonal Segment](https://leetcode.com/problems/length-of-longest-v-shaped-diagonal-segment/)  2531
+
+- [Official](https://leetcode.com/problems/length-of-longest-v-shaped-diagonal-segment/editorial/)
+- [Official](https://leetcode.cn/problems/length-of-longest-v-shaped-diagonal-segment/solutions/3756168/zui-chang-v-xing-dui-jiao-xian-duan-de-c-3pul/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 2D integer matrix grid of size n x m, where each element is either 0, 1, or 2.
+
+A V-shaped diagonal segment is defined as:
+- The segment starts with 1.
+- The subsequent elements follow this infinite sequence: 2, 0, 2, 0, ....
+- The segment:
+  - Starts along a diagonal direction
+    (top-left to bottom-right, bottom-right to top-left, top-right to bottom-left, or bottom-left to top-right).
+  - Continues the sequence in the same diagonal direction.
+  - Makes at most one clockwise 90-degree turn to another diagonal direction while maintaining the sequence.
+
+Return the length of the longest V-shaped diagonal segment. If no valid segment exists, return 0.
+
+Example 1:
+Input: grid = [[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]
+Output: 5
+Explanation:
+The longest V-shaped diagonal segment has a length of 5 and follows these coordinates: (0,2) → (1,3) → (2,4),
+takes a 90-degree clockwise turn at (2,4), and continues as (3,3) → (4,2).
+
+Example 2:
+Input: grid = [[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]
+Output: 4
+Explanation:
+The longest V-shaped diagonal segment has a length of 4 and follows these coordinates: (2,3) → (3,2),
+takes a 90-degree clockwise turn at (3,2), and continues as (2,1) → (1,0).
+
+Example 3:
+Input: grid = [[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]
+Output: 5
+Explanation:
+The longest V-shaped diagonal segment has a length of 5 and
+follows these coordinates: (0,0) → (1,1) → (2,2) → (3,3) → (4,4).
+
+Example 4:
+Input: grid = [[1]]
+Output: 1
+Explanation:
+The longest V-shaped diagonal segment has a length of 1 and follows these coordinates: (0,0).
+
+Constraints:
+n == grid.length
+m == grid[i].length
+1 <= n, m <= 500
+grid[i][j] is either 0, 1 or 2.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use dynamic programming to determine the best point
+   to make a 90-degree rotation in the diagonal path while maintaining the required sequence.
+2. Represent dynamic programming states as (row, col, currentDirection, hasMadeTurnYet).
+   Track the current position, direction of traversal, and whether a turn has already been made,
+   and take transitions accordingly to find the longest V-shaped diagonal segment.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+const int directions[4][2] = {{1, 1}, {1, -1}, {-1, -1}, {-1, 1}};
+int dfs(int** grid, int gridSize, int gridColSize, int*** memo, int x, int y, int z, int turn, int target) {
+    int retVal = 0;
+
+    x += directions[z][0];
+    y += directions[z][1];
+    if ((x < 0) || (x >= gridSize) || (y < 0) || (y >= gridColSize)) {
+        return retVal;
+    } else if (grid[x][y] != target) {
+        return retVal;
+    }
+
+    int maxs[4];
+    int next;
+    int mask = (z << 1) | turn;
+    if (memo[x][y][mask] <= 0) {
+        retVal = dfs(grid, gridSize, gridColSize, memo, x, y, z, turn, 2 - target);
+        if (turn == 1) {
+            memset(maxs, 0, sizeof(maxs));
+            maxs[0] = gridSize - x - 1;
+            maxs[1] = y;
+            maxs[2] = x;
+            maxs[3] = gridColSize - y - 1;
+            next = (z + 1) % 4;
+            if (maxs[next] > retVal) {
+                retVal = fmax(retVal, dfs(grid, gridSize, gridColSize, memo, x, y, next, 0, 2 - target));
+            }
+        }
+        memo[x][y][mask] = retVal + 1;
+    }
+    retVal = memo[x][y][mask];
+
+    return retVal;
+}
+int lenOfVDiagonal(int** grid, int gridSize, int* gridColSize) {
+    int retVal = 0;
+
+    int rowSize = gridSize;
+    int colSize = gridColSize[0];
+    int depth = (1 << 3);
+
+    int*** memo = (int***)malloc(rowSize * sizeof(int**));
+    for (int i = 0; i < rowSize; i++) {
+        memo[i] = (int**)malloc(colSize * sizeof(int*));
+        for (int j = 0; j < colSize; j++) {
+            memo[i][j] = (int*)malloc(depth * sizeof(int));
+            memset(memo[i][j], -1, depth * sizeof(int));
+        }
+    }
+
+    for (int x = 0; x < rowSize; ++x) {
+        for (int y = 0; y < colSize; ++y) {
+            if (grid[x][y] != 1) {
+                continue;
+            }
+
+            int maxs[4] = {rowSize - x, y + 1, x + 1, colSize - y};
+            for (int z = 0; z < 4; ++z) {
+                if (maxs[z] > retVal) {
+                    retVal = fmax(retVal, dfs(grid, rowSize, colSize, memo, x, y, z, 1, 2) + 1);
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < rowSize; i++) {
+        for (int j = 0; j < colSize; j++) {
+            free(memo[i][j]);
+            memo[i][j] = NULL;
+        }
+        free(memo[i]);
+        memo[i] = NULL;
+    }
+    free(memo);
+    memo = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    const int directions[4][2] = {{1, 1}, {1, -1}, {-1, -1}, {-1, 1}};
+
+    int dfs(vector<vector<int>>& grid, vector<vector<vector<int>>>& memo, int x, int y, int z, int turn, int target) {
+        int retVal = 0;
+
+        int gridSize = grid.size();
+        int gridColSize = grid[0].size();
+        x += directions[z][0];
+        y += directions[z][1];
+        if ((x < 0) || (x >= gridSize) || (y < 0) || (y >= gridColSize)) {
+            return retVal;
+        } else if (grid[x][y] != target) {
+            return retVal;
+        }
+
+        int mask = (z << 1) | turn;
+        if (memo[x][y][mask] <= 0) {
+            retVal = dfs(grid, memo, x, y, z, turn, 2 - target);
+            if (turn == 1) {
+                vector<int> maxs = {gridSize - x - 1, y, x, gridColSize - y - 1};
+                int next = (z + 1) % 4;
+                if (maxs[next] > retVal) {
+                    retVal = max(retVal, dfs(grid, memo, x, y, next, 0, 2 - target));
+                }
+            }
+            memo[x][y][mask] = retVal + 1;
+        }
+        retVal = memo[x][y][mask];
+
+        return retVal;
+    };
+
+   public:
+    int lenOfVDiagonal(vector<vector<int>>& grid) {
+        int retVal = 0;
+
+        int gridSize = grid.size();
+        int gridColSize = grid[0].size();
+        vector<vector<vector<int>>> memo(gridSize, vector<vector<int>>(gridColSize, vector<int>(1 << 3, 0)));
+        for (int x = 0; x < gridSize; ++x) {
+            for (int y = 0; y < gridColSize; ++y) {
+                if (grid[x][y] != 1) {
+                    continue;
+                }
+
+                vector<int> maxs = {gridSize - x, y + 1, x + 1, gridColSize - y};
+                for (int z = 0; z < 4; ++z) {
+                    if (maxs[z] > retVal) {
+                        retVal = max(retVal, dfs(grid, memo, x, y, z, 1, 2) + 1);
+                    }
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self):
+        self.directions = [(1, 1), (1, -1), (-1, -1), (-1, 1)]
+
+    def lenOfVDiagonal(self, grid: List[List[int]]) -> int:
+        retVal = 0
+
+        gridSize = len(grid)
+        gridColSize = len(grid[0])
+
+        @cache
+        def dfs(cx: int, cy: int, direction: int, turn: bool, target: int) -> int:
+            retVal = 0
+
+            nextX = cx + self.directions[direction][0]
+            nextY = cy + self.directions[direction][1]
+            # If it goes beyond the boundary or the next node's value is not the target value, then return
+            if (nextX < 0) or (nextY < 0) or (nextX >= gridSize) or (nextY >= gridColSize):
+                return retVal
+            if (grid[nextX][nextY] != target):
+                return retVal
+
+            # Continue walking in the original direction.
+            maxStep = dfs(nextX, nextY, direction, turn, 2 - target)
+            if turn == True:
+                # Clockwise rotate 90 degrees turn
+                maxStep = max(maxStep, dfs(nextX, nextY, (direction + 1) % 4, False, 2 - target))
+            retVal = maxStep + 1
+
+            return retVal
+
+        for i in range(gridSize):
+            for j in range(gridColSize):
+                if grid[i][j] != 1:
+                    continue
+                for direction in range(4):
+                    retVal = max(retVal, dfs(i, j, direction, True, 2) + 1)
+
+        return retVal
+```
+
+</details>
