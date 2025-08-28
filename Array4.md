@@ -1293,6 +1293,216 @@ class Solution:
 
 </details>
 
+## [3446. Sort Matrix by Diagonals](https://leetcode.com/problems/sort-matrix-by-diagonals/)  1373
+
+- [Official](https://leetcode.com/problems/sort-matrix-by-diagonals/editorial/)
+- [Official](https://leetcode.cn/problems/sort-matrix-by-diagonals/description/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an n x n square matrix of integers grid. Return the matrix such that:
+- The diagonals in the bottom-left triangle (including the middle diagonal) are sorted in non-increasing order.
+- The diagonals in the top-right triangle are sorted in non-decreasing order.
+
+Example 1:
+Input: grid = [[1,7,3],[9,8,2],[4,5,6]]
+Output: [[8,2,3],[9,6,7],[4,5,1]]
+Explanation:
+The diagonals with a black arrow (bottom-left triangle) should be sorted in non-increasing order:
+[1, 8, 6] becomes [8, 6, 1].
+[9, 5] and [4] remain unchanged.
+The diagonals with a blue arrow (top-right triangle) should be sorted in non-decreasing order:
+[7, 2] becomes [2, 7].
+[3] remains unchanged.
+
+Example 2:
+Input: grid = [[0,1],[1,2]]
+Output: [[2,1],[1,0]]
+Explanation:
+The diagonals with a black arrow must be non-increasing, so [0, 2] is changed to [2, 0].
+The other diagonals are already in the correct order.
+
+Example 3:
+Input: grid = [[1]]
+Output: [[1]]
+Explanation:
+Diagonals with exactly one element are already in order, so no changes are needed.
+
+Constraints:
+grid.length == grid[i].length == n
+1 <= n <= 10
+-10^5 <= grid[i][j] <= 10^5
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use a data structure to store all values in each diagonal.
+2. Sort and replace them in the matrix.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareIntegerAscending(const void* n1, const void* n2) {
+    // ascending order
+    return (*(int*)n1 > *(int*)n2);
+}
+int compareIntegerDescending(const void* n1, const void* n2) {
+    // descending order
+    return (*(int*)n1 < *(int*)n2);
+}
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int** sortMatrix(int** grid, int gridSize, int* gridColSize, int* returnSize, int** returnColumnSizes) {
+    int** pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    (*returnColumnSizes) = (int*)calloc(gridSize, sizeof(int));
+    if ((*returnColumnSizes) == NULL) {
+        perror("calloc");
+        return pRetVal;
+    }
+    pRetVal = (int**)malloc(gridSize * sizeof(int*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        free((*returnColumnSizes));
+        (*returnColumnSizes) = NULL;
+        return pRetVal;
+    }
+    for (int i = 0; i < gridSize; ++i) {
+        pRetVal[i] = (int*)calloc(gridColSize[i], sizeof(int));
+        if (pRetVal[i] == NULL) {
+            perror("calloc");
+            free((*returnColumnSizes));
+            (*returnColumnSizes) = NULL;
+            for (int j = 0; j < i; ++j) {
+                free(pRetVal[j]);
+            }
+            free(pRetVal);
+            pRetVal = NULL;
+            return pRetVal;
+        }
+        for (int j = 0; j < gridColSize[i]; j++) {
+            pRetVal[i][j] = grid[i][j];
+        }
+        (*returnColumnSizes)[i] = gridColSize[i];
+    }
+    (*returnSize) = gridSize;
+
+    int tmp[gridSize + 1];
+    int len;
+
+    for (int i = 0; i < gridSize; i++) {
+        memset(tmp, 0, sizeof(tmp));
+        len = 0;
+        for (int j = 0; i + j < gridSize; j++) {
+            tmp[len++] = pRetVal[i + j][j];
+        }
+        qsort(tmp, len, sizeof(int), compareIntegerDescending);
+
+        for (int j = 0; i + j < gridSize; j++) {
+            pRetVal[i + j][j] = tmp[j];
+        }
+    }
+
+    for (int j = 1; j < gridSize; j++) {
+        memset(tmp, 0, sizeof(tmp));
+        len = 0;
+        for (int i = 0; j + i < gridColSize[i]; i++) {
+            tmp[len++] = pRetVal[i][j + i];
+        }
+        qsort(tmp, len, sizeof(int), compareIntegerAscending);
+
+        for (int i = 0; j + i < gridColSize[i]; i++) {
+            pRetVal[i][j + i] = tmp[i];
+        }
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<vector<int>> sortMatrix(vector<vector<int>>& grid) {
+        vector<vector<int>> retVal = grid;
+
+        int gridSize = grid.size();
+
+        for (int i = 0; i < gridSize; i++) {
+            vector<int> tmp;
+            for (int j = 0; i + j < gridSize; j++) {
+                tmp.emplace_back(grid[i + j][j]);
+            }
+            sort(tmp.begin(), tmp.end(), greater<int>());
+
+            for (int j = 0; i + j < gridSize; j++) {
+                retVal[i + j][j] = tmp[j];
+            }
+        }
+
+        for (int j = 1; j < gridSize; j++) {
+            vector<int> tmp;
+            for (int i = 0; j + i < gridSize; i++) {
+                tmp.emplace_back(retVal[i][j + i]);
+            }
+
+            sort(tmp.begin(), tmp.end());
+            for (int i = 0; j + i < gridSize; i++) {
+                retVal[i][j + i] = tmp[i];
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def sortMatrix(self, grid: List[List[int]]) -> List[List[int]]:
+        retVal = None
+
+        retVal = deepcopy(grid)
+
+        gridSize = len(grid)
+
+        for i in range(gridSize):
+            tmp = [retVal[i + j][j] for j in range(gridSize - i)]
+            tmp.sort(reverse=True)
+            for j in range(gridSize - i):
+                retVal[i + j][j] = tmp[j]
+
+        for j in range(1, gridSize):
+            tmp = [retVal[i][j + i] for i in range(gridSize - j)]
+            tmp.sort()
+            for i in range(gridSize - j):
+                retVal[i][j + i] = tmp[i]
+
+        return retVal
+```
+
+</details>
+
 ## [3480. Maximize Subarrays After Removing One Conflicting Pair](https://leetcode.com/problems/maximize-subarrays-after-removing-one-conflicting-pair/)  2763
 
 - [Official](https://leetcode.com/problems/maximize-subarrays-after-removing-one-conflicting-pair/editorial/)
