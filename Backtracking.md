@@ -375,6 +375,308 @@ class Solution:
 
 </details>
 
+## [37. Sudoku Solver](https://leetcode.com/problems/sudoku-solver/)
+
+- [Official](https://leetcode.cn/problems/sudoku-solver/solutions/414120/jie-shu-du-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+Write a program to solve a Sudoku puzzle by filling the empty cells.
+
+A sudoku solution must satisfy all of the following rules:
+1. Each of the digits 1-9 must occur exactly once in each row.
+2. Each of the digits 1-9 must occur exactly once in each column.
+3. Each of the digits 1-9 must occur exactly once in each of the 9 3x3 sub-boxes of the grid.
+
+The '.' character indicates empty cells.
+
+Example 1:
+Input: board = [
+    ["5","3",".",".","7",".",".",".","."],
+    ["6",".",".","1","9","5",".",".","."],
+    [".","9","8",".",".",".",".","6","."],
+    ["8",".",".",".","6",".",".",".","3"],
+    ["4",".",".","8",".","3",".",".","1"],
+    ["7",".",".",".","2",".",".",".","6"],
+    [".","6",".",".",".",".","2","8","."],
+    [".",".",".","4","1","9",".",".","5"],
+    [".",".",".",".","8",".",".","7","9"]
+]
+Output: [
+    ["5","3","4","6","7","8","9","1","2"],
+    ["6","7","2","1","9","5","3","4","8"],
+    ["1","9","8","3","4","2","5","6","7"],
+    ["8","5","9","7","6","1","4","2","3"],
+    ["4","2","6","8","5","3","7","9","1"],
+    ["7","1","3","9","2","4","8","5","6"],
+    ["9","6","1","5","3","7","2","8","4"],
+    ["2","8","7","4","1","9","6","3","5"],
+    ["3","4","5","2","8","6","1","7","9"]
+]
+Explanation: The input board is shown above and the only valid solution is shown below:
+
+Constraints:
+board.length == 9
+board[i].length == 9
+board[i][j] is a digit or '.'.
+It is guaranteed that the input board has only one solution.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MAX_BOARD_SIZE (9)
+#define MAX_SPACES_SIZE (MAX_BOARD_SIZE * MAX_BOARD_SIZE)
+int* spaces[MAX_SPACES_SIZE];
+int spacesSize;
+bool valid;
+int line[MAX_BOARD_SIZE];
+int column[MAX_BOARD_SIZE];
+int block[3][3];
+void flip(int i, int j, int digit) {
+    line[i] ^= (1 << digit);
+    column[j] ^= (1 << digit);
+    block[i / 3][j / 3] ^= (1 << digit);
+}
+void dfs(char** board, int pos) {
+    if (pos == spacesSize) {
+        valid = true;
+        return;
+    }
+
+    int i = spaces[pos][0];
+    int j = spaces[pos][1];
+    int mask = ~(line[i] | column[j] | block[i / 3][j / 3]) & (0x1ff);
+    for (; mask && !valid; mask &= (mask - 1)) {
+        int digitMask = mask & (-mask);
+        int digit = __builtin_ctz(digitMask);
+        flip(i, j, digit);
+        board[i][j] = digit + '0' + 1;
+        dfs(board, pos + 1);
+        flip(i, j, digit);
+    }
+}
+void solveSudoku(char** board, int boardSize, int* boardColSize) {
+    memset(line, 0, sizeof(line));
+    memset(column, 0, sizeof(column));
+    memset(block, 0, sizeof(block));
+    valid = false;
+    spacesSize = 0;
+
+    for (int i = 0; i < MAX_BOARD_SIZE; ++i) {
+        for (int j = 0; j < MAX_BOARD_SIZE; ++j) {
+            if (board[i][j] != '.') {
+                int digit = board[i][j] - '0' - 1;
+                flip(i, j, digit);
+            }
+        }
+    }
+
+    while (true) {
+        int modified = false;
+        for (int i = 0; i < MAX_BOARD_SIZE; ++i) {
+            for (int j = 0; j < MAX_BOARD_SIZE; ++j) {
+                if (board[i][j] != '.') {
+                    continue;
+                }
+                int mask = ~(line[i] | column[j] | block[i / 3][j / 3]) & (0x1ff);
+                if (!(mask & (mask - 1))) {
+                    int digit = __builtin_ctz(mask);
+                    flip(i, j, digit);
+                    board[i][j] = digit + '0' + 1;
+                    modified = true;
+                }
+            }
+        }
+        if (!modified) {
+            break;
+        }
+    }
+
+    for (int i = 0; i < 9; ++i) {
+        for (int j = 0; j < 9; ++j) {
+            if (board[i][j] == '.') {
+                spaces[spacesSize] = malloc(sizeof(int) * 2);
+                spaces[spacesSize][0] = i;
+                spaces[spacesSize++][1] = j;
+            }
+        }
+    }
+
+    dfs(board, 0);
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    static const int boardSize = 9;
+    vector<pair<int, int>> spaces;
+    bool valid;
+    int line[boardSize];
+    int column[boardSize];
+    int block[3][3];
+
+    void flip(int i, int j, int digit) {
+        line[i] ^= (1 << digit);
+        column[j] ^= (1 << digit);
+        block[i / 3][j / 3] ^= (1 << digit);
+    }
+
+    void dfs(vector<vector<char>>& board, int pos) {
+        int spaceSize = spaces.size();
+        if (pos == spaceSize) {
+            valid = true;
+            return;
+        }
+
+        auto [i, j] = spaces[pos];
+        int mask = ~(line[i] | column[j] | block[i / 3][j / 3]) & (0x1ff);
+        for (; mask && !valid; mask &= (mask - 1)) {
+            int digitMask = mask & (-mask);
+            int digit = __builtin_ctz(digitMask);
+            flip(i, j, digit);
+            board[i][j] = digit + '0' + 1;
+            dfs(board, pos + 1);
+            flip(i, j, digit);
+        }
+    }
+
+   public:
+    void solveSudoku(vector<vector<char>>& board) {
+        memset(line, 0, sizeof(line));
+        memset(column, 0, sizeof(column));
+        memset(block, 0, sizeof(block));
+        valid = false;
+
+        for (int i = 0; i < 9; ++i) {
+            for (int j = 0; j < 9; ++j) {
+                if (board[i][j] != '.') {
+                    int digit = board[i][j] - '0' - 1;
+                    flip(i, j, digit);
+                }
+            }
+        }
+
+        while (true) {
+            int modified = false;
+            for (int i = 0; i < 9; ++i) {
+                for (int j = 0; j < 9; ++j) {
+                    if (board[i][j] != '.') {
+                        continue;
+                    }
+                    int mask = ~(line[i] | column[j] | block[i / 3][j / 3]) & (0x1ff);
+                    if (!(mask & (mask - 1))) {
+                        int digit = __builtin_ctz(mask);
+                        flip(i, j, digit);
+                        board[i][j] = digit + '0' + 1;
+                        modified = true;
+                    }
+                }
+            }
+            if (!modified) {
+                break;
+            }
+        }
+
+        for (int i = 0; i < 9; ++i) {
+            for (int j = 0; j < 9; ++j) {
+                if (board[i][j] == '.') {
+                    spaces.emplace_back(i, j);
+                }
+            }
+        }
+
+        dfs(board, 0);
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.boardSize = 9
+        self.spaces = list()
+        self.valid = False
+        self.line = None
+        self.column = None
+        self.block = None
+
+    def flip(self, i: int, j: int, digit: int):
+        self.line[i] ^= (1 << digit)
+        self.column[j] ^= (1 << digit)
+        self.block[i // 3][j // 3] ^= (1 << digit)
+
+    def dfs(self, board: List[List[str]], pos: int) -> None:
+        spacesSize = len(self.spaces)
+        if pos == spacesSize:
+            self.valid = True
+            return
+
+        i, j = self.spaces[pos]
+        mask = ~(self.line[i] | self.column[j] | self.block[i // 3][j // 3]) & (0x1ff)
+        while mask:
+            digitMask = mask & (-mask)
+            digit = bin(digitMask).count("0") - 1
+            self.flip(i, j, digit)
+            board[i][j] = str(digit + 1)
+            self.dfs(board, pos + 1)
+            self.flip(i, j, digit)
+            mask &= (mask - 1)
+            if self.valid == True:
+                return
+
+    def solveSudoku(self, board: List[List[str]]) -> None:
+        """
+        Do not return anything, modify board in-place instead.
+        """
+        self.line = [0] * self.boardSize
+        self.column = [0] * self.boardSize
+        self.block = [[0] * 3 for _ in range(3)]
+        self.valid = False
+
+        for i in range(self.boardSize):
+            for j in range(self.boardSize):
+                if board[i][j] != ".":
+                    digit = int(board[i][j]) - 1
+                    self.flip(i, j, digit)
+
+        while True:
+            modified = False
+            for i in range(self.boardSize):
+                for j in range(self.boardSize):
+                    if board[i][j] != ".":
+                        continue
+                    mask = ~(self.line[i] | self.column[j] | self.block[i // 3][j // 3]) & (0x1ff)
+                    if not (mask & (mask - 1)):
+                        digit = bin(mask).count("0") - 1
+                        self.flip(i, j, digit)
+                        board[i][j] = str(digit + 1)
+                        modified = True
+            if not modified:
+                break
+
+        for i in range(self.boardSize):
+            for j in range(self.boardSize):
+                if board[i][j] == ".":
+                    self.spaces.append((i, j))
+
+        self.dfs(board, 0)
+```
+
+</details>
+
 ## [39. Combination Sum](https://leetcode.com/problems/combination-sum/)
 
 - [Official](https://leetcode.cn/problems/combination-sum/solutions/406516/zu-he-zong-he-by-leetcode-solution/)
