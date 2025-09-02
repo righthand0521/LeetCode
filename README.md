@@ -588,6 +588,15 @@
 
 </details>
 
+## Sorting
+
+<details><summary>Find the Number of Ways to Place People</summary>
+
+- [3025. Find the Number of Ways to Place People I](https://leetcode.com/problems/find-the-number-of-ways-to-place-people-i/)
+- [3027. Find the Number of Ways to Place People II](https://leetcode.com/problems/find-the-number-of-ways-to-place-people-ii/)
+
+</details>
+
 ## Stack
 
 <details><summary>Remove Duplicate Letters</summary>
