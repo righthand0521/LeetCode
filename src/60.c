@@ -13,7 +13,9 @@ int permutation(int n) {
     return retVal;
 }
 char* getPermutation(int n, int k) {
-    char* pRetVal = (char*)malloc((n + 1) * sizeof(char));
+    char* pRetVal = NULL;
+
+    pRetVal = (char*)malloc((n + 1) * sizeof(char));
     if (pRetVal == NULL) {
         perror("malloc");
         return pRetVal;
@@ -42,7 +44,6 @@ char* getPermutation(int n, int k) {
         if (sum >= k) {
             break;
         }
-        // printf("(%d,%d)[%6d][%6d]\n", i, j, interval, sum);
 
         pRetVal[i - 1] = buf[j - 1];
         for (idx = j - 1; idx < n; ++idx) {
@@ -60,6 +61,16 @@ int main(int argc, char** argv) {
         int k;
     } testCase[] = {{3, 3}, {4, 9}, {3, 1}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: n = 3, k = 3
+     *  Output: "213"
+     *
+     *  Input: n = 4, k = 9
+     *  Output: "2314"
+     *
+     *  Input: n = 3, k = 1
+     *  Output: "123"
+     */
 
     char* pAnswer = NULL;
     int i;

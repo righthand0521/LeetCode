@@ -574,18 +574,20 @@ class Solution:
 
 ## [60. Permutation Sequence](https://leetcode.com/problems/permutation-sequence/)
 
+- [Official](https://leetcode.cn/problems/permutation-sequence/solutions/401574/di-kge-pai-lie-by-leetcode-solution/)
+
 <details><summary>Description</summary>
 
 ```text
 The set [1, 2, 3, ..., n] contains a total of n! unique permutations.
 
 By listing and labeling all of the permutations in order, we get the following sequence for n = 3:
- 1. "123"
- 2. "132"
- 3. "213"
- 4. "231"
- 5. "312"
- 6. "321"
+1. "123"
+2. "132"
+3. "213"
+4. "231"
+5. "312"
+6. "321"
 
 Given n and k, return the kth permutation sequence.
 
@@ -611,67 +613,148 @@ Constraints:
 <details><summary>C</summary>
 
 ```c
-int permutation(int n)
-{
+int permutation(int n) {
     int retVal = 1;
 
     int i;
-    for (i=1; i<=n; ++i)
-    {
+    for (i = 1; i <= n; ++i) {
         retVal *= i;
     }
 
     return retVal;
 }
+char* getPermutation(int n, int k) {
+    char* pRetVal = NULL;
 
-char * getPermutation(int n, int k){
-    char* pRetVal = (char*)malloc((n+1)*sizeof(char));
-    if (pRetVal == NULL)
-    {
+    pRetVal = (char*)malloc((n + 1) * sizeof(char));
+    if (pRetVal == NULL) {
         perror("malloc");
         return pRetVal;
     }
-    memset(pRetVal, 0, (n+1)*sizeof(char));
+    memset(pRetVal, 0, (n + 1) * sizeof(char));
 
-    char buf[n+1];
-    memset(buf, 0, n+1);
+    char buf[n + 1];
+    memset(buf, 0, n + 1);
     int idx;
-    for (idx=0; idx<n; ++idx)
-    {
+    for (idx = 0; idx < n; ++idx) {
         buf[idx] = (idx + 1) + '0';
     }
 
     int sum = 0;
     int interval;
     int i, j;
-    for (i=1; i<=n-1; ++i)
-    {
-        interval = permutation(n-i);
-        for (j=1; j<=n; ++j)
-        {
+    for (i = 1; i <= n - 1; ++i) {
+        interval = permutation(n - i);
+        for (j = 1; j <= n; ++j) {
             sum += interval;
-            if (sum >= k)
-            {
+            if (sum >= k) {
                 sum -= interval;
                 break;
             }
         }
-        if (sum >= k)
-        {
+        if (sum >= k) {
             break;
         }
-        // printf("(%d,%d)[%6d][%6d]\n", i, j, interval, sum);
 
-        pRetVal[i-1] = buf[j-1];
-        for (idx=j-1; idx<n; ++idx)
-        {
-            buf[idx] = buf[idx+1];
+        pRetVal[i - 1] = buf[j - 1];
+        for (idx = j - 1; idx < n; ++idx) {
+            buf[idx] = buf[idx + 1];
         }
     }
-    pRetVal[i-1] = buf[0];
+    pRetVal[i - 1] = buf[0];
 
     return pRetVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int permutation(int n) {
+        int retVal = 1;
+
+        int i;
+        for (i = 1; i <= n; ++i) {
+            retVal *= i;
+        }
+
+        return retVal;
+    }
+
+   public:
+    string getPermutation(int n, int k) {
+        string retVal = "";
+
+        vector<char> buf(n + 1, 0);
+        for (int i = 0; i < n; ++i) {
+            buf[i] = (i + 1) + '0';
+        }
+
+        vector<char> ans(n + 1, 0);
+        int sum = 0;
+        int i, j;
+        for (i = 1; i <= n - 1; ++i) {
+            int interval = permutation(n - i);
+
+            for (j = 1; j <= n; ++j) {
+                sum += interval;
+                if (sum >= k) {
+                    sum -= interval;
+                    break;
+                }
+            }
+            if (sum >= k) {
+                break;
+            }
+
+            ans[i - 1] = buf[j - 1];
+            for (int idx = j - 1; idx < n; ++idx) {
+                buf[idx] = buf[idx + 1];
+            }
+        }
+        ans[i - 1] = buf[0];
+        for (i = 0; i < n; ++i) {
+            retVal.push_back(ans[i]);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def getPermutation(self, n: int, k: int) -> str:
+        retVal = ""
+
+        factorial = [1]
+        for i in range(1, n):
+            factorial.append(factorial[-1] * i)
+
+        k -= 1
+        ans = list()
+        valid = [1] * (n + 1)
+        for i in range(1, n + 1):
+            order = k // factorial[n - i] + 1
+            for j in range(1, n + 1):
+                order -= valid[j]
+                if order == 0:
+                    ans.append(str(j))
+                    valid[j] = 0
+                    break
+            k %= factorial[n - i]
+
+        retVal = "".join(ans)
+
+        return retVal
 ```
 
 </details>
