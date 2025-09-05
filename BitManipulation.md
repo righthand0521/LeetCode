@@ -4742,6 +4742,128 @@ class Solution:
 
 </details>
 
+## [2749. Minimum Operations to Make the Integer Zero](https://leetcode.com/problems/minimum-operations-to-make-the-integer-zero/)  2132
+
+- [Official](https://leetcode.com/problems/minimum-operations-to-make-the-integer-zero/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-operations-to-make-the-integer-zero/solutions/3764854/de-dao-zheng-shu-ling-xu-yao-zhi-xing-de-wztd/)
+
+<details><summary>Description</summary>
+
+```text
+You are given two integers num1 and num2.
+
+In one operation, you can choose integer i in the range [0, 60] and subtract 2i + num2 from num1.
+
+Return the integer denoting the minimum number of operations needed to make num1 equal to 0.
+
+If it is impossible to make num1 equal to 0, return -1.
+
+Example 1:
+Input: num1 = 3, num2 = -2
+Output: 3
+Explanation: We can make 3 equal to 0 with the following operations:
+- We choose i = 2 and subtract 22 + (-2) from 3, 3 - (4 + (-2)) = 1.
+- We choose i = 2 and subtract 22 + (-2) from 1, 1 - (4 + (-2)) = -1.
+- We choose i = 0 and subtract 20 + (-2) from -1, (-1) - (1 + (-2)) = 0.
+It can be proven, that 3 is the minimum number of operations that we need to perform.
+
+Example 2:
+Input: num1 = 5, num2 = 7
+Output: -1
+Explanation: It can be proven, that it is impossible to make 5 equal to 0 with the given operation.
+
+Constraints:
+1 <= num1 <= 10^9
+-10^9 <= num2 <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. If we want to make integer n equal to 0 by only subtracting powers of 2 from n,
+   in how many operations can we achieve it?
+2. We need at least - the number of bits in the binary representation of n, and at most - n.
+3. Notice that, if it is possible to make num1 equal to 0, then we need at most 60 operations.
+4. Iterate on the number of operations.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int makeTheIntegerZero(int num1, int num2) {
+    int retVal = -1;
+
+    int k = 1;
+    while (1) {
+        long long x = (long long)num1 - (long long)num2 * k;
+        if (x < k) {
+            break;
+        } else if (k >= __builtin_popcountll(x)) {
+            retVal = k;
+            break;
+        }
+        k++;
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int makeTheIntegerZero(int num1, int num2) {
+        int retVal = -1;
+
+        int k = 1;
+        while (true) {
+            long long x = num1 - static_cast<long long>(num2) * k;
+            if (x < k) {
+                break;
+            } else if (k >= __builtin_popcountll(x)) {
+                retVal = k;
+                break;
+            }
+            k++;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def makeTheIntegerZero(self, num1: int, num2: int) -> int:
+        retVal = -1
+
+        k = 1
+        while True:
+            x = num1 - num2 * k
+            if x < k:
+                break
+            elif k >= x.bit_count():
+                retVal = k
+                break
+            k += 1
+
+        return retVal
+```
+
+</details>
+
 ## [2997. Minimum Number of Operations to Make Array XOR Equal to K](https://leetcode.com/problems/minimum-number-of-operations-to-make-array-xor-equal-to-k/)  1524
 
 - [Official](https://leetcode.com/problems/minimum-number-of-operations-to-make-array-xor-equal-to-k/editorial/)
