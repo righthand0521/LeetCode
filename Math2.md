@@ -666,6 +666,116 @@ class Solution:
 
 </details>
 
+## [1304. Find N Unique Integers Sum up to Zero](https://leetcode.com/problems/find-n-unique-integers-sum-up-to-zero/)  1167
+
+- [Official](https://leetcode.com/problems/find-n-unique-integers-sum-up-to-zero/editorial/)
+- [Official](https://leetcode.cn/problems/find-n-unique-integers-sum-up-to-zero/solutions/101790/he-wei-ling-de-nge-wei-yi-zheng-shu-by-leetcode-so/)
+
+<details><summary>Description</summary>
+
+```text
+Given an integer n, return any array containing n unique integers such that they add up to 0.
+
+Example 1:
+Input: n = 5
+Output: [-7,-1,1,3,4]
+Explanation: These arrays also are accepted [-5,-1,1,2,3] , [-3,-1,2,-2,4].
+
+Example 2:
+Input: n = 3
+Output: [-1,0,1]
+
+Example 3:
+Input: n = 1
+Output: [0]
+
+Constraints:
+1 <= n <= 1000
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Return an array where the values are symmetric. (+x , -x).
+2. If n is odd, append value 0 in your returned array.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* sumZero(int n, int* returnSize) {
+    int* pRetVal = NULL;
+
+    pRetVal = (int*)calloc(n, sizeof(int));
+    if (pRetVal == NULL) {
+        perror("calloc");
+        return pRetVal;
+    }
+    (*returnSize) = n;
+
+    for (int i = 0; i < n / 2; i++) {
+        pRetVal[i] = (i + 1);
+        pRetVal[n - 1 - i] = -(i + 1);
+    }
+    if (n % 2 == 1) {
+        pRetVal[n / 2] = 0;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> sumZero(int n) {
+        vector<int> retVal(n, 0);
+
+        for (int i = 0; i < n / 2; i++) {
+            retVal[i] = (i + 1);
+            retVal[n - 1 - i] = -(i + 1);
+        }
+        if (n % 2 == 1) {
+            retVal[n / 2] = 0;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def sumZero(self, n: int) -> List[int]:
+        retVal = None
+
+        retVal = [0] * n
+        for i in range(n//2):
+            retVal[i] = (i + 1)
+            retVal[n - 1 - i] = -(i + 1)
+        if n % 2 == 1:
+            retVal[n//2] = 0
+
+        return retVal
+```
+
+</details>
+
 ## [1323. Maximum 69 Number](https://leetcode.com/problems/maximum-69-number/)  1193
 
 - [Official](https://leetcode.cn/problems/maximum-69-number/solutions/101258/6-he-9-zu-cheng-de-zui-da-shu-zi-by-leetcode-solut/)
