@@ -776,6 +776,135 @@ class Solution:
 
 </details>
 
+## [1317. Convert Integer to the Sum of Two No-Zero Integers](https://leetcode.com/problems/convert-integer-to-the-sum-of-two-no-zero-integers/)  1278
+
+- [Official](https://leetcode.com/problems/convert-integer-to-the-sum-of-two-no-zero-integers/editorial/)
+- [Official](https://leetcode.cn/problems/convert-integer-to-the-sum-of-two-no-zero-integers/solutions/101774/jiang-zheng-shu-zhuan-huan-wei-liang-ge-wu-ling-3/)
+
+<details><summary>Description</summary>
+
+```text
+No-Zero integer is a positive integer that does not contain any 0 in its decimal representation.
+
+Given an integer n, return a list of two integers [a, b] where:
+- a and b are No-Zero integers.
+- a + b = n
+
+The test cases are generated so that there is at least one valid solution.
+If there are many valid solutions, you can return any of them.
+
+Example 1:
+Input: n = 2
+Output: [1,1]
+Explanation: Let a = 1 and b = 1.
+Both a and b are no-zero integers, and a + b = 2 = n.
+
+Example 2:
+Input: n = 11
+Output: [2,9]
+Explanation: Let a = 2 and b = 9.
+Both a and b are no-zero integers, and a + b = 11 = n.
+Note that there are other valid answers as [8, 3] that can be accepted.
+
+Constraints:
+2 <= n <= 10^4
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Loop through all elements from 1 to n.
+2. Choose A = i and B = n - i then check if A and B are both No-Zero integers.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* getNoZeroIntegers(int n, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    char aStr[16], bStr[16];
+    int a, b;
+    for (a = 1; a < n; ++a) {
+        b = n - a;
+
+        memset(aStr, 0, sizeof(aStr));
+        snprintf(aStr, sizeof(aStr), "%d", a);
+        memset(bStr, 0, sizeof(bStr));
+        snprintf(bStr, sizeof(bStr), "%d", b);
+        if ((strchr(aStr, '0') != NULL) || (strchr(bStr, '0') != NULL)) {
+            continue;
+        }
+
+        pRetVal = (int*)calloc(2, sizeof(int));
+        if (pRetVal == NULL) {
+            perror("calloc");
+            return pRetVal;
+        }
+        pRetVal[0] = a;
+        pRetVal[1] = b;
+        (*returnSize) = 2;
+        break;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> getNoZeroIntegers(int n) {
+        vector<int> retVal(2, 0);
+
+        for (int a = 1; a < n; ++a) {
+            int b = n - a;
+            if ((to_string(a).find('0') == string::npos) && (to_string(b).find('0') == string::npos)) {
+                retVal[0] = a;
+                retVal[1] = b;
+                break;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def getNoZeroIntegers(self, n: int) -> List[int]:
+        retVal = [0] * 2
+
+        for a in range(1, n):
+            b = n - a
+            if ('0' not in str(a)) and ('0' not in str(b)):
+                retVal[0] = a
+                retVal[1] = b
+                break
+
+        return retVal
+```
+
+</details>
+
 ## [1323. Maximum 69 Number](https://leetcode.com/problems/maximum-69-number/)  1193
 
 - [Official](https://leetcode.cn/problems/maximum-69-number/solutions/101258/6-he-9-zu-cheng-de-zui-da-shu-zi-by-leetcode-solut/)
