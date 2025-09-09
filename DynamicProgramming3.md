@@ -508,6 +508,138 @@ class Solution:
 
 </details>
 
+## [2327. Number of People Aware of a Secret](https://leetcode.com/problems/number-of-people-aware-of-a-secret/)  1894
+
+- [Official](https://leetcode.cn/problems/number-of-people-aware-of-a-secret/solutions/3771803/er-de-mi-shu-zu-zhong-cha-xun-fan-wei-ne-kbs4/)
+
+<details><summary>Description</summary>
+
+```text
+On day 1, one person discovers a secret.
+
+You are given an integer delay, which means that each person will share the secret with a new person every day,
+starting from delay days after discovering the secret.
+You are also given an integer forget,
+which means that each person will forget the secret forget days after discovering it.
+A person cannot share the secret on the same day they forgot it, or on any day afterwards.
+
+Given an integer n, return the number of people who know the secret at the end of day n.
+Since the answer may be very large, return it modulo 10^9 + 7.
+
+Example 1:
+Input: n = 6, delay = 2, forget = 4
+Output: 5
+Explanation:
+Day 1: Suppose the first person is named A. (1 person)
+Day 2: A is the only person who knows the secret. (1 person)
+Day 3: A shares the secret with a new person, B. (2 people)
+Day 4: A shares the secret with a new person, C. (3 people)
+Day 5: A forgets the secret, and B shares the secret with a new person, D. (3 people)
+Day 6: B shares the secret with E, and C shares the secret with F. (5 people)
+
+Example 2:
+Input: n = 4, delay = 1, forget = 3
+Output: 6
+Explanation:
+Day 1: The first person is named A. (1 person)
+Day 2: A shares the secret with B. (2 people)
+Day 3: A and B share the secret with 2 new people, C and D. (4 people)
+Day 4: A forgets the secret. B, C, and D share the secret with 3 new people. (6 people)
+
+Constraints:
+2 <= n <= 1000
+1 <= delay < forget <= n
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Let dp[i][j] be the number of people who have known the secret for exactly j + 1 days, at day i.
+2. If j > 0, dp[i][j] = dp[i – 1][j – 1].
+3. dp[i][0] = sum(dp[i – 1][j]) for j in [delay – 1, forget – 2].
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MODULO (int)(1e9 + 7)
+int peopleAwareOfSecret(int n, int delay, int forget) {
+    int retVal = 0;
+
+    long dp[forget];
+    memset(dp, 0, sizeof(dp));
+    dp[0] = 1;
+    long share = 0;
+    for (int i = 1; i < n; ++i) {
+        share = (share + dp[(i - delay + forget) % forget] - dp[i % forget] + MODULO) % MODULO;
+        dp[i % forget] = share;
+    }
+
+    long long sum = 0;
+    for (int i = 0; i < forget; ++i) {
+        sum = (sum + dp[i]) % MODULO;
+    }
+    retVal = sum;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int MODULO = (1e9 + 7);
+
+   public:
+    int peopleAwareOfSecret(int n, int delay, int forget) {
+        int retVal = 0;
+
+        vector<long> dp(forget, 0);
+        dp[0] = 1;
+        long share = 0;
+        for (int i = 1; i < n; ++i) {
+            share = (share + dp[(i - delay + forget) % forget] - dp[i % forget] + MODULO) % MODULO;
+            dp[i % forget] = share;
+        }
+        retVal = accumulate(dp.begin(), dp.end(), 0L) % MODULO;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.MODULO = 10 ** 9 + 7
+
+    def peopleAwareOfSecret(self, n: int, delay: int, forget: int) -> int:
+        retVal = 0
+
+        dp = [1] + [0] * forget
+        share = 0
+        for i in range(1, n):
+            share = (share + dp[(i - delay) % forget] - dp[i % forget]) % self.MODULO
+            dp[i % forget] = share
+        retVal = sum(dp) % self.MODULO
+
+        return retVal
+```
+
+</details>
+
 ## [2328. Number of Increasing Paths in a Grid](https://leetcode.com/problems/number-of-increasing-paths-in-a-grid/)  2001
 
 - [Official](https://leetcode.com/problems/number-of-increasing-paths-in-a-grid/editorial/)
