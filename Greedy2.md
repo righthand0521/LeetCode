@@ -2413,6 +2413,243 @@ class Solution:
 
 </details>
 
+## [1733. Minimum Number of People to Teach](https://leetcode.com/problems/minimum-number-of-people-to-teach/)  1984
+
+- [Official](https://leetcode.com/problems/minimum-number-of-people-to-teach/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-number-of-people-to-teach/solutions/3766885/xu-yao-jiao-yu-yan-de-zui-shao-ren-shu-b-jaf9/)
+
+<details><summary>Description</summary>
+
+```text
+On a social network consisting of m users and some friendships between users,
+two users can communicate with each other if they know a common language.
+
+You are given an integer n, an array languages, and an array friendships where:
+- There are n languages numbered 1 through n,
+- languages[i] is the set of languages the i​​​​​​th​​​​ user knows, and
+- friendships[i] = [u​​​​​​i​​​, v​​​​​​i] denotes a friendship between the users u​​​​​​​​​​​i​​​​​ and vi.
+
+You can choose one language and teach it to some users so that all friends can communicate with each other.
+Return the minimum number of users you need to teach.
+
+Note that friendships are not transitive, meaning if x is a friend of y and y is a friend of z,
+this doesn't guarantee that x is a friend of z.
+
+Example 1:
+Input: n = 2, languages = [[1],[2],[1,2]], friendships = [[1,2],[1,3],[2,3]]
+Output: 1
+Explanation: You can either teach user 1 the second language or user 2 the first language.
+
+Example 2:
+Input: n = 3, languages = [[2],[1,3],[1,2],[3]], friendships = [[1,4],[1,2],[3,4],[2,3]]
+Output: 2
+Explanation: Teach the third language to users 1 and 3, yielding two users to teach.
+
+Constraints:
+2 <= n <= 500
+languages.length == m
+1 <= m <= 500
+1 <= languages[i].length <= n
+1 <= languages[i][j] <= n
+1 <= u​​​​​​i < v​​​​​​i <= languages.length
+1 <= friendships.length <= 500
+All tuples (u​​​​​i, v​​​​​​i) are unique
+languages[i] contains only unique values
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. You can just use brute force and find out for each language the number of users you need to teach
+2. Note that a user can appear in multiple friendships but you need to teach that user only once
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    UT_hash_handle hh;
+};
+bool hashAddItem(struct hashTable **obj, int key) {
+    bool retVal = false;
+
+    struct hashTable *pEntry = NULL;
+    HASH_FIND_INT(*obj, &key, pEntry);
+    if (pEntry != NULL) {
+        return retVal;
+    }
+    pEntry = (struct hashTable *)malloc(sizeof(struct hashTable));
+    if (pEntry == NULL) {
+        perror("malloc");
+        return retVal;
+    }
+    pEntry->key = key;
+    HASH_ADD_INT(*obj, key, pEntry);
+    retVal = true;
+
+    return retVal;
+}
+void hashFree(struct hashTable **obj) {
+    struct hashTable *current = NULL;
+    struct hashTable *tmp = NULL;
+    HASH_ITER(hh, *obj, current, tmp) {
+        // printf("%d\n", pFree->key);
+        HASH_DEL(*obj, current);
+        free(current);
+    }
+}
+int minimumTeachings(int n, int **languages, int languagesSize, int *languagesColSize, int **friendships,
+                     int friendshipsSize, int *friendshipsColSize) {
+    int retVal = 0;
+
+    struct hashTable *cncon = NULL;
+    struct hashTable *mp = NULL;
+    struct hashTable *pEntry = NULL;
+    int person1, person2, key;
+    bool conm;
+    for (int i = 0; i < friendshipsSize; i++) {
+        person1 = friendships[i][0] - 1;
+        person2 = friendships[i][1] - 1;
+        for (int j = 0; j < languagesColSize[person1]; j++) {
+            hashAddItem(&mp, languages[person1][j]);
+        }
+
+        conm = false;
+        for (int j = 0; j < languagesColSize[person2]; j++) {
+            pEntry = NULL;
+            key = languages[person2][j];
+            HASH_FIND_INT(mp, &key, pEntry);
+            if (pEntry != NULL) {
+                conm = true;
+                break;
+            }
+        }
+        if (conm == false) {
+            hashAddItem(&cncon, person1);
+            hashAddItem(&cncon, person2);
+        }
+
+        hashFree(&mp);
+        mp = NULL;
+    }
+
+    int maxCnt = 0;
+    int *cnt = (int *)calloc(n + 1, sizeof(int));
+    if (cnt == NULL) {
+        perror("calloc");
+        hashFree(&cncon);
+        return retVal;
+    }
+    int person, lan;
+    for (struct hashTable *pEntry = cncon; pEntry; pEntry = pEntry->hh.next) {
+        person = pEntry->key;
+        for (int i = 0; i < languagesColSize[person]; i++) {
+            lan = languages[person][i];
+            cnt[lan]++;
+            maxCnt = fmax(maxCnt, cnt[lan]);
+        }
+    }
+    retVal = HASH_COUNT(cncon) - maxCnt;
+
+    //
+    free(cnt);
+    cnt = NULL;
+    hashFree(&cncon);
+    cncon = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minimumTeachings(int n, vector<vector<int>>& languages, vector<vector<int>>& friendships) {
+        int retVal = 0;
+
+        unordered_set<int> cncon;
+        for (auto friendship : friendships) {
+            unordered_map<int, int> mp;
+            for (int lan : languages[friendship[0] - 1]) {
+                mp[lan] = 1;
+            }
+
+            bool conm = false;
+            for (int lan : languages[friendship[1] - 1]) {
+                if (mp[lan]) {
+                    conm = true;
+                    break;
+                }
+            }
+            if (conm == false) {
+                cncon.insert(friendship[0] - 1);
+                cncon.insert(friendship[1] - 1);
+            }
+        }
+
+        int maxCnt = 0;
+        vector<int> cnt(n + 1, 0);
+        for (auto friendship : cncon) {
+            for (int lan : languages[friendship]) {
+                cnt[lan]++;
+                maxCnt = max(maxCnt, cnt[lan]);
+            }
+        }
+
+        retVal = cncon.size() - maxCnt;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minimumTeachings(self, n: int, languages: List[List[int]], friendships: List[List[int]]) -> int:
+        retVal = 0
+
+        cncon = set()
+        for friendship in friendships:
+            mp = {}
+            for lan in languages[friendship[0] - 1]:
+                mp[lan] = 1
+
+            conm = False
+            for lan in languages[friendship[1] - 1]:
+                if lan in mp:
+                    conm = True
+                    break
+            if conm == False:
+                cncon.add(friendship[0] - 1)
+                cncon.add(friendship[1] - 1)
+
+        maxCnt = 0
+        cnt = [0] * (n + 1)
+        for friendship in cncon:
+            for lan in languages[friendship]:
+                cnt[lan] += 1
+                maxCnt = max(maxCnt, cnt[lan])
+
+        retVal = len(cncon) - maxCnt
+
+        return retVal
+```
+
+</details>
+
 ## [1764. Form Array by Concatenating Subarrays of Another Array](https://leetcode.com/problems/form-array-by-concatenating-subarrays-of-another-array/)  1588
 
 - [Official](https://leetcode.cn/problems/form-array-by-concatenating-subarrays-of-another-array/solutions/2022689/tong-guo-lian-jie-ling-yi-ge-shu-zu-de-z-xsvx/)
