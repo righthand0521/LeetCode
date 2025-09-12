@@ -812,6 +812,113 @@ class Solution:
 
 </details>
 
+## [3227. Vowels Game in a String](https://leetcode.com/problems/vowels-game-in-a-string/)  1452
+
+- [Official](https://leetcode.com/problems/vowels-game-in-a-string/editorial/)
+- [Official](https://leetcode.cn/problems/vowels-game-in-a-string/solutions/3768699/zi-fu-chuan-yuan-yin-you-xi-by-leetcode-szex1/)
+
+<details><summary>Description</summary>
+
+```text
+Alice and Bob are playing a game on a string.
+
+You are given a string s, Alice and Bob will take turns playing the following game where Alice starts first:
+- On Alice's turn, she has to remove any non-empty substring from s that contains an odd number of vowels.
+- On Bob's turn, he has to remove any non-empty substring from s that contains an even number of vowels.
+
+The first player who cannot make a move on their turn loses the game. We assume that both Alice and Bob play optimally.
+
+Return true if Alice wins the game, and false otherwise.
+
+The English vowels are: a, e, i, o, and u.
+
+Example 1:
+Input: s = "leetcoder"
+Output: true
+Explanation:
+Alice can win the game as follows:
+Alice plays first, she can delete the underlined substring in s = "leetcoder" which contains 3 vowels.
+The resulting string is s = "der".
+Bob plays second, he can delete the underlined substring in s = "der" which contains 0 vowels.
+The resulting string is s = "er".
+Alice plays third, she can delete the whole string s = "er" which contains 1 vowel.
+Bob plays fourth, since the string is empty, there is no valid play for Bob. So Alice wins the game.
+
+Example 2:
+Input: s = "bbcd"
+Output: false
+Explanation:
+There is no valid play for Alice in her first turn, so Alice loses the game.
+
+Constraints:
+1 <= s.length <= 10^5
+s consists only of lowercase English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. If there are no vowels in the initial string, then Bob wins.
+2. If the number of vowels in the initial string is odd,
+   then Alice can remove the whole string on her first turn and win.
+3. What if the number of vowels in the initial string is even?
+   What’s the optimal play for Alice’s first turn?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool doesAliceWin(char* s) {
+    bool retVal = false;
+
+    retVal = (strpbrk(s, "aeiou") != NULL);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool doesAliceWin(string s) {
+        bool retVal = false;
+
+        for (char c : s) {
+            if ((c == 'a') || (c == 'e') || (c == 'i') || (c == 'o') || (c == 'u')) {
+                retVal = true;
+                break;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def doesAliceWin(self, s: str) -> bool:
+        retVal = False
+
+        retVal = any(c in "aeiou" for c in s)
+
+        return retVal
+```
+
+</details>
+
 ## [3439. Reschedule Meetings for Maximum Free Time I](https://leetcode.com/problems/reschedule-meetings-for-maximum-free-time-i/)  1728
 
 - [Official](https://leetcode.com/problems/reschedule-meetings-for-maximum-free-time-i/editorial/)
