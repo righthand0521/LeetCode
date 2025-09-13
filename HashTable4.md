@@ -1111,3 +1111,154 @@ class Solution:
 ```
 
 </details>
+
+## [3541. Find Most Frequent Vowel and Consonant](https://leetcode.com/problems/find-most-frequent-vowel-and-consonant/)  1239
+
+- [Official](https://leetcode.com/problems/find-most-frequent-vowel-and-consonant/editorial/)
+- [Official](https://leetcode.cn/problems/find-most-frequent-vowel-and-consonant/solutions/3765771/zhao-dao-pin-lu-zui-gao-de-yuan-yin-he-f-3z68/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string s consisting of lowercase English letters ('a' to 'z').
+
+Your task is to:
+- Find the vowel (one of 'a', 'e', 'i', 'o', or 'u') with the maximum frequency.
+- Find the consonant (all other letters excluding vowels) with the maximum frequency.
+
+Return the sum of the two frequencies.
+
+Note:
+If multiple vowels or consonants have the same maximum frequency, you may choose any one of them.
+If there are no vowels or no consonants in the string, consider their frequency as 0.
+
+The frequency of a letter x is the number of times it occurs in the string.
+
+Example 1:
+Input: s = "successes"
+Output: 6
+Explanation:
+The vowels are: 'u' (frequency 1), 'e' (frequency 2). The maximum frequency is 2.
+The consonants are: 's' (frequency 4), 'c' (frequency 2). The maximum frequency is 4.
+The output is 2 + 4 = 6.
+
+Example 2:
+Input: s = "aeiaeia"
+Output: 3
+Explanation:
+The vowels are: 'a' (frequency 3), 'e' ( frequency 2), 'i' (frequency 2). The maximum frequency is 3.
+There are no consonants in s. Hence, maximum consonant frequency = 0.
+The output is 3 + 0 = 3.
+
+Constraints:
+1 <= s.length <= 100
+s consists of lowercase English letters only.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use a hashmap
+2. Simulate as described
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int maxFreqSum(char* s) {
+    int retVal = 0;
+
+#define ALPHABET_SIZE (26)  // s consists of lowercase English letters only.
+    int frequency[ALPHABET_SIZE];
+    memset(frequency, 0, sizeof(frequency));
+    int sSize = strlen(s);
+    for (int i = 0; i < sSize; ++i) {
+        frequency[s[i] - 'a']++;
+    }
+
+    char c;
+    int vowel = 0;
+    int consonant = 0;
+    for (int i = 0; i < ALPHABET_SIZE; ++i) {
+        if (frequency[i] <= 0) {
+            continue;
+        }
+
+        c = 'a' + i;
+        if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u') {
+            vowel = fmax(vowel, frequency[i]);
+        } else {
+            consonant = fmax(consonant, frequency[i]);
+        }
+    }
+    retVal = vowel + consonant;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maxFreqSum(string s) {
+        int retVal = 0;
+
+        const int ALPHABET_SIZE = 26;  // s consists of lowercase English letters only.
+        vector<int> frequency(ALPHABET_SIZE, 0);
+        for (char c : s) {
+            frequency[c - 'a']++;
+        }
+
+        int vowel = 0;
+        int consonant = 0;
+        for (int i = 0; i < ALPHABET_SIZE; ++i) {
+            if (frequency[i] <= 0) {
+                continue;
+            }
+
+            char c = 'a' + i;
+            if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u') {
+                vowel = max(vowel, frequency[i]);
+            } else {
+                consonant = max(consonant, frequency[i]);
+            }
+        }
+        retVal = vowel + consonant;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxFreqSum(self, s: str) -> int:
+        retVal = 0
+
+        frequency = Counter(s)
+
+        vowel = 0
+        consonant = 0
+        for key, value in frequency.items():
+            if key in "aeiou":
+                vowel = value if value > vowel else vowel
+            else:
+                consonant = value if value > consonant else consonant
+        retVal = vowel + consonant
+
+        return retVal
+```
+
+</details>
