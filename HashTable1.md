@@ -6416,3 +6416,306 @@ class Solution:
 ```
 
 </details>
+
+## [966. Vowel Spellchecker](https://leetcode.com/problems/vowel-spellchecker/)  1795
+
+- [Official](https://leetcode.com/problems/vowel-spellchecker/editorial/)
+- [Official](https://leetcode.cn/problems/vowel-spellchecker/solutions/3590/yuan-yin-pin-xie-jian-cha-qi-by-leetcode/)
+
+<details><summary>Description</summary>
+
+```text
+Given a wordlist, we want to implement a spellchecker that converts a query word into a correct word.
+
+For a given query word, the spell checker handles two categories of spelling mistakes:
+- Capitalization: If the query matches a word in the wordlist (case-insensitive),
+  then the query word is returned with the same case as the case in the wordlist.
+  - Example: wordlist = ["yellow"], query = "YellOw": correct = "yellow"
+  - Example: wordlist = ["Yellow"], query = "yellow": correct = "Yellow"
+  - Example: wordlist = ["yellow"], query = "yellow": correct = "yellow"
+- Vowel Errors: If after replacing the vowels ('a', 'e', 'i', 'o', 'u') of the query word with any vowel individually,
+  it matches a word in the wordlist (case-insensitive),
+  then the query word is returned with the same case as the match in the wordlist.
+  - Example: wordlist = ["YellOw"], query = "yollow": correct = "YellOw"
+  - Example: wordlist = ["YellOw"], query = "yeellow": correct = "" (no match)
+  - Example: wordlist = ["YellOw"], query = "yllw": correct = "" (no match)
+
+In addition, the spell checker operates under the following precedence rules:
+- When the query exactly matches a word in the wordlist (case-sensitive), you should return the same word back.
+- When the query matches a word up to capitlization, you should return the first such match in the wordlist.
+- When the query matches a word up to vowel errors, you should return the first such match in the wordlist.
+- If the query has no matches in the wordlist, you should return the empty string.
+
+Given some queries, return a list of words answer, where answer[i] is the correct word for query = queries[i].
+
+Example 1:
+Input: wordlist = ["KiTe","kite","hare","Hare"],
+queries = ["kite","Kite","KiTe","Hare","HARE","Hear","hear","keti","keet","keto"]
+Output: ["kite","KiTe","KiTe","Hare","hare","","","KiTe","","KiTe"]
+
+Example 2:
+Input: wordlist = ["yellow"], queries = ["YellOw"]
+Output: ["yellow"]
+
+Constraints:
+1 <= wordlist.length, queries.length <= 5000
+1 <= wordlist[i].length, queries[i].length <= 7
+wordlist[i] and queries[i] consist only of only English letters.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MAX_LENGTH (7 + 1)  // 1 <= wordlist[i].length, queries[i].length <= 7
+struct hashStruct {
+    char key[MAX_LENGTH];
+    char value[MAX_LENGTH];
+    UT_hash_handle hh;
+};
+void insertIfAbsent(struct hashStruct** map, const char* key, const char* value) {
+    struct hashStruct* pTmp;
+    HASH_FIND_STR(*map, key, pTmp);
+    if (pTmp != NULL) {
+        return;
+    }
+    pTmp = (struct hashStruct*)malloc(sizeof(struct hashStruct));
+    if (pTmp == NULL) {
+        perror("malloc");
+        return;
+    }
+    snprintf(pTmp->key, sizeof(pTmp->key), "%s", key);
+    snprintf(pTmp->value, sizeof(pTmp->value), "%s", value);
+    HASH_ADD_STR(*map, key, pTmp);
+}
+void freeAll(struct hashStruct* pFree) {
+    struct hashStruct* current;
+    struct hashStruct* tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%s: %s\n", current->key, current->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int isVowel(char c) {
+    int retVal = 0;
+
+    c = tolower((unsigned char)c);
+    if ((c == 'a') || (c == 'e') || (c == 'i') || (c == 'o') || (c == 'u')) {
+        retVal = 1;
+    }
+
+    return retVal;
+}
+void toLowerStr(const char* src, char* dst) {
+    int i;
+    for (i = 0; src[i]; i++) {
+        dst[i] = tolower((unsigned char)src[i]);
+    }
+    dst[i] = '\0';
+}
+void devowel(const char* src, char* dst) {
+    int i;
+    for (i = 0; src[i]; i++) {
+        char c = tolower((unsigned char)src[i]);
+        dst[i] = isVowel(c) ? '*' : c;
+    }
+    dst[i] = '\0';
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+char** spellchecker(char** wordlist, int wordlistSize, char** queries, int queriesSize, int* returnSize) {
+    char** pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    pRetVal = (char**)malloc(queriesSize * sizeof(char*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+
+    struct hashStruct* exactSet = NULL;
+    struct hashStruct* caseMap = NULL;
+    struct hashStruct* vowelMap = NULL;
+
+    char lower[MAX_LENGTH];
+    char vowelKey[MAX_LENGTH];
+    for (int i = 0; i < wordlistSize; ++i) {
+        memset(lower, 0, sizeof(lower));
+        toLowerStr(wordlist[i], lower);
+
+        memset(vowelKey, 0, sizeof(vowelKey));
+        devowel(wordlist[i], vowelKey);
+
+        insertIfAbsent(&exactSet, wordlist[i], wordlist[i]);
+        insertIfAbsent(&caseMap, lower, wordlist[i]);
+        insertIfAbsent(&vowelMap, vowelKey, wordlist[i]);
+    }
+
+    struct hashStruct* pTmp;
+    for (int i = 0; i < queriesSize; ++i) {
+        pTmp = NULL;
+        HASH_FIND_STR(exactSet, queries[i], pTmp);
+        if (pTmp != NULL) {
+            pRetVal[i] = strdup(queries[i]);
+            if (pRetVal[i] == NULL) {
+                perror("strdup");
+            }
+            continue;
+        }
+
+        memset(lower, 0, sizeof(lower));
+        toLowerStr(queries[i], lower);
+        pTmp = NULL;
+        HASH_FIND_STR(caseMap, lower, pTmp);
+        if (pTmp != NULL) {
+            pRetVal[i] = strdup(pTmp->value);
+            if (pRetVal[i] == NULL) {
+                perror("strdup");
+            }
+            continue;
+        }
+
+        memset(vowelKey, 0, sizeof(vowelKey));
+        devowel(queries[i], vowelKey);
+        pTmp = NULL;
+        HASH_FIND_STR(vowelMap, vowelKey, pTmp);
+        if (pTmp != NULL) {
+            pRetVal[i] = strdup(pTmp->value);
+            if (pRetVal[i] == NULL) {
+                perror("strdup");
+            }
+        } else {
+            pRetVal[i] = strdup("");
+            if (pRetVal[i] == NULL) {
+                perror("strdup");
+            }
+        }
+    }
+    (*returnSize) = queriesSize;
+
+    //
+    freeAll(exactSet);
+    freeAll(caseMap);
+    freeAll(vowelMap);
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    string devowel(const string& word) {
+        string retVal;
+
+        unordered_set<char> vowels = {'a', 'e', 'i', 'o', 'u'};
+        for (char ch : word) {
+            char lower = tolower(ch);
+            if (vowels.count(lower)) {
+                retVal.push_back('*');
+            } else {
+                retVal.push_back(lower);
+            }
+        }
+
+        return retVal;
+    }
+
+   public:
+    vector<string> spellchecker(vector<string>& wordlist, vector<string>& queries) {
+        vector<string> retVal;
+
+        unordered_set<string> exactSet(wordlist.begin(), wordlist.end());
+        unordered_map<string, string> caseMap;
+        unordered_map<string, string> vowelMap;
+        for (auto& word : wordlist) {
+            string lower = word;
+            transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
+            if (caseMap.count(lower) == 0) {
+                caseMap[lower] = word;
+            }
+
+            string dv = devowel(word);
+            if (vowelMap.count(dv) == 0) {
+                vowelMap[dv] = word;
+            }
+        }
+
+        retVal.reserve(queries.size());
+        for (auto& query : queries) {
+            if (exactSet.count(query) != 0) {
+                retVal.emplace_back(query);
+                continue;
+            }
+
+            string lowerQuery = query;
+            transform(lowerQuery.begin(), lowerQuery.end(), lowerQuery.begin(), ::tolower);
+            if (caseMap.count(lowerQuery) != 0) {
+                retVal.emplace_back(caseMap[lowerQuery]);
+                continue;
+            }
+
+            string dvQuery = devowel(query);
+            if (vowelMap.count(dvQuery) != 0) {
+                retVal.emplace_back(vowelMap[dvQuery]);
+            } else {
+                retVal.emplace_back("");
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def devowel(self, word: str) -> str:
+        retVal = ""
+
+        vowels = set('aeiou')
+        for ch in word.lower():
+            if ch in vowels:
+                retVal += "*"
+            else:
+                retVal += ch
+
+        return retVal
+
+    def spellchecker(self, wordlist: List[str], queries: List[str]) -> List[str]:
+        retVal = []
+
+        exact_set = set(wordlist)
+        case_map = {}
+        vowel_map = {}
+        for word in wordlist:
+            lower = word.lower()
+            case_map.setdefault(lower, word)
+            vowel_map.setdefault(self.devowel(word), word)
+
+        for q in queries:
+            if q in exact_set:
+                retVal.append(q)
+            elif q.lower() in case_map:
+                retVal.append(case_map[q.lower()])
+            elif self.devowel(q) in vowel_map:
+                retVal.append(vowel_map[self.devowel(q)])
+            else:
+                retVal.append("")
+
+        return retVal
+```
+
+</details>
