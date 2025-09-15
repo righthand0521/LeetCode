@@ -1986,6 +1986,124 @@ class Solution {
 
 </details>
 
+## [1935. Maximum Number of Words You Can Type](https://leetcode.com/problems/maximum-number-of-words-you-can-type/)  1227
+
+- [Official](https://leetcode.cn/problems/maximum-number-of-words-you-can-type/solutions/883398/ke-yi-shu-ru-de-zui-da-dan-ci-shu-by-lee-5dpc/)
+
+<details><summary>Description</summary>
+
+```text
+There is a malfunctioning keyboard where some letter keys do not work. All other keys on the keyboard work properly.
+
+Given a string text of words separated by a single space (no leading or trailing spaces)
+and a string brokenLetters of all distinct letter keys that are broken,
+return the number of words in text you can fully type using this keyboard.
+
+Example 1:
+Input: text = "hello world", brokenLetters = "ad"
+Output: 1
+Explanation: We cannot type "world" because the 'd' key is broken.
+
+Example 2:
+Input: text = "leet code", brokenLetters = "lt"
+Output: 1
+Explanation: We cannot type "leet" because the 'l' and 't' keys are broken.
+
+Example 3:
+Input: text = "leet code", brokenLetters = "e"
+Output: 0
+Explanation: We cannot type either word because the 'e' key is broken.
+
+Constraints:
+1 <= text.length <= 10^4
+0 <= brokenLetters.length <= 26
+text consists of words separated by a single space without any leading or trailing spaces.
+Each word only consists of lowercase English letters.
+brokenLetters consists of distinct lowercase English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Check each word separately if it can be typed.
+2. A word can be typed if all its letters are not broken.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int canBeTypedWords(char* text, char* brokenLetters) {
+    int retVal = 0;
+
+    char* words[strlen(text)];
+    int wordsSize = 0;
+#define STRTOK_PATTERN (" ")
+    char* p = strtok(text, STRTOK_PATTERN);
+    while (p != NULL) {
+        words[wordsSize++] = p;
+        p = strtok(NULL, STRTOK_PATTERN);
+    }
+
+    for (int i = 0; i < wordsSize; ++i) {
+        if (strpbrk(words[i], brokenLetters) == NULL) {
+            ++retVal;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int canBeTypedWords(string text, string brokenLetters) {
+        int retVal = 0;
+
+        vector<string> words;
+        string word;
+        istringstream in(text);
+        while (in >> word) {
+            words.push_back(word);
+        }
+
+        for (const string& word : words) {
+            if (word.find_first_of(brokenLetters) == string::npos) {
+                ++retVal;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def canBeTypedWords(self, text: str, brokenLetters: str) -> int:
+        retVal = 0
+
+        for word in text.split(" "):
+            if not any(brokenLetter in brokenLetters for brokenLetter in word):
+                retVal += 1
+
+        return retVal
+```
+
+</details>
+
 ## [1945. Sum of Digits of String After Convert](https://leetcode.com/problems/sum-of-digits-of-string-after-convert/)  1254
 
 <details><summary>Description</summary>
