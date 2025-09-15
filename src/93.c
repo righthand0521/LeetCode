@@ -4,8 +4,8 @@
 
 // https://leetcode.cn/problems/restore-ip-addresses/solutions/404642/hui-su-jian-zhi-0ms100-by-shaw-r/
 #define MAX_IP_FORMAT_LENGTH (5)
-void dfs(char* s, char** pRetVal, int* returnSize, int step, int index, int len, char* pTmp) {
-    int tmpSize = len + MAX_IP_FORMAT_LENGTH;
+void dfs(char* s, char** pRetVal, int* returnSize, int step, int index, int sSize, char* pTmp) {
+    int tmpSize = sSize + MAX_IP_FORMAT_LENGTH;
 
     if (step == 4) {
         pRetVal[*returnSize] = (char*)malloc(tmpSize * sizeof(char));
@@ -22,29 +22,29 @@ void dfs(char* s, char** pRetVal, int* returnSize, int step, int index, int len,
         return;
     }
 
-    if ((len - index - 1 <= (3 - step) * 3) && (len - index - 1 >= (3 - step))) {
+    if ((sSize - index - 1 <= (3 - step) * 3) && (sSize - index - 1 >= (3 - step))) {
         pTmp[index + step] = s[index];
         pTmp[index + step + 1] = '.';
 
-        dfs(s, pRetVal, returnSize, step + 1, index + 1, len, pTmp);
+        dfs(s, pRetVal, returnSize, step + 1, index + 1, sSize, pTmp);
     }
 
-    if ((len - index - 2 <= (3 - step) * 3) && (len - index - 2 >= (3 - step)) && (s[index] != '0')) {
+    if ((sSize - index - 2 <= (3 - step) * 3) && (sSize - index - 2 >= (3 - step)) && (s[index] != '0')) {
         pTmp[index + step] = s[index];
         pTmp[index + step + 1] = s[index + 1];
         pTmp[index + step + 2] = '.';
 
-        dfs(s, pRetVal, returnSize, step + 1, index + 2, len, pTmp);
+        dfs(s, pRetVal, returnSize, step + 1, index + 2, sSize, pTmp);
     }
 
-    if ((len - index - 3 <= (3 - step) * 3 && len - index - 3 >= (3 - step) && s[index] != '0') &&
+    if ((sSize - index - 3 <= (3 - step) * 3 && sSize - index - 3 >= (3 - step) && s[index] != '0') &&
         ((s[index] - '0') * 100 + (s[index + 1] - '0') * 10 + s[index + 2] - '0' <= 255)) {
         pTmp[index + step] = s[index];
         pTmp[index + step + 1] = s[index + 1];
         pTmp[index + step + 2] = s[index + 2];
         pTmp[index + step + 3] = '.';
 
-        dfs(s, pRetVal, returnSize, step + 1, index + 3, len, pTmp);
+        dfs(s, pRetVal, returnSize, step + 1, index + 3, sSize, pTmp);
     }
 }
 /**
@@ -55,9 +55,9 @@ char** restoreIpAddresses(char* s, int* returnSize) {
 
     (*returnSize) = 0;
 
-    int len = strlen(s);
+    int sSize = strlen(s);
     // IP Format: xxx.xxx.xxx.xxx or x.x.x.x
-    if ((len > 12) || (len < 4)) {
+    if ((sSize > 12) || (sSize < 4)) {
         return pRetVal;
     }
 
@@ -68,14 +68,14 @@ char** restoreIpAddresses(char* s, int* returnSize) {
         return pRetVal;
     }
 
-    int tmpSize = len + MAX_IP_FORMAT_LENGTH;
+    int tmpSize = sSize + MAX_IP_FORMAT_LENGTH;
     char* pTmp = (char*)malloc(tmpSize * sizeof(char));
     if (pTmp == NULL) {
         perror("malloc");
         return pRetVal;
     }
     memset(pTmp, 0, (tmpSize * sizeof(char)));
-    dfs(s, pRetVal, returnSize, 0, 0, len, pTmp);
+    dfs(s, pRetVal, returnSize, 0, 0, sSize, pTmp);
     free(pTmp);
     pTmp = NULL;
 
@@ -89,6 +89,16 @@ int main(int argc, char** argv) {
         int returnSize;
     } testCase[] = {{"25525511135", 0}, {"0000", 0}, {"101023", 0}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: s = "25525511135"
+     *  Output: ["255.255.11.135","255.255.111.35"]
+     *
+     *  Input: s = "0000"
+     *  Output: ["0.0.0.0"]
+     *
+     *  Input: s = "101023"
+     *  Output: ["1.0.10.23","1.0.102.3","10.1.0.23","10.10.2.3","101.0.2.3"]
+     */
 
     char** pAnswer = NULL;
     int i, j;

@@ -2124,7 +2124,7 @@ class Solution:
 
 ## [93. Restore IP Addresses](https://leetcode.com/problems/restore-ip-addresses/)
 
-- [Official](https://leetcode.com/problems/restore-ip-addresses/solutions/2868540/restore-ip-addresses/)
+- [Official](https://leetcode.com/problems/restore-ip-addresses/editorial/)
 - [Official](https://leetcode.cn/problems/restore-ip-addresses/solutions/366426/fu-yuan-ipdi-zhi-by-leetcode-solution/)
 
 <details><summary>Description</summary>
@@ -2163,8 +2163,8 @@ s consists of digits only.
 ```c
 // https://leetcode.cn/problems/restore-ip-addresses/solutions/404642/hui-su-jian-zhi-0ms100-by-shaw-r/
 #define MAX_IP_FORMAT_LENGTH (5)
-void dfs(char* s, char** pRetVal, int* returnSize, int step, int index, int len, char* pTmp) {
-    int tmpSize = len + MAX_IP_FORMAT_LENGTH;
+void dfs(char* s, char** pRetVal, int* returnSize, int step, int index, int sSize, char* pTmp) {
+    int tmpSize = sSize + MAX_IP_FORMAT_LENGTH;
 
     if (step == 4) {
         pRetVal[*returnSize] = (char*)malloc(tmpSize * sizeof(char));
@@ -2181,29 +2181,29 @@ void dfs(char* s, char** pRetVal, int* returnSize, int step, int index, int len,
         return;
     }
 
-    if ((len - index - 1 <= (3 - step) * 3) && (len - index - 1 >= (3 - step))) {
+    if ((sSize - index - 1 <= (3 - step) * 3) && (sSize - index - 1 >= (3 - step))) {
         pTmp[index + step] = s[index];
         pTmp[index + step + 1] = '.';
 
-        dfs(s, pRetVal, returnSize, step + 1, index + 1, len, pTmp);
+        dfs(s, pRetVal, returnSize, step + 1, index + 1, sSize, pTmp);
     }
 
-    if ((len - index - 2 <= (3 - step) * 3) && (len - index - 2 >= (3 - step)) && (s[index] != '0')) {
+    if ((sSize - index - 2 <= (3 - step) * 3) && (sSize - index - 2 >= (3 - step)) && (s[index] != '0')) {
         pTmp[index + step] = s[index];
         pTmp[index + step + 1] = s[index + 1];
         pTmp[index + step + 2] = '.';
 
-        dfs(s, pRetVal, returnSize, step + 1, index + 2, len, pTmp);
+        dfs(s, pRetVal, returnSize, step + 1, index + 2, sSize, pTmp);
     }
 
-    if ((len - index - 3 <= (3 - step) * 3 && len - index - 3 >= (3 - step) && s[index] != '0') &&
+    if ((sSize - index - 3 <= (3 - step) * 3 && sSize - index - 3 >= (3 - step) && s[index] != '0') &&
         ((s[index] - '0') * 100 + (s[index + 1] - '0') * 10 + s[index + 2] - '0' <= 255)) {
         pTmp[index + step] = s[index];
         pTmp[index + step + 1] = s[index + 1];
         pTmp[index + step + 2] = s[index + 2];
         pTmp[index + step + 3] = '.';
 
-        dfs(s, pRetVal, returnSize, step + 1, index + 3, len, pTmp);
+        dfs(s, pRetVal, returnSize, step + 1, index + 3, sSize, pTmp);
     }
 }
 /**
@@ -2214,9 +2214,9 @@ char** restoreIpAddresses(char* s, int* returnSize) {
 
     (*returnSize) = 0;
 
-    int len = strlen(s);
+    int sSize = strlen(s);
     // IP Format: xxx.xxx.xxx.xxx or x.x.x.x
-    if ((len > 12) || (len < 4)) {
+    if ((sSize > 12) || (sSize < 4)) {
         return pRetVal;
     }
 
@@ -2227,14 +2227,14 @@ char** restoreIpAddresses(char* s, int* returnSize) {
         return pRetVal;
     }
 
-    int tmpSize = len + MAX_IP_FORMAT_LENGTH;
+    int tmpSize = sSize + MAX_IP_FORMAT_LENGTH;
     char* pTmp = (char*)malloc(tmpSize * sizeof(char));
     if (pTmp == NULL) {
         perror("malloc");
         return pRetVal;
     }
     memset(pTmp, 0, (tmpSize * sizeof(char)));
-    dfs(s, pRetVal, returnSize, 0, 0, len, pTmp);
+    dfs(s, pRetVal, returnSize, 0, 0, sSize, pTmp);
     free(pTmp);
     pTmp = NULL;
 
@@ -2248,11 +2248,92 @@ char** restoreIpAddresses(char* s, int* returnSize) {
 
 ```c++
 class Solution {
-public:
-    vector<string> restoreIpAddresses(string s) {
+   private:
+    void dfs(const string& s, int step, int index, vector<string>& path, vector<string>& result) {
+        int sSize = s.size();
+        if (step == 4) {
+            if (index == sSize) {
+                string ip = path[0] + "." + path[1] + "." + path[2] + "." + path[3];
+                result.emplace_back(ip);
+            }
+            return;
+        }
 
+        int remaining = sSize - index;
+        if ((remaining < (4 - step)) || (remaining > (4 - step) * 3)) {
+            return;
+        }
+
+        for (int length = 1; length <= 3; ++length) {
+            if (index + length > sSize) {
+                break;
+            }
+
+            string segment = s.substr(index, length);
+            if (((segment[0] == '0') && (segment.size() > 1)) || (stoi(segment) > 255)) {
+                continue;
+            }
+
+            path.push_back(segment);
+            dfs(s, step + 1, index + length, path, result);
+            path.pop_back();
+        }
+    }
+
+   public:
+    vector<string> restoreIpAddresses(string s) {
+        vector<string> retVal;
+
+        int sSize = s.size();
+        if ((sSize >= 4) && (sSize <= 12)) {
+            vector<string> path;
+            dfs(s, 0, 0, path, retVal);
+        }
+
+        return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def dfs(self, s: str, step: int, index: int, path: List[str], result: List[str]) -> None:
+        sSize = len(s)
+
+        if step == 4:
+            if index == sSize:
+                result.append('.'.join(path))
+            return
+
+        remaining = sSize - index
+        if (remaining < (4 - step)) or (remaining > (4 - step) * 3):
+            return
+
+        for length in range(1, 4):
+            if index + length > sSize:
+                break
+
+            segment = s[index:index + length]
+            segmentSize = len(segment)
+            if ((segment.startswith('0') == True) and (segmentSize > 1)) or int(segment) > 255:
+                continue
+
+            path.append(segment)
+            self.dfs(s, step + 1, index + length, path, result)
+            path.pop()
+
+    def restoreIpAddresses(self, s: str) -> List[str]:
+        retVal = []
+
+        sSize = len(s)
+        if 4 <= sSize <= 12:
+            self.dfs(s, 0, 0, [], retVal)
+
+        return retVal
 ```
 
 </details>
