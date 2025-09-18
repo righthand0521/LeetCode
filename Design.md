@@ -13,6 +13,7 @@
   - [1865. Finding Pairs With a Certain Sum](https://leetcode.com/problems/finding-pairs-with-a-certain-sum/)
   - [2349. Design a Number Container System](https://leetcode.com/problems/design-a-number-container-system/)
   - [2353. Design a Food Rating System](https://leetcode.com/problems/design-a-food-rating-system/)
+  - [3408. Design Task Manager](https://leetcode.com/problems/design-task-manager/)
 - [Linked List](https://en.wikipedia.org/wiki/Linked_list)
   - [382. Linked List Random Node](https://leetcode.com/problems/linked-list-random-node/)
   - [432. All O`one Data Structure](https://leetcode.com/problems/all-oone-data-structure/)
