@@ -1624,3 +1624,487 @@ class ParkingSystem:
 ```
 
 </details>
+
+## [3508. Implement Router](https://leetcode.com/problems/implement-router/)  1851
+
+- [Official](https://leetcode.cn/problems/implement-router/solutions/3772883/she-ji-lu-you-qi-by-leetcode-solution-hgxc/)
+
+<details><summary>Description</summary>
+
+```text
+Design a data structure that can efficiently manage data packets in a network router.
+Each data packet consists of the following attributes:
+- source: A unique identifier for the machine that generated the packet.
+- destination: A unique identifier for the target machine.
+- timestamp: The time at which the packet arrived at the router.
+
+Implement the Router class:
+- Router(int memoryLimit): Initializes the Router object with a fixed memory limit.
+  - memoryLimit is the maximum number of packets the router can store at any given time.
+  - If adding a new packet would exceed this limit, the oldest packet must be removed to free up space.
+- bool addPacket(int source, int destination, int timestamp): Adds a packet with the given attributes to the router.
+  - A packet is considered a duplicate if another packet with the same source, destination,
+    and timestamp already exists in the router.
+  - Return true if the packet is successfully added (i.e., it is not a duplicate); otherwise return false.
+- int[] forwardPacket(): Forwards the next packet in FIFO (First In First Out) order.
+  - Remove the packet from storage.
+  - Return the packet as an array [source, destination, timestamp].
+  - If there are no packets to forward, return an empty array.
+- int getCount(int destination, int startTime, int endTime):
+  - Returns the number of packets currently stored in the router (i.e., not yet forwarded)
+    that have the specified destination and have timestamps in the inclusive range [startTime, endTime].
+
+Note that queries for addPacket will be made in increasing order of timestamp.
+
+Example 1:
+Input:
+["Router", "addPacket", "addPacket", "addPacket", "addPacket", "addPacket", "forwardPacket", "addPacket", "getCount"]
+[[3], [1, 4, 90], [2, 5, 90], [1, 4, 90], [3, 5, 95], [4, 5, 105], [], [5, 2, 110], [5, 100, 110]]
+Output:
+[null, true, true, false, true, true, [2, 5, 90], true, 1]
+Explanation
+// Initialize Router with memoryLimit of 3.
+Router router = new Router(3);
+// Packet is added. Return True.
+router.addPacket(1, 4, 90);
+// Packet is added. Return True.
+router.addPacket(2, 5, 90);
+// This is a duplicate packet. Return False.
+router.addPacket(1, 4, 90);
+// Packet is added. Return True
+router.addPacket(3, 5, 95);
+// Packet is added, [1, 4, 90] is removed as number of packets exceeds memoryLimit. Return True.
+router.addPacket(4, 5, 105);
+// Return [2, 5, 90] and remove it from router.
+router.forwardPacket();
+// Packet is added. Return True.
+router.addPacket(5, 2, 110);
+// The only packet with destination 5 and timestamp in the inclusive range [100, 110] is [4, 5, 105]. Return 1.
+router.getCount(5, 100, 110);
+
+Example 2:
+Input:
+["Router", "addPacket", "forwardPacket", "forwardPacket"]
+[[2], [7, 4, 90], [], []]
+Output:
+[null, true, [7, 4, 90], []]
+Explanation
+// Initialize Router with memoryLimit of 2.
+Router router = new Router(2);
+// Return True.
+router.addPacket(7, 4, 90);
+// Return [7, 4, 90].
+router.forwardPacket();
+// There are no packets left, return [].
+router.forwardPacket();
+
+Constraints:
+2 <= memoryLimit <= 10^5
+1 <= source, destination <= 2 * 10^5
+1 <= timestamp <= 10^9
+1 <= startTime <= endTime <= 10^9
+At most 105 calls will be made to addPacket, forwardPacket, and getCount methods altogether.
+queries for addPacket will be made in increasing order of timestamp.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. A deque can simulate the adding and forwarding of packets efficiently.
+2. Use binary search for counting packets within a timestamp range.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#if (1)
+#define PACKET_HASH_SIZE (4096)
+#define DEST_HASH_SIZE (4096)
+
+typedef struct {
+    int source;
+    int destination;
+    int timestamp;
+} Packet;
+typedef struct PacketSetNode {
+    Packet packet;
+    struct PacketSetNode* next;
+} PacketSetNode;
+typedef struct {
+    PacketSetNode** table;
+    int size;
+} PacketSet;
+unsigned int hashPacket(Packet* p, int mod) {
+    unsigned int h = 17;
+    h = h * 31 + p->source;
+    h = h * 31 + p->destination;
+    h = h * 31 + p->timestamp;
+    return h % mod;
+}
+PacketSet* packetSetCreate(int size) {
+    PacketSet* set = malloc(sizeof(PacketSet));
+    set->size = size;
+    set->table = calloc(size, sizeof(PacketSetNode*));
+    return set;
+}
+bool packetSetContains(PacketSet* set, Packet* p) {
+    unsigned int idx = hashPacket(p, set->size);
+    PacketSetNode* node = set->table[idx];
+    while (node) {
+        if (node->packet.source == p->source && node->packet.destination == p->destination &&
+            node->packet.timestamp == p->timestamp)
+            return true;
+        node = node->next;
+    }
+    return false;
+}
+void packetSetAdd(PacketSet* set, Packet* p) {
+    unsigned int idx = hashPacket(p, set->size);
+    PacketSetNode* node = malloc(sizeof(PacketSetNode));
+    node->packet = *p;
+    node->next = set->table[idx];
+    set->table[idx] = node;
+}
+void packetSetRemove(PacketSet* set, Packet* p) {
+    unsigned int idx = hashPacket(p, set->size);
+    PacketSetNode* node = set->table[idx];
+    PacketSetNode* prev = NULL;
+    while (node) {
+        if (node->packet.source == p->source && node->packet.destination == p->destination &&
+            node->packet.timestamp == p->timestamp) {
+            if (prev)
+                prev->next = node->next;
+            else
+                set->table[idx] = node->next;
+            free(node);
+            return;
+        }
+        prev = node;
+        node = node->next;
+    }
+}
+void packetSetFree(PacketSet* set) {
+    for (int i = 0; i < set->size; i++) {
+        PacketSetNode* node = set->table[i];
+        while (node) {
+            PacketSetNode* tmp = node;
+            node = node->next;
+            free(tmp);
+        }
+    }
+    free(set->table);
+    free(set);
+}
+#endif
+#if (1)
+typedef struct Pair {
+    int* timestamps;
+    int size;
+    int capacity;
+    int head;
+} Pair;
+typedef struct DestNode {
+    int destination;
+    Pair pair;
+    struct DestNode* next;
+} DestNode;
+#endif
+typedef struct {
+    int memoryLimit;
+    int packetCount;
+    Packet* queue;
+    int head;
+    int tail;
+    PacketSet* packetSet;
+    DestNode** destTable;
+} Router;
+#if (1)
+unsigned int hashDest(int destination) {
+    //
+    return destination % DEST_HASH_SIZE;
+}
+Pair* getPair(Router* obj, int destination) {
+    unsigned int idx = hashDest(destination);
+    DestNode* node = obj->destTable[idx];
+    while (node) {
+        if (node->destination == destination) {
+            return &node->pair;
+        }
+        node = node->next;
+    }
+    node = malloc(sizeof(DestNode));
+    node->destination = destination;
+    node->pair.timestamps = NULL;
+    node->pair.size = 0;
+    node->pair.capacity = 0;
+    node->pair.head = 0;
+    node->next = obj->destTable[idx];
+    obj->destTable[idx] = node;
+
+    return &node->pair;
+}
+int lowerBound(int* nums, int size, int target, int left) {
+    int right = size;
+
+    while (left < right) {
+        int mid = (left + right) / 2;
+        if (nums[mid] >= target) {
+            right = mid;
+        } else {
+            left = mid + 1;
+        }
+    }
+
+    return right;
+}
+#endif
+Router* routerCreate(int memoryLimit) {
+    Router* pObj = NULL;
+
+    pObj = (Router*)malloc(sizeof(Router));
+    if (pObj == NULL) {
+        perror("malloc");
+        return pObj;
+    }
+    pObj->memoryLimit = memoryLimit;
+    pObj->packetCount = 0;
+    pObj->queue = malloc(sizeof(Packet) * memoryLimit);
+    pObj->head = pObj->tail = 0;
+    pObj->packetSet = packetSetCreate(PACKET_HASH_SIZE);
+    pObj->destTable = calloc(DEST_HASH_SIZE, sizeof(DestNode*));
+
+    return pObj;
+}
+int* routerForwardPacket(Router* obj, int* retSize) {
+    int* pRetVal = NULL;
+
+    (*retSize) = 0;
+    if (obj->packetCount == 0) {
+        return pRetVal;
+    }
+
+    Packet packet = obj->queue[obj->head];
+    obj->head = (obj->head + 1) % obj->memoryLimit;
+    obj->packetCount--;
+
+    packetSetRemove(obj->packetSet, &packet);
+
+    Pair* pair = getPair(obj, packet.destination);
+    pair->head++;
+
+    pRetVal = malloc(sizeof(int) * 3);
+    pRetVal[0] = packet.source;
+    pRetVal[1] = packet.destination;
+    pRetVal[2] = packet.timestamp;
+    (*retSize) = 3;
+
+    return pRetVal;
+}
+bool routerAddPacket(Router* obj, int source, int destination, int timestamp) {
+    bool retVal = false;
+
+    Packet p = {source, destination, timestamp};
+
+    if (packetSetContains(obj->packetSet, &p)) {
+        return retVal;
+    }
+
+    if (obj->packetCount == obj->memoryLimit) {
+        int retSize;
+        int* ret = routerForwardPacket(obj, &retSize);
+        free(ret);
+        ret = NULL;
+    }
+
+    obj->queue[obj->tail] = p;
+    obj->tail = (obj->tail + 1) % obj->memoryLimit;
+    obj->packetCount++;
+
+    packetSetAdd(obj->packetSet, &p);
+
+    Pair* pair = getPair(obj, destination);
+    if (pair->size == pair->capacity) {
+        pair->capacity = pair->capacity == 0 ? 4 : pair->capacity * 2;
+        pair->timestamps = realloc(pair->timestamps, sizeof(int) * pair->capacity);
+    }
+    pair->timestamps[pair->size++] = timestamp;
+
+    retVal = true;
+
+    return retVal;
+}
+int routerGetCount(Router* obj, int destination, int startTime, int endTime) {
+    int retVal = 0;
+
+    Pair* pair = getPair(obj, destination);
+    if ((pair == NULL) || (pair->size == 0)) {
+        return retVal;
+    }
+    int left = lowerBound(pair->timestamps, pair->size, startTime, pair->head);
+    int right = lowerBound(pair->timestamps, pair->size, endTime + 1, pair->head);
+    retVal = right - left;
+
+    return retVal;
+}
+void routerFree(Router* obj) {
+    free(obj->queue);
+    packetSetFree(obj->packetSet);
+    for (int i = 0; i < DEST_HASH_SIZE; i++) {
+        DestNode* node = obj->destTable[i];
+        while (node) {
+            free(node->pair.timestamps);
+            DestNode* tmp = node;
+            node = node->next;
+            free(tmp);
+        }
+    }
+    free(obj->destTable);
+    free(obj);
+}
+/**
+ * Your Router struct will be instantiated and called as such:
+ * Router* obj = routerCreate(memoryLimit);
+ * bool param_1 = routerAddPacket(obj, source, destination, timestamp);
+ * int* param_2 = routerForwardPacket(obj, retSize);
+ * int param_3 = routerGetCount(obj, destination, startTime, endTime);
+ * routerFree(obj);
+ */
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Router {
+   public:
+    int memLimit = 0;
+    int length = 0;
+    set<tuple<int, int, int>> isExist;
+    unordered_map<int, deque<int>> sameDestQue;
+    deque<tuple<int, int, int>> que;
+
+    Router(int memoryLimit) {
+        //
+        memLimit = memoryLimit;
+    }
+    bool addPacket(int source, int destination, int timestamp) {
+        bool retVal = false;
+
+        tuple<int, int, int> packet = make_tuple(source, destination, timestamp);
+        if (isExist.find(packet) != isExist.end()) {
+            return retVal;
+        }
+
+        if (length == memLimit) {
+            forwardPacket();
+        }
+        length++;
+        que.push_back(packet);
+        sameDestQue[destination].push_back(timestamp);
+        isExist.insert(packet);
+        retVal = true;
+
+        return retVal;
+    }
+    vector<int> forwardPacket() {
+        vector<int> retVal;
+
+        if (que.empty() == false) {
+            tuple<int, int, int> packet = que.front();
+            que.pop_front();
+            retVal = vector<int>{get<0>(packet), get<1>(packet), get<2>(packet)};
+            isExist.erase(packet);
+            sameDestQue[retVal[1]].pop_front();
+            length--;
+        }
+
+        return retVal;
+    }
+    int getCount(int destination, int startTime, int endTime) {
+        int retVal = 0;
+
+        auto pos1 = lower_bound(sameDestQue[destination].begin(), sameDestQue[destination].end(), startTime);
+        auto pos2 = upper_bound(sameDestQue[destination].begin(), sameDestQue[destination].end(), endTime);
+        retVal = pos2 - pos1;
+
+        return retVal;
+    }
+};
+/**
+ * Your Router object will be instantiated and called as such:
+ * Router* obj = new Router(memoryLimit);
+ * bool param_1 = obj->addPacket(source,destination,timestamp);
+ * vector<int> param_2 = obj->forwardPacket();
+ * int param_3 = obj->getCount(destination,startTime,endTime);
+ */
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Router:
+    def __init__(self, memoryLimit: int):
+        self.memLimit = memoryLimit
+        self.length = 0
+        self.isExist = set()
+        self.sameDestQue = {}
+        self.que = []
+
+    def addPacket(self, source: int, destination: int, timestamp: int) -> bool:
+        retVal = False
+
+        packet = (source, destination, timestamp)
+        if packet in self.isExist:
+            return retVal
+
+        if self.length == self.memLimit:
+            self.forwardPacket()
+        self.length += 1
+        self.que.append(packet)
+
+        if destination not in self.sameDestQue:
+            self.sameDestQue[destination] = SortedList()
+        self.sameDestQue[destination].add(timestamp)
+        self.isExist.add(packet)
+
+        retVal = True
+
+        return retVal
+
+    def forwardPacket(self) -> List[int]:
+        retVal = []
+
+        if self.que:
+            packet = self.que.pop(0)
+            retVal = list(packet)
+            self.isExist.remove(packet)
+            self.sameDestQue[retVal[1]].remove(retVal[2])
+            self.length -= 1
+
+        return retVal
+
+    def getCount(self, destination: int, startTime: int, endTime: int) -> int:
+        retVal = 0
+
+        if destination not in self.sameDestQue:
+            return retVal
+        sl = self.sameDestQue[destination]
+        retVal = sl.bisect_right(endTime) - sl.bisect_left(startTime)
+
+        return retVal
+
+# Your Router object will be instantiated and called as such:
+# obj = Router(memoryLimit)
+# param_1 = obj.addPacket(source,destination,timestamp)
+# param_2 = obj.forwardPacket()
+# param_3 = obj.getCount(destination,startTime,endTime)
+```
+
+</details>
