@@ -5491,6 +5491,513 @@ class Solution:
 
 </details>
 
+## [1912. Design Movie Rental System](https://leetcode.com/problems/design-movie-rental-system/)  2182
+
+- [Official](https://leetcode.cn/problems/design-movie-rental-system/solutions/846541/she-ji-dian-ying-zu-jie-xi-tong-by-leetc-dv3z/)
+
+<details><summary>Description</summary>
+
+```text
+You have a movie renting company consisting of n shops.
+You want to implement a renting system that supports searching for, booking, and returning movies.
+The system should also support generating a report of the currently rented movies.
+
+Each movie is given as a 2D integer array entries where entries[i] = [shopi, moviei, pricei]
+indicates that there is a copy of movie moviei at shop shopi with a rental price of pricei.
+Each shop carries at most one copy of a movie moviei.
+
+The system should support the following functions:
+- Search:
+  Finds the cheapest 5 shops that have an unrented copy of a given movie.
+  The shops should be sorted by price in ascending order, and in case of a tie,
+  the one with the smaller shopi should appear first.
+  If there are less than 5 matching shops, then all of them should be returned.
+  If no shop has an unrented copy, then an empty list should be returned.
+- Rent:
+  Rents an unrented copy of a given movie from a given shop.
+- Drop:
+  Drops off a previously rented copy of a given movie at a given shop.
+- Report:
+  Returns the cheapest 5 rented movies (possibly of the same movie ID)
+  as a 2D list res where res[j] = [shopj, moviej] describes
+  that the jth cheapest rented movie moviej was rented from the shop shopj.
+  The movies in res should be sorted by price in ascending order, and in case of a tie,
+  the one with the smaller shopj should appear first, and if there is still tie,
+  the one with the smaller moviej should appear first.
+  If there are fewer than 5 rented movies, then all of them should be returned.
+  If no movies are currently being rented, then an empty list should be returned.
+
+Implement the MovieRentingSystem class:
+- MovieRentingSystem(int n, int[][] entries)
+  Initializes the MovieRentingSystem object with n shops and the movies in entries.
+- List<Integer> search(int movie)
+  Returns a list of shops that have an unrented copy of the given movie as described above.
+- void rent(int shop, int movie)
+  Rents the given movie from the given shop.
+- void drop(int shop, int movie)
+  Drops off a previously rented movie at the given shop.
+- List<List<Integer>> report()
+  Returns a list of cheapest rented movies as described above.
+
+Note:
+The test cases will be generated such that rent will only be called if the shop has an unrented copy of the movie,
+and drop will only be called if the shop had previously rented out the movie.
+
+Example 1:
+Input
+["MovieRentingSystem", "search", "rent", "rent", "report", "drop", "search"]
+[[3, [[0, 1, 5], [0, 2, 6], [0, 3, 7], [1, 1, 4], [1, 2, 7], [2, 1, 5]]], [1], [0, 1], [1, 2], [], [1, 2], [2]]
+Output
+[null, [1, 0, 2], null, null, [[0, 1], [1, 2]], null, [0, 1]]
+Explanation
+MovieRentingSystem movieRentingSystem
+= new MovieRentingSystem(3, [[0, 1, 5], [0, 2, 6], [0, 3, 7], [1, 1, 4], [1, 2, 7], [2, 1, 5]]);
+// return [1, 0, 2], Movies of ID 1 are unrented at shops 1, 0, and 2.
+// Shop 1 is cheapest; shop 0 and 2 are the same price, so order by shop number.
+movieRentingSystem.search(1);
+// Rent movie 1 from shop 0. Unrented movies at shop 0 are now [2,3].
+movieRentingSystem.rent(0, 1);
+// Rent movie 2 from shop 1. Unrented movies at shop 1 are now [1].
+movieRentingSystem.rent(1, 2);
+// return [[0, 1], [1, 2]]. Movie 1 from shop 0 is cheapest, followed by movie 2 from shop 1.
+movieRentingSystem.report();
+// Drop off movie 2 at shop 1. Unrented movies at shop 1 are now [1,2].
+movieRentingSystem.drop(1, 2);
+// return [0, 1]. Movies of ID 2 are unrented at shops 0 and 1. Shop 0 is cheapest, followed by shop 1.
+movieRentingSystem.search(2);
+
+Constraints:
+1 <= n <= 3 * 10^5
+1 <= entries.length <= 10^5
+0 <= shopi < n
+1 <= moviei, pricei <= 10^4
+Each shop carries at most one copy of a movie moviei.
+At most 10^5 calls in total will be made to search, rent, drop and report.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. You need to maintain a sorted list for each movie and a sorted list for rented movies
+2. When renting a movie remove it from its movies sorted list
+   and added it to the rented list and vice versa in the case of dropping a movie
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// https://leetcode.cn/problems/design-movie-rental-system/solutions/1943123/she-ji-dian-ying-zu-jie-by-heng-deng-shi-gw1e/
+#if (1)
+#define MOST_RESULTS (5)
+#define MOST_MOVIES (10001)
+#define SINGLE_SHIFT (20)
+#define SINGLE_MASK (0xFFFFF)
+#define DOUBLE_SHIFT (40)
+#define INVALID_INDEX (-1)
+#define FATHER_NODE(x) ((0 == (x)) ? INVALID_INDEX : (((x) - 1) >> 1))
+#define LEFT_NODE(x) (((x) << 1) + 1)
+#define RIGHT_NODE(x) (((x) << 1) + 2)
+
+typedef struct {
+    long int *buffer;
+    int *searchResult;
+    int *reportBuffer;
+    int **reportResult;
+    int *reportColResult;
+} ReturnArrays;
+typedef struct {
+    int shop;
+    int price;
+    bool sent;
+    bool inMovieHeap;
+    bool inSentHeap;
+    UT_hash_handle hh;
+} HashMapNode;
+typedef struct {
+    int bufferSize;
+    long int *buffer;
+} HeapNode;
+
+void heapPush(HeapNode *heap, long int value) {
+    int son = heap->bufferSize;
+    int father = FATHER_NODE(son);
+
+    heap->bufferSize++;
+    while ((INVALID_INDEX != father) && (heap->buffer[father] > value)) {
+        heap->buffer[son] = heap->buffer[father];
+        son = father;
+        father = FATHER_NODE(son);
+    }
+    heap->buffer[son] = value;
+}
+void heapPop(HeapNode *heap) {
+    int father = 0;
+    int son = 0;
+    int left = LEFT_NODE(father);
+    int right = RIGHT_NODE(father);
+
+    long int value = heap->buffer[heap->bufferSize - 1];
+
+    heap->bufferSize--;
+    while (((heap->bufferSize > left) && (heap->buffer[left] < value)) ||
+           ((heap->bufferSize > right) && (heap->buffer[right] < value))) {
+        son = ((heap->bufferSize > right) && (heap->buffer[right] < heap->buffer[left])) ? (right) : (left);
+        heap->buffer[father] = heap->buffer[son];
+        father = son;
+        left = LEFT_NODE(father);
+        right = RIGHT_NODE(father);
+    }
+    heap->buffer[father] = value;
+}
+#endif
+typedef struct {
+    ReturnArrays arrays;
+    HeapNode sentHeap;
+    HeapNode *movieHeap;
+    HashMapNode **hashTable;
+} MovieRentingSystem;
+MovieRentingSystem *movieRentingSystemCreate(int n, int **entries, int entriesSize, int *entriesColSize) {
+    MovieRentingSystem *obj = (MovieRentingSystem *)malloc(sizeof(MovieRentingSystem));
+
+    obj->arrays.buffer = (long int *)malloc(sizeof(long int) * MOST_RESULTS);
+    obj->arrays.searchResult = (int *)malloc(sizeof(int) * MOST_RESULTS);
+    obj->arrays.reportBuffer = (int *)malloc(sizeof(int) * MOST_RESULTS * 2);
+    obj->arrays.reportResult = (int **)malloc(sizeof(int *) * MOST_RESULTS);
+    obj->arrays.reportColResult = (int *)malloc(sizeof(int) * MOST_RESULTS);
+
+    int x = 0;
+    while (MOST_RESULTS > x) {
+        obj->arrays.reportResult[x] = &obj->arrays.reportBuffer[x * 2];
+        obj->arrays.reportColResult[x] = 2;
+        x++;
+    }
+
+    obj->sentHeap.bufferSize = 0;
+    obj->sentHeap.buffer = (long int *)malloc(sizeof(long int) * entriesSize);
+
+    obj->movieHeap = (HeapNode *)calloc(MOST_MOVIES, sizeof(HeapNode));
+    obj->hashTable = (HashMapNode **)calloc(MOST_MOVIES, sizeof(HashMapNode *));
+
+    HashMapNode *node = NULL;
+    int shop = 0;
+    x = 0;
+    while (entriesSize > x) {
+        shop = entries[x][0];
+
+        node = (HashMapNode *)malloc(sizeof(HashMapNode));
+        node->shop = shop;
+        node->price = entries[x][2];
+        node->sent = false;
+        node->inMovieHeap = true;
+        node->inSentHeap = false;
+        HASH_ADD_INT(obj->hashTable[entries[x][1]], shop, node);
+
+        obj->movieHeap[entries[x][1]].bufferSize++;
+
+        x++;
+    }
+
+    long int value = 0;
+    x = 0;
+    while (entriesSize > x) {
+        if ((0 < obj->movieHeap[entries[x][1]].bufferSize) && (NULL == obj->movieHeap[entries[x][1]].buffer)) {
+            obj->movieHeap[entries[x][1]].buffer =
+                (long int *)malloc(sizeof(long int) * obj->movieHeap[entries[x][1]].bufferSize);
+            obj->movieHeap[entries[x][1]].bufferSize = 0;
+        }
+
+        value = ((long int)entries[x][2] << DOUBLE_SHIFT) | ((long int)entries[x][0] << SINGLE_SHIFT) |
+                ((long int)entries[x][1]);
+        heapPush(&obj->movieHeap[entries[x][1]], value);
+
+        x++;
+    }
+
+    return obj;
+}
+int *movieRentingSystemSearch(MovieRentingSystem *obj, int movie, int *retSize) {
+    int *pRetVal = NULL;
+
+    (*retSize) = 0;
+
+    HashMapNode *node = NULL;
+    int x = 0;
+    int shop = 0;
+    long int value = 0;
+    while ((MOST_RESULTS > (*retSize)) && (0 < obj->movieHeap[movie].bufferSize)) {
+        value = obj->movieHeap[movie].buffer[0];
+        shop = value >> SINGLE_SHIFT & SINGLE_MASK;
+        HASH_FIND_INT(obj->hashTable[movie], &shop, node);
+        if (NULL != node) {
+            if (false == node->sent) {
+                obj->arrays.searchResult[(*retSize)] = shop;
+                obj->arrays.buffer[(*retSize)] = value;
+                (*retSize)++;
+            } else {
+                node->inMovieHeap = false;
+            }
+        }
+        heapPop(&obj->movieHeap[movie]);
+    }
+
+    if (0 < (*retSize)) {
+        while ((*retSize) > x) {
+            heapPush(&obj->movieHeap[movie], obj->arrays.buffer[x]);
+            x++;
+        }
+        pRetVal = obj->arrays.searchResult;
+    }
+
+    return pRetVal;
+}
+void movieRentingSystemRent(MovieRentingSystem *obj, int shop, int movie) {
+    HashMapNode *node = NULL;
+    HASH_FIND_INT(obj->hashTable[movie], &shop, node);
+    if (node == NULL) {
+        return;
+    } else if (node->sent == true) {
+        return;
+    }
+    node->sent = true;
+
+    long int value = ((long int)node->price << DOUBLE_SHIFT) | ((long int)shop << SINGLE_SHIFT) | ((long int)movie);
+    if ((0 < obj->movieHeap[movie].bufferSize) && (value == obj->movieHeap[movie].buffer[0])) {
+        node->inMovieHeap = false;
+        heapPop(&obj->movieHeap[movie]);
+    }
+
+    if (false == node->inSentHeap) {
+        node->inSentHeap = true;
+        heapPush(&obj->sentHeap, value);
+    }
+}
+void movieRentingSystemDrop(MovieRentingSystem *obj, int shop, int movie) {
+    HashMapNode *node = NULL;
+    HASH_FIND_INT(obj->hashTable[movie], &shop, node);
+    if (node == NULL) {
+        return;
+    } else if (node->sent == false) {
+        return;
+    }
+    node->sent = false;
+
+    long int value = ((long int)node->price << DOUBLE_SHIFT) | ((long int)shop << SINGLE_SHIFT) | ((long int)movie);
+    if ((0 < obj->sentHeap.bufferSize) && (value == obj->sentHeap.buffer[0])) {
+        node->inSentHeap = false;
+        heapPop(&obj->sentHeap);
+    }
+
+    if (false == node->inMovieHeap) {
+        node->inMovieHeap = true;
+        heapPush(&obj->movieHeap[movie], value);
+    }
+}
+int **movieRentingSystemReport(MovieRentingSystem *obj, int *retSize, int **retColSize) {
+    int **pRetVal = NULL;
+
+    (*retSize) = 0;
+    (*retColSize) = NULL;
+
+    HashMapNode *node = NULL;
+    int x = 0;
+    int shop = 0;
+    int movie = 0;
+    long int value = 0;
+    while ((MOST_RESULTS > (*retSize)) && (0 < obj->sentHeap.bufferSize)) {
+        value = obj->sentHeap.buffer[0];
+        shop = value >> SINGLE_SHIFT & SINGLE_MASK;
+        movie = value & SINGLE_MASK;
+
+        HASH_FIND_INT(obj->hashTable[movie], &shop, node);
+        if (NULL != node) {
+            if (true == node->sent) {
+                obj->arrays.reportResult[(*retSize)][0] = shop;
+                obj->arrays.reportResult[(*retSize)][1] = movie;
+                obj->arrays.buffer[(*retSize)] = value;
+                (*retSize)++;
+            } else {
+                node->inSentHeap = false;
+            }
+        }
+        heapPop(&obj->sentHeap);
+    }
+
+    if (0 < (*retSize)) {
+        while (*retSize > x) {
+            heapPush(&obj->sentHeap, obj->arrays.buffer[x]);
+            x++;
+        }
+        (*retColSize) = obj->arrays.reportColResult;
+        pRetVal = obj->arrays.reportResult;
+    }
+
+    return pRetVal;
+}
+void movieRentingSystemFree(MovieRentingSystem *obj) {
+    free(obj->arrays.buffer);
+    free(obj->arrays.searchResult);
+    free(obj->arrays.reportBuffer);
+    free(obj->arrays.reportResult);
+    free(obj->arrays.reportColResult);
+
+    if (NULL != obj->sentHeap.buffer) {
+        free(obj->sentHeap.buffer);
+    }
+
+    HashMapNode *node = NULL;
+    HashMapNode *t = NULL;
+    int x = 0;
+    while (MOST_MOVIES > x) {
+        if (NULL != obj->hashTable[x]) {
+            HASH_ITER(hh, obj->hashTable[x], node, t) {
+                HASH_DEL(obj->hashTable[x], node);
+                free(node);
+            }
+        }
+
+        if (NULL != obj->movieHeap[x].buffer) {
+            free(obj->movieHeap[x].buffer);
+        }
+
+        x++;
+    }
+    free(obj->hashTable);
+    free(obj->movieHeap);
+
+    free(obj);
+
+    return;
+}
+/**
+ * Your MovieRentingSystem struct will be instantiated and called as such:
+ * MovieRentingSystem* obj = movieRentingSystemCreate(n, entries, entriesSize, entriesColSize);
+ * int* param_1 = movieRentingSystemSearch(obj, movie, retSize);
+ * movieRentingSystemRent(obj, shop, movie);
+ * movieRentingSystemDrop(obj, shop, movie);
+ * int** param_4 = movieRentingSystemReport(obj, retSize, retColSize);
+ * movieRentingSystemFree(obj);
+ */
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class MovieRentingSystem {
+   private:
+    static constexpr auto pairHash = [fn = hash<int>()](const pair<int, int>& o) {
+        return (fn(o.first) << 16) ^ fn(o.second);
+    };
+    unordered_map<pair<int, int>, int, decltype(pairHash)> t_price{0, pairHash};
+    unordered_map<int, set<pair<int, int>>> t_valid;
+    set<tuple<int, int, int>> t_rent;
+
+   public:
+    MovieRentingSystem(int n, vector<vector<int>>& entries) {
+        for (const auto& entry : entries) {
+            t_price[{entry[0], entry[1]}] = entry[2];
+            t_valid[entry[1]].emplace(entry[2], entry[0]);
+        }
+    }
+    vector<int> search(int movie) {
+        vector<int> retVal;
+
+        if (t_valid.count(movie) == 0) {
+            return retVal;
+        }
+
+        auto it = t_valid[movie].begin();
+        for (int i = 0; i < 5 && it != t_valid[movie].end(); ++i, ++it) {
+            retVal.push_back(it->second);
+        }
+
+        return retVal;
+    }
+    void rent(int shop, int movie) {
+        int price = t_price[{shop, movie}];
+        t_valid[movie].erase({price, shop});
+        t_rent.emplace(price, shop, movie);
+    }
+    void drop(int shop, int movie) {
+        int price = t_price[{shop, movie}];
+        t_valid[movie].emplace(price, shop);
+        t_rent.erase({price, shop, movie});
+    }
+    vector<vector<int>> report() {
+        vector<vector<int>> retVal;
+
+        auto it = t_rent.begin();
+        for (int i = 0; i < 5 && it != t_rent.end(); ++i, ++it) {
+            retVal.emplace_back(initializer_list<int>{get<1>(*it), get<2>(*it)});
+        }
+
+        return retVal;
+    }
+};
+/**
+ * Your MovieRentingSystem object will be instantiated and called as such:
+ * MovieRentingSystem* obj = new MovieRentingSystem(n, entries);
+ * vector<int> param_1 = obj->search(movie);
+ * obj->rent(shop,movie);
+ * obj->drop(shop,movie);
+ * vector<vector<int>> param_4 = obj->report();
+ */
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class MovieRentingSystem:
+    def __init__(self, n: int, entries: List[List[int]]):
+        self.t_price = dict()
+        self.t_valid = defaultdict(SortedList)
+        self.t_rent = SortedList()
+        for shop, movie, price in entries:
+            self.t_price[(shop, movie)] = price
+            self.t_valid[movie].add((price, shop))
+
+    def search(self, movie: int) -> List[int]:
+        retVal = []
+
+        t_valid_ = self.t_valid
+        if movie not in t_valid_:
+            return retVal
+        retVal = [shop for (price, shop) in t_valid_[movie][:5]]
+
+        return retVal
+
+    def rent(self, shop: int, movie: int) -> None:
+        price = self.t_price[(shop, movie)]
+        self.t_valid[movie].discard((price, shop))
+        self.t_rent.add((price, shop, movie))
+
+    def drop(self, shop: int, movie: int) -> None:
+        price = self.t_price[(shop, movie)]
+        self.t_valid[movie].add((price, shop))
+        self.t_rent.discard((price, shop, movie))
+
+    def report(self) -> List[List[int]]:
+        retVal = [(shop, movie) for price, shop, movie in self.t_rent[:5]]
+
+        return retVal
+
+# Your MovieRentingSystem object will be instantiated and called as such:
+# obj = MovieRentingSystem(n, entries)
+# param_1 = obj.search(movie)
+# obj.rent(shop,movie)
+# obj.drop(shop,movie)
+# param_4 = obj.report()
+```
+
+</details>
+
 ## [1930. Unique Length-3 Palindromic Subsequences](https://leetcode.com/problems/unique-length-3-palindromic-subsequences/)  1533
 
 - [Official](https://leetcode.com/problems/unique-length-3-palindromic-subsequences/editorial/)
