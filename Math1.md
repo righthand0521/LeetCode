@@ -982,6 +982,258 @@ class Solution:
 
 </details>
 
+## [166. Fraction to Recurring Decimal](https://leetcode.com/problems/fraction-to-recurring-decimal/)
+
+- [Official](https://leetcode.cn/problems/fraction-to-recurring-decimal/solutions/1028368/fen-shu-dao-xiao-shu-by-leetcode-solutio-tqdw/)
+
+<details><summary>Description</summary>
+
+```text
+Given two integers representing the numerator and denominator of a fraction, return the fraction in string format.
+
+If the fractional part is repeating, enclose the repeating part in parentheses.
+
+If multiple answers are possible, return any of them.
+
+It is guaranteed that the length of the answer string is less than 104 for all the given inputs.
+
+Example 1:
+Input: numerator = 1, denominator = 2
+Output: "0.5"
+
+Example 2:
+Input: numerator = 2, denominator = 1
+Output: "2"
+
+Example 3:
+Input: numerator = 4, denominator = 333
+Output: "0.(012)"
+
+Constraints:
+-2^31 <= numerator, denominator <= 2^31 - 1
+denominator != 0
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. No scary math, just apply elementary math knowledge. Still remember how to perform a long division?
+2. Try a long division on 4/9, the repeating part is obvious. Now try 4/333. Do you see a pattern?
+3. Notice that once the remainder starts repeating, so does the divided result.
+4. Be wary of edge cases! List out as many test cases as you can think of and test your code thoroughly.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable* pFree) {
+    struct hashTable* current;
+    struct hashTable* tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+char* fractionToDecimal(int numerator, int denominator) {
+    char* pRetVal = NULL;
+
+#define MAX_BUF_SIZE (1024)
+    pRetVal = (char*)malloc(MAX_BUF_SIZE * sizeof(char));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (MAX_BUF_SIZE * sizeof(char)));
+    int returnSize = 0;
+
+    long numeratorLong = numerator;
+    long denominatorLong = denominator;
+
+    //
+    if (numeratorLong % denominatorLong == 0) {
+        returnSize += snprintf(pRetVal + returnSize, MAX_BUF_SIZE - returnSize, "%ld", numeratorLong / denominatorLong);
+        return pRetVal;
+    }
+
+    //
+    if ((numeratorLong < 0) ^ (denominatorLong < 0)) {
+        pRetVal[returnSize++] = '-';
+    }
+
+    //
+    numeratorLong = labs(numeratorLong);
+    denominatorLong = labs(denominatorLong);
+    long integerPart = numeratorLong / denominatorLong;
+    returnSize += snprintf(pRetVal + returnSize, MAX_BUF_SIZE - returnSize, "%ld", integerPart);
+    pRetVal[returnSize++] = '.';
+
+    //
+    char fractionPart[MAX_BUF_SIZE];
+    memset(fractionPart, 0, sizeof(fractionPart));
+    int fractionPartSize = 0;
+
+    struct hashTable* remainderIndexMap = NULL;
+    struct hashTable* pTemp;
+
+    long remainder = numeratorLong % denominatorLong;
+    int index = 0;
+    while (remainder != 0) {
+        pTemp = NULL;
+        HASH_FIND_INT(remainderIndexMap, &remainder, pTemp);
+        if (pTemp != NULL) {
+            break;
+        }
+
+        pTemp = (struct hashTable*)malloc(sizeof(struct hashTable));
+        if (pTemp == NULL) {
+            perror("malloc");
+            freeAll(remainderIndexMap);
+            free(pRetVal);
+            pRetVal = NULL;
+            return pRetVal;
+        }
+        pTemp->key = remainder;
+        pTemp->value = index;
+        HASH_ADD_INT(remainderIndexMap, key, pTemp);
+
+        remainder *= 10;
+        fractionPartSize += snprintf(fractionPart + fractionPartSize, MAX_BUF_SIZE - fractionPartSize, "%ld",
+                                     remainder / denominatorLong);
+        remainder %= denominatorLong;
+        index++;
+    }
+
+    //
+    if (remainder != 0) {
+        pTemp = NULL;
+        HASH_FIND_INT(remainderIndexMap, &remainder, pTemp);
+        int insertIndex = pTemp->value;
+
+        for (int i = 0; i < insertIndex; ++i) {
+            pRetVal[returnSize++] = fractionPart[i];
+        }
+        pRetVal[returnSize++] = '(';
+        for (int i = insertIndex; i < fractionPartSize; ++i) {
+            pRetVal[returnSize++] = fractionPart[i];
+        }
+        pRetVal[returnSize++] = ')';
+    } else {
+        returnSize += snprintf(pRetVal + returnSize, MAX_BUF_SIZE - returnSize, "%s", fractionPart);
+    }
+
+    //
+    freeAll(remainderIndexMap);
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    string fractionToDecimal(int numerator, int denominator) {
+        string retVal;
+
+        long numeratorLong = numerator;
+        long denominatorLong = denominator;
+        if (numeratorLong % denominatorLong == 0) {
+            retVal = to_string(numeratorLong / denominatorLong);
+            return retVal;
+        }
+
+        //
+        if ((numeratorLong < 0) ^ (denominatorLong < 0)) {
+            retVal.push_back('-');
+        }
+        //
+        numeratorLong = abs(numeratorLong);
+        denominatorLong = abs(denominatorLong);
+        long integerPart = numeratorLong / denominatorLong;
+        retVal += to_string(integerPart);
+        retVal.push_back('.');
+        //
+        string fractionPart;
+        unordered_map<long, int> remainderIndexMap;
+        long remainder = numeratorLong % denominatorLong;
+        int index = 0;
+        while (remainder != 0 && !remainderIndexMap.count(remainder)) {
+            remainderIndexMap[remainder] = index;
+            remainder *= 10;
+            fractionPart += to_string(remainder / denominatorLong);
+            remainder %= denominatorLong;
+            index++;
+        }
+        //
+        if (remainder != 0) {
+            int insertIndex = remainderIndexMap[remainder];
+            fractionPart = fractionPart.substr(0, insertIndex) + '(' + fractionPart.substr(insertIndex);
+            fractionPart.push_back(')');
+        }
+        //
+        retVal += fractionPart;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def fractionToDecimal(self, numerator: int, denominator: int) -> str:
+        retVal = ""
+
+        if numerator % denominator == 0:
+            retVal = str(numerator // denominator)
+            return retVal
+
+        s = []
+        #
+        if (numerator < 0) != (denominator < 0):
+            s.append('-')
+        #
+        numerator = abs(numerator)
+        denominator = abs(denominator)
+        integerPart = numerator // denominator
+        s.append(str(integerPart))
+        s.append('.')
+        #
+        indexMap = {}
+        remainder = numerator % denominator
+        while remainder and remainder not in indexMap:
+            indexMap[remainder] = len(s)
+            remainder *= 10
+            s.append(str(remainder // denominator))
+            remainder %= denominator
+        if remainder:
+            insertIndex = indexMap[remainder]
+            s.insert(insertIndex, '(')
+            s.append(')')
+        #
+        retVal = ''.join(s)
+
+        return retVal
+```
+
+</details>
+
 ## [168. Excel Sheet Column Title](https://leetcode.com/problems/excel-sheet-column-title/)
 
 - [Official](https://leetcode.com/problems/excel-sheet-column-title/editorial/)
