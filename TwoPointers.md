@@ -2128,6 +2128,111 @@ class Solution:
 
 </details>
 
+## [611. Valid Triangle Number](https://leetcode.com/problems/valid-triangle-number/)
+
+- [Official](https://leetcode.com/problems/valid-triangle-number/editorial/)
+- [Official](https://leetcode.cn/problems/valid-triangle-number/solutions/914061/you-xiao-san-jiao-xing-de-ge-shu-by-leet-t2td/)
+
+<details><summary>Description</summary>
+
+```text
+Given an integer array nums, return the number of triplets chosen from the array
+that can make triangles if we take them as side lengths of a triangle.
+
+Example 1:
+Input: nums = [2,2,3,4]
+Output: 3
+Explanation: Valid combinations are:
+2,3,4 (using the first 2)
+2,3,4 (using the second 2)
+2,2,3
+
+Example 2:
+Input: nums = [4,2,3,4]
+Output: 4
+
+Constraints:
+1 <= nums.length <= 1000
+0 <= nums[i] <= 1000
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareInteger(const void* n1, const void* n2) {
+    // ascending order
+    return (*(int*)n1 > *(int*)n2);
+}
+int triangleNumber(int* nums, int numsSize) {
+    int retVal = 0;
+
+    qsort(nums, numsSize, sizeof(int), compareInteger);
+    for (int i = 0; i < numsSize; ++i) {
+        int k = i;
+        for (int j = i + 1; j < numsSize; ++j) {
+            while ((k + 1 < numsSize) && (nums[k + 1] < nums[i] + nums[j])) {
+                ++k;
+            }
+            retVal += fmax(k - j, 0);
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int triangleNumber(vector<int>& nums) {
+        int retVal = 0;
+
+        int numsSize = nums.size();
+        sort(nums.begin(), nums.end());
+        for (int i = 0; i < numsSize; ++i) {
+            int k = i;
+            for (int j = i + 1; j < numsSize; ++j) {
+                while ((k + 1 < numsSize) && (nums[k + 1] < nums[i] + nums[j])) {
+                    ++k;
+                }
+                retVal += max(k - j, 0);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def triangleNumber(self, nums: List[int]) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+        nums.sort()
+        for i in range(numsSize):
+            k = i
+            for j in range(i + 1, numsSize):
+                while ((k + 1 < numsSize) and (nums[k + 1] < nums[i] + nums[j])):
+                    k += 1
+                retVal += max(k - j, 0)
+
+        return retVal
+```
+
+</details>
+
 ## [792. Number of Matching Subsequences](https://leetcode.com/problems/number-of-matching-subsequences/)  1695
 
 - [Official](https://leetcode.cn/problems/number-of-matching-subsequences/solutions/1973995/pi-pei-zi-xu-lie-de-dan-ci-shu-by-leetco-vki7/)
