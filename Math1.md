@@ -3805,6 +3805,113 @@ bool isIdealPermutation(int* nums, int numsSize) {
 
 </details>
 
+## [812. Largest Triangle Area](https://leetcode.com/problems/largest-triangle-area/)  1543
+
+- [Official](https://leetcode.com/problems/largest-triangle-area/editorial/)
+- [Official](https://leetcode.cn/problems/largest-triangle-area/solutions/1490629/zui-da-san-jiao-xing-mian-ji-by-leetcode-yefh/)
+
+<details><summary>Description</summary>
+
+```text
+Given an array of points on the X-Y plane points where points[i] = [xi, yi],
+return the area of the largest triangle that can be formed by any three different points.
+Answers within 10^-5 of the actual answer will be accepted.
+
+Example 1:
+Input: points = [[0,0],[0,1],[1,0],[0,2],[2,0]]
+Output: 2.00000
+Explanation: The five points are shown in the above figure. The red triangle is the largest.
+
+Example 2:
+Input: points = [[1,0],[0,0],[0,1]]
+Output: 0.50000
+
+Constraints:
+3 <= points.length <= 50
+-50 <= xi, yi <= 50
+All the given points are unique.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+double triangleArea(int x1, int y1, int x2, int y2, int x3, int y3) {
+    double retVal = 0.5 * abs((x1 * y2) + (x2 * y3) + (x3 * y1) - (x1 * y3) - (x2 * y1) - (x3 * y2));
+
+    return retVal;
+}
+double largestTriangleArea(int** points, int pointsSize, int* pointsColSize) {
+    double retVal = 0;
+
+    for (int i = 0; i < pointsSize; i++) {
+        for (int j = i + 1; j < pointsSize; j++) {
+            for (int k = j + 1; k < pointsSize; k++) {
+                retVal = fmax(retVal, triangleArea(points[i][0], points[i][1], points[j][0], points[j][1], points[k][0],
+                                                   points[k][1]));
+            }
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    double triangleArea(int x1, int y1, int x2, int y2, int x3, int y3) {
+        double retVal = 0.5 * abs((x1 * y2) + (x2 * y3) + (x3 * y1) - (x1 * y3) - (x2 * y1) - (x3 * y2));
+
+        return retVal;
+    }
+
+   public:
+    double largestTriangleArea(vector<vector<int>>& points) {
+        double retVal = 0;
+
+        int pointsSize = points.size();
+        for (int i = 0; i < pointsSize; i++) {
+            for (int j = i + 1; j < pointsSize; j++) {
+                for (int k = j + 1; k < pointsSize; k++) {
+                    retVal = max(retVal, triangleArea(points[i][0], points[i][1], points[j][0], points[j][1],
+                                                      points[k][0], points[k][1]));
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def area(self, p: int, q: int, r: int) -> float:
+        retVal = .5 * abs((p[0]*q[1]) + (q[0]*r[1]) + (r[0]*p[1]) - (p[1]*q[0]) - (q[1]*r[0]) - (r[1]*p[0]))
+
+        return retVal
+
+    def largestTriangleArea(self, points: List[List[int]]) -> float:
+        retVal = 0
+
+        for triangle in combinations(points, 3):
+            retVal = max(retVal, self.area(*triangle))
+
+        return retVal
+```
+
+</details>
+
 ## [869. Reordered Power of 2](https://leetcode.com/problems/reordered-power-of-2/)  1505
 
 - [Official](https://leetcode.cn/problems/reordered-power-of-2/solutions/1068761/zhong-xin-pai-xu-de-dao-2-de-mi-by-leetc-4fvs/)
