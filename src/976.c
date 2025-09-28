@@ -22,12 +22,19 @@ int largestPerimeter(int* nums, int numsSize) {
 }
 
 int main(int argc, char** argv) {
-#define MAX_SIZE (10000)
+#define MAX_SIZE (int)(1e4)
     struct testCaseType {
         int nums[MAX_SIZE];
         int numsSize;
     } testCase[] = {{{2, 1, 2}, 3}, {{1, 2, 1}, 3}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: nums = [2,1,2]
+     *  Output: 5
+     *
+     *  Input: nums = [1,2,1]
+     *  Output: 0
+     */
 
     int answer;
     int i, j;

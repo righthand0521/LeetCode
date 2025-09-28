@@ -9,8 +9,7 @@ class Solution {
     int largestPerimeter(vector<int>& nums) {
         int retVal = 0;
 
-        // descending order
-        sort(nums.begin(), nums.end(), greater<int>());
+        sort(nums.begin(), nums.end(), greater<int>());  // descending order
         for (long unsigned int i = 0; i < nums.size() - 2; ++i) {
             if (nums[i] < (nums[i + 1] + nums[i + 2])) {
                 retVal = nums[i] + nums[i + 1] + nums[i + 2];
@@ -28,6 +27,13 @@ int main(int argc, char** argv) {
     };
     vector<subject> testData{{{2, 1, 2}}, {{1, 2, 1}}};
     int numberOfTestCase = testData.size();
+    /* Example
+     *  Input: nums = [2,1,2]
+     *  Output: 5
+     *
+     *  Input: nums = [1,2,1]
+     *  Output: 0
+     */
 
     Solution cSolution;
     int answer;

@@ -1921,10 +1921,14 @@ class Solution:
 
 ## [976. Largest Perimeter Triangle](https://leetcode.com/problems/largest-perimeter-triangle/)  1340
 
+- [Official](https://leetcode.com/problems/largest-perimeter-triangle/editorial/)
+- [Official](https://leetcode.cn/problems/largest-perimeter-triangle/solutions/501924/san-jiao-xing-de-zui-da-zhou-chang-by-leetcode-sol/)
+
 <details><summary>Description</summary>
 
 ```text
-Given an integer array nums, return the largest perimeter of a triangle with a non-zero area, formed from three of these lengths.
+Given an integer array nums, return the largest perimeter of a triangle with a non-zero area,
+formed from three of these lengths.
 If it is impossible to form any triangle of a non-zero area, return 0.
 
 Example 1:
@@ -1971,15 +1975,14 @@ int largestPerimeter(int* nums, int numsSize) {
 
 ```c++
 class Solution {
-public:
+   public:
     int largestPerimeter(vector<int>& nums) {
         int retVal = 0;
 
-        // descending order
-        sort(nums.begin(), nums.end(), greater<int>());
-        for (long unsigned int i=0; i<nums.size()-2; ++i) {
-            if (nums[i] < (nums[i+1] + nums[i+2])) {
-                retVal = nums[i] + nums[i+1] + nums[i+2];
+        sort(nums.begin(), nums.end(), greater<int>());  // descending order
+        for (long unsigned int i = 0; i < nums.size() - 2; ++i) {
+            if (nums[i] < (nums[i + 1] + nums[i + 2])) {
+                retVal = nums[i] + nums[i + 1] + nums[i + 2];
                 break;
             }
         }
@@ -1987,6 +1990,25 @@ public:
         return retVal;
     }
 };
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def largestPerimeter(self, nums: List[int]) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+        nums.sort(reverse=True)
+        for i in range(numsSize-2):
+            if nums[i] < (nums[i + 1] + nums[i + 2]):
+                retVal = nums[i] + nums[i + 1] + nums[i + 2]
+                break
+
+        return retVal
 ```
 
 </details>
