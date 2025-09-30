@@ -1062,6 +1062,140 @@ class Solution:
 
 </details>
 
+## [2221. Find Triangular Sum of an Array](https://leetcode.com/problems/find-triangular-sum-of-an-array/)  1317
+
+- [Official](https://leetcode.com/problems/find-triangular-sum-of-an-array/editorial/)
+- [Official](https://leetcode.cn/problems/find-triangular-sum-of-an-array/solutions/1418104/shu-zu-de-san-jiao-he-by-leetcode-soluti-qpc8/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed integer array nums, where nums[i] is a digit between 0 and 9 (inclusive).
+
+The triangular sum of nums is the value of the only element present in nums after the following process terminates:
+1. Let nums comprise of n elements. If n == 1, end the process.
+   Otherwise, create a new 0-indexed integer array newNums of length n - 1.
+2. For each index i, where 0 <= i < n - 1, assign the value of newNums[i] as (nums[i] + nums[i+1]) % 10,
+   where % denotes modulo operator.
+3. Replace the array nums with newNums.
+4. Repeat the entire process starting from step 1.
+
+Return the triangular sum of nums.
+
+Example 1:
+Input: nums = [1,2,3,4,5]
+Output: 8
+Explanation:
+The above diagram depicts the process from which we obtain the triangular sum of the array.
+
+Example 2:
+Input: nums = [5]
+Output: 5
+Explanation:
+Since there is only one element in nums, the triangular sum is the value of that element itself.
+
+Constraints:
+1 <= nums.length <= 1000
+0 <= nums[i] <= 9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Try simulating the entire process.
+2. To reduce space, use a temporary array to update nums in every step instead of creating a new array at each step.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int triangularSum(int* nums, int numsSize) {
+    int retVal = 0;
+
+    int* current = (int*)malloc(numsSize * sizeof(int));
+    if (current == NULL) {
+        perror("malloc");
+        return retVal;
+    }
+    memcpy(current, nums, numsSize * sizeof(int));
+    int currentSize = numsSize;
+
+    int* newNums = (int*)malloc(numsSize * sizeof(int));
+    if (newNums == NULL) {
+        perror("malloc");
+        free(current);
+        return retVal;
+    }
+    while (currentSize > 1) {
+        for (int i = 0; i < currentSize - 1; ++i) {
+            newNums[i] = (current[i] + current[i + 1]) % 10;
+        }
+        currentSize--;
+        memcpy(current, newNums, sizeof(int) * currentSize);
+    }
+    retVal = current[0];
+
+    //
+    free(current);
+    free(newNums);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int triangularSum(vector<int>& nums) {
+        int retVal = 0;
+
+        int numsSize = nums.size();
+        while (numsSize > 1) {
+            vector<int> newNums;
+            for (int i = 0; i < numsSize - 1; ++i) {
+                newNums.emplace_back((nums[i] + nums[i + 1]) % 10);
+            }
+            nums = move(newNums);
+            numsSize = nums.size();
+        }
+        retVal = nums[0];
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def triangularSum(self, nums: List[int]) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+        while numsSize > 1:
+            newNums = list()
+            for i in range(numsSize - 1):
+                newNums.append((nums[i] + nums[i + 1]) % 10)
+            nums = newNums
+            numsSize = len(nums)
+        retVal = nums[0]
+
+        return retVal
+```
+
+</details>
+
 ## [2257. Count Unguarded Cells in the Grid](https://leetcode.com/problems/count-unguarded-cells-in-the-grid/)  1708
 
 - [Official](https://leetcode.com/problems/count-unguarded-cells-in-the-grid/editorial/)
