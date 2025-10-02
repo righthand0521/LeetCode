@@ -563,6 +563,13 @@
 
 </details>
 
+<details><summary>Water Bottles</summary>
+
+- [1518. Water Bottles](https://leetcode.com/problems/water-bottles/)
+- [3100. Water Bottles II](https://leetcode.com/problems/water-bottles-ii/)
+
+</details>
+
 ## Prefix Sum
 
 <details><summary>Find Pivot Index</summary>
