@@ -2628,6 +2628,362 @@ class Solution:
 
 </details>
 
+## [417. Pacific Atlantic Water Flow](https://leetcode.com/problems/pacific-atlantic-water-flow/)
+
+- [Official](https://leetcode.cn/problems/pacific-atlantic-water-flow/solutions/1447341/tai-ping-yang-da-xi-yang-shui-liu-wen-ti-sjk3/)
+
+<details><summary>Description</summary>
+
+```text
+There is an m x n rectangular island that borders both the Pacific Ocean and Atlantic Ocean.
+The Pacific Ocean touches the island's left and top edges,
+and the Atlantic Ocean touches the island's right and bottom edges.
+
+The island is partitioned into a grid of square cells.
+You are given an m x n integer matrix heights
+where heights[r][c] represents the height above sea level of the cell at coordinate (r, c).
+
+The island receives a lot of rain, and the rain water can flow to neighboring cells directly north,
+south, east, and west if the neighboring cell's height is less than or equal to the current cell's height.
+Water can flow from any cell adjacent to an ocean into the ocean.
+
+Return a 2D list of grid coordinates result where result[i] = [ri, ci] denotes
+that rain water can flow from cell (ri, ci) to both the Pacific and Atlantic oceans.
+
+Example 1:
+Input: heights = [[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]]
+Output: [[0,4],[1,3],[1,4],[2,2],[3,0],[3,1],[4,0]]
+Explanation: The following cells can flow to the Pacific and Atlantic oceans, as shown below:
+[0,4]: [0,4] -> Pacific Ocean
+       [0,4] -> Atlantic Ocean
+[1,3]: [1,3] -> [0,3] -> Pacific Ocean
+       [1,3] -> [1,4] -> Atlantic Ocean
+[1,4]: [1,4] -> [1,3] -> [0,3] -> Pacific Ocean
+       [1,4] -> Atlantic Ocean
+[2,2]: [2,2] -> [1,2] -> [0,2] -> Pacific Ocean
+       [2,2] -> [2,3] -> [2,4] -> Atlantic Ocean
+[3,0]: [3,0] -> Pacific Ocean
+       [3,0] -> [4,0] -> Atlantic Ocean
+[3,1]: [3,1] -> [3,0] -> Pacific Ocean
+       [3,1] -> [4,1] -> Atlantic Ocean
+[4,0]: [4,0] -> Pacific Ocean
+       [4,0] -> Atlantic Ocean
+Note that there are other possible paths for these cells to flow to the Pacific and Atlantic oceans.
+
+Example 2:
+Input: heights = [[1]]
+Output: [[0,0]]
+Explanation: The water can flow from the only cell to the Pacific and Atlantic oceans.
+Constraints:
+m == heights.length
+n == heights[r].length
+1 <= m, n <= 200
+0 <= heights[r][c] <= 10^5
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+void bfs(int row, int col, bool** ocean, int** heights, int heightsSize, int heightsColSize) {
+    if (ocean[row][col] == true) {
+        return;
+    }
+    ocean[row][col] = true;
+
+    int directions[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+    int bfsQueueSize = heightsSize * heightsColSize;
+    int bfsQueue[bfsQueueSize];
+    memset(bfsQueue, 0, sizeof(bfsQueue));
+    int bfsQueueHead = 0;
+    int bfsQueueTail = 0;
+    bfsQueue[bfsQueueTail++] = row * heightsColSize + col;
+    while (bfsQueueHead != bfsQueueTail) {
+        int row = bfsQueue[bfsQueueHead] / heightsColSize;
+        int col = bfsQueue[bfsQueueHead] % heightsColSize;
+        bfsQueueHead++;
+
+        for (int i = 0; i < 4; i++) {
+            int nextRow = row + directions[i][0];
+            int nextCol = col + directions[i][1];
+            if ((nextRow < 0) || (nextRow >= heightsSize) || (nextCol < 0) || (nextCol >= heightsColSize)) {
+                continue;
+            } else if (ocean[nextRow][nextCol] == true) {
+                continue;
+            }
+
+            if (heights[nextRow][nextCol] >= heights[row][col]) {
+                ocean[nextRow][nextCol] = true;
+                bfsQueue[bfsQueueTail++] = nextRow * heightsColSize + nextCol;
+            }
+        }
+    }
+}
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int** pacificAtlantic(int** heights, int heightsSize, int* heightsColSize, int* returnSize, int** returnColumnSizes) {
+    int** pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    bool** pacific = (bool**)malloc(sizeof(bool*) * heightsSize);
+    if (pacific == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    bool** atlantic = (bool**)malloc(sizeof(bool*) * heightsSize);
+    if (atlantic == NULL) {
+        perror("malloc");
+        free(pacific);
+        pacific = NULL;
+        return pRetVal;
+    }
+    for (int i = 0; i < heightsSize; i++) {
+        pacific[i] = (bool*)malloc(sizeof(bool) * heightsColSize[0]);
+        if (pacific[i] == NULL) {
+            perror("malloc");
+            goto exit_pacificAtlantic;
+        }
+        atlantic[i] = (bool*)malloc(sizeof(bool) * heightsColSize[0]);
+        if (atlantic[i] == NULL) {
+            perror("malloc");
+            goto exit_pacificAtlantic;
+        }
+        memset(pacific[i], 0, sizeof(bool) * heightsColSize[0]);
+        memset(atlantic[i], 0, sizeof(bool) * heightsColSize[0]);
+    }
+    for (int i = 0; i < heightsSize; i++) {
+        bfs(i, 0, pacific, heights, heightsSize, heightsColSize[0]);
+    }
+    for (int j = 1; j < heightsColSize[0]; j++) {
+        bfs(0, j, pacific, heights, heightsSize, heightsColSize[0]);
+    }
+    for (int i = 0; i < heightsSize; i++) {
+        bfs(i, heightsColSize[0] - 1, atlantic, heights, heightsSize, heightsColSize[0]);
+    }
+    for (int j = 0; j < heightsColSize[0] - 1; j++) {
+        bfs(heightsSize - 1, j, atlantic, heights, heightsSize, heightsColSize[0]);
+    }
+
+    (*returnColumnSizes) = (int*)malloc(sizeof(int) * heightsSize * heightsColSize[0]);
+    if ((*returnColumnSizes) == NULL) {
+        perror("malloc");
+        goto exit_pacificAtlantic;
+    }
+    pRetVal = (int**)malloc(sizeof(int*) * heightsSize * heightsColSize[0]);
+    if (pRetVal == NULL) {
+        perror("malloc");
+        goto exit_returnColumnSizes;
+    }
+    for (int i = 0; i < heightsSize; i++) {
+        for (int j = 0; j < heightsColSize[0]; j++) {
+            if ((pacific[i][j] && atlantic[i][j]) == false) {
+                continue;
+            }
+
+            pRetVal[(*returnSize)] = (int*)malloc(sizeof(int) * 2);
+            if (pRetVal[(*returnSize)] == NULL) {
+                perror("malloc");
+                goto exit_return;
+            }
+            (*returnColumnSizes)[(*returnSize)] = 2;
+            pRetVal[(*returnSize)][0] = i;
+            pRetVal[(*returnSize)][1] = j;
+            (*returnSize)++;
+        }
+        if (pacific[i]) {
+            free(pacific[i]);
+            pacific[i] = NULL;
+        }
+        if (atlantic[i]) {
+            free(atlantic[i]);
+            atlantic[i] = NULL;
+        }
+    }
+    if (pacific) {
+        free(pacific);
+        pacific = NULL;
+    }
+    if (atlantic) {
+        free(atlantic);
+        atlantic = NULL;
+    }
+
+    return pRetVal;
+
+exit_return:
+    for (int i = 0; i < heightsSize * heightsColSize[0]; i++) {
+        if (pRetVal[i]) {
+            free(pRetVal[i]);
+            pRetVal[i] = NULL;
+        }
+    }
+    if (pRetVal) {
+        free(pRetVal);
+        pRetVal = NULL;
+    }
+
+exit_returnColumnSizes:
+    if ((*returnColumnSizes)) {
+        free((*returnColumnSizes));
+        (*returnColumnSizes) = NULL;
+    }
+
+exit_pacificAtlantic:
+    for (int i = 0; i < heightsSize; i++) {
+        if (pacific[i]) {
+            free(pacific[i]);
+            pacific[i] = NULL;
+        }
+        if (atlantic[i]) {
+            free(atlantic[i]);
+            atlantic[i] = NULL;
+        }
+    }
+    if (pacific) {
+        free(pacific);
+        pacific = NULL;
+    }
+    if (atlantic) {
+        free(atlantic);
+        atlantic = NULL;
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    vector<vector<int>> heights;
+    vector<vector<int>> directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+
+    void bfs(int row, int col, vector<vector<bool>>& ocean) {
+        if (ocean[row][col] == true) {
+            return;
+        }
+        ocean[row][col] = true;
+
+        int heightsSize = heights.size();
+        int heightsColSize = heights[0].size();
+
+        queue<pair<int, int>> bfsQueue;
+        bfsQueue.emplace(row, col);
+        while (bfsQueue.empty() == false) {
+            auto [row, col] = bfsQueue.front();
+            bfsQueue.pop();
+            for (int i = 0; i < 4; i++) {
+                int nextRow = row + directions[i][0];
+                int nextCol = col + directions[i][1];
+                if ((nextRow < 0) || (nextRow >= heightsSize) || (nextCol < 0) || (nextCol >= heightsColSize)) {
+                    continue;
+                } else if (ocean[nextRow][nextCol] == true) {
+                    continue;
+                }
+
+                if (heights[nextRow][nextCol] >= heights[row][col]) {
+                    ocean[nextRow][nextCol] = true;
+                    bfsQueue.emplace(nextRow, nextCol);
+                }
+            }
+        }
+    }
+
+   public:
+    vector<vector<int>> pacificAtlantic(vector<vector<int>>& heights) {
+        vector<vector<int>> retVal;
+
+        this->heights = heights;
+        int heightsSize = heights.size();
+        int heightsColSize = heights[0].size();
+
+        vector<vector<bool>> pacific(heightsSize, vector<bool>(heightsColSize, false));
+        for (int i = 0; i < heightsSize; i++) {
+            bfs(i, 0, pacific);
+        }
+        for (int j = 1; j < heightsColSize; j++) {
+            bfs(0, j, pacific);
+        }
+
+        vector<vector<bool>> atlantic(heightsSize, vector<bool>(heightsColSize, false));
+        for (int i = 0; i < heightsSize; i++) {
+            bfs(i, heightsColSize - 1, atlantic);
+        }
+        for (int j = 0; j < heightsColSize - 1; j++) {
+            bfs(heightsSize - 1, j, atlantic);
+        }
+
+        for (int i = 0; i < heightsSize; i++) {
+            for (int j = 0; j < heightsColSize; j++) {
+                if (pacific[i][j] && atlantic[i][j]) {
+                    vector<int> cell;
+                    cell.emplace_back(i);
+                    cell.emplace_back(j);
+                    retVal.emplace_back(cell);
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def bfs(self, heights: List[List[int]], starts: List[Tuple[int, int]]) -> Set[Tuple[int, int]]:
+        retVal = None
+
+        heightsSize = len(heights)
+        heightsColSize = len(heights[0])
+
+        bfsQueue = deque(starts)
+        visited = set(starts)
+        while bfsQueue:
+            x, y = bfsQueue.popleft()
+            for nx, ny in ((x, y + 1), (x, y - 1), (x - 1, y), (x + 1, y)):
+                if (nx < 0) or (nx >= heightsSize) or (ny < 0) or (ny >= heightsColSize):
+                    continue
+                elif (nx, ny) in visited:
+                    continue
+
+                if heights[nx][ny] >= heights[x][y]:
+                    bfsQueue.append((nx, ny))
+                    visited.add((nx, ny))
+        retVal = visited
+
+        return retVal
+
+    def pacificAtlantic(self, heights: List[List[int]]) -> List[List[int]]:
+        retVal = []
+
+        heightsSize = len(heights)
+        heightsColSize = len(heights[0])
+
+        pacific = [(0, i) for i in range(heightsColSize)]
+        pacific += [(i, 0) for i in range(1, heightsSize)]
+        atlantic = [(heightsSize - 1, i) for i in range(heightsColSize)]
+        atlantic += [(i, heightsColSize - 1) for i in range(heightsSize - 1)]
+        retVal = list(map(list, self.bfs(heights, pacific) & self.bfs(heights, atlantic)))
+
+        return retVal
+```
+
+</details>
+
 ## [433. Minimum Genetic Mutation](https://leetcode.com/problems/minimum-genetic-mutation/)
 
 - [Official](https://leetcode.cn/problems/minimum-genetic-mutation/solutions/1470943/zui-xiao-ji-yin-bian-hua-by-leetcode-sol-lhwy/)
