@@ -3015,6 +3015,256 @@ class MyCalendarTwo:
 
 </details>
 
+## [778. Swim in Rising Water](https://leetcode.com/problems/swim-in-rising-water/)  2097
+
+- [Official](https://leetcode.cn/problems/swim-in-rising-water/solutions/582250/shui-wei-shang-sheng-de-yong-chi-zhong-y-862o/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an n x n integer matrix grid where each value grid[i][j] represents the elevation at that point (i, j).
+
+It starts raining, and water gradually rises over time.
+At time t, the water level is t, meaning any cell with elevation less than equal to t is submerged or reachable.
+
+You can swim from a square to another 4-directionally adjacent square
+if and only if the elevation of both squares individually are at most t.
+You can swim infinite distances in zero time. Of course,
+you must stay within the boundaries of the grid during your swim.
+
+Return the minimum time until you can reach the bottom right square (n - 1, n - 1)
+if you start at the top left square (0, 0).
+
+Example 1:
+Input: grid = [[0,2],[1,3]]
+Output: 3
+Explanation:
+At time 0, you are in grid location (0, 0).
+You cannot go anywhere else because 4-directionally adjacent neighbors have a higher elevation than t = 0.
+You cannot reach point (1, 1) until time 3.
+When the depth of water is 3, we can swim anywhere inside the grid.
+
+Example 2:
+Input: grid = [[0,1,2,3,4],[24,23,22,21,5],[12,13,14,15,16],[11,17,18,19,20],[10,9,8,7,6]]
+Output: 16
+Explanation: The final route is shown.
+We need to wait until time 16 so that (0, 0) and (4, 4) are connected.
+
+Constraints:
+n == grid.length
+n == grid[i].length
+1 <= n <= 50
+0 <= grid[i][j] < n2
+Each value grid[i][j] is unique.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use either Dijkstra's, or binary search for the best time T for
+   which you can reach the end if you only step on squares at most T.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool bfs(int** grid, int gridSize, int* gridColSize, int threshold) {
+    bool retVal = false;
+
+    if (grid[0][0] > threshold) {
+        return retVal;
+    }
+
+    bool visited[gridSize][gridSize];
+    memset(visited, false, sizeof(visited));
+    visited[0][0] = true;
+
+    int directions[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+    int bfsQueue[gridSize * gridSize][2];
+    int bfsQueueHead = 0;
+    int bfsQueueTail = 0;
+    bfsQueue[bfsQueueTail][0] = 0;
+    bfsQueue[bfsQueueTail][1] = 0;
+    bfsQueueTail++;
+
+    int x, y, nextX, nextY;
+    while (bfsQueueHead < bfsQueueTail) {
+        x = bfsQueue[bfsQueueHead][0];
+        y = bfsQueue[bfsQueueHead][1];
+        bfsQueueHead++;
+
+        for (int i = 0; i < 4; i++) {
+            nextX = x + directions[i][0];
+            nextY = y + directions[i][1];
+            if ((nextX < 0) || (nextX >= gridSize) || (nextY < 0) || (nextY >= gridSize)) {
+                continue;
+            } else if (visited[nextX][nextY]) {
+                continue;
+            } else if (grid[nextX][nextY] > threshold) {
+                continue;
+            }
+
+            if ((nextX == gridSize - 1) && (nextY == gridSize - 1)) {
+                retVal = true;
+                return retVal;
+            }
+            visited[nextX][nextY] = true;
+            bfsQueue[bfsQueueTail][0] = nextX;
+            bfsQueue[bfsQueueTail][1] = nextY;
+            bfsQueueTail++;
+        }
+    }
+
+    return retVal;
+}
+int swimInWater(int** grid, int gridSize, int* gridColSize) {
+    int retVal = 0;
+
+    int middle;
+    int left = 0;
+    int right = gridSize * gridSize - 1;
+    while (left < right) {
+        middle = (left + right) / 2;
+        if ((grid[0][0] <= middle) && (bfs(grid, gridSize, gridColSize, middle) == true)) {
+            right = middle;
+        } else {
+            left = middle + 1;
+        }
+    }
+    retVal = left;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    bool bfs(vector<vector<int>>& grid, int threshold) {
+        bool retVal = false;
+
+        int gridSize = grid.size();
+        if (grid[0][0] > threshold) {
+            return retVal;
+        }
+
+        vector<vector<bool>> visited(gridSize, vector<bool>(gridSize, false));
+        visited[0][0] = true;
+        vector<vector<int>> directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+        queue<pair<int, int>> bfsQueue;
+        bfsQueue.push({0, 0});
+        while (bfsQueue.empty() == false) {
+            auto [x, y] = bfsQueue.front();
+            bfsQueue.pop();
+
+            for (int i = 0; i < 4; i++) {
+                int nextX = x + directions[i][0];
+                int nextY = y + directions[i][1];
+                if ((nextX < 0) || (nextX >= gridSize) || (nextY < 0) || (nextY >= gridSize)) {
+                    continue;
+                } else if (visited[nextX][nextY]) {
+                    continue;
+                } else if (grid[nextX][nextY] > threshold) {
+                    continue;
+                }
+
+                if (nextX == gridSize - 1 && nextY == gridSize - 1) {
+                    retVal = true;
+                    return retVal;
+                }
+                visited[nextX][nextY] = true;
+                bfsQueue.push({nextX, nextY});
+            }
+        }
+
+        return retVal;
+    }
+
+   public:
+    int swimInWater(vector<vector<int>>& grid) {
+        int retVal = 0;
+
+        int gridSize = grid.size();
+
+        int left = 0;
+        int right = gridSize * gridSize - 1;
+        while (left < right) {
+            int middle = (left + right) / 2;
+            if ((grid[0][0] <= middle) && (bfs(grid, middle) == true)) {
+                right = middle;
+            } else {
+                left = middle + 1;
+            }
+        }
+        retVal = left;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def bfs(self, grid, threshold) -> bool:
+        retVal = False
+
+        gridSize = len(grid)
+
+        visited = [[False] * gridSize for _ in range(gridSize)]
+        visited[0][0] = True
+        bfsQueue = deque([(0, 0)])
+        while bfsQueue:
+            x, y = bfsQueue.popleft()
+            for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+                nextX = x + dx
+                nextY = y + dy
+                if (nextX < 0) or (nextX >= gridSize) or (nextY < 0) or (nextY >= gridSize):
+                    continue
+                elif visited[nextX][nextY] == True:
+                    continue
+                elif grid[nextX][nextY] > threshold:
+                    continue
+
+                if (nextX == gridSize - 1) and (nextY == gridSize - 1):
+                    retVal = True
+                    return retVal
+                bfsQueue.append((nextX, nextY))
+                visited[nextX][nextY] = True
+
+        return retVal
+
+    def swimInWater(self, grid: List[List[int]]) -> int:
+        retVal = 0
+
+        gridSize = len(grid)
+
+        left = 0
+        right = gridSize * gridSize - 1
+        while left < right:
+            middle = (left + right) // 2
+            if (grid[0][0] <= middle) and (self.bfs(grid, middle) == True):
+                right = middle
+            else:
+                left = middle + 1
+        retVal = left
+
+        return retVal
+```
+
+</details>
+
 ## [786. K-th Smallest Prime Fraction](https://leetcode.com/problems/k-th-smallest-prime-fraction/)  2168
 
 - [Official](https://leetcode.com/problems/k-th-smallest-prime-fraction/editorial/)
