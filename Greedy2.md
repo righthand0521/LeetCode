@@ -1222,6 +1222,257 @@ class Solution:
 
 </details>
 
+## [1488. Avoid Flood in The City](https://leetcode.com/problems/avoid-flood-in-the-city/)  1974
+
+- [Official](https://leetcode.com/problems/avoid-flood-in-the-city/editorial/)
+- [Official](https://leetcode.cn/problems/avoid-flood-in-the-city/solutions/2472026/bi-mian-hong-shui-fan-lan-by-leetcode-so-n5c9/)
+
+<details><summary>Description</summary>
+
+```text
+Your country has an infinite number of lakes.
+Initially, all the lakes are empty, but when it rains over the nth lake, the nth lake becomes full of water.
+If it rains over a lake that is full of water, there will be a flood. Your goal is to avoid floods in any lake.
+
+Given an integer array rains where:
+- rains[i] > 0 means there will be rains over the rains[i] lake.
+- rains[i] == 0 means there are no rains this day and you can choose one lake this day and dry it.
+
+Return an array ans where:
+- ans.length == rains.length
+- ans[i] == -1 if rains[i] > 0.
+- ans[i] is the lake you choose to dry in the ith day if rains[i] == 0.
+
+If there are multiple valid answers return any of them. If it is impossible to avoid flood return an empty array.
+
+Notice that if you chose to dry a full lake, it becomes empty, but if you chose to dry an empty lake, nothing changes.
+
+Example 1:
+Input: rains = [1,2,3,4]
+Output: [-1,-1,-1,-1]
+Explanation:
+After the first day full lakes are [1]
+After the second day full lakes are [1,2]
+After the third day full lakes are [1,2,3]
+After the fourth day full lakes are [1,2,3,4]
+There's no day to dry any lake and there is no flood in any lake.
+
+Example 2:
+Input: rains = [1,2,0,0,2,1]
+Output: [-1,-1,2,1,-1,-1]
+Explanation:
+After the first day full lakes are [1]
+After the second day full lakes are [1,2]
+After the third day, we dry lake 2. Full lakes are [1]
+After the fourth day, we dry lake 1. There is no full lakes.
+After the fifth day, full lakes are [2].
+After the sixth day, full lakes are [1,2].
+It is easy that this scenario is flood-free. [-1,-1,1,2,-1,-1] is another acceptable scenario.
+
+Example 3:
+Input: rains = [1,2,0,1,2]
+Output: []
+Explanation:
+After the second day, full lakes are  [1,2]. We have to dry one lake in the third day.
+After that, it will rain over lakes [1,2].
+It's easy to prove that no matter which lake you choose to dry in the 3rd day, the other one will flood.
+
+Constraints:
+1 <= rains.length <= 10^5
+0 <= rains[i] <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Keep An array of the last day there was rains over each city.
+2. Keep an array of the days you can dry a lake when you face one.
+3. When it rains over a lake, check the first possible day you can dry this lake and assign this day to this lake.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// https://leetcode.cn/problems/avoid-flood-in-the-city/solutions/590510/cyu-yan-uthashshi-xian-by-liu-xiang-3-vw7g/
+struct hashTable {
+    int pool;
+    int day;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable* pFree) {
+    struct hashTable* current;
+    struct hashTable* tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->pool, pFree->day);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* avoidFlood(int* rains, int rainsSize, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    pRetVal = (int*)malloc(rainsSize * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, rainsSize * sizeof(int));
+
+    struct hashTable* pPoolInfo = NULL;
+    struct hashTable* pSunDay = NULL;
+    struct hashTable *pTemp, *s1, *s2;
+    int i, j, rain;
+    for (i = 0; i < rainsSize; ++i) {
+        rain = rains[i];
+
+        pTemp = NULL;
+        if (rain == 0) {
+            pTemp = (struct hashTable*)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                free(pRetVal);
+                pRetVal = NULL;
+                goto exit;
+            }
+            pTemp->pool = i;
+            HASH_ADD_INT(pSunDay, pool, pTemp);
+            pRetVal[i] = 1;
+            continue;
+        }
+
+        pRetVal[i] = -1;
+
+        s1 = NULL;
+        HASH_FIND_INT(pPoolInfo, &rain, s1);
+        if (s1 == NULL) {
+            s1 = (struct hashTable*)malloc(sizeof(struct hashTable));
+            if (s1 == NULL) {
+                perror("malloc");
+                free(pRetVal);
+                pRetVal = NULL;
+                goto exit;
+            }
+            s1->pool = rain;
+            s1->day = i;
+            HASH_ADD_INT(pPoolInfo, pool, s1);
+            continue;
+        }
+
+        pTemp = NULL;
+        s2 = NULL;
+        j = 0;
+        HASH_ITER(hh, pSunDay, s2, pTemp) {
+            if (s2->pool > s1->day) {
+                break;
+            }
+            j++;
+        }
+        if (j == HASH_COUNT(pSunDay)) {
+            free(pRetVal);
+            pRetVal = NULL;
+            goto exit;
+        }
+
+        s1->day = i;
+        pRetVal[s2->pool] = s1->pool;
+        HASH_DEL(pSunDay, s2);
+        free(s2);
+    }
+    (*returnSize) = rainsSize;
+
+exit:
+    //
+    freeAll(pPoolInfo);
+    pPoolInfo = NULL;
+    freeAll(pSunDay);
+    pSunDay = NULL;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> avoidFlood(vector<int>& rains) {
+        vector<int> retVal;
+
+        int rainsSize = rains.size();
+        retVal.resize(rainsSize, 1);
+
+        set<int> st;
+        unordered_map<int, int> mp;
+        for (int i = 0; i < rainsSize; ++i) {
+            if (rains[i] == 0) {
+                st.insert(i);
+                continue;
+            }
+
+            retVal[i] = -1;
+            if (mp.count(rains[i])) {
+                auto it = st.lower_bound(mp[rains[i]]);
+                if (it == st.end()) {
+                    retVal = {};
+                    break;
+                }
+                retVal[*it] = rains[i];
+                st.erase(it);
+            }
+            mp[rains[i]] = i;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def avoidFlood(self, rains: List[int]) -> List[int]:
+        retVal = []
+
+        rainsSize = len(rains)
+        retVal = [1] * rainsSize
+
+        st = SortedList()
+        mp = {}
+        for i, rain in enumerate(rains):
+            if rain == 0:
+                st.add(i)
+                continue
+
+            retVal[i] = -1
+            if rain in mp:
+                it = st.bisect(mp[rain])
+                if it == len(st):
+                    retVal = []
+                    break
+                retVal[st[it]] = rain
+                st.discard(st[it])
+            mp[rain] = i
+
+        return retVal
+```
+
+</details>
+
 ## [1509. Minimum Difference Between Largest and Smallest Value in Three Moves](https://leetcode.com/problems/minimum-difference-between-largest-and-smallest-value-in-three-moves/)  1653
 
 - [Official](https://leetcode.com/problems/minimum-difference-between-largest-and-smallest-value-in-three-moves/editorial/)
