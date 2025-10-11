@@ -1,5 +1,182 @@
 # Dynamic Programming
 
+## [3186. Maximum Total Damage With Spell Casting](https://leetcode.com/problems/maximum-total-damage-with-spell-casting/)  1841
+
+- [Official](https://leetcode.com/problems/maximum-total-damage-with-spell-casting/editorial/)
+- [Official](https://leetcode.cn/problems/maximum-total-damage-with-spell-casting/solutions/3801010/shi-zhou-de-zui-da-zong-shang-hai-by-lee-e2kq/)
+
+<details><summary>Description</summary>
+
+```text
+A magician has various spells.
+
+You are given an array power, where each element represents the damage of a spell.
+Multiple spells can have the same damage value.
+
+It is a known fact that if a magician decides to cast a spell with a damage of power[i],
+they cannot cast any spell with a damage of power[i] - 2, power[i] - 1, power[i] + 1, or power[i] + 2.
+
+Each spell can be cast only once.
+
+Return the maximum possible total damage that a magician can cast.
+
+Example 1:
+Input: power = [1,1,3,4]
+Output: 6
+Explanation:
+The maximum possible damage of 6 is produced by casting spells 0, 1, 3 with damage 1, 1, 4.
+
+Example 2:
+Input: power = [7,1,6,6]
+Output: 13
+Explanation:
+The maximum possible damage of 13 is produced by casting spells 1, 2, 3 with damage 1, 6, 6.
+
+Constraints:
+1 <= power.length <= 10^5
+1 <= power[i] <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. If we ever decide to use some spell with power x, then we will use all spells with power x.
+2. Think of dynamic programming.
+3. dp[i][j] represents the maximum damage considering up to the i-th unique spell and
+   j represents the number of spells skipped (up to 3 as per constraints).
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareInteger(const void* n1, const void* n2) {
+    // ascending order
+    return (*(int*)n1 > *(int*)n2);
+}
+long long maximumTotalDamage(int* power, int powerSize) {
+    long long retVal = 0;
+
+    qsort(power, powerSize, sizeof(int), compareInteger);
+
+    int keys[powerSize];
+    int vals[powerSize];
+    int m = 0;
+    for (int i = 0; i < powerSize; i++) {
+        if ((m == 0) || (power[i] != keys[m - 1])) {
+            keys[m] = power[i];
+            vals[m] = 1;
+            m++;
+        } else {
+            vals[m - 1]++;
+        }
+    }
+
+    int vk[m + 1];
+    int vv[m + 1];
+    vk[0] = -1000000000;
+    vv[0] = 0;
+    for (int i = 0; i < m; i++) {
+        vk[i + 1] = keys[i];
+        vv[i + 1] = vals[i];
+    }
+    int n = m + 1;
+
+    long long f[n];
+    long long mx = 0;
+    int j = 1;
+    for (int i = 1; i < n; i++) {
+        while ((j < i) && (vk[j] < vk[i] - 2)) {
+            if (f[j] > mx) {
+                mx = f[j];
+            }
+            j++;
+        }
+
+        f[i] = mx + 1LL * vk[i] * vv[i];
+        if (f[i] > retVal) {
+            retVal = f[i];
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    long long maximumTotalDamage(vector<int>& power) {
+        long long retVal = 0;
+
+        map<int, int> count;
+        for (int p : power) {
+            count[p]++;
+        }
+
+        vector<pair<int, int>> vec = {{-1e9, 0}};
+        for (auto& p : count) {
+            vec.push_back(p);
+        }
+        int n = vec.size();
+
+        vector<long long> f(n, 0);
+        long long mx = 0;
+        for (int i = 1, j = 1; i < n; i++) {
+            while (j < i && vec[j].first < vec[i].first - 2) {
+                mx = max(mx, f[j]);
+                j++;
+            }
+            f[i] = mx + 1LL * vec[i].first * vec[i].second;
+        }
+
+        for (int i = 1; i < n; i++) {
+            retVal = max(retVal, f[i]);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maximumTotalDamage(self, power: List[int]) -> int:
+        retVal = 0
+
+        count = Counter(power)
+
+        vec = [(-(10**9), 0)]
+        for k in sorted(count.keys()):
+            vec.append((k, count[k]))
+        n = len(vec)
+
+        f = [0] * n
+        mx = 0
+        j = 1
+        for i in range(1, n):
+            while (j < i) and (vec[j][0] < vec[i][0] - 2):
+                mx = max(mx, f[j])
+                j += 1
+            f[i] = mx + vec[i][0] * vec[i][1]
+        retVal = max(f)
+
+        return retVal
+```
+
+</details>
+
 ## [3201. Find the Maximum Length of Valid Subsequence I](https://leetcode.com/problems/find-the-maximum-length-of-valid-subsequence-i/)  1663
 
 - [Official](https://leetcode.com/problems/find-the-maximum-length-of-valid-subsequence-i/editorial/)
