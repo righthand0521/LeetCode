@@ -1891,3 +1891,339 @@ class Solution:
 ```
 
 </details>
+
+## [3539. Find Sum of Array Product of Magical Sequences](https://leetcode.com/problems/find-sum-of-array-product-of-magical-sequences/)  2694
+
+- [Official](https://leetcode.com/problems/find-sum-of-array-product-of-magical-sequences/editorial/)
+- [Official](https://leetcode.cn/problems/find-sum-of-array-product-of-magical-sequences/solutions/3800541/mo-fa-xu-lie-de-shu-zu-cheng-ji-zhi-he-b-54vt/)
+
+<details><summary>Description</summary>
+
+```text
+You are given two integers, m and k, and an integer array nums.
+
+A sequence of integers seq is called magical if:
+- seq has a size of m.
+- 0 <= seq[i] < nums.length
+- The binary representation of 2seq[0] + 2seq[1] + ... + 2seq[m - 1] has k set bits.
+
+The array product of this sequence is defined as prod(seq) = (nums[seq[0]] * nums[seq[1]] * ... * nums[seq[m - 1]]).
+
+Return the sum of the array products for all valid magical sequences.
+
+Since the answer may be large, return it modulo 10^9 + 7.
+
+A set bit refers to a bit in the binary representation of a number that has a value of 1.
+
+Example 1:
+Input: m = 5, k = 5, nums = [1,10,100,10000,1000000]
+Output: 991600007
+Explanation:
+All permutations of [0, 1, 2, 3, 4] are magical sequences, each with an array product of 10^13.
+
+Example 2:
+Input: m = 2, k = 2, nums = [5,4,3,2,1]
+Output: 170
+Explanation:
+The magical sequences are [0, 1], [0, 2], [0, 3], [0, 4], [1, 0], [1, 2], [1, 3], [1, 4],
+[2, 0], [2, 1], [2, 3], [2, 4], [3, 0], [3, 1], [3, 2], [3, 4], [4, 0], [4, 1], [4, 2], and [4, 3].
+
+Example 3:
+Input: m = 1, k = 1, nums = [28]
+Output: 28
+Explanation:
+The only magical sequence is [0].
+
+Constraints:
+1 <= k <= m <= 30
+1 <= nums.length <= 50
+1 <= nums[i] <= 10^8
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use Dynamic Programming
+2. Let dp[i][j][mask] be the state after choosing i numbers (indices)
+3. The partial sum S = 2^(seq[0]) + 2^(seq[1]) + ... + 2^(seq[i - 1]) has produced exactly j set bits once
+   you’ve fully propagated any carries
+4. The mask represents the "window" of lower-order bits from S that have not yet been fully processed
+   (i.e. bits that might later create new set bits when additional terms are added)
+5. Use combinatorics
+6. How many ways are there to permute a sequence of entities where some are repetitive?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MODULO (long long)(1e9 + 7)
+long long quickmul(long long x, long long y) {
+    long long res = 1;
+
+    long long current = x % MODULO;
+    while (y) {
+        if (y & 1) {
+            res = res * current % MODULO;
+        }
+        y >>= 1;
+        current = current * current % MODULO;
+    }
+
+    return res;
+}
+int magicalSum(int m, int k, int* nums, int numsSize) {
+    int retVal = 0;
+
+    long long* fac = (long long*)malloc((m + 1) * sizeof(long long));
+    fac[0] = 1;
+    for (int i = 1; i <= m; i++) {
+        fac[i] = fac[i - 1] * i % MODULO;
+    }
+
+    long long* ifac = (long long*)malloc((m + 1) * sizeof(long long));
+    ifac[0] = 1;
+    ifac[1] = 1;
+    for (int i = 2; i <= m; i++) {
+        ifac[i] = quickmul(i, MODULO - 2);
+    }
+    for (int i = 2; i <= m; i++) {
+        ifac[i] = ifac[i - 1] * ifac[i] % MODULO;
+    }
+
+    long long** numsPower = (long long**)malloc(numsSize * sizeof(long long*));
+    for (int i = 0; i < numsSize; i++) {
+        numsPower[i] = (long long*)malloc((m + 1) * sizeof(long long));
+        numsPower[i][0] = 1;
+        for (int j = 1; j <= m; j++) {
+            numsPower[i][j] = numsPower[i][j - 1] * nums[i] % MODULO;
+        }
+    }
+
+    long long**** f = (long long****)malloc(numsSize * sizeof(long long***));
+    for (int i = 0; i < numsSize; i++) {
+        f[i] = (long long***)malloc((m + 1) * sizeof(long long**));
+        for (int j = 0; j <= m; j++) {
+            f[i][j] = (long long**)malloc((m * 2 + 1) * sizeof(long long*));
+            for (int p = 0; p <= m * 2; p++) {
+                f[i][j][p] = (long long*)calloc((k + 1), sizeof(long long));
+            }
+        }
+    }
+    for (int j = 0; j <= m; j++) {
+        f[0][j][j][0] = numsPower[0][j] * ifac[j] % MODULO;
+    }
+    for (int i = 0; i + 1 < numsSize; i++) {
+        for (int j = 0; j <= m; j++) {
+            for (int p = 0; p <= m * 2; p++) {
+                for (int q = 0; q <= k; q++) {
+                    int q2 = p % 2 + q;
+                    if (q2 > k) {
+                        break;
+                    }
+                    for (int r = 0; r + j <= m; r++) {
+                        int p2 = p / 2 + r;
+                        f[i + 1][j + r][p2][q2] += f[i][j][p][q] * numsPower[i + 1][r] % MODULO * ifac[r] % MODULO;
+                        f[i + 1][j + r][p2][q2] %= MODULO;
+                    }
+                }
+            }
+        }
+    }
+
+    long long res = 0;
+    for (int p = 0; p <= m * 2; p++) {
+        for (int q = 0; q <= k; q++) {
+            int bitcount = __builtin_popcount(p);
+            if (bitcount + q == k) {
+                res = (res + f[numsSize - 1][m][p][q] * fac[m] % MODULO) % MODULO;
+            }
+        }
+    }
+    retVal = (int)res;
+
+    //
+    free(fac);
+    free(ifac);
+    for (int i = 0; i < numsSize; i++) {
+        free(numsPower[i]);
+    }
+    free(numsPower);
+    for (int i = 0; i < numsSize; i++) {
+        for (int j = 0; j <= m; j++) {
+            for (int p = 0; p <= m * 2; p++) {
+                free(f[i][j][p]);
+            }
+            free(f[i][j]);
+        }
+        free(f[i]);
+    }
+    free(f);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    const long long MODULO = 1e9 + 7;
+
+    long long quickmul(long long x, long long y) {
+        long long retVal = 1;
+
+        long long current = x % MODULO;
+        while (y) {
+            if (y & 1) {
+                retVal = retVal * current % MODULO;
+            }
+            y >>= 1;
+
+            current = current * current % MODULO;
+        }
+
+        return retVal;
+    };
+
+   public:
+    int magicalSum(int m, int k, vector<int>& nums) {
+        int retVal = 0;
+
+        int numsSize = nums.size();
+
+        vector<long long> fac(m + 1, 1);
+        for (int i = 1; i <= m; i++) {
+            fac[i] = fac[i - 1] * i % MODULO;
+        }
+
+        vector<long long> ifac(m + 1, 1);
+        for (int i = 2; i <= m; i++) {
+            ifac[i] = quickmul(i, MODULO - 2);
+        }
+        for (int i = 2; i <= m; i++) {
+            ifac[i] = ifac[i - 1] * ifac[i] % MODULO;
+        }
+
+        vector numsPower(numsSize, vector<long long>(m + 1, 1));
+        for (int i = 0; i < numsSize; i++) {
+            for (int j = 1; j <= m; j++) {
+                numsPower[i][j] = numsPower[i][j - 1] * nums[i] % MODULO;
+            }
+        }
+
+        vector f(numsSize, vector(m + 1, vector(m * 2 + 1, vector<long long>(k + 1, 0))));
+        for (int j = 0; j <= m; j++) {
+            f[0][j][j][0] = numsPower[0][j] * ifac[j] % MODULO;
+        }
+        for (int i = 0; i + 1 < numsSize; i++) {
+            for (int j = 0; j <= m; j++) {
+                for (int p = 0; p <= m * 2; p++) {
+                    for (int q = 0; q <= k; q++) {
+                        int q2 = p % 2 + q;
+                        if (q2 > k) {
+                            break;
+                        }
+
+                        for (int r = 0; r + j <= m; r++) {
+                            int p2 = p / 2 + r;
+                            f[i + 1][j + r][p2][q2] += f[i][j][p][q] * numsPower[i + 1][r] % MODULO * ifac[r] % MODULO;
+                            f[i + 1][j + r][p2][q2] %= MODULO;
+                        }
+                    }
+                }
+            }
+        }
+
+        for (int p = 0; p <= m * 2; p++) {
+            for (int q = 0; q <= k; q++) {
+                if (__builtin_popcount(p) + q == k) {
+                    retVal = (retVal + f[numsSize - 1][m][p][q] * fac[m] % MODULO) % MODULO;
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self):
+        self.MODULO = 10 ** 9 + 7
+
+    def quickmul(self, x: int, y: int) -> int:
+        retVal = 1
+
+        current = x % self.MODULO
+        while y:
+            if y & 1:
+                retVal = retVal * current % self.MODULO
+            y >>= 1
+            current = current * current % self.MODULO
+
+        return retVal
+
+    def magicalSum(self, m: int, k: int, nums: List[int]) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+
+        fac = [1] * (m + 1)
+        for i in range(1, m + 1):
+            fac[i] = fac[i - 1] * i % self.MODULO
+
+        ifac = [1] * (m + 1)
+        for i in range(2, m + 1):
+            ifac[i] = self.quickmul(i, self.MODULO - 2)
+        for i in range(2, m + 1):
+            ifac[i] = ifac[i - 1] * ifac[i] % self.MODULO
+
+        numsPower = [[1] * (m + 1) for _ in range(numsSize)]
+        for i in range(numsSize):
+            for j in range(1, m + 1):
+                numsPower[i][j] = numsPower[i][j - 1] * nums[i] % self.MODULO
+
+        f = [[[[0] * (k + 1) for _ in range(m * 2 + 1)] for _ in range(m + 1)] for _ in range(numsSize)]
+        for j in range(m + 1):
+            f[0][j][j][0] = numsPower[0][j] * ifac[j] % self.MODULO
+
+        for i in range(numsSize - 1):
+            for j in range(m + 1):
+                for p in range(m * 2 + 1):
+                    for q in range(k + 1):
+                        if f[i][j][p][q] == 0:
+                            continue
+
+                        q2 = (p % 2) + q
+                        if q2 > k:
+                            break
+
+                        for r in range(m - j + 1):
+                            p2 = (p // 2) + r
+                            if p2 > m * 2:
+                                continue
+
+                            tmp = f[i][j][p][q] * numsPower[i + 1][r] % self.MODULO * ifac[r] % self.MODULO
+                            f[i + 1][j + r][p2][q2] = (f[i + 1][j + r][p2][q2] + tmp) % self.MODULO
+
+        for p in range(m * 2 + 1):
+            for q in range(k + 1):
+                if bin(p).count("1") + q == k:
+                    retVal = (retVal + f[numsSize - 1][m][p][q] * fac[m] % self.MODULO) % self.MODULO
+
+        return retVal
+```
+
+</details>
