@@ -1102,6 +1102,138 @@ class Solution:
 
 </details>
 
+## [3349. Adjacent Increasing Subarrays Detection I](https://leetcode.com/problems/adjacent-increasing-subarrays-detection-i/)  1299
+
+- [Official](https://leetcode.cn/problems/adjacent-increasing-subarrays-detection-i/solutions/3801862/jian-ce-xiang-lin-di-zeng-zi-shu-zu-i-by-njbb/)
+
+<details><summary>Description</summary>
+
+```text
+Given an array nums of n integers and an integer k,
+determine whether there exist two adjacent subarrays of length k such that both subarrays are strictly increasing.
+Specifically, check if there are two subarrays starting at indices a and b (a < b), where:
+- Both subarrays nums[a..a + k - 1] and nums[b..b + k - 1] are strictly increasing.
+- The subarrays must be adjacent, meaning b = a + k.
+
+Return true if it is possible to find two such subarrays, and false otherwise.
+
+Example 1:
+Input: nums = [2,5,7,8,9,2,3,4,3,1], k = 3
+Output: true
+Explanation:
+The subarray starting at index 2 is [7, 8, 9], which is strictly increasing.
+The subarray starting at index 5 is [2, 3, 4], which is also strictly increasing.
+These two subarrays are adjacent, so the result is true.
+
+Example 2:
+Input: nums = [1,2,3,4,4,4,4,5,6,7], k = 5
+Output: false
+
+Constraints:
+2 <= nums.length <= 100
+1 < 2 * k <= nums.length
+-1000 <= nums[i] <= 1000
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Store the longest decreasing subarray starting and ending at an index.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool hasIncreasingSubarrays(int* nums, int numsSize, int k) {
+    bool retVal = false;
+
+    int current = 1;
+    int previous = 0;
+    int answer = 0;
+    for (int i = 1; i < numsSize; ++i) {
+        if (nums[i] > nums[i - 1]) {
+            ++current;
+        } else {
+            previous = current;
+            current = 1;
+        }
+
+        answer = fmax(answer, fmin(previous, current));
+        answer = fmax(answer, current / 2);
+    }
+
+    retVal = (answer >= k);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool hasIncreasingSubarrays(vector<int>& nums, int k) {
+        bool retVal = false;
+
+        int numsSize = nums.size();
+
+        int current = 1;
+        int previous = 0;
+        int answer = 0;
+        for (int i = 1; i < numsSize; ++i) {
+            if (nums[i] > nums[i - 1]) {
+                ++current;
+            } else {
+                previous = current;
+                current = 1;
+            }
+
+            answer = max(answer, min(previous, current));
+            answer = max(answer, current / 2);
+        }
+
+        retVal = (answer >= k);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def hasIncreasingSubarrays(self, nums: List[int], k: int) -> bool:
+        retVal = False
+
+        numsSize = len(nums)
+
+        current, previous, answer = 1, 0, 0
+        for i in range(1, numsSize):
+            if nums[i] > nums[i - 1]:
+                current += 1
+            else:
+                previous = current
+                current = 1
+            answer = max(answer, min(previous, current))
+            answer = max(answer, current // 2)
+
+        retVal = (answer >= k)
+
+        return retVal
+```
+
+</details>
+
 ## [3392. Count Subarrays of Length Three With a Condition](https://leetcode.com/problems/count-subarrays-of-length-three-with-a-condition/)  1200
 
 - [Official](https://leetcode.com/problems/count-subarrays-of-length-three-with-a-condition/editorial/)
