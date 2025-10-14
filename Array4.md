@@ -1234,6 +1234,138 @@ class Solution:
 
 </details>
 
+## [3350. Adjacent Increasing Subarrays Detection II](https://leetcode.com/problems/adjacent-increasing-subarrays-detection-ii/)  1600
+
+- [Official](https://leetcode.cn/problems/adjacent-increasing-subarrays-detection-ii/solutions/3801866/jian-ce-xiang-lin-di-zeng-zi-shu-zu-ii-b-0gen/)
+
+<details><summary>Description</summary>
+
+```text
+Given an array nums of n integers,
+your task is to find the maximum value of k for which there exist two adjacent subarrays of length k each,
+such that both subarrays are strictly increasing.
+Specifically, check if there are two subarrays of length k starting at indices a and b (a < b), where:
+- Both subarrays nums[a..a + k - 1] and nums[b..b + k - 1] are strictly increasing.
+- The subarrays must be adjacent, meaning b = a + k.
+
+Return the maximum possible value of k.
+
+A subarray is a contiguous non-empty sequence of elements within an array.
+
+Example 1:
+Input: nums = [2,5,7,8,9,2,3,4,3,1]
+Output: 3
+Explanation:
+The subarray starting at index 2 is [7, 8, 9], which is strictly increasing.
+The subarray starting at index 5 is [2, 3, 4], which is also strictly increasing.
+These two subarrays are adjacent,
+and 3 is the maximum possible value of k for which two such adjacent strictly increasing subarrays exist.
+
+Example 2:
+Input: nums = [1,2,3,4,4,4,4,5,6,7]
+Output: 2
+Explanation:
+The subarray starting at index 0 is [1, 2], which is strictly increasing.
+The subarray starting at index 2 is [3, 4], which is also strictly increasing.
+These two subarrays are adjacent,
+and 2 is the maximum possible value of k for which two such adjacent strictly increasing subarrays exist.
+
+Constraints:
+2 <= nums.length <= 2 * 10^5
+-10^9 <= nums[i] <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Find the boundaries between strictly increasing subarrays.
+2. Can we use binary search?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int maxIncreasingSubarrays(int* nums, int numsSize) {
+    int retVal = 0;
+
+    int current = 1;
+    int previous = 0;
+    for (int i = 1; i < numsSize; ++i) {
+        if (nums[i] > nums[i - 1]) {
+            current += 1;
+        } else {
+            previous = current;
+            current = 1;
+        }
+        retVal = fmax(retVal, fmin(previous, current));
+        retVal = fmax(retVal, current / 2);
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maxIncreasingSubarrays(vector<int>& nums) {
+        int retVal = 0;
+
+        int numsSize = nums.size();
+
+        int current = 1;
+        int previous = 0;
+        for (int i = 1; i < numsSize; ++i) {
+            if (nums[i] > nums[i - 1]) {
+                current += 1;
+            } else {
+                previous = current;
+                current = 1;
+            }
+            retVal = max(retVal, min(previous, current));
+            retVal = max(retVal, current / 2);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxIncreasingSubarrays(self, nums: List[int]) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+
+        current = 1
+        previous = 0
+        for i in range(1, numsSize):
+            if nums[i] > nums[i - 1]:
+                current += 1
+            else:
+                previous = current
+                current = 1
+            retVal = max(retVal, min(previous, current))
+            retVal = max(retVal, current // 2)
+
+        return retVal
+```
+
+</details>
+
 ## [3392. Count Subarrays of Length Three With a Condition](https://leetcode.com/problems/count-subarrays-of-length-three-with-a-condition/)  1200
 
 - [Official](https://leetcode.com/problems/count-subarrays-of-length-three-with-a-condition/editorial/)

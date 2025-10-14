@@ -53,6 +53,13 @@
 
 </details>
 
+<details><summary>Adjacent Increasing Subarrays Detection</summary>
+
+- [3349. Adjacent Increasing Subarrays Detection I](https://leetcode.com/problems/adjacent-increasing-subarrays-detection-i/)
+- [3350. Adjacent Increasing Subarrays Detection II](https://leetcode.com/problems/adjacent-increasing-subarrays-detection-ii/)
+
+</details>
+
 ## Backtracking
 
 <details><summary>Combination Sum</summary>
