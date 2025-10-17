@@ -1,5 +1,298 @@
 # String
 
+## [3003. Maximize the Number of Partitions After Operations](https://leetcode.com/problems/maximize-the-number-of-partitions-after-operations/)  3039
+
+- [Official](https://leetcode.com/problems/maximize-the-number-of-partitions-after-operations/editorial/)
+- [Official](https://leetcode.cn/problems/maximize-the-number-of-partitions-after-operations/solutions/3799989/zhi-xing-cao-zuo-hou-de-zui-da-fen-ge-sh-fwni/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string s and an integer k.
+
+First, you are allowed to change at most one index in s to another lowercase English letter.
+
+After that, do the following partitioning operation until s is empty:
+- Choose the longest prefix of s containing at most k distinct characters.
+- Delete the prefix from s and increase the number of partitions by one.
+  The remaining characters (if any) in s maintain their initial order.
+
+Return an integer denoting the maximum number of resulting partitions
+after the operations by optimally choosing at most one index to change.
+
+Example 1:
+Input: s = "accca", k = 2
+Output: 3
+Explanation:
+The optimal way is to change s[2] to something other than a and c, for example, b. then it becomes "acbca".
+Then we perform the operations:
+- The longest prefix containing at most 2 distinct characters is "ac", we remove it and s becomes "bca".
+- Now The longest prefix containing at most 2 distinct characters is "bc", so we remove it and s becomes "a".
+- Finally, we remove "a" and s becomes empty, so the procedure ends.
+Doing the operations, the string is divided into 3 partitions, so the answer is 3.
+
+Example 2:
+Input: s = "aabaab", k = 3
+Output: 1
+Explanation:
+Initially s contains 2 distinct characters, so whichever character we change,
+it will contain at most 3 distinct characters,
+so the longest prefix with at most 3 distinct characters would always be all of it, therefore the answer is 1.
+
+Example 3:
+Input: s = "xxyz", k = 1
+Output: 4
+Explanation:
+The optimal way is to change s[0] or s[1] to something other than characters in s, for example, to change s[0] to w.
+Then s becomes "wxyz", which consists of 4 distinct characters, so as k is 1, it will divide into 4 partitions.
+
+Constraints:
+1 <= s.length <= 10^4
+s consists only of lowercase English letters.
+1 <= k <= 26
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. For each position, try to brute-force the replacements.
+2. To speed up the brute-force solution,
+   we can precompute the following (without changing any index) using prefix sums and binary search:
+   - pref[i]: The number of resulting partitions from the operations by performing the operations on s[0:i].
+   - suff[i]: The number of resulting partitions from the operations by performing the operations on s[i:n - 1],
+     where n == s.length.
+   - partition_start[i]: The start index of the partition containing the ith index after performing the operations.
+3. Now, for a position i, we can try all possible 25 replacements:
+   For a replacement, using prefix sums and binary search, we need to find the rightmost index, r,
+   such that the number of distinct characters in the range [partition_start[i], r] is at most k.
+   There are 2 cases:
+   - r >= i: the number of resulting partitions in this case is 1 + pref[partition_start[i] - 1] + suff[r + 1].
+   - Otherwise, we need to find the rightmost index r2
+     such that the number of distinct characters in the range [r:r2] is at most k.
+     The answer in this case is 2 + pref[partition_start[i] - 1] + suff[r2 + 1]
+4. The answer is the maximum among all replacements.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int maxPartitionsAfterOperations(char* s, int k) {
+    int retVal = 0;
+
+    int sSize = strlen(s);
+
+    int left[sSize][3];
+    memset(left, 0, sizeof(left));
+    int right[sSize][3];
+    memset(right, 0, sizeof(right));
+    int num, mask, count, binary;
+
+    num = 0;
+    mask = 0;
+    count = 0;
+    for (int i = 0; i < sSize - 1; i++) {
+        binary = 1 << (s[i] - 'a');
+        if (!(mask & binary)) {
+            count++;
+            if (count <= k) {
+                mask |= binary;
+            } else {
+                num++;
+                mask = binary;
+                count = 1;
+            }
+        }
+        left[i + 1][0] = num;
+        left[i + 1][1] = mask;
+        left[i + 1][2] = count;
+    }
+
+    num = 0;
+    mask = 0;
+    count = 0;
+    for (int i = sSize - 1; i > 0; i--) {
+        binary = 1 << (s[i] - 'a');
+        if (!(mask & binary)) {
+            count++;
+            if (count <= k) {
+                mask |= binary;
+            } else {
+                num++;
+                mask = binary;
+                count = 1;
+            }
+        }
+        right[i - 1][0] = num;
+        right[i - 1][1] = mask;
+        right[i - 1][2] = count;
+    }
+
+    int maxLetters = 26;  // s consists only of lowercase English letters.
+    int seg, totMask, totCount, minVal;
+    for (int i = 0; i < sSize; i++) {
+        seg = left[i][0] + right[i][0] + 2;
+        totMask = left[i][1] | right[i][1];
+        totCount = 0;
+        while (totMask) {
+            totMask = totMask & (totMask - 1);
+            totCount++;
+        }
+
+        if ((left[i][2] == k) && (right[i][2] == k) && (totCount < maxLetters)) {
+            seg++;
+        } else {
+            minVal = fmin(totCount + 1, maxLetters);
+            if (minVal <= k) {
+                seg--;
+            }
+        }
+        retVal = fmax(retVal, seg);
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maxPartitionsAfterOperations(string s, int k) {
+        int retVal = 0;
+
+        int sSize = s.length();
+        vector<vector<int>> left(sSize, vector<int>(3));
+        vector<vector<int>> right(sSize, vector<int>(3));
+        int num, mask, count;
+
+        num = 0;
+        mask = 0;
+        count = 0;
+        for (int i = 0; i < sSize - 1; i++) {
+            int binary = 1 << (s[i] - 'a');
+            if (!(mask & binary)) {
+                count++;
+                if (count <= k) {
+                    mask |= binary;
+                } else {
+                    num++;
+                    mask = binary;
+                    count = 1;
+                }
+            }
+            left[i + 1][0] = num;
+            left[i + 1][1] = mask;
+            left[i + 1][2] = count;
+        }
+
+        num = 0;
+        mask = 0;
+        count = 0;
+        for (int i = sSize - 1; i > 0; i--) {
+            int binary = 1 << (s[i] - 'a');
+            if (!(mask & binary)) {
+                count++;
+                if (count <= k) {
+                    mask |= binary;
+                } else {
+                    num++;
+                    mask = binary;
+                    count = 1;
+                }
+            }
+            right[i - 1][0] = num;
+            right[i - 1][1] = mask;
+            right[i - 1][2] = count;
+        }
+
+        int maxLetters = 26;  // s consists only of lowercase English letters.
+        for (int i = 0; i < sSize; i++) {
+            int seg = left[i][0] + right[i][0] + 2;
+            int totMask = left[i][1] | right[i][1];
+            int totCount = 0;
+            while (totMask) {
+                totMask = totMask & (totMask - 1);
+                totCount++;
+            }
+            if ((left[i][2] == k) && (right[i][2] == k) && (totCount < maxLetters)) {
+                seg++;
+            } else if (min(totCount + 1, maxLetters) <= k) {
+                seg--;
+            }
+            retVal = max(retVal, seg);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxPartitionsAfterOperations(self, s: str, k: int) -> int:
+        retVal = 0
+
+        sSize = len(s)
+        left = [[0] * 3 for _ in range(sSize)]
+        right = [[0] * 3 for _ in range(sSize)]
+
+        num, mask, count = 0, 0, 0
+        for i in range(sSize - 1):
+            binary = 1 << (ord(s[i]) - ord("a"))
+            if not (mask & binary):
+                count += 1
+                if count <= k:
+                    mask |= binary
+                else:
+                    num += 1
+                    mask = binary
+                    count = 1
+            left[i + 1][0] = num
+            left[i + 1][1] = mask
+            left[i + 1][2] = count
+
+        num, mask, count = 0, 0, 0
+        for i in range(sSize - 1, 0, -1):
+            binary = 1 << (ord(s[i]) - ord("a"))
+            if not (mask & binary):
+                count += 1
+                if count <= k:
+                    mask |= binary
+                else:
+                    num += 1
+                    mask = binary
+                    count = 1
+            right[i - 1][0] = num
+            right[i - 1][1] = mask
+            right[i - 1][2] = count
+
+        maxLetters = 26  # s consists only of lowercase English letters.
+        for i in range(sSize):
+            seg = left[i][0] + right[i][0] + 2
+            totMask = left[i][1] | right[i][1]
+            totCount = bin(totMask).count("1")
+            if (left[i][2] == k) and (right[i][2] == k) and (totCount < maxLetters):
+                seg += 1
+            elif min(totCount + 1, maxLetters) <= k:
+                seg -= 1
+            retVal = max(retVal, seg)
+
+        return retVal
+```
+
+</details>
+
 ## [3042. Count Prefix and Suffix Pairs I](https://leetcode.com/problems/count-prefix-and-suffix-pairs-i/)  1214
 
 - [Official](https://leetcode.com/problems/count-prefix-and-suffix-pairs-i/editorial/)
