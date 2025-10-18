@@ -919,6 +919,126 @@ class Solution:
 
 </details>
 
+## [3397. Maximum Number of Distinct Elements After Operations](https://leetcode.com/problems/maximum-number-of-distinct-elements-after-operations/)  1687
+
+- [Official](https://leetcode.com/problems/maximum-number-of-distinct-elements-after-operations/editorial/)
+- [Official](https://leetcode.cn/problems/maximum-number-of-distinct-elements-after-operations/solutions/3801871/zhi-xing-cao-zuo-hou-bu-tong-yuan-su-de-fmhzv/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array nums and an integer k.
+
+You are allowed to perform the following operation on each element of the array at most once:
+- Add an integer in the range [-k, k] to the element.
+
+Return the maximum possible number of distinct elements in nums after performing the operations.
+
+Example 1:
+Input: nums = [1,2,2,3,3,4], k = 2
+Output: 6
+Explanation:
+nums changes to [-1, 0, 1, 2, 3, 4] after performing operations on the first four elements.
+
+Example 2:
+Input: nums = [4,4,4,4], k = 1
+Output: 3
+Explanation:
+By adding -1 to nums[0] and 1 to nums[1], nums changes to [3, 5, 4, 4].
+
+Constraints:
+1 <= nums.length <= 10^5
+1 <= nums[i] <= 10^9
+0 <= k <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Can we use sorting here?
+2. Find the minimum element which is not used for each element.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareInteger(const void* n1, const void* n2) {
+    // ascending order
+    return (*(int*)n1 > *(int*)n2);
+}
+int maxDistinctElements(int* nums, int numsSize, int k) {
+    int retVal = 0;
+
+    qsort(nums, numsSize, sizeof(int), compareInteger);
+
+    int previous = INT_MIN;
+    int current;
+    for (int i = 0; i < numsSize; i++) {
+        current = fmin(fmax(nums[i] - k, previous + 1), nums[i] + k);
+        if (current > previous) {
+            retVal += 1;
+            previous = current;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maxDistinctElements(vector<int>& nums, int k) {
+        int retVal = 0;
+
+        sort(nums.begin(), nums.end());
+
+        int previous = numeric_limits<int>::min();
+        int current;
+        for (const auto& num : nums) {
+            current = min(max(num - k, previous + 1), num + k);
+            if (current > previous) {
+                retVal += 1;
+                previous = current;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxDistinctElements(self, nums: List[int], k: int) -> int:
+        retVal = 0
+
+        nums.sort()
+
+        previous = float('-inf')
+        for num in nums:
+            current = min(max(num - k, previous + 1), num + k)
+            if current > previous:
+                retVal += 1
+                previous = current
+
+        return retVal
+```
+
+</details>
+
 ## [3439. Reschedule Meetings for Maximum Free Time I](https://leetcode.com/problems/reschedule-meetings-for-maximum-free-time-i/)  1728
 
 - [Official](https://leetcode.com/problems/reschedule-meetings-for-maximum-free-time-i/editorial/)
