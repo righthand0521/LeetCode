@@ -1260,6 +1260,242 @@ class Solution:
 
 </details>
 
+## [1625. Lexicographically Smallest String After Applying Operations](https://leetcode.com/problems/lexicographically-smallest-string-after-applying-operations/)  1992
+
+- [Official](https://leetcode.com/problems/lexicographically-smallest-string-after-applying-operations/editorial/)
+- [Official](https://leetcode.cn/problems/lexicographically-smallest-string-after-applying-operations/solutions/2176373/zhi-xing-cao-zuo-hou-zi-dian-xu-zui-xiao-4jyr/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string s of even length consisting of digits from 0 to 9, and two integers a and b.
+
+You can apply either of the following two operations any number of times and in any order on s:
+- Add a to all odd indices of s (0-indexed). Digits post 9 are cycled back to 0.
+  For example, if s = "3456" and a = 5, s becomes "3951".
+- Rotate s to the right by b positions. For example, if s = "3456" and b = 1, s becomes "6345".
+
+Return the lexicographically smallest string you can obtain by applying the above operations any number of times on s.
+
+A string a is lexicographically smaller than a string b (of the same length)
+if in the first position where a and b differ,
+string a has a letter that appears earlier in the alphabet than the corresponding letter in b.
+For example, "0158" is lexicographically smaller than "0190"
+because the first position they differ is at the third letter, and '5' comes before '9'.
+
+Example 1:
+Input: s = "5525", a = 9, b = 2
+Output: "2050"
+Explanation: We can apply the following operations:
+Start:  "5525"
+Rotate: "2555"
+Add:    "2454"
+Add:    "2353"
+Rotate: "5323"
+Add:    "5222"
+Add:    "5121"
+Rotate: "2151"
+Add:    "2050"​​​​​
+There is no way to obtain a string that is lexicographically smaller than "2050".
+
+Example 2:
+Input: s = "74", a = 5, b = 1
+Output: "24"
+Explanation: We can apply the following operations:
+Start:  "74"
+Rotate: "47"
+​​​​​​​Add:    "42"
+​​​​​​​Rotate: "24"​​​​​​​​​​​​
+There is no way to obtain a string that is lexicographically smaller than "24".
+
+Example 3:
+Input: s = "0011", a = 4, b = 2
+Output: "0011"
+Explanation: There are no sequence of operations that will give us a lexicographically smaller string than "0011".
+
+Constraints:
+2 <= s.length <= 100
+s.length is even.
+s consists of digits from 0 to 9 only.
+1 <= a <= 9
+1 <= b <= s.length - 1
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Since the length of s is even, the total number of possible sequences is at most 10 * 10 * s.length.
+2. You can generate all possible sequences and take their minimum.
+3. Keep track of already generated sequences so they are not processed again.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int gcd(int num1, int num2) {
+    int retVal = 0;
+
+    int temp;
+    while (num2 != 0) {
+        temp = num1;
+        num1 = num2;
+        num2 = temp % num2;
+    }
+    retVal = num1;
+
+    return retVal;
+}
+void add(char* t, int n, int a, int start) {
+    int minVal = 10;
+    int times = 0;
+    int added;
+    for (int i = 0; i < 10; i++) {
+        added = ((t[start] - '0') + i * a) % 10;
+        if (added < minVal) {
+            minVal = added;
+            times = i;
+        }
+    }
+
+    for (int i = start; i < n; i += 2) {
+        t[i] = '0' + ((t[i] - '0') + times * a) % 10;
+    }
+}
+char* findLexSmallestString(char* s, int a, int b) {
+    char* pRetVal = NULL;
+
+    int sSize = strlen(s);
+
+    int returnSize = sSize + 1;
+    pRetVal = (char*)malloc(returnSize * sizeof(char));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (returnSize * sizeof(char)));
+    snprintf(pRetVal, returnSize, "%s", s);
+
+    char str[2 * sSize + 1];
+    memset(str, 0, sizeof(str));
+    snprintf(str, sizeof(str), "%s%s", s, s);
+    char t[sSize + 1];
+    int g = gcd(b, sSize);
+    for (int i = 0; i < sSize; i += g) {
+        memset(t, 0, sizeof(t));
+        snprintf(t, sizeof(t), "%s", str + i);
+        add(t, sSize, a, 1);
+
+        if (b % 2 != 0) {
+            add(t, sSize, a, 0);
+        }
+
+        if (strcmp(t, pRetVal) < 0) {
+            memset(pRetVal, 0, (returnSize * sizeof(char)));
+            snprintf(pRetVal, returnSize, "%s", t);
+        }
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    void add(int a, string& t, int start) {
+        int minVal = 10;
+        int times = 0;
+        for (int i = 0; i < 10; i++) {
+            int added = ((t[start] - '0') + i * a) % 10;
+            if (added < minVal) {
+                minVal = added;
+                times = i;
+            }
+        }
+
+        int tSize = t.size();
+        for (int i = start; i < tSize; i += 2) {
+            t[i] = '0' + ((t[i] - '0') + times * a) % 10;
+        }
+    }
+
+   public:
+    string findLexSmallestString(string s, int a, int b) {
+        string retVal = s;
+
+        int sSize = s.size();
+
+        s = s + s;
+        int g = gcd(b, sSize);
+        for (int i = 0; i < sSize; i += g) {
+            string t = s.substr(i, sSize);
+            add(a, t, 1);
+            if (b % 2) {
+                add(a, t, 0);
+            }
+            retVal = min(retVal, t);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.sSize = 0
+
+    def add(self, a: int, t: str, start: int) -> str:
+        retVal = None
+
+        original = int(t[start])
+        min_val, times = 10, 0
+        for i in range(10):
+            added = (original + i * a) % 10
+            if added < min_val:
+                min_val = added
+                times = i
+
+        t_list = list(t)
+        for i in range(start, self.sSize, 2):
+            t_list[i] = str((int(t_list[i]) + times * a) % 10)
+        retVal = "".join(t_list)
+
+        return retVal
+
+    def findLexSmallestString(self, s: str, a: int, b: int) -> str:
+        retVal = s
+
+        self.sSize = len(s)
+
+        s = s + s
+        g = gcd(b, self.sSize)
+        for i in range(0, self.sSize, g):
+            t = s[i: i + self.sSize]
+            t = self.add(a, t, 1)
+            if b % 2:
+                t = self.add(a, t, 0)
+            if t < retVal:
+                retVal = t
+
+        return retVal
+```
+
+</details>
+
 ## [1678. Goal Parser Interpretation](https://leetcode.com/problems/goal-parser-interpretation/)  1221
 
 <details><summary>Description</summary>
