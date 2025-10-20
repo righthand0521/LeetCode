@@ -1,5 +1,130 @@
 # String
 
+## [2011. Final Value of Variable After Performing Operations](https://leetcode.com/problems/final-value-of-variable-after-performing-operations/)  1165
+
+- [Official](https://leetcode.com/problems/final-value-of-variable-after-performing-operations/editorial/)
+- [Official](https://leetcode.cn/problems/final-value-of-variable-after-performing-operations/solutions/2028909/zhi-xing-cao-zuo-hou-de-bian-liang-zhi-b-knvg/)
+
+<details><summary>Description</summary>
+
+```text
+There is a programming language with only four operations and one variable X:
+- ++X and X++ increments the value of the variable X by 1.
+- --X and X-- decrements the value of the variable X by 1.
+
+Initially, the value of X is 0.
+
+Given an array of strings operations containing a list of operations,
+return the final value of X after performing all the operations.
+
+Example 1:
+Input: operations = ["--X","X++","X++"]
+Output: 1
+Explanation: The operations are performed as follows:
+Initially, X = 0.
+--X: X is decremented by 1, X =  0 - 1 = -1.
+X++: X is incremented by 1, X = -1 + 1 =  0.
+X++: X is incremented by 1, X =  0 + 1 =  1.
+
+Example 2:
+Input: operations = ["++X","++X","X++"]
+Output: 3
+Explanation: The operations are performed as follows:
+Initially, X = 0.
+++X: X is incremented by 1, X = 0 + 1 = 1.
+++X: X is incremented by 1, X = 1 + 1 = 2.
+X++: X is incremented by 1, X = 2 + 1 = 3.
+
+Example 3:
+Input: operations = ["X++","++X","--X","X--"]
+Output: 0
+Explanation: The operations are performed as follows:
+Initially, X = 0.
+X++: X is incremented by 1, X = 0 + 1 = 1.
+++X: X is incremented by 1, X = 1 + 1 = 2.
+--X: X is decremented by 1, X = 2 - 1 = 1.
+X--: X is decremented by 1, X = 1 - 1 = 0.
+
+Constraints:
+1 <= operations.length <= 100
+operations[i] will be either "++X", "X++", "--X", or "X--"
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. There are only two operations to keep track of.
+2. Use a variable to store the value after each operation.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int finalValueAfterOperations(char** operations, int operationsSize) {
+    int retVal = 0;
+
+    for (int i = 0; i < operationsSize; i++) {
+        // operations[i] will be either "++X", "X++", "--X", or "X--"
+        if ((strcmp(operations[i], "++X") == 0) || (strcmp(operations[i], "X++") == 0)) {
+            retVal++;
+        } else {
+            retVal--;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int finalValueAfterOperations(vector<string>& operations) {
+        int retVal = 0;
+
+        for (const string& operation : operations) {
+            // operations[i] will be either "++X", "X++", "--X", or "X--"
+            if ((operation == "++X") || (operation == "X++")) {
+                retVal++;
+            } else {
+                retVal--;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def finalValueAfterOperations(self, operations: List[str]) -> int:
+        retVal = 0
+
+        for operation in operations:
+            # operations[i] will be either "++X", "X++", "--X", or "X--"
+            if operation == "++X" or operation == "X++":
+                retVal += 1
+            else:
+                retVal -= 1
+
+        return retVal
+```
+
+</details>
+
 ## [2014. Longest Subsequence Repeated k Times](https://leetcode.com/problems/longest-subsequence-repeated-k-times/)  2558
 
 - [Official](https://leetcode.com/problems/longest-subsequence-repeated-k-times/editorial/)
