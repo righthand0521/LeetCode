@@ -1,5 +1,371 @@
 # [Binary Search](https://en.wikipedia.org/wiki/Binary_search_algorithm)
 
+## [3346. Maximum Frequency of an Element After Performing Operations I](https://leetcode.com/problems/maximum-frequency-of-an-element-after-performing-operations-i/)  1865
+
+- [Official](https://leetcode.cn/problems/maximum-frequency-of-an-element-after-performing-operations-i/solutions/3803630/zhi-xing-cao-zuo-hou-yuan-su-de-zui-gao-lk58w/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array nums and two integers k and numOperations.
+
+You must perform an operation numOperations times on nums, where in each operation you:
+- Select an index i that was not selected in any previous operations.
+- Add an integer in the range [-k, k] to nums[i].
+
+Return the maximum possible frequency of any element in nums after performing the operations.
+
+Example 1:
+Input: nums = [1,4,5], k = 1, numOperations = 2
+Output: 2
+Explanation:
+We can achieve a maximum frequency of two by:
+Adding 0 to nums[1]. nums becomes [1, 4, 5].
+Adding -1 to nums[2]. nums becomes [1, 4, 4].
+
+Example 2:
+Input: nums = [5,11,20,20], k = 5, numOperations = 1
+Output: 2
+Explanation:
+We can achieve a maximum frequency of two by:
+Adding 0 to nums[1].
+
+Constraints:
+1 <= nums.length <= 10^5
+1 <= nums[i] <= 10^5
+0 <= k <= 10^5
+0 <= numOperations <= nums.length
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Sort the array and try each value in range as a candidate.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#ifndef HASH_H
+#define HASH_H
+
+typedef struct {
+    int key;
+    int val;
+    UT_hash_handle hh;
+} HashItem;
+HashItem* hashFindItem(HashItem** obj, int key) {
+    HashItem* pEntry = NULL;
+
+    HASH_FIND_INT(*obj, &key, pEntry);
+
+    return pEntry;
+}
+bool hashAddItem(HashItem** obj, int key, int val) {
+    bool retVal = false;
+
+    if (hashFindItem(obj, key)) {
+        return retVal;
+    }
+
+    HashItem* pEntry = (HashItem*)malloc(sizeof(HashItem));
+    if (pEntry == NULL) {
+        perror("malloc");
+        return retVal;
+    }
+    pEntry->key = key;
+    pEntry->val = val;
+    HASH_ADD_INT(*obj, key, pEntry);
+    retVal = true;
+
+    return retVal;
+}
+bool hashSetItem(HashItem** obj, int key, int val) {
+    HashItem* pEntry = hashFindItem(obj, key);
+    if (!pEntry) {
+        hashAddItem(obj, key, val);
+    } else {
+        pEntry->val = val;
+    }
+    return true;
+}
+int hashGetItem(HashItem** obj, int key, int defaultVal) {
+    int retVal = defaultVal;
+
+    HashItem* pEntry = hashFindItem(obj, key);
+    if (pEntry != NULL) {
+        retVal = pEntry->val;
+    }
+
+    return retVal;
+}
+void hashFree(HashItem** obj) {
+    HashItem* curr = NULL;
+    HashItem* tmp = NULL;
+    HASH_ITER(hh, *obj, curr, tmp) {
+        HASH_DEL(*obj, curr);
+        free(curr);
+    }
+}
+void addMode(int* nums, int numsSize, int k, HashItem** modes, int value) {
+    hashAddItem(modes, value, 1);
+    if (value - k >= nums[0]) {
+        hashAddItem(modes, value - k, 1);
+    }
+    if (value + k <= nums[numsSize - 1]) {
+        hashAddItem(modes, value + k, 1);
+    }
+}
+
+#endif  // HASH_H
+int leftBound(int* nums, int numsSize, int value) {
+    int retVal = 0;
+
+    int left = 0;
+    int right = numsSize - 1;
+    int middle;
+    while (left < right) {
+        middle = (left + right) / 2;
+        if (nums[middle] < value) {
+            left = middle + 1;
+        } else {
+            right = middle;
+        }
+    }
+    retVal = left;
+
+    return retVal;
+}
+int rightBound(int* nums, int numsSize, int value) {
+    int retVal = 0;
+
+    int left = 0;
+    int right = numsSize - 1;
+    int middle;
+    while (left < right) {
+        middle = (left + right + 1) / 2;
+        if (nums[middle] > value) {
+            right = middle - 1;
+        } else {
+            left = middle;
+        }
+    }
+    retVal = left;
+
+    return retVal;
+}
+int compareInteger(const void* n1, const void* n2) {
+    // ascending order
+    return (*(int*)n1 > *(int*)n2);
+}
+int maxFrequency(int* nums, int numsSize, int k, int numOperations) {
+    int retVal = 0;
+
+    qsort(nums, numsSize, sizeof(int), compareInteger);
+
+    HashItem* numCount = NULL;
+    HashItem* modes = NULL;
+
+    int lastNumIndex = 0;
+    for (int i = 0; i < numsSize; ++i) {
+        if (nums[i] == nums[lastNumIndex]) {
+            continue;
+        }
+
+        hashSetItem(&numCount, nums[lastNumIndex], i - lastNumIndex);
+        if (i - lastNumIndex > retVal) {
+            retVal = i - lastNumIndex;
+        }
+        addMode(nums, numsSize, k, &modes, nums[lastNumIndex]);
+        lastNumIndex = i;
+    }
+
+    hashSetItem(&numCount, nums[lastNumIndex], numsSize - lastNumIndex);
+    if (numsSize - lastNumIndex > retVal) {
+        retVal = numsSize - lastNumIndex;
+    }
+    addMode(nums, numsSize, k, &modes, nums[lastNumIndex]);
+
+    int modesSize = HASH_COUNT(modes);
+    int sortModes[modesSize];
+    int pos = 0;
+    for (HashItem* pEntry = modes; pEntry; pEntry = pEntry->hh.next) {
+        sortModes[pos++] = pEntry->key;
+    }
+    qsort(sortModes, modesSize, sizeof(int), compareInteger);
+
+    int mode, left, right, count, tempAns;
+    for (int i = 0; i < modesSize; i++) {
+        mode = sortModes[i];
+        left = leftBound(nums, numsSize, mode - k);
+        right = rightBound(nums, numsSize, mode + k);
+
+        if (hashFindItem(&numCount, mode)) {
+            count = hashGetItem(&numCount, mode, 0);
+            tempAns = fmin(right - left + 1, count + numOperations);
+        } else {
+            tempAns = fmin(right - left + 1, numOperations);
+        }
+
+        if (tempAns > retVal) {
+            retVal = tempAns;
+        }
+    }
+
+    //
+    hashFree(&numCount);
+    hashFree(&modes);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    void addMode(vector<int>& nums, int k, set<int>& modes, int value) {
+        modes.insert(value);
+        if (value - k >= nums.front()) {
+            modes.insert(value - k);
+        }
+        if (value + k <= nums.back()) {
+            modes.insert(value + k);
+        }
+    }
+    int leftBound(vector<int>& nums, int value) {
+        int retVal = 0;
+
+        int left = 0;
+        int right = nums.size() - 1;
+        while (left < right) {
+            int middle = (left + right) / 2;
+            if (nums[middle] < value) {
+                left = middle + 1;
+            } else {
+                right = middle;
+            }
+        }
+        retVal = left;
+
+        return retVal;
+    }
+    int rightBound(vector<int>& nums, int value) {
+        int retVal = 0;
+
+        int left = 0;
+        int right = nums.size() - 1;
+        while (left < right) {
+            int middle = (left + right + 1) / 2;
+            if (nums[middle] > value) {
+                right = middle - 1;
+            } else {
+                left = middle;
+            }
+        }
+        retVal = left;
+
+        return retVal;
+    }
+
+   public:
+    int maxFrequency(vector<int>& nums, int k, int numOperations) {
+        int retVal = 0;
+
+        int numsSize = nums.size();
+        sort(nums.begin(), nums.end());
+
+        unordered_map<int, int> numCount;
+        set<int> modes;
+
+        int lastNumIndex = 0;
+        for (int i = 0; i < numsSize; ++i) {
+            if (nums[i] == nums[lastNumIndex]) {
+                continue;
+            }
+            numCount[nums[lastNumIndex]] = i - lastNumIndex;
+            retVal = max(retVal, i - lastNumIndex);
+            addMode(nums, k, modes, nums[lastNumIndex]);
+            lastNumIndex = i;
+        }
+
+        numCount[nums[lastNumIndex]] = numsSize - lastNumIndex;
+        retVal = max(retVal, numsSize - lastNumIndex);
+        addMode(nums, k, modes, nums[lastNumIndex]);
+
+        for (int mode : modes) {
+            int left = leftBound(nums, mode - k);
+            int right = rightBound(nums, mode + k);
+
+            int tempAns;
+            if (numCount.count(mode)) {
+                tempAns = min(right - left + 1, numCount[mode] + numOperations);
+            } else {
+                tempAns = min(right - left + 1, numOperations);
+            }
+            retVal = max(retVal, tempAns);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def addMode(self, nums: List[int], k: int, modes: set, value: int) -> None:
+        modes.add(value)
+        if value - k >= nums[0]:
+            modes.add(value - k)
+        if value + k <= nums[-1]:
+            modes.add(value + k)
+
+    def maxFrequency(self, nums: List[int], k: int, numOperations: int) -> int:
+        retVal = 0
+
+        nums.sort()
+
+        numCount = defaultdict(int)
+        modes = set()
+
+        lastIndex = 0
+        for i in range(len(nums)):
+            if nums[i] == nums[lastIndex]:
+                continue
+            numCount[nums[lastIndex]] = i - lastIndex
+            retVal = max(retVal, i - lastIndex)
+            self.addMode(nums, k, modes, nums[lastIndex])
+            lastIndex = i
+
+        numCount[nums[lastIndex]] = len(nums) - lastIndex
+        retVal = max(retVal, len(nums) - lastIndex)
+        self.addMode(nums, k, modes, nums[lastIndex])
+
+        for mode in sorted(modes):
+            l = bisect_left(nums, mode - k)
+            r = bisect_right(nums, mode + k) - 1
+            if mode in numCount:
+                temp = min(r - l + 1, numCount[mode] + numOperations)
+            else:
+                temp = min(r - l + 1, numOperations)
+            retVal = max(retVal, temp)
+
+        return retVal
+```
+
+</details>
+
 ## [3356. Zero Array Transformation II](https://leetcode.com/problems/zero-array-transformation-ii/)  1913
 
 - [Official](https://leetcode.com/problems/zero-array-transformation-ii/editorial/)
