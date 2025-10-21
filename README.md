@@ -158,6 +158,13 @@
 
 </details>
 
+<details><summary>Maximum Frequency of an Element After Performing Operations</summary>
+
+- [3346. Maximum Frequency of an Element After Performing Operations I](https://leetcode.com/problems/maximum-frequency-of-an-element-after-performing-operations-i/)
+- [3347. Maximum Frequency of an Element After Performing Operations II](https://leetcode.com/problems/maximum-frequency-of-an-element-after-performing-operations-ii/description/)
+
+</details>
+
 ## Bit Manipulation
 
 <details><summary>Single Number</summary>
