@@ -653,6 +653,13 @@
 
 </details>
 
+<details><summary>Check If Digits Are Equal in String After Operations</summary>
+
+- [3461. Check If Digits Are Equal in String After Operations I](https://leetcode.com/problems/check-if-digits-are-equal-in-string-after-operations-i/)
+- [3463. Check If Digits Are Equal in String After Operations II](https://leetcode.com/problems/check-if-digits-are-equal-in-string-after-operations-ii/)
+
+</details>
+
 ## Tree
 
 <details><summary>Serialize and Deserialize Binary Tree</summary>
