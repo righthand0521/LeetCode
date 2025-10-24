@@ -5216,6 +5216,196 @@ class Solution:
 
 </details>
 
+## [2048. Next Greater Numerically Balanced Number](https://leetcode.com/problems/next-greater-numerically-balanced-number/)  1734
+
+- [Official](https://leetcode.com/problems/next-greater-numerically-balanced-number/editorial/)
+- [Official](https://leetcode.cn/problems/next-greater-numerically-balanced-number/)
+
+<details><summary>Description</summary>
+
+```text
+An integer x is numerically balanced if for every digit d in the number x,
+there are exactly d occurrences of that digit in x.
+
+Given an integer n, return the smallest numerically balanced number strictly greater than n.
+
+Example 1:
+Input: n = 1
+Output: 22
+Explanation:
+22 is numerically balanced since:
+- The digit 2 occurs 2 times.
+It is also the smallest numerically balanced number strictly greater than 1.
+
+Example 2:
+Input: n = 1000
+Output: 1333
+Explanation:
+1333 is numerically balanced since:
+- The digit 1 occurs 1 time.
+- The digit 3 occurs 3 times.
+It is also the smallest numerically balanced number strictly greater than 1000.
+Note that 1022 cannot be the answer because 0 appeared more than 0 times.
+
+Example 3:
+Input: n = 3000
+Output: 3133
+Explanation:
+3133 is numerically balanced since:
+- The digit 1 occurs 1 time.
+- The digit 3 occurs 3 times.
+It is also the smallest numerically balanced number strictly greater than 3000.
+
+Constraints:
+0 <= n <= 10^6
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. How far away can the next greater numerically balanced number be from n?
+2. With the given constraints, what is the largest numerically balanced number?
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// https://leetcode.com/problems/next-greater-numerically-balanced-number/solutions/1537631/next-permutation-vs-dfs/
+int cnt[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+long long dfs(long long n, long long val, int sz) {
+    long long retVal = 0;
+
+    if (sz == 0) {
+        for (int i = 1; i <= 9; ++i) {
+            if ((cnt[i] != i) && (cnt[i] != 0)) {
+                return retVal;
+            }
+        }
+        retVal = (val > n) ? (val) : (0);
+
+        return retVal;
+    }
+
+    for (int i = 1; retVal == 0 && i <= 9; ++i)
+        if ((cnt[i] > 0) && (cnt[i] <= sz)) {
+            --cnt[i];
+            retVal = dfs(n, val * 10 + i, sz - 1);
+            ++cnt[i];
+        }
+
+    return retVal;
+}
+int nextBeautifulNumber(int n) {
+    int retVal = 0;
+
+    char s[8];  // 0 <= n <= 10^6
+    memset(s, 0, sizeof(s));
+    snprintf(s, sizeof(s), "%d", n);
+    int sz = strlen(s);
+    retVal = dfs(n, 0, sz);
+    if (retVal == 0) {
+        retVal = dfs(0, 0, sz + 1);
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+// https://leetcode.com/problems/next-greater-numerically-balanced-number/solutions/1537631/next-permutation-vs-dfs/
+class Solution {
+   private:
+    int cnt[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+    long long dfs(long long n, long long val, int sz) {
+        long long retVal = 0;
+
+        if (sz == 0) {
+            for (int i = 1; i <= 9; ++i) {
+                if ((cnt[i] != i) && (cnt[i] != 0)) {
+                    return retVal;
+                }
+            }
+            retVal = (val > n) ? (val) : (0);
+
+            return retVal;
+        }
+
+        for (int i = 1; retVal == 0 && i <= 9; ++i)
+            if ((cnt[i] > 0) && (cnt[i] <= sz)) {
+                --cnt[i];
+                retVal = dfs(n, val * 10 + i, sz - 1);
+                ++cnt[i];
+            }
+
+        return retVal;
+    }
+
+   public:
+    int nextBeautifulNumber(int n) {
+        int retVal = 0;
+
+        int sz = to_string(n).size();
+        retVal = dfs(n, 0, sz);
+        if (retVal == 0) {
+            retVal = dfs(0, 0, sz + 1);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# https: // leetcode.com/problems/next-greater-numerically-balanced-number/solutions/1537631/next-permutation-vs-dfs/
+class Solution:
+    def __init__(self):
+        self.cnt = [i for i in range(10)]
+
+    def dfs(self, n: int, val: int, sz: int) -> int:
+        retVal = 0
+
+        if sz == 0:
+            for i in range(1, 10):
+                if self.cnt[i] != i and self.cnt[i] != 0:
+                    return retVal
+            retVal = val if val > n else 0
+
+            return retVal
+
+        for i in range(1, 10):
+            if retVal == 0 and self.cnt[i] > 0 and self.cnt[i] <= sz:
+                self.cnt[i] -= 1
+                retVal = self.dfs(n, val * 10 + i, sz - 1)
+                self.cnt[i] += 1
+
+        return retVal
+
+    def nextBeautifulNumber(self, n: int) -> int:
+        retVal = 0
+
+        sz = len(str(n))
+        retVal = self.dfs(n, 0, sz)
+        if retVal == 0:
+            retVal = self.dfs(0, 0, sz + 1)
+
+        return retVal
+```
+
+</details>
+
 ## [2305. Fair Distribution of Cookies](https://leetcode.com/problems/fair-distribution-of-cookies/)  1886
 
 - [Official](https://leetcode.com/problems/fair-distribution-of-cookies/editorial/)
