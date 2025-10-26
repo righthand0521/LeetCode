@@ -1626,6 +1626,280 @@ class ParkingSystem:
 
 </details>
 
+## [2043. Simple Bank System](https://leetcode.com/problems/simple-bank-system/)  1356
+
+- [Official](https://leetcode.com/problems/simple-bank-system/editorial/)
+- [Official](https://leetcode.cn/problems/simple-bank-system/solutions/1343911/jian-yi-yin-xing-xi-tong-by-leetcode-sol-q3o7/)
+
+<details><summary>Description</summary>
+
+```text
+You have been tasked with writing a program for a popular bank
+that will automate all its incoming transactions (transfer, deposit, and withdraw).
+The bank has n accounts numbered from 1 to n.
+The initial balance of each account is stored in a 0-indexed integer array balance,
+with the (i + 1)th account having an initial balance of balance[i].
+
+Execute all the valid transactions. A transaction is valid if:
+- The given account number(s) are between 1 and n, and
+- The amount of money withdrawn or transferred from is less than or equal to the balance of the account.
+
+Implement the Bank class:
+- Bank(long[] balance)
+  Initializes the object with the 0-indexed integer array balance.
+- boolean transfer(int account1, int account2, long money)
+  Transfers money dollars from the account numbered account1 to the account numbered account2.
+  Return true if the transaction was successful, false otherwise.
+- boolean deposit(int account, long money)
+  Deposit money dollars into the account numbered account.
+  Return true if the transaction was successful, false otherwise.
+- boolean withdraw(int account, long money)
+  Withdraw money dollars from the account numbered account.
+  Return true if the transaction was successful, false otherwise.
+
+Example 1:
+Input
+["Bank", "withdraw", "transfer", "deposit", "transfer", "withdraw"]
+[[[10, 100, 20, 50, 30]], [3, 10], [5, 1, 20], [5, 20], [3, 4, 15], [10, 50]]
+Output
+[null, true, true, true, false, false]
+Explanation
+Bank bank = new Bank([10, 100, 20, 50, 30]);
+bank.withdraw(3, 10);    // return true, account 3 has a balance of $20, so it is valid to withdraw $10.
+                         // Account 3 has $20 - $10 = $10.
+bank.transfer(5, 1, 20); // return true, account 5 has a balance of $30, so it is valid to transfer $20.
+                         // Account 5 has $30 - $20 = $10, and account 1 has $10 + $20 = $30.
+bank.deposit(5, 20);     // return true, it is valid to deposit $20 to account 5.
+                         // Account 5 has $10 + $20 = $30.
+bank.transfer(3, 4, 15); // return false, the current balance of account 3 is $10,
+                         // so it is invalid to transfer $15 from it.
+bank.withdraw(10, 50);   // return false, it is invalid because account 10 does not exist.
+
+Constraints:
+n == balance.length
+1 <= n, account, account1, account2 <= 10^5
+0 <= balance[i], money <= 10^12
+At most 10^4 calls will be made to each function transfer, deposit, withdraw.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. How do you determine if a transaction will fail?
+2. Simply apply the operations if the transaction is valid.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+typedef struct {
+    long long* balance;
+    int balanceSize;
+} Bank;
+Bank* bankCreate(long long* balance, int balanceSize) {
+    Bank* pObj = NULL;
+
+    pObj = (Bank*)malloc(sizeof(Bank));
+    if (pObj == NULL) {
+        perror("malloc");
+        return pObj;
+    }
+    pObj->balance = (long long*)malloc(balanceSize * sizeof(long long));
+    if (pObj->balance == NULL) {
+        perror("malloc");
+        free(pObj);
+        pObj = NULL;
+        return pObj;
+    }
+    memcpy(pObj->balance, balance, (balanceSize * sizeof(long long)));
+    pObj->balanceSize = balanceSize;
+
+    return pObj;
+}
+bool bankTransfer(Bank* obj, int account1, int account2, long long money) {
+    bool retVal = false;
+
+    if ((obj->balanceSize < account1) || (obj->balanceSize < account2)) {
+        return retVal;
+    } else if (obj->balance[account1 - 1] < money) {
+        return retVal;
+    }
+
+    obj->balance[account1 - 1] -= money;
+    obj->balance[account2 - 1] += money;
+    retVal = true;
+
+    return retVal;
+}
+bool bankDeposit(Bank* obj, int account, long long money) {
+    bool retVal = false;
+
+    if (obj->balanceSize < account) {
+        return retVal;
+    }
+
+    obj->balance[account - 1] += money;
+    retVal = true;
+
+    return retVal;
+}
+bool bankWithdraw(Bank* obj, int account, long long money) {
+    bool retVal = false;
+
+    if (obj->balanceSize < account) {
+        return retVal;
+    } else if (obj->balance[account - 1] < money) {
+        return retVal;
+    }
+
+    obj->balance[account - 1] -= money;
+    retVal = true;
+
+    return retVal;
+}
+void bankFree(Bank* obj) {
+    free(obj->balance);
+    obj->balance = NULL;
+    free(obj);
+    obj = NULL;
+}
+/**
+ * Your Bank struct will be instantiated and called as such:
+ * Bank* obj = bankCreate(balance, balanceSize);
+ * bool param_1 = bankTransfer(obj, account1, account2, money);
+ * bool param_2 = bankDeposit(obj, account, money);
+ * bool param_3 = bankWithdraw(obj, account, money);
+ * bankFree(obj);
+ */
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Bank {
+   private:
+    vector<long long> balance;
+    int balanceSize;
+
+   public:
+    Bank(vector<long long>& balance) : balance(balance) {
+        //
+        balanceSize = balance.size();
+    }
+    bool transfer(int account1, int account2, long long money) {
+        bool retVal = false;
+
+        if ((balanceSize < account1) || (balanceSize < account2)) {
+            return retVal;
+        } else if (balance[account1 - 1] < money) {
+            return retVal;
+        }
+
+        balance[account1 - 1] -= money;
+        balance[account2 - 1] += money;
+        retVal = true;
+
+        return retVal;
+    }
+    bool deposit(int account, long long money) {
+        bool retVal = false;
+
+        if (balanceSize < account) {
+            return retVal;
+        }
+
+        balance[account - 1] += money;
+        retVal = true;
+
+        return retVal;
+    }
+    bool withdraw(int account, long long money) {
+        bool retVal = false;
+
+        if (balanceSize < account) {
+            return retVal;
+        } else if (balance[account - 1] < money) {
+            return retVal;
+        }
+
+        balance[account - 1] -= money;
+        retVal = true;
+
+        return retVal;
+    }
+};
+/**
+ * Your Bank object will be instantiated and called as such:
+ * Bank* obj = new Bank(balance);
+ * bool param_1 = obj->transfer(account1,account2,money);
+ * bool param_2 = obj->deposit(account,money);
+ * bool param_3 = obj->withdraw(account,money);
+ */
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Bank:
+    def __init__(self, balance: List[int]):
+        self.balance = balance
+        self.balanceSize = len(balance)
+
+    def transfer(self, account1: int, account2: int, money: int) -> bool:
+        retVal = False
+
+        if (self.balanceSize < account1) or (self.balanceSize < account2):
+            return retVal
+        elif self.balance[account1-1] < money:
+            return retVal
+
+        self.balance[account1-1] -= money
+        self.balance[account2-1] += money
+        retVal = True
+
+        return retVal
+
+    def deposit(self, account: int, money: int) -> bool:
+        retVal = False
+
+        if (self.balanceSize < account):
+            return retVal
+
+        self.balance[account-1] += money
+        retVal = True
+
+        return retVal
+
+    def withdraw(self, account: int, money: int) -> bool:
+        retVal = False
+
+        if (self.balanceSize < account):
+            return retVal
+        elif self.balance[account-1] < money:
+            return retVal
+
+        self.balance[account-1] -= money
+        retVal = True
+
+        return retVal
+
+# Your Bank object will be instantiated and called as such:
+# obj = Bank(balance)
+# param_1 = obj.transfer(account1,account2,money)
+# param_2 = obj.deposit(account,money)
+# param_3 = obj.withdraw(account,money)
+```
+
+</details>
+
 ## [3508. Implement Router](https://leetcode.com/problems/implement-router/)  1851
 
 - [Official](https://leetcode.cn/problems/implement-router/solutions/3772883/she-ji-lu-you-qi-by-leetcode-solution-hgxc/)
