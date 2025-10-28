@@ -3985,6 +3985,163 @@ class Solution:
 
 </details>
 
+## [3354. Make Array Elements Equal to Zero](https://leetcode.com/problems/make-array-elements-equal-to-zero/)  1397
+
+- [Official](https://leetcode.com/problems/make-array-elements-equal-to-zero/editorial/)
+- [Official](https://leetcode.cn/problems/make-array-elements-equal-to-zero/solutions/3810607/shi-shu-zu-yuan-su-deng-yu-ling-by-leetc-0cvo/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array nums.
+
+Start by selecting a starting position curr such that nums[curr] == 0,
+and choose a movement direction of either left or right.
+
+After that, you repeat the following process:
+- If curr is out of the range [0, n - 1], this process ends.
+- If nums[curr] == 0, move in the current direction by incrementing curr if you are moving right,
+  or decrementing curr if you are moving left.
+- Else if nums[curr] > 0:
+  - Decrement nums[curr] by 1.
+  - Reverse your movement direction (left becomes right and vice versa).
+  - Take a step in your new direction.
+
+A selection of the initial position curr and movement direction is considered valid
+if every element in nums becomes 0 by the end of the process.
+
+Return the number of possible valid selections.
+
+Example 1:
+Input: nums = [1,0,2,0,3]
+Output: 2
+Explanation:
+The only possible valid selections are the following:
+Choose curr = 3, and a movement direction to the left.
+[1,0,2,0,3] -> [1,0,2,0,3] -> [1,0,1,0,3] -> [1,0,1,0,3] -> [1,0,1,0,2]
+ -> [1,0,1,0,2] -> [1,0,0,0,2] -> [1,0,0,0,2] -> [1,0,0,0,1] -> [1,0,0,0,1]
+ -> [1,0,0,0,1] -> [1,0,0,0,1] -> [0,0,0,0,1] -> [0,0,0,0,1] -> [0,0,0,0,1]
+ -> [0,0,0,0,1] -> [0,0,0,0,0].
+Choose curr = 3, and a movement direction to the right.
+[1,0,2,0,3] -> [1,0,2,0,3] -> [1,0,2,0,2] -> [1,0,2,0,2] -> [1,0,1,0,2]
+ -> [1,0,1,0,2] -> [1,0,1,0,1] -> [1,0,1,0,1] -> [1,0,0,0,1] -> [1,0,0,0,1]
+ -> [1,0,0,0,0] -> [1,0,0,0,0] -> [1,0,0,0,0] -> [1,0,0,0,0] -> [0,0,0,0,0].
+
+Example 2:
+Input: nums = [2,3,4,0,4,1,0]
+Output: 0
+Explanation:
+There are no possible valid selections.
+
+Constraints:
+1 <= nums.length <= 100
+0 <= nums[i] <= 100
+There is at least one element i where nums[i] == 0.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Since the constraints are very small, you can simulate the process described.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int countValidSelections(int* nums, int numsSize) {
+    int retVal = 0;
+
+    int left = 0;
+    int right = 0;
+    for (int i = 0; i < numsSize; i++) {
+        right += nums[i];
+    }
+
+    for (int i = 0; i < numsSize; i++) {
+        if (nums[i] == 0) {
+            if ((left - right >= 0) && (left - right <= 1)) {
+                retVal++;
+            }
+            if ((right - left) >= 0 && (right - left <= 1)) {
+                retVal++;
+            }
+        } else {
+            left += nums[i];
+            right -= nums[i];
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int countValidSelections(vector<int>& nums) {
+        int retVal = 0;
+
+        int left = 0;
+        int right = 0;
+        for (int num : nums) {
+            right += num;
+        }
+
+        for (int num : nums) {
+            if (num == 0) {
+                if ((left - right >= 0) && (left - right <= 1)) {
+                    retVal++;
+                }
+                if ((right - left) >= 0 && (right - left <= 1)) {
+                    retVal++;
+                }
+            } else {
+                left += num;
+                right -= num;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def countValidSelections(self, nums: List[int]) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+
+        left = 0
+        right = sum(nums)
+        for i in range(numsSize):
+            if nums[i] == 0:
+                if 0 <= (left - right) <= 1:
+                    retVal += 1
+                if 0 <= (right - left) <= 1:
+                    retVal += 1
+            else:
+                left += nums[i]
+                right -= nums[i]
+
+        return retVal
+```
+
+</details>
+
 ## [3355. Zero Array Transformation I](https://leetcode.com/problems/zero-array-transformation-i/)  1591
 
 - [Official](https://leetcode.com/problems/zero-array-transformation-i/editorial/)
