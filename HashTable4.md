@@ -538,6 +538,170 @@ class Solution:
 
 </details>
 
+## [3289. The Two Sneaky Numbers of Digitville](https://leetcode.com/problems/the-two-sneaky-numbers-of-digitville/)  1164
+
+- [Official](https://leetcode.com/problems/the-two-sneaky-numbers-of-digitville/editorial/)
+- [Official](https://leetcode.cn/problems/the-two-sneaky-numbers-of-digitville/solutions/3804527/shu-zi-xiao-zhen-zhong-de-dao-dan-gui-by-yivz/)
+
+<details><summary>Description</summary>
+
+```text
+In the town of Digitville, there was a list of numbers called nums containing integers from 0 to n - 1.
+Each number was supposed to appear exactly once in the list,
+however, two mischievous numbers sneaked in an additional time, making the list longer than usual.
+
+As the town detective, your task is to find these two sneaky numbers.
+Return an array of size two containing the two numbers (in any order), so peace can return to Digitville.
+
+Example 1:
+Input: nums = [0,1,1,0]
+Output: [0,1]
+Explanation:
+The numbers 0 and 1 each appear twice in the array.
+
+Example 2:
+Input: nums = [0,3,2,1,3,2]
+Output: [2,3]
+Explanation:
+The numbers 2 and 3 each appear twice in the array.
+
+Example 3:
+Input: nums = [7,1,5,4,3,4,6,0,9,5,8,2]
+Output: [4,5]
+Explanation:
+The numbers 4 and 5 each appear twice in the array.
+
+Constraints:
+2 <= n <= 100
+nums.length == n + 2
+0 <= nums[i] < n
+The input is generated such that nums contains exactly two repeated elements.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. To solve the problem without the extra space,
+   we need to think about how many times each number occurs in relation to the index.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable* pFree) {
+    struct hashTable* current;
+    struct hashTable* tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* getSneakyNumbers(int* nums, int numsSize, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    pRetVal = (int*)calloc(2, sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+
+    struct hashTable* pHashTable = NULL;
+    struct hashTable* pTemp;
+    int key;
+    for (int i = 0; i < numsSize; ++i) {
+        key = nums[i];
+
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTable, &key, pTemp);
+        if (pTemp != NULL) {
+            pTemp->value++;
+            if (pTemp->value == 2) {
+                pRetVal[(*returnSize)++] = nums[i];
+                if ((*returnSize) == 2) {
+                    break;
+                }
+            }
+            continue;
+        }
+
+        pTemp = (struct hashTable*)malloc(sizeof(struct hashTable));
+        if (pTemp == NULL) {
+            perror("malloc");
+            free(pRetVal);
+            pRetVal = NULL;
+            (*returnSize) = 0;
+            break;
+        }
+        pTemp->key = nums[i];
+        pTemp->value = 1;
+        HASH_ADD_INT(pHashTable, key, pTemp);
+    }
+
+    //
+    freeAll(pHashTable);
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> getSneakyNumbers(vector<int>& nums) {
+        vector<int> retVal;
+
+        unordered_map<int, int> hashTable;
+        for (int num : nums) {
+            hashTable[num] += 1;
+            if (hashTable[num] == 2) {
+                retVal.emplace_back(num);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def getSneakyNumbers(self, nums: List[int]) -> List[int]:
+        retVal = []
+
+        hashTable = defaultdict(int)
+        for num in nums:
+            hashTable[num] += 1
+            if hashTable[num] == 2:
+                retVal.append(num)
+
+        return retVal
+```
+
+</details>
+
 ## [3375. Minimum Operations to Make Array Values Equal to K](https://leetcode.com/problems/minimum-operations-to-make-array-values-equal-to-k/)  1382
 
 - [Official](https://leetcode.com/problems/minimum-operations-to-make-array-values-equal-to-k/editorial/)
