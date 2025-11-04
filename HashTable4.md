@@ -1246,6 +1246,557 @@ class Solution:
 
 </details>
 
+## [3321. Find X-Sum of All K-Long Subarrays II](https://leetcode.com/problems/find-x-sum-of-all-k-long-subarrays-ii/)  2598
+
+- [Official](https://leetcode.com/problems/find-x-sum-of-all-k-long-subarrays-ii/editorial/)
+- [Official](https://leetcode.cn/problems/find-x-sum-of-all-k-long-subarrays-ii/solutions/3822640/ji-suan-zi-shu-zu-de-x-sum-ii-by-leetcod-s0uq/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an array nums of n integers and two integers k and x.
+
+The x-sum of an array is calculated by the following procedure:
+- Count the occurrences of all elements in the array.
+- Keep only the occurrences of the top x most frequent elements.
+  If two elements have the same number of occurrences, the element with the bigger value is considered more frequent.
+- Calculate the sum of the resulting array.
+
+Note that if an array has less than x distinct elements, its x-sum is the sum of the array.
+
+Return an integer array answer of length n - k + 1 where answer[i] is the x-sum of the subarray nums[i..i + k - 1].
+
+Example 1:
+Input: nums = [1,1,2,2,3,4,2,3], k = 6, x = 2
+Output: [6,10,12]
+Explanation:
+For subarray [1, 1, 2, 2, 3, 4], only elements 1 and 2 will be kept in the resulting array.
+Hence, answer[0] = 1 + 1 + 2 + 2.
+For subarray [1, 2, 2, 3, 4, 2], only elements 2 and 4 will be kept in the resulting array.
+Hence, answer[1] = 2 + 2 + 2 + 4.
+Note that 4 is kept in the array since it is bigger than 3 and 1 which occur the same number of times.
+For subarray [2, 2, 3, 4, 2, 3], only elements 2 and 3 are kept in the resulting array.
+Hence, answer[2] = 2 + 2 + 2 + 3 + 3.
+
+Example 2:
+Input: nums = [3,8,7,8,7,5], k = 2, x = 2
+Output: [11,15,15,15,12]
+Explanation:
+Since k == x, answer[i] is equal to the sum of the subarray nums[i..i + k - 1].
+
+Constraints:
+nums.length == n
+1 <= n <= 10^5
+1 <= nums[i] <= 10^9
+1 <= x <= k <= nums.length
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use sliding window.
+2. Use two sets ordered by frequency.
+   One of the sets will only contain the top x frequent elements, and the second will contain all other elements.
+3. Update the two sets whenever you slide the window, and maintain a sum of the elements in the set with x elements
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// Time Limit Exceeded
+#ifndef HEAP_H
+#define HEAP_H
+
+typedef struct {
+    int first;
+    int second;
+} Pair;
+int cmpPair(Pair a, Pair b) {
+    int retVal = 0;
+
+    if (a.first != b.first) {
+        retVal = (a.first < b.first) ? (-1) : (1);
+    } else if (a.second != b.second) {
+        retVal = (a.second < b.second) ? (-1) : (1);
+    }
+
+    return retVal;
+}
+
+typedef struct TreapNode {
+    Pair key;
+    int pri;
+    int size;
+    struct TreapNode *l, *r;
+} TreapNode;
+int nodeSize(TreapNode* n) {
+    int retVal = 0;
+
+    if (n) {
+        retVal = n->size;
+    }
+
+    return retVal;
+}
+void updateSize(TreapNode* n) {
+    if (n) {
+        n->size = 1 + nodeSize(n->l) + nodeSize(n->r);
+    }
+}
+TreapNode* newNode(Pair key) {
+    TreapNode* pObj = NULL;
+
+    pObj = (TreapNode*)malloc(sizeof(TreapNode));
+    if (pObj == NULL) {
+        perror("malloc");
+        return pObj;
+    }
+    pObj->key = key;
+    pObj->pri = rand();
+    pObj->size = 1;
+    pObj->l = NULL;
+    pObj->r = NULL;
+
+    return pObj;
+}
+TreapNode* rotateRight(TreapNode* y) {
+    TreapNode* x = y->l;
+
+    y->l = x->r;
+    x->r = y;
+    updateSize(y);
+    updateSize(x);
+
+    return x;
+}
+TreapNode* rotateLeft(TreapNode* x) {
+    TreapNode* y = x->r;
+
+    x->r = y->l;
+    y->l = x;
+    updateSize(x);
+    updateSize(y);
+
+    return y;
+}
+TreapNode* treapInsert(TreapNode* root, Pair key) {
+    if (root == NULL) {
+        return newNode(key);
+    }
+
+    int c = cmpPair(key, root->key);
+    if (c < 0) {
+        root->l = treapInsert(root->l, key);
+        if (root->l->pri > root->pri) {
+            root = rotateRight(root);
+        }
+    } else if (c > 0) {
+        root->r = treapInsert(root->r, key);
+        if (root->r->pri > root->pri) {
+            root = rotateLeft(root);
+        }
+    }
+    updateSize(root);
+
+    return root;
+}
+TreapNode* treapDelete(TreapNode* root, Pair key) {
+    if (root == NULL) {
+        return NULL;
+    }
+
+    int c = cmpPair(key, root->key);
+    if (c < 0) {
+        root->l = treapDelete(root->l, key);
+    } else if (c > 0) {
+        root->r = treapDelete(root->r, key);
+    } else {
+        if (root->l == NULL) {
+            TreapNode* r = root->r;
+            free(root);
+
+            return r;
+        } else if (root->r == NULL) {
+            TreapNode* l = root->l;
+            free(root);
+
+            return l;
+        } else {
+            if (root->l->pri > root->r->pri) {
+                root = rotateRight(root);
+                root->r = treapDelete(root->r, key);
+            } else {
+                root = rotateLeft(root);
+                root->l = treapDelete(root->l, key);
+            }
+        }
+    }
+    updateSize(root);
+
+    return root;
+}
+TreapNode* treapMin(TreapNode* root) {
+    while (root && root->l) {
+        root = root->l;
+    }
+
+    return root;
+}
+TreapNode* treapMax(TreapNode* root) {
+    while (root && root->r) {
+        root = root->r;
+    }
+
+    return root;
+}
+void treapFree(TreapNode* root) {
+    if (root == NULL) {
+        return;
+    }
+    treapFree(root->l);
+    treapFree(root->r);
+    free(root);
+}
+
+#endif  // HEAP_H
+#ifndef HASH_H
+#define HASH_H
+
+typedef struct {
+    int key;
+    int count;
+    UT_hash_handle hh;
+} OccEntry;
+OccEntry* occFind(OccEntry* occ, int num) {
+    OccEntry* pObj = NULL;
+
+    HASH_FIND_INT(occ, &num, pObj);
+
+    return pObj;
+}
+int occGet(OccEntry* occ, int num) {
+    int retVal = 0;
+
+    OccEntry* pObj = occFind(occ, num);
+    if (pObj != NULL) {
+        retVal = pObj->count;
+    }
+
+    return retVal;
+}
+void occInc(OccEntry** occ, int num) {
+    OccEntry* pObj = occFind(*occ, num);
+    if (pObj == NULL) {
+        pObj = (OccEntry*)malloc(sizeof(OccEntry));
+        if (pObj == NULL) {
+            perror("malloc");
+            return;
+        }
+        pObj->key = num;
+        pObj->count = 0;
+        HASH_ADD_INT(*occ, key, pObj);
+    }
+    pObj->count++;
+}
+void occDec(OccEntry** occ, int num) {
+    OccEntry* pObj = occFind(*occ, num);
+    if (pObj != NULL) {
+        pObj->count--;
+        if (pObj->count == 0) {
+            HASH_DEL(*occ, pObj);
+            free(pObj);
+        }
+    }
+}
+void occFreeAll(OccEntry* occ) {
+    OccEntry *cur, *tmp;
+    HASH_ITER(hh, occ, cur, tmp) {
+        HASH_DEL(occ, cur);
+        free(cur);
+    }
+}
+
+#endif  // HASH_H
+typedef struct {
+    int x;
+    long long result;
+    TreapNode* large;
+    TreapNode* small;
+    OccEntry* occ;
+} Helper;
+void helperInit(Helper* h, int x) {
+    h->x = x;
+    h->result = 0;
+    h->large = NULL;
+    h->small = NULL;
+    h->occ = NULL;
+}
+void helperFree(Helper* h) {
+    treapFree(h->large);
+    treapFree(h->small);
+    occFreeAll(h->occ);
+}
+void internalInsert(Helper* h, Pair p) {
+    int largeSize = nodeSize(h->large);
+    TreapNode* minLarge = treapMin(h->large);
+    if ((largeSize < h->x) || (minLarge && cmpPair(p, minLarge->key) > 0)) {
+        h->result += ((long long)p.first * (long long)p.second);
+        h->large = treapInsert(h->large, p);
+        if (nodeSize(h->large) > h->x) {
+            TreapNode* m = treapMin(h->large);
+            Pair transfer = m->key;
+            h->result -= ((long long)transfer.first * (long long)transfer.second);
+            h->large = treapDelete(h->large, transfer);
+            h->small = treapInsert(h->small, transfer);
+        }
+    } else {
+        h->small = treapInsert(h->small, p);
+    }
+}
+void internalRemove(Helper* h, Pair p) {
+    TreapNode* minLarge = treapMin(h->large);
+    if (minLarge && cmpPair(p, minLarge->key) >= 0) {
+        h->result -= ((long long)p.first * (long long)p.second);
+        h->large = treapDelete(h->large, p);
+        if (h->small) {
+            TreapNode* maxSmall = treapMax(h->small);
+            if (maxSmall) {
+                Pair transfer = maxSmall->key;
+                h->result += ((long long)transfer.first * (long long)transfer.second);
+                h->small = treapDelete(h->small, transfer);
+                h->large = treapInsert(h->large, transfer);
+            }
+        }
+    } else {
+        h->small = treapDelete(h->small, p);
+    }
+}
+void helperInsert(Helper* h, int num) {
+    int c = occGet(h->occ, num);
+    if (c) {
+        internalRemove(h, (Pair){c, num});
+    }
+
+    occInc(&h->occ, num);
+    c = occGet(h->occ, num);
+    internalInsert(h, (Pair){c, num});
+}
+void helperRemove(Helper* h, int num) {
+    int c = occGet(h->occ, num);
+    if (c) {
+        internalRemove(h, (Pair){c, num});
+        occDec(&h->occ, num);
+        c = occGet(h->occ, num);
+        if (c) internalInsert(h, (Pair){c, num});
+    }
+}
+long long helperGet(Helper* h) {
+    long long retVal = h->result;
+
+    return retVal;
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+long long* findXSum(int* nums, int numsSize, int k, int x, int* returnSize) {
+    long long* pRetVal = NULL;
+
+    (*returnSize) = 0;
+    pRetVal = (long long*)calloc(numsSize, sizeof(long long));
+    if (pRetVal == NULL) {
+        perror("calloc");
+        return pRetVal;
+    }
+
+    Helper h;
+    helperInit(&h, x);
+    for (int i = 0; i < numsSize; i++) {
+        helperInsert(&h, nums[i]);
+        if (i >= k) {
+            helperRemove(&h, nums[i - k]);
+        }
+        if (i >= k - 1) {
+            pRetVal[(*returnSize)++] = helperGet(&h);
+        }
+    }
+    helperFree(&h);
+
+    return pRetVal;
+}
+// Time Limit Exceeded
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Helper {
+   private:
+    int x;
+    long long result;
+    set<pair<int, int>> large, small;
+    unordered_map<int, int> occ;
+
+    void internalInsert(const pair<int, int>& p) {
+        int largeSize = large.size();
+        if ((largeSize < x) || (p > *large.begin())) {
+            result += (static_cast<long long>(p.first) * p.second);
+            large.insert(p);
+            largeSize = large.size();
+            if (largeSize > x) {
+                result -= (static_cast<long long>(large.begin()->first) * large.begin()->second);
+                auto transfer = *large.begin();
+                large.erase(transfer);
+                small.insert(transfer);
+            }
+        } else {
+            small.insert(p);
+        }
+    }
+    void internalRemove(const pair<int, int>& p) {
+        if (p >= *large.begin()) {
+            result -= (static_cast<long long>(p.first) * p.second);
+            large.erase(p);
+            if (!small.empty()) {
+                result += (static_cast<long long>(small.rbegin()->first) * small.rbegin()->second);
+                auto transfer = *small.rbegin();
+                small.erase(transfer);
+                large.insert(transfer);
+            }
+        } else {
+            small.erase(p);
+        }
+    }
+
+   public:
+    Helper(int x) {
+        this->x = x;
+        this->result = 0;
+    }
+    void insert(int num) {
+        if (occ[num]) {
+            internalRemove({occ[num], num});
+        }
+        ++occ[num];
+        internalInsert({occ[num], num});
+    }
+    void remove(int num) {
+        internalRemove({occ[num], num});
+        --occ[num];
+        if (occ[num]) {
+            internalInsert({occ[num], num});
+        }
+    }
+    long long get() {
+        long long retVal = result;
+
+        return retVal;
+    }
+};
+class Solution {
+   public:
+    vector<long long> findXSum(vector<int>& nums, int k, int x) {
+        vector<long long> retVal;
+
+        Helper helper(x);
+
+        int numsSize = nums.size();
+        for (int i = 0; i < numsSize; ++i) {
+            helper.insert(nums[i]);
+            if (i >= k) {
+                helper.remove(nums[i - k]);
+            }
+            if (i >= k - 1) {
+                retVal.push_back(helper.get());
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Helper:
+    def __init__(self, x: int) -> None:
+        self.x = x
+        self.result = 0
+        self.large = SortedList()
+        self.small = SortedList()
+        self.occ = defaultdict(int)
+
+    def insert(self, num: int) -> None:
+        if self.occ[num] > 0:
+            self.internal_remove((self.occ[num], num))
+        self.occ[num] += 1
+        self.internal_insert((self.occ[num], num))
+
+    def remove(self, num: int) -> None:
+        self.internal_remove((self.occ[num], num))
+        self.occ[num] -= 1
+        if self.occ[num] > 0:
+            self.internal_insert((self.occ[num], num))
+
+    def get(self) -> int:
+        retVal = self.result
+
+        return retVal
+
+    def internal_insert(self, p: tuple) -> None:
+        largeSize = len(self.large)
+        if (largeSize < self.x) or (p > self.large[0]):
+            self.result += (p[0] * p[1])
+            self.large.add(p)
+            largeSize = len(self.large)
+            if largeSize > self.x:
+                to_remove = self.large[0]
+                self.result -= (to_remove[0] * to_remove[1])
+                self.large.remove(to_remove)
+                self.small.add(to_remove)
+        else:
+            self.small.add(p)
+
+    def internal_remove(self, p: tuple) -> None:
+        if p >= self.large[0]:
+            self.result -= (p[0] * p[1])
+            self.large.remove(p)
+            if self.small:
+                to_add = self.small[-1]
+                self.result += (to_add[0] * to_add[1])
+                self.small.remove(to_add)
+                self.large.add(to_add)
+        else:
+            self.small.remove(p)
+
+
+class Solution:
+    def findXSum(self, nums: List[int], k: int, x: int) -> List[int]:
+        retVal = []
+
+        helper = Helper(x)
+
+        numsSize = len(nums)
+        for i in range(numsSize):
+            helper.insert(nums[i])
+            if i >= k:
+                helper.remove(nums[i - k])
+            if i >= k - 1:
+                retVal.append(helper.get())
+
+        return retVal
+```
+
+</details>
+
 ## [3375. Minimum Operations to Make Array Values Equal to K](https://leetcode.com/problems/minimum-operations-to-make-array-values-equal-to-k/)  1382
 
 - [Official](https://leetcode.com/problems/minimum-operations-to-make-array-values-equal-to-k/editorial/)

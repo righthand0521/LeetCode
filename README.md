@@ -521,6 +521,13 @@
 
 </details>
 
+<details><summary>Find X-Sum of All K-Long Subarrays</summary>
+
+- [3318. Find X-Sum of All K-Long Subarrays I](https://leetcode.com/problems/find-x-sum-of-all-k-long-subarrays-i/)
+- [3321. Find X-Sum of All K-Long Subarrays II](https://leetcode.com/problems/find-x-sum-of-all-k-long-subarrays-ii/)
+
+</details>
+
 ## Linked List
 
 <details><summary>Reverse Linked List</summary>
