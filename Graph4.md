@@ -1676,3 +1676,453 @@ class Solution:
 ```
 
 </details>
+
+## [3607. Power Grid Maintenance](https://leetcode.com/problems/power-grid-maintenance/)  1700
+
+- [Official](https://leetcode.com/problems/power-grid-maintenance/editorial/)
+- [Official](https://leetcode.cn/problems/power-grid-maintenance/solutions/3819897/dian-wang-wei-hu-by-leetcode-solution-d92h/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer c representing c power stations,
+each with a unique identifier id from 1 to c (1‑based indexing).
+
+These stations are interconnected via n bidirectional cables, represented by a 2D array connections,
+where each element connections[i] = [ui, vi] indicates a connection between station ui and station vi.
+Stations that are directly or indirectly connected form a power grid.
+
+Initially, all stations are online (operational).
+
+You are also given a 2D array queries, where each query is one of the following two types:
+- [1, x]: A maintenance check is requested for station x.
+  If station x is online, it resolves the check by itself.
+  If station x is offline,
+  the check is resolved by the operational station with the smallest id in the same power grid as x.
+  If no operational station exists in that grid, return -1.
+- [2, x]: Station x goes offline (i.e., it becomes non-operational).
+
+Return an array of integers representing the results of each query of type [1, x] in the order they appear.
+
+Note: The power grid preserves its structure;
+an offline (non‑operational) node remains part of its grid and taking it offline does not alter connectivity.
+
+Example 1:
+Input: c = 5, connections = [[1,2],[2,3],[3,4],[4,5]], queries = [[1,3],[2,1],[1,1],[2,2],[1,2]]
+Output: [3,2,3]
+Explanation:
+- Initially, all stations {1, 2, 3, 4, 5} are online and form a single power grid.
+- Query [1,3]: Station 3 is online, so the maintenance check is resolved by station 3.
+- Query [2,1]: Station 1 goes offline. The remaining online stations are {2, 3, 4, 5}.
+- Query [1,1]: Station 1 is offline,
+  so the check is resolved by the operational station with the smallest id among {2, 3, 4, 5}, which is station 2.
+- Query [2,2]: Station 2 goes offline. The remaining online stations are {3, 4, 5}.
+- Query [1,2]: Station 2 is offline,
+  so the check is resolved by the operational station with the smallest id among {3, 4, 5}, which is station 3.
+
+Example 2:
+Input: c = 3, connections = [], queries = [[1,1],[2,1],[1,1]]
+Output: [1,-1]
+Explanation:
+- There are no connections, so each station is its own isolated grid.
+- Query [1,1]: Station 1 is online in its isolated grid, so the maintenance check is resolved by station 1.
+- Query [2,1]: Station 1 goes offline.
+- Query [1,1]: Station 1 is offline and there are no other stations in its grid, so the result is -1.
+
+Constraints:
+1 <= c <= 10^5
+0 <= n == connections.length <= min(10^5, c * (c - 1) / 2)
+connections[i].length == 2
+1 <= ui, vi <= c
+ui != vi
+1 <= queries.length <= 2 * 10^5
+queries[i].length == 2
+queries[i][0] is either 1 or 2.
+1 <= queries[i][1] <= c
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use DFS or BFS to assign each station a component ID
+2. For each component, maintain a sorted set of online station IDs
+3. For query [2, x], remove x from the set of its component
+4. For query [1, x], if x is in its component’s set return x;
+   otherwise if the set is non-empty return its smallest element; else return -1
+5. Precompute all components and then handle each query in O(log n) time using the sorted sets
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#ifndef DSU_H
+#define DSU_H
+
+typedef struct {
+    int* parent;
+    int size;
+} DSU;
+DSU* dsuCreate(int size) {
+    DSU* pObj = NULL;
+
+    pObj = (DSU*)malloc(sizeof(DSU));
+    if (pObj == NULL) {
+        perror("malloc");
+        return pObj;
+    }
+    pObj->size = size;
+    pObj->parent = (int*)malloc(size * sizeof(int));
+    for (int i = 0; i < size; i++) {
+        pObj->parent[i] = i;
+    }
+
+    return pObj;
+}
+int dsuFind(DSU* pObj, int x) {
+    int retVal = 0;
+
+    if (pObj->parent[x] != x) {
+        pObj->parent[x] = dsuFind(pObj, pObj->parent[x]);
+    }
+    retVal = pObj->parent[x];
+
+    return retVal;
+}
+void dsuJoin(DSU* pObj, int u, int v) {
+    //
+    pObj->parent[dsuFind(pObj, v)] = dsuFind(pObj, u);
+}
+void dsuFree(DSU* pObj) {
+    free(pObj->parent);
+    pObj->parent = NULL;
+    free(pObj);
+    pObj = NULL;
+}
+
+#endif  // DSU_H
+#ifndef HASH_H
+#define DSU_H
+
+typedef struct {
+    int key;
+    int val;
+    UT_hash_handle hh;
+} HashItem;
+HashItem* hashFindItem(HashItem** pObj, int key) {
+    HashItem* pEntry = NULL;
+
+    HASH_FIND_INT(*pObj, &key, pEntry);
+
+    return pEntry;
+}
+bool hashAddItem(HashItem** pObj, int key, int val) {
+    bool retVal = false;
+
+    if (hashFindItem(pObj, key) == NULL) {
+        HashItem* pEntry = (HashItem*)malloc(sizeof(HashItem));
+        if (pEntry == NULL) {
+            perror("malloc");
+            return retVal;
+        }
+        pEntry->key = key;
+        pEntry->val = val;
+        HASH_ADD_INT(*pObj, key, pEntry);
+        retVal = true;
+    }
+
+    return retVal;
+}
+void hashSetItem(HashItem** pObj, int key, int val) {
+    HashItem* pEntry = hashFindItem(pObj, key);
+    if (pEntry == NULL) {
+        hashAddItem(pObj, key, val);
+    } else {
+        pEntry->val = val;
+    }
+}
+int hashGetItem(HashItem** pObj, int key, int defaultVal) {
+    int retVal = defaultVal;
+
+    HashItem* pEntry = hashFindItem(pObj, key);
+    if (pEntry != NULL) {
+        retVal = pEntry->val;
+    }
+
+    return retVal;
+}
+void hashFree(HashItem** pObj) {
+    HashItem* curr = NULL;
+    HashItem* tmp = NULL;
+    HASH_ITER(hh, *pObj, curr, tmp) {
+        HASH_DEL(*pObj, curr);
+        free(curr);
+    }
+}
+
+#endif  // HASH_H
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* processQueries(int c, int** connections, int connectionsSize, int* connectionsColSize, int** queries,
+                    int queriesSize, int* queriesColSize, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    DSU* dsu = dsuCreate(c + 1);
+    for (int i = 0; i < connectionsSize; i++) {
+        dsuJoin(dsu, connections[i][0], connections[i][1]);
+    }
+
+    bool* online = (bool*)malloc((c + 1) * sizeof(bool));
+    int* offlineCounts = (int*)calloc(c + 1, sizeof(int));
+    for (int i = 0; i <= c; i++) {
+        online[i] = true;
+    }
+    for (int i = 0; i < queriesSize; i++) {
+        int op = queries[i][0];
+        int x = queries[i][1];
+        if (op == 2) {
+            online[x] = false;
+            offlineCounts[x]++;
+        }
+    }
+
+    HashItem* minimumOnlineStations = NULL;
+    for (int i = 1; i <= c; i++) {
+        int root = dsuFind(dsu, i);
+        if (hashFindItem(&minimumOnlineStations, root) == NULL) {
+            hashAddItem(&minimumOnlineStations, root, -1);
+        }
+
+        int station = hashGetItem(&minimumOnlineStations, root, -1);
+        if (online[i]) {
+            if (station == -1 || station > i) {
+                hashSetItem(&minimumOnlineStations, root, i);
+            }
+        }
+    }
+
+    pRetVal = (int*)malloc(queriesSize * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        goto exit;
+    }
+
+    for (int i = queriesSize - 1; i >= 0; i--) {
+        int op = queries[i][0];
+        int x = queries[i][1];
+        int root = dsuFind(dsu, x);
+        int station = hashGetItem(&minimumOnlineStations, root, -1);
+
+        if (op == 1) {
+            if (online[x]) {
+                pRetVal[(*returnSize)++] = x;
+            } else {
+                pRetVal[(*returnSize)++] = station;
+            }
+        }
+
+        if (op == 2) {
+            if (offlineCounts[x] > 1) {
+                offlineCounts[x]--;
+            } else {
+                online[x] = true;
+                if (station == -1 || station > x) {
+                    hashSetItem(&minimumOnlineStations, root, x);
+                }
+            }
+        }
+    }
+
+    for (int i = 0, j = (*returnSize) - 1; i < j; i++, j--) {
+        int temp = pRetVal[i];
+        pRetVal[i] = pRetVal[j];
+        pRetVal[j] = temp;
+    }
+
+exit:
+    dsuFree(dsu);
+    free(online);
+    free(offlineCounts);
+    hashFree(&minimumOnlineStations);
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class DSU {
+   public:
+    vector<int> parent;
+
+    DSU(int size) {
+        parent.resize(size);
+        iota(parent.begin(), parent.end(), 0);
+    }
+    int find(int x) {
+        int retVal = x;
+
+        if (parent[x] != x) {
+            parent[x] = find(parent[x]);
+            retVal = parent[x];
+        }
+
+        return retVal;
+    }
+    void join(int u, int v) {
+        //
+        parent[find(v)] = find(u);
+    }
+};
+class Solution {
+   public:
+    vector<int> processQueries(int c, vector<vector<int>>& connections, vector<vector<int>>& queries) {
+        vector<int> retVal;
+
+        DSU dsu(c + 1);
+        for (auto& p : connections) {
+            dsu.join(p[0], p[1]);
+        }
+
+        vector<bool> online(c + 1, true);
+        vector<int> offlineCounts(c + 1, 0);
+        for (auto& q : queries) {
+            int op = q[0], x = q[1];
+            if (op == 2) {
+                online[x] = false;
+                offlineCounts[x]++;
+            }
+        }
+
+        unordered_map<int, int> minimumOnlineStations;
+        for (int i = 1; i <= c; i++) {
+            int root = dsu.find(i);
+            if (!minimumOnlineStations.count(root)) {
+                minimumOnlineStations[root] = -1;
+            }
+
+            int station = minimumOnlineStations[root];
+            if (online[i]) {
+                if (station == -1 || station > i) {
+                    minimumOnlineStations[root] = i;
+                }
+            }
+        }
+
+        for (int i = (int)queries.size() - 1; i >= 0; i--) {
+            int op = queries[i][0], x = queries[i][1];
+            int root = dsu.find(x);
+            int station = minimumOnlineStations[root];
+
+            if (op == 1) {
+                if (online[x]) {
+                    retVal.push_back(x);
+                } else {
+                    retVal.push_back(station);
+                }
+            }
+
+            if (op == 2) {
+                if (offlineCounts[x] > 1) {
+                    offlineCounts[x]--;
+                } else {
+                    online[x] = true;
+                    if (station == -1 || station > x) {
+                        minimumOnlineStations[root] = x;
+                    }
+                }
+            }
+        }
+
+        reverse(retVal.begin(), retVal.end());
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class DSU:
+    def __init__(self, size: int) -> None:
+        self.parent = list(range(size))
+
+    def find(self, x: int) -> int:
+        retVal = 0
+
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        retVal = self.parent[x]
+
+        return retVal
+
+    def join(self, u: int, v: int) -> None:
+        self.parent[self.find(v)] = self.find(u)
+
+
+class Solution:
+    def processQueries(self, c: int, connections: List[List[int]], queries: List[List[int]]) -> List[int]:
+        retVal = []
+
+        dsu = DSU(c + 1)
+        for p in connections:
+            dsu.join(p[0], p[1])
+
+        online = [True] * (c + 1)
+        offline_counts = [0] * (c + 1)
+        for q in queries:
+            op, x = q[0], q[1]
+            if op == 2:
+                online[x] = False
+                offline_counts[x] += 1
+
+        minimum_online_stations = {}
+        for i in range(1, c + 1):
+            root = dsu.find(i)
+            if root not in minimum_online_stations:
+                minimum_online_stations[root] = -1
+
+            station = minimum_online_stations[root]
+            if online[i]:
+                if station == -1 or station > i:
+                    minimum_online_stations[root] = i
+
+        for i in range(len(queries) - 1, -1, -1):
+            op = queries[i][0]
+            x = queries[i][1]
+
+            root = dsu.find(x)
+            station = minimum_online_stations[root]
+
+            if op == 1:
+                if online[x]:
+                    retVal.append(x)
+                else:
+                    retVal.append(station)
+
+            if op == 2:
+                if offline_counts[x] > 1:
+                    offline_counts[x] -= 1
+                else:
+                    online[x] = True
+                    if station == -1 or station > x:
+                        minimum_online_stations[root] = x
+
+        retVal = retVal[::-1]
+
+        return retVal
+```
+
+</details>
