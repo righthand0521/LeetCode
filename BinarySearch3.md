@@ -2607,6 +2607,277 @@ class Solution:
 
 </details>
 
+## [2528. Maximize the Minimum Powered City](https://leetcode.com/problems/maximize-the-minimum-powered-city/)  2236
+
+- [Official](https://leetcode.com/problems/maximize-the-minimum-powered-city/editorial/)
+- [Official](https://leetcode.cn/problems/maximize-the-minimum-powered-city/solutions/3813498/zui-da-hua-cheng-shi-de-zui-xiao-dian-li-94lq/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed integer array stations of length n,
+where stations[i] represents the number of power stations in the ith city.
+
+Each power station can provide power to every city in a fixed range.
+In other words, if the range is denoted by r,
+then a power station at city i can provide power to all cities j such that |i - j| <= r and 0 <= i, j <= n - 1.
+- Note that |x| denotes absolute value. For example, |7 - 5| = 2 and |3 - 10| = 7.
+
+The power of a city is the total number of power stations it is being provided power from.
+
+The government has sanctioned building k more power stations, each of which can be built in any city,
+and have the same range as the pre-existing ones.
+
+Given the two integers r and k,
+return the maximum possible minimum power of a city, if the additional power stations are built optimally.
+
+Note that you can build the k power stations in multiple cities.
+
+Example 1:
+Input: stations = [1,2,4,5,0], r = 1, k = 2
+Output: 5
+Explanation:
+One of the optimal ways is to install both the power stations at city 1.
+So stations will become [1,4,4,5,0].
+- City 0 is provided by 1 + 4 = 5 power stations.
+- City 1 is provided by 1 + 4 + 4 = 9 power stations.
+- City 2 is provided by 4 + 4 + 5 = 13 power stations.
+- City 3 is provided by 5 + 4 = 9 power stations.
+- City 4 is provided by 5 + 0 = 5 power stations.
+So the minimum power of a city is 5.
+Since it is not possible to obtain a larger power, we return 5.
+
+Example 2:
+Input: stations = [4,4,4,4], r = 0, k = 3
+Output: 4
+Explanation:
+It can be proved that we cannot make the minimum power of a city greater than 4.
+
+Constraints:
+n == stations.length
+1 <= n <= 10^5
+0 <= stations[i] <= 10^5
+0 <= r <= n - 1
+0 <= k <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Pre calculate the number of stations on each city using Line Sweep.
+2. Use binary search to maximize the minimum.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool check(int r, long long k, long long val, long long* cnt, int stationsSize) {
+    bool retVal = true;
+
+    long long* diff = (long long*)malloc((stationsSize + 1) * sizeof(long long));
+    if (diff == NULL) {
+        perror("malloc");
+        retVal = false;
+        return retVal;
+    }
+    memcpy(diff, cnt, (stationsSize + 1) * sizeof(long long));
+
+    long long sum = 0;
+    long long add;
+    long long remaining = k;
+    int end;
+    for (int i = 0; i < stationsSize; i++) {
+        sum += diff[i];
+        if (sum >= val) {
+            continue;
+        }
+
+        add = val - sum;
+        if (remaining < add) {
+            retVal = false;
+            break;
+        }
+
+        remaining -= add;
+        end = fmin(stationsSize, i + 2 * r + 1);
+        diff[end] -= add;
+        sum += add;
+    }
+
+    //
+    free(diff);
+
+    return retVal;
+}
+long long maxPower(int* stations, int stationsSize, int r, int k) {
+    long long retVal = 0;
+
+    long long* cnt = (long long*)calloc(stationsSize + 1, sizeof(long long));
+    if (cnt == NULL) {
+        perror("calloc");
+        return retVal;
+    }
+    int left, right;
+    for (int i = 0; i < stationsSize; i++) {
+        left = fmax(0, i - r);
+        right = fmin(stationsSize, i + r + 1);
+        cnt[left] += stations[i];
+        cnt[right] -= stations[i];
+    }
+
+    long long minVal = LLONG_MAX;
+    long long sumTotal = 0;
+    for (int i = 0; i < stationsSize; i++) {
+        if (stations[i] < minVal) {
+            minVal = stations[i];
+        }
+        sumTotal += stations[i];
+    }
+    long long middle;
+    long long high = sumTotal + k;
+    long long low = minVal;
+    while (low <= high) {
+        middle = low + (high - low) / 2;
+        if (check(r, k, middle, cnt, stationsSize) == true) {
+            retVal = middle;
+            low = middle + 1;
+        } else {
+            high = middle - 1;
+        }
+    }
+
+    //
+    free(cnt);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    bool check(int r, int k, long long val, vector<long long>& cnt, int stationsSize) {
+        bool retVal = true;
+
+        vector<long long> diff = cnt;
+        long long sum = 0;
+        long long remaining = k;
+        for (int i = 0; i < stationsSize; i++) {
+            sum += diff[i];
+            if (sum >= val) {
+                continue;
+            }
+
+            long long add = val - sum;
+            if (remaining < add) {
+                retVal = false;
+                break;
+            }
+
+            remaining -= add;
+            int end = min(stationsSize, i + 2 * r + 1);
+            diff[end] -= add;
+            sum += add;
+        }
+
+        return retVal;
+    };
+
+   public:
+    long long maxPower(vector<int>& stations, int r, int k) {
+        long long retVal = 0;
+
+        int stationsSize = stations.size();
+
+        vector<long long> cnt(stationsSize + 1);
+        for (int i = 0; i < stationsSize; i++) {
+            int left = max(0, i - r);
+            int right = min(stationsSize, i + r + 1);
+            cnt[left] += stations[i];
+            cnt[right] -= stations[i];
+        }
+
+        long long low = *min_element(cnt.begin(), cnt.end());
+        long long high = accumulate(stations.begin(), stations.end(), 0LL) + k;
+        while (low <= high) {
+            long long middle = low + (high - low) / 2;
+            if (check(r, k, middle, cnt, stationsSize) == true) {
+                retVal = middle;
+                low = middle + 1;
+            } else {
+                high = middle - 1;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def check(self, r: int, k: int, val: int, cnt: List[int], stationsSize: int) -> bool:
+        retVal = True
+
+        diff = cnt.copy()
+        total = 0
+        remaining = k
+        for i in range(stationsSize):
+            total += diff[i]
+            if total >= val:
+                continue
+
+            add = val - total
+            if remaining < add:
+                retVal = False
+                break
+
+            remaining -= add
+            end = min(stationsSize, i + 2 * r + 1)
+            diff[end] -= add
+            total += add
+
+        return retVal
+
+    def maxPower(self, stations: List[int], r: int, k: int) -> int:
+        retVal = 0
+
+        stationsSize = len(stations)
+
+        cnt = [0] * (stationsSize + 1)
+        for i in range(stationsSize):
+            left = max(0, i - r)
+            right = min(stationsSize, i + r + 1)
+            cnt[left] += stations[i]
+            cnt[right] -= stations[i]
+
+        low = min(stations)
+        high = sum(stations) + k
+        while low <= high:
+            middle = (low + high) // 2
+            if self.check(r, k, middle, cnt, stationsSize):
+                retVal = middle
+                low = middle + 1
+            else:
+                high = middle - 1
+
+        return retVal
+```
+
+</details>
+
 ## [2560. House Robber IV](https://leetcode.com/problems/house-robber-iv/)  2081
 
 - [Official](https://leetcode.com/problems/house-robber-iv/editorial/)
