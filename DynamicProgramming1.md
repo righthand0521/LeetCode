@@ -6215,6 +6215,8 @@ class Solution:
 
 ## [474. Ones and Zeroes](https://leetcode.com/problems/ones-and-zeroes/)
 
+- [Official](https://leetcode.cn/problems/ones-and-zeroes/solutions/814806/yi-he-ling-by-leetcode-solution-u2z2/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -6248,28 +6250,25 @@ strs[i] consists only of digits '0' and '1'.
 <details><summary>C</summary>
 
 ```c
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
 int findMaxForm(char** strs, int strsSize, int m, int n) {
     int retVal = 0;
-
-    int i, j, k;
 
     int bitsCount[strsSize][2];
     memset(bitsCount, 0, sizeof(bitsCount));
     int len;
-    for (i = 0; i < strsSize; ++i) {
+    for (int i = 0; i < strsSize; ++i) {
         len = strlen(strs[i]);
-        for (j = 0; j < len; ++j) {
+        for (int j = 0; j < len; ++j) {
             ++bitsCount[i][(int)(strs[i][j] - '0')];
         }
     }
 
     int dp[m + 1][n + 1];
     memset(dp, 0, sizeof(dp));
-    for (i = 0; i < strsSize; ++i) {
-        for (j = m; j >= bitsCount[i][0]; --j) {
-            for (k = n; k >= bitsCount[i][1]; --k) {
-                dp[j][k] = MAX(dp[j][k], (dp[j - bitsCount[i][0]][k - bitsCount[i][1]] + 1));
+    for (int i = 0; i < strsSize; ++i) {
+        for (int j = m; j >= bitsCount[i][0]; --j) {
+            for (int k = n; k >= bitsCount[i][1]; --k) {
+                dp[j][k] = fmax(dp[j][k], (dp[j - bitsCount[i][0]][k - bitsCount[i][1]] + 1));
             }
         }
     }
@@ -6277,6 +6276,69 @@ int findMaxForm(char** strs, int strsSize, int m, int n) {
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int findMaxForm(vector<string>& strs, int m, int n) {
+        int retVal = 0;
+
+        int strsSize = strs.size();
+
+        vector<vector<int>> bitsCount(strsSize, vector<int>(2, 0));
+        for (int i = 0; i < strsSize; ++i) {
+            for (char c : strs[i]) {
+                ++bitsCount[i][c - '0'];
+            }
+        }
+
+        vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
+        for (int i = 0; i < strsSize; ++i) {
+            for (int j = m; j >= bitsCount[i][0]; --j) {
+                for (int k = n; k >= bitsCount[i][1]; --k) {
+                    dp[j][k] = max(dp[j][k], dp[j - bitsCount[i][0]][k - bitsCount[i][1]] + 1);
+                }
+            }
+        }
+        retVal = dp[m][n];
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def findMaxForm(self, strs: List[str], m: int, n: int) -> int:
+        retVal = 0
+
+        strsSize = len(strs)
+
+        bitsCount = [[0, 0] for _ in range(strsSize)]
+        for i in range(strsSize):
+            for c in strs[i]:
+                if c == '0':
+                    bitsCount[i][0] += 1
+                else:
+                    bitsCount[i][1] += 1
+
+        dp = [[0] * (n + 1) for _ in range(m + 1)]
+        for i in range(strsSize):
+            for j in range(m, bitsCount[i][0] - 1, -1):
+                for k in range(n, bitsCount[i][1] - 1, -1):
+                    dp[j][k] = max(dp[j][k], dp[j - bitsCount[i][0]][k - bitsCount[i][1]] + 1)
+        retVal = dp[m][n]
+
+        return retVal
 ```
 
 </details>
