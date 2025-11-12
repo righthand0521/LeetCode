@@ -2782,6 +2782,189 @@ class Solution:
 
 </details>
 
+## [2654. Minimum Number of Operations to Make All Array Elements Equal to 1](https://leetcode.com/problems/minimum-number-of-operations-to-make-all-array-elements-equal-to-1/)  1929
+
+- [Official](https://leetcode.com/problems/minimum-number-of-operations-to-make-all-array-elements-equal-to-1/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-number-of-operations-to-make-all-array-elements-equal-to-1/solutions/3823790/shi-shu-zu-suo-you-yuan-su-bian-cheng-1-v2rrc/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed array nums consisiting of positive integers.
+You can do the following operation on the array any number of times:
+- Select an index i such that 0 <= i < n - 1 and replace either of nums[i] or nums[i+1] with their gcd value.
+
+Return the minimum number of operations to make all elements of nums equal to 1. If it is impossible, return -1.
+
+The gcd of two integers is the greatest common divisor of the two integers.
+
+Example 1:
+Input: nums = [2,6,3,4]
+Output: 4
+Explanation: We can do the following operations:
+- Choose index i = 2 and replace nums[2] with gcd(3,4) = 1. Now we have nums = [2,6,1,4].
+- Choose index i = 1 and replace nums[1] with gcd(6,1) = 1. Now we have nums = [2,1,1,4].
+- Choose index i = 0 and replace nums[0] with gcd(2,1) = 1. Now we have nums = [1,1,1,4].
+- Choose index i = 2 and replace nums[3] with gcd(1,4) = 1. Now we have nums = [1,1,1,1].
+
+Example 2:
+Input: nums = [2,10,6,14]
+Output: -1
+Explanation: It can be shown that it is impossible to make all the elements equal to 1.
+
+Constraints:
+2 <= nums.length <= 50
+1 <= nums[i] <= 10^6
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Note that if you have at least one occurrence of 1 in the array,
+   then you can make all the other elements equal to 1 with one operation each.
+2. Try finding the shortest subarray with a gcd equal to 1.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int gcd(int a, int b) {
+    int retVal = 0;
+
+    int temp;
+    while (b != 0) {
+        temp = b;
+        b = a % b;
+        a = temp;
+    }
+    retVal = a;
+
+    return retVal;
+}
+int minOperations(int* nums, int numsSize) {
+    int retVal = -1;
+
+    int numberOfOne = 0;
+    int greatestCommonDivisor = 0;
+    for (int i = 0; i < numsSize; i++) {
+        if (nums[i] == 1) {
+            numberOfOne++;
+        }
+        greatestCommonDivisor = gcd(greatestCommonDivisor, nums[i]);
+    }
+    if (numberOfOne > 0) {
+        retVal = numsSize - numberOfOne;
+        return retVal;
+    } else if (greatestCommonDivisor > 1) {
+        return retVal;
+    }
+
+    int minNumsSize = numsSize;
+    for (int i = 0; i < numsSize; i++) {
+        greatestCommonDivisor = 0;
+        for (int j = i; j < numsSize; j++) {
+            greatestCommonDivisor = gcd(greatestCommonDivisor, nums[j]);
+            if (greatestCommonDivisor == 1) {
+                if (j - i + 1 < minNumsSize) {
+                    minNumsSize = j - i + 1;
+                }
+                break;
+            }
+        }
+    }
+    retVal = minNumsSize + numsSize - 2;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minOperations(vector<int>& nums) {
+        int retVal = -1;
+
+        int numsSize = nums.size();
+
+        int numberOfOne = 0;
+        int greatestCommonDivisor = 0;
+        for (int num : nums) {
+            if (num == 1) {
+                numberOfOne++;
+            }
+            greatestCommonDivisor = gcd(greatestCommonDivisor, num);
+        }
+        if (numberOfOne > 0) {
+            retVal = numsSize - numberOfOne;
+            return retVal;
+        } else if (greatestCommonDivisor > 1) {
+            return retVal;
+        }
+
+        int minNumsSize = numsSize;
+        for (int i = 0; i < numsSize; i++) {
+            greatestCommonDivisor = 0;
+            for (int j = i; j < numsSize; j++) {
+                greatestCommonDivisor = gcd(greatestCommonDivisor, nums[j]);
+                if (greatestCommonDivisor == 1) {
+                    minNumsSize = min(minNumsSize, j - i + 1);
+                    break;
+                }
+            }
+        }
+        retVal = minNumsSize + numsSize - 2;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minOperations(self, nums: List[int]) -> int:
+        retVal = -1
+
+        numsSize = len(nums)
+
+        numberOfOne = 0
+        greatestCommonDivisor = 0
+        for num in nums:
+            if num == 1:
+                numberOfOne += 1
+            greatestCommonDivisor = gcd(greatestCommonDivisor, num)
+        if numberOfOne > 0:
+            retVal = numsSize - numberOfOne
+            return retVal
+        elif greatestCommonDivisor > 1:
+            return retVal
+
+        minNumsSize = numsSize
+        for i in range(numsSize):
+            greatestCommonDivisor = 0
+            for j in range(i, numsSize):
+                greatestCommonDivisor = gcd(greatestCommonDivisor, nums[j])
+                if greatestCommonDivisor == 1:
+                    minNumsSize = min(minNumsSize, j - i + 1)
+                    break
+        retVal = minNumsSize + numsSize - 2
+
+        return retVal
+```
+
+</details>
+
 ## [2870. Minimum Number of Operations to Make Array Empty](https://leetcode.com/problems/minimum-number-of-operations-to-make-array-empty/)  1392
 
 - [Official](https://leetcode.com/problems/minimum-number-of-operations-to-make-array-empty/editorial/)
