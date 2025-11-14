@@ -3186,6 +3186,211 @@ class Solution:
 
 </details>
 
+## [2536. Increment Submatrices by One](https://leetcode.com/problems/increment-submatrices-by-one/)  1583
+
+- [Official](https://leetcode.com/problems/increment-submatrices-by-one/editorial/)
+- [Official](https://leetcode.cn/problems/increment-submatrices-by-one/solutions/3820749/zi-ju-zhen-yuan-su-jia-1-by-leetcode-sol-3iob/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a positive integer n,
+indicating that we initially have an n x n 0-indexed integer matrix mat filled with zeroes.
+
+You are also given a 2D integer array query.
+For each query[i] = [row1i, col1i, row2i, col2i], you should do the following operation:
+- Add 1 to every element in the submatrix with the top left corner (row1i, col1i)
+  and the bottom right corner (row2i, col2i).
+  That is, add 1 to mat[x][y] for all row1i <= x <= row2i and col1i <= y <= col2i.
+
+Return the matrix mat after performing every query.
+
+Example 1:
+Input: n = 3, queries = [[1,1,2,2],[0,0,1,1]]
+Output: [[1,1,0],[1,2,1],[0,1,1]]
+Explanation:
+The diagram above shows the initial matrix, the matrix after the first query, and the matrix after the second query.
+- In the first query, we add 1 to every element in the submatrix with the top left corner (1, 1)
+  and bottom right corner (2, 2).
+- In the second query, we add 1 to every element in the submatrix with the top left corner (0, 0)
+  and bottom right corner (1, 1).
+
+Example 2:
+Input: n = 2, queries = [[0,0,1,1]]
+Output: [[1,1],[1,1]]
+Explanation:
+The diagram above shows the initial matrix and the matrix after the first query.
+- In the first query we add 1 to every element in the matrix.
+
+Constraints:
+1 <= n <= 500
+1 <= queries.length <= 10^4
+0 <= row1i <= row2i < n
+0 <= col1i <= col2i < n
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Imagine each row as a separate array.
+   Instead of updating the whole submatrix together, we can use prefix sum to update each row separately.
+2. For each query, iterate over the rows i in the range [row1, row2] and add 1 to prefix sum S[i][col1],
+   and subtract 1 from S[i][col2 + 1].
+3. After doing this operation for all the queries, update each row separately with S[i][j] = S[i][j] + S[i][j - 1].
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int** rangeAddQueries(int n, int** queries, int queriesSize, int* queriesColSize, int* returnSize,
+                      int** returnColumnSizes) {
+    int** pRetVal = NULL;
+
+    (*returnSize) = 0;
+    (*returnColumnSizes) = NULL;
+
+    int diff[n + 1][n + 1];
+    memset(diff, 0, sizeof(diff));
+    int row1, col1, row2, col2;
+    for (int i = 0; i < queriesSize; ++i) {
+        row1 = queries[i][0];
+        col1 = queries[i][1];
+        row2 = queries[i][2];
+        col2 = queries[i][3];
+        diff[row1][col1] += 1;
+        diff[row2 + 1][col1] -= 1;
+        diff[row1][col2 + 1] -= 1;
+        diff[row2 + 1][col2 + 1] += 1;
+    }
+
+    (*returnColumnSizes) = (int*)malloc(n * sizeof(int));
+    if ((*returnColumnSizes) == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    pRetVal = (int**)malloc(n * sizeof(int*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        free((*returnColumnSizes));
+        (*returnColumnSizes) = NULL;
+        return pRetVal;
+    }
+    for (int i = 0; i < n; i++) {
+        pRetVal[i] = (int*)calloc(n, sizeof(int));
+        if (pRetVal[i] == NULL) {
+            perror("calloc");
+            for (int j = 0; j < i; j++) {
+                free(pRetVal[j]);
+                pRetVal[j] = NULL;
+            }
+            free(pRetVal);
+            pRetVal = NULL;
+            free((*returnColumnSizes));
+            (*returnColumnSizes) = NULL;
+            return pRetVal;
+        }
+        (*returnColumnSizes)[i] = n;
+    }
+    (*returnSize) = n;
+
+    int x1, x2, x3;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            x1 = (i == 0) ? (0) : (pRetVal[i - 1][j]);
+            x2 = (j == 0) ? (0) : (pRetVal[i][j - 1]);
+            x3 = ((i == 0) || (j == 0)) ? (0) : (pRetVal[i - 1][j - 1]);
+            pRetVal[i][j] = diff[i][j] + x1 + x2 - x3;
+        }
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<vector<int>> rangeAddQueries(int n, vector<vector<int>>& queries) {
+        vector<vector<int>> retVal;
+
+        vector diff(n + 1, vector<int>(n + 1));
+        for (const auto& query : queries) {
+            int row1 = query[0];
+            int col1 = query[1];
+            int row2 = query[2];
+            int col2 = query[3];
+            diff[row1][col1] += 1;
+            diff[row2 + 1][col1] -= 1;
+            diff[row1][col2 + 1] -= 1;
+            diff[row2 + 1][col2 + 1] += 1;
+        }
+
+        retVal = vector<vector<int>>(n, vector<int>(n));
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                int x1 = (i == 0) ? (0) : (retVal[i - 1][j]);
+                int x2 = (j == 0) ? (0) : (retVal[i][j - 1]);
+                int x3 = ((i == 0) || (j == 0)) ? (0) : (retVal[i - 1][j - 1]);
+                retVal[i][j] = diff[i][j] + x1 + x2 - x3;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def rangeAddQueries(self, n: int, queries: List[List[int]]) -> List[List[int]]:
+        retVal = []
+
+        diff = [[0] * (n + 1) for _ in range(n + 1)]
+        for row1, col1, row2, col2 in queries:
+            diff[row1][col1] += 1
+            diff[row2 + 1][col1] -= 1
+            diff[row1][col2 + 1] -= 1
+            diff[row2 + 1][col2 + 1] += 1
+
+        retVal = [[0] * n for _ in range(n)]
+        for i in range(n):
+            for j in range(n):
+                x1 = 0
+                if i != 0:
+                    x1 = retVal[i - 1][j]
+
+                x2 = 0
+                if j != 0:
+                    x2 = retVal[i][j - 1]
+
+                x3 = 0
+                if (i != 0) and (j != 0):
+                    x3 = retVal[i - 1][j - 1]
+
+                retVal[i][j] = diff[i][j] + x1 + x2 - x3
+
+        return retVal
+```
+
+</details>
+
 ## [2559. Count Vowel Strings in Ranges](https://leetcode.com/problems/count-vowel-strings-in-ranges/description/)  1435
 
 - [Official](https://leetcode.com/problems/count-vowel-strings-in-ranges/editorial/)
