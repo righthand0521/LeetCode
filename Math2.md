@@ -1031,6 +1031,145 @@ class Solution:
 
 </details>
 
+## [1513. Number of Substrings With Only 1s](https://leetcode.com/problems/number-of-substrings-with-only-1s/)  1351
+
+- [Official](https://leetcode.com/problems/number-of-substrings-with-only-1s/editorial/)
+- [Official](https://leetcode.cn/problems/number-of-substrings-with-only-1s/solutions/336478/jin-han-1-de-zi-chuan-shu-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+Given a binary string s, return the number of substrings with all characters 1's.
+Since the answer may be too large, return it modulo 10^9 + 7.
+
+Example 1:
+Input: s = "0110111"
+Output: 9
+Explanation: There are 9 substring in total with only 1's characters.
+"1" -> 5 times.
+"11" -> 3 times.
+"111" -> 1 time.
+
+Example 2:
+Input: s = "101"
+Output: 2
+Explanation: Substring "1" is shown 2 times in s.
+
+Example 3:
+Input: s = "111111"
+Output: 21
+Explanation: Each substring contains only 1's characters.
+
+Constraints:
+1 <= s.length <= 10^5
+s[i] is either '0' or '1'.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Count number of 1s in each consecutive-1 group.
+   For a group with n consecutive 1s, the total contribution of it to the final answer is (n + 1) * n // 2.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MODULO (int)(1e9 + 7)
+int numSub(char* s) {
+    int retVal = 0;
+
+    long long total = 0;
+    long long consecutiveOneCount = 0;
+    int sSize = strlen(s);
+    for (int i = 0; i < sSize; ++i) {
+        if (s[i] == '1') {
+            ++consecutiveOneCount;
+        } else {
+            total += (consecutiveOneCount * (consecutiveOneCount + 1) / 2);
+            total %= MODULO;
+            consecutiveOneCount = 0;
+        }
+    }
+    total += (consecutiveOneCount * (consecutiveOneCount + 1) / 2);
+    total %= MODULO;
+
+    retVal = (int)total;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    static constexpr int MODULO = 1e9 + 7;
+
+   public:
+    int numSub(string s) {
+        int retVal = 0;
+
+        long long total = 0;
+        long long consecutiveOneCount = 0;
+        for (char c : s) {
+            if (c == '1') {
+                ++consecutiveOneCount;
+            } else {
+                total += (consecutiveOneCount * (consecutiveOneCount + 1) / 2);
+                total %= MODULO;
+                consecutiveOneCount = 0;
+            }
+        }
+        total += (consecutiveOneCount * (consecutiveOneCount + 1) / 2);
+        total %= MODULO;
+
+        retVal = static_cast<int>(total);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.MODULO = 10 ** 9 + 7
+
+    def numSub(self, s: str) -> int:
+        retVal = 0
+
+        consecutiveOneCount = 0
+        for char in s:
+            if char == '1':
+                consecutiveOneCount += 1
+                continue
+
+            if consecutiveOneCount > 0:
+                retVal += ((consecutiveOneCount * (consecutiveOneCount + 1)) // 2)
+                retVal %= self.MODULO
+                consecutiveOneCount = 0
+
+        if consecutiveOneCount > 0:
+            retVal += ((consecutiveOneCount * (consecutiveOneCount + 1)) // 2)
+            retVal %= self.MODULO
+
+        return retVal
+```
+
+</details>
+
 ## [1518. Water Bottles](https://leetcode.com/problems/water-bottles/)  1245
 
 - [Official](https://leetcode.com/problems/water-bottles/editorial/)
