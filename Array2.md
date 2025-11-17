@@ -1219,6 +1219,117 @@ class Solution:
 
 </details>
 
+## [1437. Check If All 1's Are at Least Length K Places Away](https://leetcode.com/problems/check-if-all-1s-are-at-least-length-k-places-away/)  1193
+
+- [Official](https://leetcode.cn/problems/check-if-all-1s-are-at-least-length-k-places-away/solutions/514370/shi-fou-suo-you-1-du-zhi-shao-xiang-ge-k-bxwl/)
+
+<details><summary>Description</summary>
+
+```text
+Given an binary array nums and an integer k,
+return true if all 1's are at least k places away from each other, otherwise return false.
+
+Example 1:
+Input: nums = [1,0,0,0,1,0,0,1], k = 2
+Output: true
+Explanation: Each of the 1s are at least 2 places away from each other.
+
+Example 2:
+Input: nums = [1,0,0,1,0,1], k = 2
+Output: false
+Explanation: The second 1 and third 1 are only one apart from each other.
+
+Constraints:
+1 <= nums.length <= 10^5
+0 <= k <= nums.length
+nums[i] is 0 or 1
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Each time you find a number 1, check whether or not it is K or more places away from the next one.
+   If it's not, return false.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool kLengthApart(int* nums, int numsSize, int k) {
+    bool retVal = false;
+
+    int previous = -1;
+    for (int i = 0; i < numsSize; ++i) {
+        if (nums[i] != 1) {
+            continue;
+        }
+        if ((previous != -1) && (i - previous - 1 < k)) {
+            return retVal;
+        }
+        previous = i;
+    }
+    retVal = true;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool kLengthApart(vector<int>& nums, int k) {
+        bool retVal = false;
+
+        int numsSize = nums.size();
+        int previous = -1;
+        for (int i = 0; i < numsSize; ++i) {
+            if (nums[i] != 1) {
+                continue;
+            }
+            if ((previous != -1) && (i - previous - 1 < k)) {
+                return retVal;
+            }
+            previous = i;
+        }
+        retVal = true;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def kLengthApart(self, nums: List[int], k: int) -> bool:
+        retVal = False
+
+        numsSize = len(nums)
+        previous = -1
+        for i in range(numsSize):
+            if nums[i] != 1:
+                continue
+            if (previous != -1) and (i - previous - 1 < k):
+                return retVal
+            previous = i
+        retVal = True
+
+        return retVal
+```
+
+</details>
+
 ## [1464. Maximum Product of Two Elements in an Array](https://leetcode.com/problems/maximum-product-of-two-elements-in-an-array/)  1121
 
 - [Official](https://leetcode.com/problems/maximum-product-of-two-elements-in-an-array/editorial/)
