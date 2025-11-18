@@ -3325,6 +3325,103 @@ class Solution:
 
 </details>
 
+## [717. 1-bit and 2-bit Characters](https://leetcode.com/problems/1-bit-and-2-bit-characters/)
+
+- [Official](https://leetcode.com/problems/1-bit-and-2-bit-characters/editorial/)
+- [Official](https://leetcode.cn/problems/1-bit-and-2-bit-characters/solutions/1264760/1bi-te-yu-2bi-te-zi-fu-by-leetcode-solut-rhrh/)
+
+<details><summary>Description</summary>
+
+```text
+We have two special characters:
+- The first character can be represented by one bit 0.
+- The second character can be represented by two bits (10 or 11).
+
+Given a binary array bits that ends with 0, return true if the last character must be a one-bit character.
+
+Example 1:
+Input: bits = [1,0,0]
+Output: true
+Explanation: The only way to decode it is two-bit character and one-bit character.
+So the last character is one-bit character.
+
+Example 2:
+Input: bits = [1,1,1,0]
+Output: false
+Explanation: The only way to decode it is two-bit character and two-bit character.
+So the last character is not one-bit character.
+
+Constraints:
+1 <= bits.length <= 1000
+bits[i] is either 0 or 1.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Keep track of where the next character starts. At the end, you want to know if you started on the last bit.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool isOneBitCharacter(int* bits, int bitsSize) {
+    bool retVal = false;
+
+    int i = bitsSize - 2;
+    while ((i >= 0) && (bits[i] > 0)) {
+        i--;
+    }
+    retVal = ((bitsSize - i) % 2 == 0);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool isOneBitCharacter(vector<int>& bits) {
+        bool retVal = false;
+
+        int i = bits.size() - 2;
+        while ((i >= 0) && (bits[i] > 0)) {
+            i--;
+        }
+        retVal = ((bits.size() - i) % 2 == 0);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def isOneBitCharacter(self, bits: List[int]) -> bool:
+        retVal = False
+
+        parity = bits.pop()
+        while (bits) and (bits.pop()):
+            parity ^= 1
+        retVal = (parity == 0)
+
+        return retVal
+```
+
+</details>
+
 ## [744. Find Smallest Letter Greater Than Target](https://leetcode.com/problems/find-smallest-letter-greater-than-target/)
 
 - [Official](https://leetcode.com/problems/find-smallest-letter-greater-than-target/editorial/)
