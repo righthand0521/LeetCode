@@ -796,6 +796,9 @@ bool checkValid(int** matrix, int matrixSize, int* matrixColSize){
 
 ## [2154. Keep Multiplying Found Values by Two](https://leetcode.com/problems/keep-multiplying-found-values-by-two/)  1235
 
+- [Official](https://leetcode.com/problems/keep-multiplying-found-values-by-two/editorial/)
+- [Official](https://leetcode.cn/problems/keep-multiplying-found-values-by-two/solutions/1249143/jiang-zhao-dao-de-zhi-cheng-yi-2-by-leet-blv4/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -828,16 +831,81 @@ Constraints:
 1 <= nums[i], original <= 1000
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. Repeatedly iterate through the array and check if the current value of original is in the array.
+2. If original is not found, stop and return its current value.
+3. Otherwise, multiply original by 2 and repeat the process.
+4. Use set data structure to check the existence faster.
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
 
 ```c
+#define HASH_TABLE_SIZE (1)
+#if (HASH_TABLE_SIZE)
+struct hashTable {
+    int key;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable* pFree) {
+    struct hashTable* current;
+    struct hashTable* tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d\n", pFree->key);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+#else
 int compareInteger(const void* n1, const void* n2) {
     // ascending order
     return (*(int*)n1 > *(int*)n2);
 }
+#endif
 int findFinalValue(int* nums, int numsSize, int original) {
+#if (HASH_TABLE_SIZE)
+    int retVal = 0;
+
+    struct hashTable* pHashTable = NULL;
+    struct hashTable* pTemp;
+    int key;
+    for (int i = 0; i < numsSize; ++i) {
+        key = nums[i];
+
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTable, &key, pTemp);
+        if (pTemp != NULL) {
+            continue;
+        }
+        pTemp = (struct hashTable*)malloc(sizeof(struct hashTable));
+        if (pTemp == NULL) {
+            perror("malloc");
+            freeAll(pHashTable);
+            return retVal;
+        }
+        pTemp->key = key;
+        HASH_ADD_INT(pHashTable, key, pTemp);
+    }
+    while (1) {
+        key = original;
+        pTemp = NULL;
+        HASH_FIND_INT(pHashTable, &key, pTemp);
+        if (pTemp != NULL) {
+            original *= 2;
+        } else {
+            break;
+        }
+    }
+    retVal = original;
+    //
+    freeAll(pHashTable);
+#else
     int retVal = original;
 
     qsort(nums, numsSize, sizeof(int), compareInteger);
@@ -848,9 +916,48 @@ int findFinalValue(int* nums, int numsSize, int original) {
             retVal *= 2;
         }
     }
+#endif
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int findFinalValue(vector<int>& nums, int original) {
+        int retVal = 0;
+
+        unordered_set<int> hashTable(nums.begin(), nums.end());
+        while (hashTable.count(original)) {
+            original *= 2;
+        }
+        retVal = original;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def findFinalValue(self, nums: List[int], original: int) -> int:
+        retVal = 0
+
+        hashTable = set(nums)
+        while original in hashTable:
+            original *= 2
+        retVal = original
+
+        return retVal
 ```
 
 </details>
