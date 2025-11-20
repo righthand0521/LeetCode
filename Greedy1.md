@@ -2089,6 +2089,191 @@ class Solution:
 
 </details>
 
+## [757. Set Intersection Size At Least Two](https://leetcode.com/problems/set-intersection-size-at-least-two/)  2379
+
+- [Official](https://leetcode.com/problems/set-intersection-size-at-least-two/editorial/)
+- [Official](https://leetcode.cn/problems/set-intersection-size-at-least-two/solutions/1686623/she-zhi-jiao-ji-da-xiao-zhi-shao-wei-2-b-vuiv/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 2D integer array intervals
+where intervals[i] = [starti, endi] represents all the integers from starti to endi inclusively.
+
+A containing set is an array nums where each interval from intervals has at least two integers in nums.
+- For example, if intervals = [[1,3], [3,7], [8,9]], then [1,2,4,7,8,9] and [2,3,4,8,9] are containing sets.
+
+Return the minimum possible size of a containing set.
+
+Example 1:
+Input: intervals = [[1,3],[3,7],[8,9]]
+Output: 5
+Explanation: let nums = [2, 3, 4, 8, 9].
+It can be shown that there cannot be any containing array of size 4.
+
+Example 2:
+Input: intervals = [[1,3],[1,4],[2,5],[3,5]]
+Output: 3
+Explanation: let nums = [2, 3, 4].
+It can be shown that there cannot be any containing array of size 2.
+
+Example 3:
+Input: intervals = [[1,2],[2,3],[2,4],[4,5]]
+Output: 5
+Explanation: let nums = [1, 2, 3, 4, 5].
+It can be shown that there cannot be any containing array of size 4.
+
+Constraints:
+1 <= intervals.length <= 3000
+intervals[i].length == 2
+0 <= starti < endi <= 10^8
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+void help(int** intervals, int** temp, int* colSize, int pos, int num) {
+    for (int i = pos; i >= 0; i--) {
+        if (intervals[i][1] < num) {
+            break;
+        }
+        temp[i][colSize[i]++] = num;
+    }
+}
+int compareIntArray(const void* a1, const void* a2) {
+    const int* p1 = *(const int**)a1;
+    const int* p2 = *(const int**)a2;
+
+    // ascending order
+    if (p1[0] == p2[0]) {
+        return (p1[1] < p2[1]);
+    }
+
+    return (p1[0] > p2[0]);
+}
+int intersectionSizeTwo(int** intervals, int intervalsSize, int* intervalsColSize) {
+    int retVal = 0;
+
+    qsort(intervals, intervalsSize, sizeof(int*), compareIntArray);
+
+    int** temp = (int**)malloc(sizeof(int*) * intervalsSize);
+    if (temp == NULL) {
+        perror("malloc");
+        return retVal;
+    }
+    for (int i = 0; i < intervalsSize; i++) {
+        temp[i] = (int*)malloc(sizeof(int) * 2);
+        if (temp[i] == NULL) {
+            perror("malloc");
+            goto exit;
+        }
+    }
+    int* colSize = (int*)malloc(sizeof(int) * intervalsSize);
+    if (colSize == NULL) {
+        perror("malloc");
+        goto exit;
+    }
+    memset(colSize, 0, sizeof(int) * intervalsSize);
+    for (int i = intervalsSize - 1; i >= 0; i--) {
+        for (int j = intervals[i][0], k = colSize[i]; k < 2; j++, k++) {
+            retVal++;
+            help(intervals, temp, colSize, i - 1, j);
+        }
+    }
+
+    //
+    free(colSize);
+    colSize = NULL;
+exit:
+    for (int i = 0; i < intervalsSize; i++) {
+        if (temp[i] != NULL) {
+            free(temp[i]);
+            temp[i] = NULL;
+        }
+    }
+    free(temp);
+    temp = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    void help(vector<vector<int>>& intervals, vector<vector<int>>& temp, int pos, int num) {
+        for (int i = pos; i >= 0; i--) {
+            if (intervals[i][1] < num) {
+                break;
+            }
+            temp[i].emplace_back(num);
+        }
+    }
+
+   public:
+    int intersectionSizeTwo(vector<vector<int>>& intervals) {
+        int retVal = 0;
+
+        sort(intervals.begin(), intervals.end(), [&](vector<int>& a, vector<int>& b) {
+            if (a[0] == b[0]) {
+                return a[1] > b[1];
+            }
+            return a[0] < b[0];
+        });
+
+        int intervalsSize = intervals.size();
+        vector<vector<int>> temp(intervalsSize);
+        for (int i = intervalsSize - 1; i >= 0; i--) {
+            int tempSize = temp[i].size();
+            for (int j = intervals[i][0], k = tempSize; k < 2; j++, k++) {
+                retVal++;
+                help(intervals, temp, i - 1, j);
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def intersectionSizeTwo(self, intervals: List[List[int]]) -> int:
+        retVal = 0
+
+        intervals.sort(key=lambda x: (x[0], -x[1]))
+
+        intervalsSize = len(intervals)
+        vals = [[] for _ in range(intervalsSize)]
+        for i in range(intervalsSize - 1, -1, -1):
+            j = intervals[i][0]
+
+            valsSize = len(vals[i])
+            for k in range(valsSize, 2):
+                retVal += 1
+
+                for p in range(i - 1, -1, -1):
+                    if intervals[p][1] < j:
+                        break
+                    vals[p].append(j)
+
+                j += 1
+
+        return retVal
+```
+
+</details>
+
 ## [763. Partition Labels](https://leetcode.com/problems/partition-labels/)  1443
 
 - [Official](https://leetcode.com/problems/partition-labels/editorial/)
