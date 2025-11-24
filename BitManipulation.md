@@ -2624,6 +2624,118 @@ class Solution:
 
 </details>
 
+## [1018. Binary Prefix Divisible By 5](https://leetcode.com/problems/binary-prefix-divisible-by-5/)  1376
+
+- [Official](https://leetcode.com/problems/binary-prefix-divisible-by-5/editorial/)
+- [Official](https://leetcode.cn/problems/binary-prefix-divisible-by-5/solutions/558959/ke-bei-5-zheng-chu-de-er-jin-zhi-qian-zh-asih/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a binary array nums (0-indexed).
+
+We define xi as the number whose binary representation is the subarray nums[0..i]
+(from most-significant-bit to least-significant-bit).
+- For example, if nums = [1,0,1], then x0 = 1, x1 = 2, and x2 = 5.
+
+Return an array of booleans answer where answer[i] is true if xi is divisible by 5.
+
+Example 1:
+Input: nums = [0,1,1]
+Output: [true,false,false]
+Explanation: The input numbers in binary are 0, 01, 011; which are 0, 1, and 3 in base-10.
+Only the first number is divisible by 5, so answer[0] is true.
+
+Example 2:
+Input: nums = [1,1,1]
+Output: [false,false,false]
+
+Constraints:
+1 <= nums.length <= 10^5
+nums[i] is either 0 or 1.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. If X is the first i digits of the array as a binary number, then 2X + A[i] is the first i+1 digits.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+bool* prefixesDivBy5(int* nums, int numsSize, int* returnSize) {
+    bool* pRetVal = NULL;
+
+    (*returnSize) = 0;
+    pRetVal = (bool*)malloc(numsSize * sizeof(bool));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, false, (numsSize) * sizeof(bool));
+
+    int prefix = 0;
+    for (int i = 0; i < numsSize; ++i) {
+        prefix = ((prefix << 1) + nums[i]) % 5;
+        if (prefix == 0) {
+            pRetVal[(*returnSize)++] = true;
+        } else {
+            pRetVal[(*returnSize)++] = false;
+        }
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<bool> prefixesDivBy5(vector<int>& nums) {
+        vector<bool> retVal;
+
+        int prefix = 0;
+        for (int num : nums) {
+            prefix = ((prefix << 1) + num) % 5;
+            retVal.emplace_back(prefix == 0);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def prefixesDivBy5(self, nums: List[int]) -> List[bool]:
+        retVal = []
+
+        prefix = 0
+        for num in nums:
+            prefix = ((prefix << 1) + num) % 5
+            retVal.append(prefix == 0)
+
+        return retVal
+```
+
+</details>
+
 ## [1318. Minimum Flips to Make a OR b Equal to c](https://leetcode.com/problems/minimum-flips-to-make-a-or-b-equal-to-c/)  1382
 
 - [Official](https://leetcode.com/problems/minimum-flips-to-make-a-or-b-equal-to-c/editorial/)
