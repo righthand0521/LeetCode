@@ -1151,6 +1151,160 @@ class Solution:
 
 </details>
 
+## [2435. Paths in Matrix Whose Sum Is Divisible by K](https://leetcode.com/problems/paths-in-matrix-whose-sum-is-divisible-by-k/)  1952
+
+- [Official](https://leetcode.com/problems/paths-in-matrix-whose-sum-is-divisible-by-k/editorial/)
+- [Official](https://leetcode.cn/problems/paths-in-matrix-whose-sum-is-divisible-by-k/solutions/3835592/ju-zhen-zhong-he-neng-bei-k-zheng-chu-de-67ra/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed m x n integer matrix grid and an integer k.
+You are currently at position (0, 0) and you want to reach position (m - 1, n - 1) moving only down or right.
+
+Return the number of paths where the sum of the elements on the path is divisible by k.
+Since the answer may be very large, return it modulo 10^9 + 7.
+
+Example 1:
+Input: grid = [[5,2,4],[3,0,5],[0,7,2]], k = 3
+Output: 2
+Explanation: There are two paths where the sum of the elements on the path is divisible by k.
+The first path highlighted in red has a sum of 5 + 2 + 4 + 5 + 2 = 18 which is divisible by 3.
+The second path highlighted in blue has a sum of 5 + 3 + 0 + 5 + 2 = 15 which is divisible by 3.
+
+Example 2:
+Input: grid = [[0,0]], k = 5
+Output: 1
+Explanation: The path highlighted in red has a sum of 0 + 0 = 0 which is divisible by 5.
+
+Example 3:
+Input: grid = [[7,3,4,9],[2,3,6,2],[2,3,7,0]], k = 1
+Output: 10
+Explanation: Every integer is divisible by 1 so the sum of the elements on every possible path is divisible by k.
+
+Constraints:
+m == grid.length
+n == grid[i].length
+1 <= m, n <= 5 * 10^4
+1 <= m * n <= 5 * 10^4
+0 <= grid[i][j] <= 100
+1 <= k <= 50
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. The actual numbers in grid do not matter. What matters are the remainders you get when you divide the numbers by k.
+2. We can use dynamic programming to solve this problem. What can we use as states?
+3. Let dp[i][j][value] represent the number of paths
+   where the sum of the elements on the path has a remainder of value when divided by k.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MODULO (int)(1e9 + 7)
+int numberOfPaths(int** grid, int gridSize, int* gridColSize, int k) {
+    int retVal = 0;
+
+    int rowSize = gridSize;
+    int colSize = gridColSize[0];
+    long long dp[(rowSize + 1)][(colSize + 1)][k];
+    memset(dp, 0, sizeof(dp));
+
+    int value, prevMod;
+    for (int i = 1; i <= rowSize; i++) {
+        for (int j = 1; j <= colSize; j++) {
+            if ((i == 1) && (j == 1)) {
+                dp[i][j][grid[0][0] % k] = 1;
+                continue;
+            }
+
+            value = grid[i - 1][j - 1] % k;
+            for (int r = 0; r < k; r++) {
+                prevMod = (r - value + k) % k;
+                dp[i][j][r] = (dp[i - 1][j][prevMod] + dp[i][j - 1][prevMod]) % MODULO;
+            }
+        }
+    }
+    retVal = dp[rowSize][colSize][0];
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    static constexpr int MODULO = 1e9 + 7;
+
+   public:
+    int numberOfPaths(vector<vector<int>>& grid, int k) {
+        int retVal = 0;
+
+        int gridSize = grid.size();
+        int gridColSize = grid[0].size();
+        auto dp = vector(gridSize + 1, vector(gridColSize + 1, vector<long long>(k)));
+        for (int i = 1; i <= gridSize; i++) {
+            for (int j = 1; j <= gridColSize; j++) {
+                if ((i == 1) && (j == 1)) {
+                    dp[i][j][grid[0][0] % k] = 1;
+                    continue;
+                }
+
+                int value = grid[i - 1][j - 1] % k;
+                for (int r = 0; r < k; r++) {
+                    int prevMod = (r - value + k) % k;
+                    dp[i][j][r] = (dp[i - 1][j][prevMod] + dp[i][j - 1][prevMod]) % MODULO;
+                }
+            }
+        }
+        retVal = dp[gridSize][gridColSize][0];
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self):
+        self.MODULO = 10 ** 9 + 7
+
+    def numberOfPaths(self, grid: List[List[int]], k: int) -> int:
+        retVal = 0
+
+        gridSize = len(grid)
+        gridColSize = len(grid[0])
+        dp = [[[0] * k for _ in range(gridColSize + 1)] for _ in range(gridSize + 1)]
+        for i in range(1, gridSize + 1):
+            for j in range(1, gridColSize + 1):
+                if (i == 1) and (j == 1):
+                    dp[i][j][grid[0][0] % k] = 1
+                    continue
+                value = grid[i - 1][j - 1] % k
+                for r in range(k):
+                    prev_mod = (r - value + k) % k
+                    dp[i][j][r] = (dp[i - 1][j][prev_mod] + dp[i][j - 1][prev_mod]) % self.MODULO
+        retVal = dp[gridSize][gridColSize][0]
+
+        return retVal
+```
+
+</details>
+
 ## [2463. Minimum Total Distance Traveled](https://leetcode.com/problems/minimum-total-distance-traveled/)  2453
 
 - [Official](https://leetcode.com/problems/minimum-total-distance-traveled/editorial/)
