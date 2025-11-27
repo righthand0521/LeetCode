@@ -4508,3 +4508,131 @@ class Solution:
 ```
 
 </details>
+
+## [3381. Maximum Subarray Sum With Length Divisible by K](https://leetcode.com/problems/maximum-subarray-sum-with-length-divisible-by-k/)  1943
+
+- [Official](https://leetcode.com/problems/maximum-subarray-sum-with-length-divisible-by-k/editorial/)
+- [Official](https://leetcode.cn/problems/maximum-subarray-sum-with-length-divisible-by-k/solutions/3837035/chang-du-ke-bei-k-zheng-chu-de-zi-shu-zu-dzxb/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an array of integers nums and an integer k.
+
+Return the maximum sum of a subarray of nums, such that the size of the subarray is divisible by k.
+
+Example 1:
+Input: nums = [1,2], k = 1
+Output: 3
+Explanation:
+The subarray [1, 2] with sum 3 has length equal to 2 which is divisible by 1.
+
+Example 2:
+Input: nums = [-1,-2,-3,-4,-5], k = 4
+Output: -10
+Explanation:
+The maximum sum subarray is [-1, -2, -3, -4] which has length equal to 4 which is divisible by 4.
+
+Example 3:
+Input: nums = [-5,1,2,-3,4], k = 2
+Output: 4
+Explanation:
+The maximum sum subarray is [1, 2, -3, 4] which has length equal to 4 which is divisible by 2.
+
+Constraints:
+1 <= k <= nums.length <= 2 * 10^5
+-10^9 <= nums[i] <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Maintain minimum prefix sum ending at every possible index%k.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+long long maxSubarraySum(int* nums, int numsSize, int k) {
+    long long retVal = 0;
+
+    long long prefixSum = 0;
+    long long maxSum = LONG_MIN;
+    long long kSum[k];
+    for (int i = 0; i < k; i++) {
+        kSum[i] = LLONG_MAX / 2;
+    }
+    kSum[k - 1] = 0;
+
+    for (int i = 0; i < numsSize; i++) {
+        prefixSum += nums[i];
+        if (prefixSum - kSum[i % k] > maxSum) {
+            maxSum = prefixSum - kSum[i % k];
+        }
+        if (prefixSum < kSum[i % k]) {
+            kSum[i % k] = prefixSum;
+        }
+    }
+    retVal = maxSum;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    long long maxSubarraySum(vector<int>& nums, int k) {
+        long long retVal = 0;
+
+        int numsSize = nums.size();
+
+        long long prefixSum = 0;
+        long long maxSum = numeric_limits<long long>::min();
+        vector<long long> kSum(k, numeric_limits<long long>::max() / 2);
+        kSum[k - 1] = 0;
+        for (int i = 0; i < numsSize; i++) {
+            prefixSum += nums[i];
+            maxSum = max(maxSum, prefixSum - kSum[i % k]);
+            kSum[i % k] = min(kSum[i % k], prefixSum);
+        }
+        retVal = maxSum;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxSubarraySum(self, nums: List[int], k: int) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+
+        prefixSum = 0
+        maxSum = -sys.maxsize
+        kSum = [sys.maxsize // 2] * k
+        kSum[k - 1] = 0
+        for i in range(numsSize):
+            prefixSum += nums[i]
+            maxSum = max(maxSum, prefixSum - kSum[i % k])
+            kSum[i % k] = min(kSum[i % k], prefixSum)
+        retVal = maxSum
+
+        return retVal
+```
+
+</details>
