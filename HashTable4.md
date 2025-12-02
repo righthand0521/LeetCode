@@ -3206,3 +3206,180 @@ class Solution:
 ```
 
 </details>
+
+## [3623. Count Number of Trapezoids I](https://leetcode.com/problems/count-number-of-trapezoids-i/)  1580
+
+- [Official](https://leetcode.com/problems/count-number-of-trapezoids-i/editorial/)
+- [Official](https://leetcode.cn/problems/count-number-of-trapezoids-i/solutions/3844282/tong-ji-ti-xing-de-shu-mu-i-by-leetcode-ziwtk/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 2D integer array points,
+where points[i] = [xi, yi] represents the coordinates of the ith point on the Cartesian plane.
+
+A horizontal trapezoid is a convex quadrilateral with at least one pair of horizontal sides (i.e. parallel to the x-axis).
+Two lines are parallel if and only if they have the same slope.
+
+Return the number of unique horizontal trapezoids that can be formed by choosing any four distinct points from points.
+
+Since the answer may be very large, return it modulo 10^9 + 7.
+
+Example 1:
+Input: points = [[1,0],[2,0],[3,0],[2,2],[3,2]]
+Output: 3
+Explanation:
+There are three distinct ways to pick four points that form a horizontal trapezoid:
+- Using points [1,0], [2,0], [3,2], and [2,2].
+- Using points [2,0], [3,0], [3,2], and [2,2].
+- Using points [1,0], [3,0], [3,2], and [2,2].
+
+Example 2:
+Input: points = [[0,0],[1,0],[0,1],[2,1]]
+Output: 1
+Explanation:
+There is only one horizontal trapezoid that can be formed.
+
+Constraints:
+4 <= points.length <= 10^5
+–10^8 <= xi, yi <= 10^8
+All points are pairwise distinct.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. For a line parallel to the x‑axis, all its points must share the same y‑coordinate.
+2. Group the points by their y‑coordinate.
+3. Choose two distinct groups (two horizontal lines), and from each group select two points to form a trapezoid.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MODULO (int)(1e9 + 7)
+struct hashStruct {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashStruct* pFree) {
+    struct hashStruct* current;
+    struct hashStruct* tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int countTrapezoids(int** points, int pointsSize, int* pointsColSize) {
+    int retVal = 0;
+
+    struct hashStruct* pointNum = NULL;
+    struct hashStruct* pTemp;
+    int value;
+    for (int i = 0; i < pointsSize; i++) {
+        value = points[i][1];
+
+        pTemp = NULL;
+        HASH_FIND_INT(pointNum, &value, pTemp);
+        if (pTemp == NULL) {
+            pTemp = (struct hashStruct*)malloc(sizeof(struct hashStruct));
+            if (pTemp == NULL) {
+                perror("malloc");
+                freeAll(pointNum);
+                return retVal;
+            }
+            pTemp->key = points[i][1];
+            pTemp->value = 1;
+            HASH_ADD_INT(pointNum, key, pTemp);
+        } else {
+            pTemp->value += 1;
+        }
+    }
+
+    long long ans = 0;
+    long long sum = 0;
+    long long pNum, edge;
+    for (pTemp = pointNum; pTemp; pTemp = pTemp->hh.next) {
+        pNum = pTemp->value;
+        edge = pNum * (pNum - 1) / 2;
+
+        ans += (edge * sum);
+        ans %= MODULO;
+        sum += edge;
+        sum %= MODULO;
+    }
+    retVal = ans % MODULO;
+
+    //
+    freeAll(pointNum);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    static constexpr int MODULO = 1e9 + 7;
+
+   public:
+    int countTrapezoids(vector<vector<int>>& points) {
+        int retVal = 0;
+
+        unordered_map<int, int> pointNum;
+        for (auto& point : points) {
+            pointNum[point[1]]++;
+        }
+
+        long long ans = 0;
+        long long totalSum = 0;
+        for (auto& [_, point] : pointNum) {
+            long long edge = (long long)point * (point - 1) / 2;
+            ans += (edge * totalSum);
+            ans %= MODULO;
+            totalSum += edge;
+            totalSum %= MODULO;
+        }
+        retVal = ans % MODULO;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self):
+        self.MODULO = 10 ** 9 + 7
+
+    def countTrapezoids(self, points: List[List[int]]) -> int:
+        retVal = 0
+
+        pointNum = defaultdict(int)
+        for point in points:
+            pointNum[point[1]] += 1
+
+        totalSum = 0
+        for point in pointNum.values():
+            edge = point * (point - 1) // 2
+            retVal = (retVal + edge * totalSum) % self.MODULO
+            totalSum = (totalSum + edge) % self.MODULO
+
+        return retVal
+```
+
+</details>
