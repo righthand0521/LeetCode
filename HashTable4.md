@@ -3383,3 +3383,206 @@ class Solution:
 ```
 
 </details>
+
+## [3625. Count Number of Trapezoids II](https://leetcode.com/problems/count-number-of-trapezoids-ii/)
+
+- [Official](https://leetcode.com/problems/count-number-of-trapezoids-ii/editorial/)
+- [Official](https://leetcode.cn/problems/count-number-of-trapezoids-ii/solutions/3844283/tong-ji-ti-xing-de-shu-mu-ii-by-leetcode-6uwd/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 2D integer array points
+where points[i] = [xi, yi] represents the coordinates of the ith point on the Cartesian plane.
+
+Return the number of unique trapezoids that can be formed by choosing any four distinct points from points.
+
+A trapezoid is a convex quadrilateral with at least one pair of parallel sides.
+Two lines are parallel if and only if they have the same slope.
+
+Example 1:
+Input: points = [[-3,2],[3,0],[2,3],[3,2],[2,-3]]
+Output: 2
+Explanation:
+There are two distinct ways to pick four points that form a trapezoid:
+- The points [-3,2], [2,3], [3,2], [2,-3] form one trapezoid.
+- The points [2,3], [3,2], [3,0], [2,-3] form another trapezoid.
+
+Example 2:
+Input: points = [[0,0],[1,0],[0,1],[2,1]]
+Output: 1
+Explanation:
+There is only one trapezoid which can be formed.
+
+Constraints:
+4 <= points.length <= 500
+–1000 <= xi, yi <= 1000
+All points are pairwise distinct.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Hash every point-pair by its reduced slope (dy,dx) (normalize with GCD and fix signs).
+2. In each slope-bucket of size k, there are C(k,2) ways to pick two segments as the trapezoid's parallel bases.
+3. Skip any base-pair that shares an endpoint since it would not form a quadrilateral.
+4. Subtract one count for each parallelogram.
+   Each parallelogram was counted once for each of its two parallel-side pairs, so after subtracting once,
+   every quadrilateral with at least one pair of parallel sides,
+   including parallelograms, contributes exactly one to the final total.
+5. Final answer = total valid base-pairs minus parallelogram overcounts.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int countTrapezoids(vector<vector<int>>& points) {
+        int retVal = 0;
+
+        int pointsSize = points.size();
+        int inf = 1e9 + 7;
+
+        unordered_map<float, vector<float>> slopeToIntercept;
+        unordered_map<int, vector<float>> midToSlope;
+        for (int i = 0; i < pointsSize; i++) {
+            int x1 = points[i][0];
+            int y1 = points[i][1];
+            for (int j = i + 1; j < pointsSize; j++) {
+                int x2 = points[j][0];
+                int y2 = points[j][1];
+                int dx = x1 - x2;
+                int dy = y1 - y2;
+                float k, b;
+                if (x2 == x1) {
+                    k = inf;
+                    b = x1;
+                } else {
+                    k = (float)(y2 - y1) / (x2 - x1);
+                    b = (float)(y1 * dx - x1 * dy) / dx;
+                }
+
+                int middle = (x1 + x2) * 10000 + (y1 + y2);
+                slopeToIntercept[k].push_back(b);
+                midToSlope[middle].push_back(k);
+            }
+        }
+
+        for (auto& [_, sti] : slopeToIntercept) {
+            int stiSize = sti.size();
+            if (stiSize == 1) {
+                continue;
+            }
+
+            map<float, int> cnt;
+            for (float b : sti) {
+                cnt[b]++;
+            }
+
+            int sum = 0;
+            for (auto& [_, count] : cnt) {
+                retVal += (sum * count);
+                sum += count;
+            }
+        }
+
+        for (auto& [_, mts] : midToSlope) {
+            int mtsSize = mts.size();
+            if (mtsSize == 1) {
+                continue;
+            }
+
+            map<float, int> cnt;
+            for (float k : mts) {
+                cnt[k]++;
+            }
+
+            int sum = 0;
+            for (auto& [_, count] : cnt) {
+                retVal -= (sum * count);
+                sum += count;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def countTrapezoids(self, points: List[List[int]]) -> int:
+        retVal = 0
+
+        pointsSize = len(points)
+        inf = 10**9 + 7
+
+        slopeToIntercept = defaultdict(list)
+        middleToSlope = defaultdict(list)
+        for i in range(pointsSize):
+            x1, y1 = points[i]
+            for j in range(i + 1, pointsSize):
+                x2, y2 = points[j]
+                dx = x1 - x2
+                dy = y1 - y2
+
+                if x2 == x1:
+                    k = inf
+                    b = x1
+                else:
+                    k = (y2 - y1) / (x2 - x1)
+                    b = (y1 * dx - x1 * dy) / dx
+
+                middle = (x1 + x2) * 10000 + (y1 + y2)
+                slopeToIntercept[k].append(b)
+                middleToSlope[middle].append(k)
+
+        for sti in slopeToIntercept.values():
+            stiSize = len(sti)
+            if stiSize == 1:
+                continue
+
+            cnt = defaultdict(int)
+            for b_val in sti:
+                cnt[b_val] += 1
+
+            totalSum = 0
+            for count in cnt.values():
+                retVal += (totalSum * count)
+                totalSum += count
+
+        for mts in middleToSlope.values():
+            mtsSize = len(mts)
+            if mtsSize == 1:
+                continue
+
+            cnt = defaultdict(int)
+            for k_val in mts:
+                cnt[k_val] += 1
+
+            totalSum = 0
+            for count in cnt.values():
+                retVal -= (totalSum * count)
+                totalSum += count
+
+        return retVal
+```
+
+</details>

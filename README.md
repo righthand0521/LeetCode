@@ -528,6 +528,13 @@
 
 </details>
 
+<details><summary>Count Number of Trapezoids</summary>
+
+- [3623. Count Number of Trapezoids I](https://leetcode.com/problems/count-number-of-trapezoids-i/)
+- [3625. Count Number of Trapezoids II](https://leetcode.com/problems/count-number-of-trapezoids-ii/)
+
+</details>
+
 ## Linked List
 
 <details><summary>Reverse Linked List</summary>
