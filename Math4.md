@@ -1019,6 +1019,118 @@ class Solution:
 
 </details>
 
+## [3432. Count Partitions with Even Sum Difference](https://leetcode.com/problems/count-partitions-with-even-sum-difference/)  1200
+
+- [Official](https://leetcode.com/problems/count-partitions-with-even-sum-difference/editorial/)
+- [Official](https://leetcode.cn/problems/count-partitions-with-even-sum-difference/solutions/3843925/tong-ji-yuan-su-he-chai-zhi-wei-ou-shu-d-mruw/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array nums of length n.
+
+A partition is defined as an index i where 0 <= i < n - 1, splitting the array into two non-empty subarrays such that:
+- Left subarray contains indices [0, i].
+- Right subarray contains indices [i + 1, n - 1].
+
+Return the number of partitions where the difference between the sum of the left and right subarrays is even.
+
+Example 1:
+Input: nums = [10,10,3,7,6]
+Output: 4
+Explanation:
+The 4 partitions are:
+- [10], [10, 3, 7, 6] with a sum difference of 10 - 26 = -16, which is even.
+- [10, 10], [3, 7, 6] with a sum difference of 20 - 16 = 4, which is even.
+- [10, 10, 3], [7, 6] with a sum difference of 23 - 13 = 10, which is even.
+- [10, 10, 3, 7], [6] with a sum difference of 30 - 6 = 24, which is even.
+
+Example 2:
+Input: nums = [1,2,2]
+Output: 0
+Explanation:
+No partition results in an even sum difference.
+
+Example 3:
+Input: nums = [2,4,6,8]
+Output: 3
+Explanation:
+All partitions result in an even sum difference.
+
+Constraints:
+2 <= n == nums.length <= 100
+1 <= nums[i] <= 100
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. If the parity of the sum is even, the partition is valid; otherwise, there is no partition.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int countPartitions(int* nums, int numsSize) {
+    int retVal = 0;
+
+    int sumNums = 0;
+    for (int i = 0; i < numsSize; ++i) {
+        sumNums += nums[i];
+    }
+    if (sumNums % 2 == 0) {
+        retVal = numsSize - 1;
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int countPartitions(vector<int>& nums) {
+        int retVal = 0;
+
+        int sumNums = 0;
+        for (int num : nums) {
+            sumNums += num;
+        }
+        if (sumNums % 2 == 0) {
+            retVal = nums.size() - 1;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def countPartitions(self, nums: List[int]) -> int:
+        retVal = 0
+
+        sumNums = sum(nums)
+        if sumNums % 2 == 0:
+            retVal = len(nums) - 1
+
+        return retVal
+```
+
+</details>
+
 ## [3443. Maximum Manhattan Distance After K Changes](https://leetcode.com/problems/maximum-manhattan-distance-after-k-changes/)  1855
 
 - [Official](https://leetcode.com/problems/maximum-manhattan-distance-after-k-changes/editorial/)
