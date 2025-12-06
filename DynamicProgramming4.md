@@ -2227,3 +2227,304 @@ class Solution:
 ```
 
 </details>
+
+## [3578. Count Partitions With Max-Min Difference at Most K](https://leetcode.com/problems/count-partitions-with-max-min-difference-at-most-k/)  2033
+
+- [Official](https://leetcode.com/problems/count-partitions-with-max-min-difference-at-most-k/)
+- [Official](https://leetcode.cn/problems/count-partitions-with-max-min-difference-at-most-k/solutions/3843928/tong-ji-ji-chai-zui-da-wei-k-de-fen-ge-f-spi4/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array nums and an integer k.
+Your task is to partition nums into one or more non-empty contiguous segments such that in each segment,
+the difference between its maximum and minimum elements is at most k.
+
+Return the total number of ways to partition nums under this condition.
+
+Since the answer may be too large, return it modulo 10^9 + 7.
+
+Example 1:
+Input: nums = [9,4,1,3,7], k = 4
+Output: 6
+Explanation:
+There are 6 valid partitions where the difference between the maximum and minimum elements in each segment is at most k = 4:
+- [[9], [4], [1], [3], [7]]
+- [[9], [4], [1], [3, 7]]
+- [[9], [4], [1, 3], [7]]
+- [[9], [4, 1], [3], [7]]
+- [[9], [4, 1], [3, 7]]
+- [[9], [4, 1, 3], [7]]
+
+Example 2:
+Input: nums = [3,3,4], k = 0
+Output: 2
+Explanation:
+There are 2 valid partitions that satisfy the given conditions:
+- [[3], [3], [4]]
+- [[3, 3], [4]]
+
+Constraints:
+2 <= nums.length <= 5 * 10^4
+1 <= nums[i] <= 10^9
+0 <= k <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use dynamic programming.
+2. Let dp[idx] be the count of ways to partition the array with the last partition ending at index idx.
+3. Try using a sliding window; we can track the minimum and maximum in the window using deques.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MODULO (int)(1e9 + 7)
+#ifndef DEQUE_H
+#define DEQUE_H
+
+typedef struct {
+    int* data;
+    int front;
+    int rear;
+    int capacity;
+} Deque;
+Deque* createDeque(int capacity) {
+    Deque* pRetVal = NULL;
+
+    pRetVal = (Deque*)malloc(sizeof(Deque));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    pRetVal->data = (int*)malloc(capacity * sizeof(int));
+    if (pRetVal->data == NULL) {
+        perror("malloc");
+        free(pRetVal);
+        pRetVal = NULL;
+        return pRetVal;
+    }
+    pRetVal->front = 0;
+    pRetVal->rear = -1;
+    pRetVal->capacity = capacity;
+
+    return pRetVal;
+}
+bool isEmpty(Deque* dq) {
+    bool retVal = false;
+
+    if (dq->rear < dq->front) {
+        retVal = true;
+    }
+
+    return retVal;
+}
+void pushBack(Deque* dq, int value) {
+    if (dq->rear < dq->capacity - 1) {
+        dq->data[++dq->rear] = value;
+    }
+}
+void popBack(Deque* dq) {
+    if (isEmpty(dq) == false) {
+        dq->rear--;
+    }
+}
+void popFront(Deque* dq) {
+    if (isEmpty(dq) == false) {
+        dq->front++;
+    }
+}
+int front(Deque* dq) {
+    int retVal = -1;
+
+    if (isEmpty(dq) == false) {
+        retVal = dq->data[dq->front];
+    }
+
+    return retVal;
+}
+int back(Deque* dq) {
+    int retVal = -1;
+
+    if (isEmpty(dq) == false) {
+        retVal = dq->data[dq->rear];
+    }
+
+    return retVal;
+}
+
+#endif  // DEQUE_H
+int countPartitions(int* nums, int numsSize, int k) {
+    int retVal = 0;
+
+    long long dp[numsSize + 1];
+    memset(dp, 0, sizeof(dp));
+    dp[0] = 1;
+    long long prefix[numsSize + 1];
+    memset(prefix, 0, sizeof(prefix));
+    prefix[0] = 1;
+    Deque* minQueue = createDeque(numsSize);
+    Deque* maxQueue = createDeque(numsSize);
+
+    int j = 0;
+    for (int i = 0; i < numsSize; i++) {
+        // maintain the maximum value queue
+        while ((isEmpty(maxQueue) == false) && (nums[back(maxQueue)] <= nums[i])) {
+            popBack(maxQueue);
+        }
+        pushBack(maxQueue, i);
+
+        // maintain the minimum value queue
+        while ((isEmpty(minQueue) == false) && (nums[back(minQueue)] >= nums[i])) {
+            popBack(minQueue);
+        }
+        pushBack(minQueue, i);
+
+        // adjust window
+        while ((isEmpty(maxQueue) == false) && (isEmpty(minQueue) == false) &&
+               (nums[front(maxQueue)] - nums[front(minQueue)] > k)) {
+            if (front(maxQueue) == j) {
+                popFront(maxQueue);
+            }
+            if (front(minQueue) == j) {
+                popFront(minQueue);
+            }
+            j++;
+        }
+
+        if (j > 0) {
+            dp[i + 1] = (prefix[i] - prefix[j - 1] + MODULO) % MODULO;
+        } else {
+            dp[i + 1] = prefix[i] % MODULO;
+        }
+        prefix[i + 1] = (prefix[i] + dp[i + 1]) % MODULO;
+    }
+    retVal = (int)dp[numsSize];
+
+    //
+    free(minQueue->data);
+    free(minQueue);
+    free(maxQueue->data);
+    free(maxQueue);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    static constexpr int MODULO = 1e9 + 7;
+
+   public:
+    int countPartitions(vector<int>& nums, int k) {
+        int retVal = 0;
+
+        int numsSize = nums.size();
+
+        vector<long long> dp(numsSize + 1);
+        dp[0] = 1;
+        vector<long long> prefix(numsSize + 1);
+        prefix[0] = 1;
+        deque<int> minQueue;
+        deque<int> maxQueue;
+
+        for (int i = 0, j = 0; i < numsSize; i++) {
+            // maintain the maximum value queue
+            while ((maxQueue.empty() == false) && (nums[maxQueue.back()] <= nums[i])) {
+                maxQueue.pop_back();
+            }
+            maxQueue.push_back(i);
+
+            // maintain the minimum value queue
+            while ((minQueue.empty() == false) && (nums[minQueue.back()] >= nums[i])) {
+                minQueue.pop_back();
+            }
+            minQueue.push_back(i);
+
+            // adjust window
+            while ((maxQueue.empty() == false) && (minQueue.empty() == false) &&
+                   (nums[maxQueue.front()] - nums[minQueue.front()] > k)) {
+                if (maxQueue.front() == j) {
+                    maxQueue.pop_front();
+                }
+                if (minQueue.front() == j) {
+                    minQueue.pop_front();
+                }
+                j++;
+            }
+
+            dp[i + 1] = (prefix[i] - (j > 0 ? prefix[j - 1] : 0) + MODULO) % MODULO;
+            prefix[i + 1] = (prefix[i] + dp[i + 1]) % MODULO;
+        }
+        retVal = dp[numsSize];
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self):
+        self.MODULO = 10 ** 9 + 7
+
+    def countPartitions(self, nums: List[int], k: int) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+
+        dp = [0] * (numsSize + 1)
+        dp[0] = 1
+        prefix = [0] * (numsSize + 1)
+        prefix[0] = 1
+        minQueue = deque()
+        maxQueue = deque()
+
+        j = 0
+        for i in range(numsSize):
+            # maintain the maximum value queue
+            while (maxQueue) and (nums[maxQueue[-1]] <= nums[i]):
+                maxQueue.pop()
+            maxQueue.append(i)
+
+            # maintain the minimum value queue
+            while (minQueue) and (nums[minQueue[-1]] >= nums[i]):
+                minQueue.pop()
+            minQueue.append(i)
+
+            # adjust window
+            while (maxQueue) and (minQueue) and (nums[maxQueue[0]] - nums[minQueue[0]] > k):
+                if maxQueue[0] == j:
+                    maxQueue.popleft()
+                if minQueue[0] == j:
+                    minQueue.popleft()
+                j += 1
+
+            if j > 0:
+                dp[i + 1] = (prefix[i] - prefix[j - 1] + self.MODULO) % self.MODULO
+            else:
+                dp[i + 1] = prefix[i] % self.MODULO
+
+            prefix[i + 1] = (prefix[i] + dp[i + 1]) % self.MODULO
+
+        retVal = dp[numsSize]
+
+        return retVal
+```
+
+</details>
