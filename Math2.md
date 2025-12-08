@@ -3030,6 +3030,108 @@ class Solution:
 
 </details>
 
+## [1925. Count Square Sum Triples](https://leetcode.com/problems/count-square-sum-triples/)  1324
+
+- [Official](https://leetcode.com/problems/count-square-sum-triples/editorial/)
+- [Official](https://leetcode.cn/problems/count-square-sum-triples/solutions/869969/tong-ji-ping-fang-he-san-yuan-zu-de-shu-dfenx/)
+
+<details><summary>Description</summary>
+
+```text
+A square triple (a,b,c) is a triple where a, b, and c are integers and a^2 + b^2 = c^2.
+
+Given an integer n, return the number of square triples such that 1 <= a, b, c <= n.
+
+Example 1:
+Input: n = 5
+Output: 2
+Explanation: The square triples are (3,4,5) and (4,3,5).
+
+Example 2:
+Input: n = 10
+Output: 4
+Explanation: The square triples are (3,4,5), (4,3,5), (6,8,10), and (8,6,10).
+
+Constraints:
+1 <= n <= 250
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Iterate over all possible pairs (a,b)
+   and check that the square root of a * a + b * b is an integers less than or equal n
+2. You can check that the square root of an integer is an integer using binary seach or a builtin function like sqrt
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int countTriples(int n) {
+    int retVal = 0;
+
+    int c;
+    for (int a = 1; a <= n; ++a) {
+        for (int b = 1; b <= n; ++b) {
+            c = (int)sqrt(a * a + b * b + 1.0);
+            if ((c <= n) && (c * c == a * a + b * b)) {
+                ++retVal;
+            }
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int countTriples(int n) {
+        int retVal = 0;
+
+        for (int a = 1; a <= n; ++a) {
+            for (int b = 1; b <= n; ++b) {
+                int c = int(sqrt(a * a + b * b + 1.0));
+                if ((c <= n) && (c * c == a * a + b * b)) {
+                    ++retVal;
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def countTriples(self, n: int) -> int:
+        retVal = 0
+
+        for a in range(1, n + 1):
+            for b in range(1, n + 1):
+                c = int(sqrt(a**2 + b**2 + 1))
+                if (c <= n) and (c**2 == a**2 + b**2):
+                    retVal += 1
+
+        return retVal
+```
+
+</details>
+
 ## [1979. Find Greatest Common Divisor of Array](https://leetcode.com/problems/find-greatest-common-divisor-of-array/)  1184
 
 <details><summary>Description</summary>
