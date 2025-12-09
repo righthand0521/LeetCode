@@ -3207,6 +3207,240 @@ class Solution:
 
 </details>
 
+## [3583. Count Special Triplets](https://leetcode.com/problems/count-special-triplets/)  1510
+
+- [Official](https://leetcode.com/problems/count-special-triplets/editorial/)
+- [Official](https://leetcode.cn/problems/count-special-triplets/solutions/3848618/tong-ji-te-shu-san-yuan-zu-by-leetcode-s-f3ac/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array nums.
+
+A special triplet is defined as a triplet of indices (i, j, k) such that:
+- 0 <= i < j < k < n, where n = nums.length
+- nums[i] == nums[j] * 2
+- nums[k] == nums[j] * 2
+
+Return the total number of special triplets in the array.
+
+Since the answer may be large, return it modulo 10^9 + 7.
+
+Example 1:
+Input: nums = [6,3,6]
+Output: 1
+Explanation:
+The only special triplet is (i, j, k) = (0, 1, 2), where:
+- nums[0] = 6, nums[1] = 3, nums[2] = 6
+- nums[0] = nums[1] * 2 = 3 * 2 = 6
+- nums[2] = nums[1] * 2 = 3 * 2 = 6
+
+Example 2:
+Input: nums = [0,1,0,0]
+Output: 1
+Explanation:
+The only special triplet is (i, j, k) = (0, 2, 3), where:
+- nums[0] = 0, nums[2] = 0, nums[3] = 0
+- nums[0] = nums[2] * 2 = 0 * 2 = 0
+- nums[3] = nums[2] * 2 = 0 * 2 = 0
+
+Example 3:
+Input: nums = [8,4,2,8,4]
+Output: 2
+Explanation:
+There are exactly two special triplets:
+- (i, j, k) = (0, 1, 3)
+  - nums[0] = 8, nums[1] = 4, nums[3] = 8
+  - nums[0] = nums[1] * 2 = 4 * 2 = 8
+  - nums[3] = nums[1] * 2 = 4 * 2 = 8
+- (i, j, k) = (1, 2, 4)
+  - nums[1] = 4, nums[2] = 2, nums[4] = 4
+  - nums[1] = nums[2] * 2 = 2 * 2 = 4
+  - nums[4] = nums[2] * 2 = 2 * 2 = 4
+
+Constraints:
+3 <= n == nums.length <= 10^5
+0 <= nums[i] <= 10^5
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use frequency arrays or maps,
+   e.g. freqPrev and freqNext—to track how many times each value appears before and after the current index.
+2. For each index j in the triplet (i,j,k),
+   compute its contribution to the answer using your freqPrev and freqNext counts.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable* pFree) {
+    struct hashTable* current;
+    struct hashTable* tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+#define MODULO (int)(1e9 + 7)
+int specialTriplets(int* nums, int numsSize) {
+    int retVal = 0;
+
+    struct hashTable* pTemp;
+    int key;
+
+    struct hashTable* numCnt = NULL;
+    for (int i = 0; i < numsSize; i++) {
+        key = nums[i];
+
+        pTemp = NULL;
+        HASH_FIND_INT(numCnt, &key, pTemp);
+        if (pTemp != NULL) {
+            pTemp->value += 1;
+            continue;
+        }
+        pTemp = (struct hashTable*)malloc(sizeof(struct hashTable));
+        if (pTemp == NULL) {
+            perror("malloc");
+            freeAll(numCnt);
+            return retVal;
+        }
+        pTemp->key = key;
+        pTemp->value = 1;
+        HASH_ADD_INT(numCnt, key, pTemp);
+    }
+
+    struct hashTable* numPartialCnt = NULL;
+    int target;
+    long long answer = 0, lCnt, rCnt;
+    for (int i = 0; i < numsSize; i++) {
+        key = nums[i];
+        target = key * 2;
+
+        lCnt = 0;
+        pTemp = NULL;
+        HASH_FIND_INT(numPartialCnt, &target, pTemp);
+        if (pTemp != NULL) {
+            lCnt = pTemp->value;
+        }
+
+        pTemp = NULL;
+        HASH_FIND_INT(numPartialCnt, &key, pTemp);
+        if (pTemp == NULL) {
+            pTemp = (struct hashTable*)malloc(sizeof(struct hashTable));
+            if (pTemp == NULL) {
+                perror("malloc");
+                freeAll(numCnt);
+                freeAll(numPartialCnt);
+                return retVal;
+            }
+            pTemp->key = key;
+            pTemp->value = 1;
+            HASH_ADD_INT(numPartialCnt, key, pTemp);
+        } else {
+            pTemp->value += 1;
+        }
+
+        rCnt = 0;
+        pTemp = NULL;
+        HASH_FIND_INT(numCnt, &target, pTemp);
+        if (pTemp != NULL) {
+            rCnt = pTemp->value;
+        }
+        pTemp = NULL;
+        HASH_FIND_INT(numPartialCnt, &target, pTemp);
+        if (pTemp != NULL) {
+            rCnt -= pTemp->value;
+        }
+
+        answer = (answer + lCnt * rCnt) % MODULO;
+    }
+    retVal = (int)answer;
+
+    //
+    freeAll(numCnt);
+    freeAll(numPartialCnt);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    static constexpr int MODULO = 1e9 + 7;
+
+   public:
+    int specialTriplets(vector<int>& nums) {
+        int retVal = 0;
+
+        int numSize = nums.size();
+
+        unordered_map<int, int> numCnt(numSize * 2);
+        for (int v : nums) {
+            numCnt[v]++;
+        }
+
+        unordered_map<int, int> numPartialCnt(numSize * 2);
+        for (int v : nums) {
+            int target = v * 2;
+            int lCnt = numPartialCnt[target];
+            numPartialCnt[v]++;
+
+            int rCnt = numCnt[target] - numPartialCnt[target];
+            retVal = (retVal + (lCnt * 1LL * rCnt % MODULO)) % MODULO;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.MODULO = 10 ** 9 + 7
+
+    def specialTriplets(self, nums: List[int]) -> int:
+        retVal = 0
+
+        numCnt = {}
+        for v in nums:
+            numCnt[v] = numCnt.get(v, 0) + 1
+
+        numPartialCnt = {}
+        for v in nums:
+            target = v * 2
+            lCnt = numPartialCnt.get(target, 0)
+            numPartialCnt[v] = numPartialCnt.get(v, 0) + 1
+
+            rCnt = numCnt.get(target, 0) - numPartialCnt.get(target, 0)
+            retVal = (retVal + lCnt * rCnt) % self.MODULO
+
+        return retVal
+```
+
+</details>
+
 ## [3623. Count Number of Trapezoids I](https://leetcode.com/problems/count-number-of-trapezoids-i/)  1580
 
 - [Official](https://leetcode.com/problems/count-number-of-trapezoids-i/editorial/)
