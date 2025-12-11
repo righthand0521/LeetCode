@@ -2226,3 +2226,173 @@ class Solution:
 ```
 
 </details>
+
+## [3531. Count Covered Buildings](https://leetcode.com/problems/count-covered-buildings/)  1519
+
+- [Official](https://leetcode.com/problems/count-covered-buildings/editorial/)
+- [Official](https://leetcode.cn/problems/count-covered-buildings/solutions/3843942/tong-ji-bei-fu-gai-de-jian-zhu-by-leetco-x6q3/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a positive integer n, representing an n x n city.
+You are also given a 2D grid buildings,
+where buildings[i] = [x, y] denotes a unique building located at coordinates [x, y].
+
+A building is covered if there is at least one building in all four directions: left, right, above, and below.
+
+Return the number of covered buildings.
+
+Example 1:
+Input: n = 3, buildings = [[1,2],[2,2],[3,2],[2,1],[2,3]]
+Output: 1
+Explanation:
+Only building [2,2] is covered as it has at least one building:
+- above ([1,2])
+- below ([3,2])
+- left ([2,1])
+- right ([2,3])
+Thus, the count of covered buildings is 1.
+
+Example 2:
+Input: n = 3, buildings = [[1,1],[1,2],[2,1],[2,2]]
+Output: 0
+Explanation:
+No building has at least one building in all four directions.
+
+Example 3:
+Input: n = 5, buildings = [[1,3],[3,2],[3,3],[3,5],[5,3]]
+Output: 1
+Explanation:
+Only building [3,3] is covered as it has at least one building:
+- above ([1,3])
+- below ([5,3])
+- left ([3,2])
+- right ([3,5])
+Thus, the count of covered buildings is 1.
+
+Constraints:
+2 <= n <= 10^5
+1 <= buildings.length <= 10^5
+buildings[i] = [x, y]
+1 <= x, y <= n
+All coordinates of buildings are unique.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Group buildings with the same x or y value together, and sort each group.
+2. In each sorted list, the buildings that are not at the first or last positions are covered in that direction.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int countCoveredBuildings(int n, int** buildings, int buildingsSize, int* buildingsColSize) {
+    int retVal = 0;
+
+    int maxRow[n + 1];
+    memset(maxRow, 0, sizeof(maxRow));
+    int minRow[n + 1];
+    memset(minRow, 0, sizeof(minRow));
+    int maxCol[n + 1];
+    memset(maxCol, 0, sizeof(maxCol));
+    int minCol[n + 1];
+    memset(minCol, 0, sizeof(minCol));
+    for (int i = 0; i <= n; i++) {
+        minRow[i] = n + 1;
+        minCol[i] = n + 1;
+    }
+    for (int i = 0; i < buildingsSize; i++) {
+        int x = buildings[i][0];
+        int y = buildings[i][1];
+        maxRow[y] = fmax(maxRow[y], x);
+        minRow[y] = fmin(minRow[y], x);
+        maxCol[x] = fmax(maxCol[x], y);
+        minCol[x] = fmin(minCol[x], y);
+    }
+
+    for (int i = 0; i < buildingsSize; i++) {
+        int x = buildings[i][0];
+        int y = buildings[i][1];
+        if ((x > minRow[y]) && (x < maxRow[y]) && (y > minCol[x]) && (y < maxCol[x])) {
+            retVal++;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int countCoveredBuildings(int n, vector<vector<int>>& buildings) {
+        int retVal = 0;
+
+        vector<int> maxRow(n + 1);
+        vector<int> minRow(n + 1, n + 1);
+        vector<int> maxCol(n + 1);
+        vector<int> minCol(n + 1, n + 1);
+        for (auto& building : buildings) {
+            int x = building[0];
+            int y = building[1];
+            maxRow[y] = max(maxRow[y], x);
+            minRow[y] = min(minRow[y], x);
+            maxCol[x] = max(maxCol[x], y);
+            minCol[x] = min(minCol[x], y);
+        }
+
+        for (auto& building : buildings) {
+            int x = building[0];
+            int y = building[1];
+            if ((x > minRow[y]) && (x < maxRow[y]) && (y > minCol[x]) && (y < maxCol[x])) {
+                retVal++;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def countCoveredBuildings(self, n: int, buildings: List[List[int]]) -> int:
+        retVal = 0
+
+        maxRow = [0] * (n + 1)
+        minRow = [n + 1] * (n + 1)
+        maxCol = [0] * (n + 1)
+        minCol = [n + 1] * (n + 1)
+        for building in buildings:
+            x = building[0]
+            y = building[1]
+            maxRow[y] = max(maxRow[y], x)
+            minRow[y] = min(minRow[y], x)
+            maxCol[x] = max(maxCol[x], y)
+            minCol[x] = min(minCol[x], y)
+
+        for building in buildings:
+            x = building[0]
+            y = building[1]
+            if ((x > minRow[y]) and (x < maxRow[y]) and (y > minCol[x]) and (y < maxCol[x])):
+                retVal += 1
+
+        return retVal
+```
+
+</details>
