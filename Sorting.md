@@ -6094,3 +6094,270 @@ class Solution:
 ```
 
 </details>
+
+## [3433. Count Mentions Per User](https://leetcode.com/problems/count-mentions-per-user/)  1745
+
+- [Official](https://leetcode.com/problems/count-mentions-per-user/editorial/)
+- [Official](https://leetcode.cn/problems/count-mentions-per-user/solutions/3851672/tong-ji-yong-hu-bei-ti-ji-qing-kuang-by-36og5/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer numberOfUsers representing the total number of users and an array events of size n x 3.
+
+Each events[i] can be either of the following two types:
+
+1. Message Event: ["MESSAGE", "timestampi", "mentions_stringi"]
+   - This event indicates that a set of users was mentioned in a message at timestampi.
+   - The mentions_stringi string can contain one of the following tokens:
+     - id<number>: where <number> is an integer in range [0,numberOfUsers - 1].
+       There can be multiple ids separated by a single whitespace and may contain duplicates.
+       This can mention even the offline users.
+     - ALL: mentions all users.
+     - HERE: mentions all online users.
+2. Offline Event: ["OFFLINE", "timestampi", "idi"]
+   - This event indicates that the user idi had become offline at timestampi for 60 time units.
+     The user will automatically be online again at time timestampi + 60.
+
+Return an array mentions where mentions[i]
+represents the number of mentions the user with id i has across all MESSAGE events.
+
+All users are initially online, and if a user goes offline or comes back online,
+their status change is processed before handling any message event that occurs at the same timestamp.
+
+Note that a user can be mentioned multiple times in a single message event,
+and each mention should be counted separately.
+
+Example 1:
+Input: numberOfUsers = 2, events = [["MESSAGE","10","id1 id0"],["OFFLINE","11","0"],["MESSAGE","71","HERE"]]
+Output: [2,2]
+Explanation:
+Initially, all users are online.
+At timestamp 10, id1 and id0 are mentioned. mentions = [1,1]
+At timestamp 11, id0 goes offline.
+At timestamp 71, id0 comes back online and "HERE" is mentioned. mentions = [2,2]
+
+Example 2:
+Input: numberOfUsers = 2, events = [["MESSAGE","10","id1 id0"],["OFFLINE","11","0"],["MESSAGE","12","ALL"]]
+Output: [2,2]
+Explanation:
+Initially, all users are online.
+At timestamp 10, id1 and id0 are mentioned. mentions = [1,1]
+At timestamp 11, id0 goes offline.
+At timestamp 12, "ALL" is mentioned. This includes offline users, so both id0 and id1 are mentioned. mentions = [2,2]
+
+Example 3:
+Input: numberOfUsers = 2, events = [["OFFLINE","10","0"],["MESSAGE","12","HERE"]]
+Output: [0,1]
+Explanation:
+Initially, all users are online.
+At timestamp 10, id0 goes offline.
+At timestamp 12, "HERE" is mentioned. Because id0 is still offline, they will not be mentioned. mentions = [0,1]
+
+Constraints:
+1 <= numberOfUsers <= 100
+1 <= events.length <= 100
+events[i].length == 3
+events[i][0] will be one of MESSAGE or OFFLINE.
+1 <= int(events[i][1]) <= 10^5
+The number of id<number> mentions in any "MESSAGE" event is between 1 and 100.
+0 <= <number> <= numberOfUsers - 1
+It is guaranteed that the user id referenced in the OFFLINE event is online at the time the event occurs.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Sort events by timestamp and then process each event.
+2. Maintain two sets for offline and online user IDs.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+typedef struct {
+    char type[8];
+    int timestamp;
+    char target[512];
+} Event;
+int compareEvents(const void* a, const void* b) {
+    int retVal = 0;
+
+    Event* e1 = (Event*)a;
+    Event* e2 = (Event*)b;
+    if (e1->timestamp != e2->timestamp) {
+        retVal = e1->timestamp - e2->timestamp;
+    } else {
+        retVal = (strcmp(e1->type, "OFFLINE") == 0) ? (-1) : (1);
+    }
+
+    return retVal;
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* countMentions(int numberOfUsers, char*** events, int eventsSize, int* eventsColSize, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    Event* eventArr = (Event*)calloc(eventsSize, sizeof(Event));
+    if (eventArr == NULL) {
+        perror("calloc");
+        return pRetVal;
+    }
+    for (int i = 0; i < eventsSize; i++) {
+        strcpy(eventArr[i].type, events[i][0]);
+        eventArr[i].timestamp = atoi(events[i][1]);
+        strcpy(eventArr[i].target, events[i][2]);
+    }
+    qsort(eventArr, eventsSize, sizeof(Event), compareEvents);
+
+    pRetVal = (int*)calloc(numberOfUsers, sizeof(int));
+    if (pRetVal == NULL) {
+        perror("calloc");
+        free(eventArr);
+        return pRetVal;
+    }
+
+    int nextOnlineTime[numberOfUsers];
+    memset(nextOnlineTime, 0, sizeof(nextOnlineTime));
+    int curTime, idx;
+    char *type, *target, *token;
+    for (int i = 0; i < eventsSize; i++) {
+        curTime = eventArr[i].timestamp;
+        type = eventArr[i].type;
+        target = eventArr[i].target;
+
+        if (strcmp(type, "MESSAGE") == 0) {
+            if (strcmp(target, "ALL") == 0) {
+                for (int j = 0; j < numberOfUsers; j++) {
+                    pRetVal[j]++;
+                }
+            } else if (strcmp(target, "HERE") == 0) {
+                for (int j = 0; j < numberOfUsers; j++) {
+                    if (nextOnlineTime[j] <= curTime) {
+                        pRetVal[j]++;
+                    }
+                }
+            } else {
+                token = strtok(target, " ");
+                while (token != NULL) {
+                    idx = atoi(token + 2);
+                    pRetVal[idx]++;
+                    token = strtok(NULL, " ");
+                }
+            }
+        } else {
+            idx = atoi(target);
+            nextOnlineTime[idx] = curTime + 60;
+        }
+    }
+    (*returnSize) = numberOfUsers;
+
+    //
+    free(eventArr);
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> countMentions(int numberOfUsers, vector<vector<string>>& events) {
+        vector<int> retVal(numberOfUsers);
+
+        sort(events.begin(), events.end(), [&](const vector<string>& lth, const vector<string>& rth) {
+            bool ret = true;
+
+            int lthTimestamp = stoi(lth[1]);
+            int rthTimestamp = stoi(rth[1]);
+            if (lthTimestamp != rthTimestamp) {
+                ret = (lthTimestamp < rthTimestamp);
+            } else if (rth[0] == "OFFLINE") {
+                ret = false;
+            }
+
+            return ret;
+        });
+
+        vector<int> nextOnlineTime(numberOfUsers);
+        for (auto&& event : events) {
+            int curTime = stoi(event[1]);
+
+            if (event[0] == "MESSAGE") {
+                if (event[2] == "ALL") {
+                    for (int i = 0; i < numberOfUsers; i++) {
+                        retVal[i]++;
+                    }
+                } else if (event[2] == "HERE") {
+                    for (int i = 0; i < numberOfUsers; i++) {
+                        if (nextOnlineTime[i] <= curTime) {
+                            retVal[i]++;
+                        }
+                    }
+                } else {
+                    int event2Size = event[2].size();
+                    int idx = 0;
+                    for (int i = 0; i < event2Size; i++) {
+                        if (isdigit(event[2][i])) {
+                            idx = idx * 10 + (event[2][i] - '0');
+                        }
+                        if ((i + 1 == event2Size) || (event[2][i + 1] == ' ')) {
+                            retVal[idx]++;
+                            idx = 0;
+                        }
+                    }
+                }
+            } else {
+                int idx = stoi(event[2]);
+                nextOnlineTime[idx] = curTime + 60;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def countMentions(self, numberOfUsers: int, events: List[List[str]]) -> List[int]:
+        retVal = [0] * numberOfUsers
+
+        nextOnlineTime = [0] * numberOfUsers
+        events.sort(key=lambda e: (int(e[1]), e[0] == "MESSAGE"))
+        for event in events:
+            curTime = int(event[1])
+
+            if event[0] == "MESSAGE":
+                if event[2] == "ALL":
+                    for i in range(numberOfUsers):
+                        retVal[i] += 1
+                elif event[2] == "HERE":
+                    for i, t in enumerate(nextOnlineTime):
+                        if t <= curTime:
+                            retVal[i] += 1
+                else:
+                    for idx in event[2].split():
+                        retVal[int(idx[2:])] += 1
+            else:
+                nextOnlineTime[int(event[2])] = curTime + 60
+
+        return retVal
+```
+
+</details>
