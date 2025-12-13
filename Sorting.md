@@ -6361,3 +6361,258 @@ class Solution:
 ```
 
 </details>
+
+## [3606. Coupon Code Validator](https://leetcode.com/problems/coupon-code-validator/)  1312
+
+- [Official](https://leetcode.cn/problems/coupon-code-validator/solutions/3853498/you-hui-quan-xiao-yan-qi-by-leetcode-sol-6noh/)
+
+<details><summary>Description</summary>
+
+```text
+You are given three arrays of length n that describe the properties of n coupons: code, businessLine, and isActive.
+The ith coupon has:
+- code[i]: a string representing the coupon identifier.
+- businessLine[i]: a string denoting the business category of the coupon.
+- isActive[i]: a boolean indicating whether the coupon is currently active.
+
+A coupon is considered valid if all of the following conditions hold:
+1. code[i] is non-empty and consists only of alphanumeric characters (a-z, A-Z, 0-9) and underscores (_).
+2. businessLine[i] is one of the following four categories: "electronics", "grocery", "pharmacy", "restaurant".
+3. isActive[i] is true.
+
+Return an array of the codes of all valid coupons,
+sorted first by their businessLine in the order: "electronics", "grocery", "pharmacy", "restaurant",
+and then by code in lexicographical (ascending) order within each category.
+
+Example 1:
+Input: code = ["SAVE20","","PHARMA5","SAVE@20"],
+businessLine = ["restaurant","grocery","pharmacy","restaurant"],
+isActive = [true,true,true,true]
+Output: ["PHARMA5","SAVE20"]
+Explanation:
+First coupon is valid.
+Second coupon has empty code (invalid).
+Third coupon is valid.
+Fourth coupon has special character @ (invalid).
+
+Example 2:
+Input: code = ["GROCERY15","ELECTRONICS_50","DISCOUNT10"],
+businessLine = ["grocery","electronics","invalid"],
+isActive = [false,true,true]
+Output: ["ELECTRONICS_50"]
+Explanation:
+First coupon is inactive (invalid).
+Second coupon is valid.
+Third coupon has invalid business line (invalid).
+
+Constraints:
+n == code.length == businessLine.length == isActive.length
+1 <= n <= 100
+0 <= code[i].length, businessLine[i].length <= 100
+code[i] and businessLine[i] consist of printable ASCII characters.
+isActive[i] is either true or false.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Filter out any coupon where isActive[i] is false, code[i] is empty or contains non‑alphanumeric/underscore chars,
+   or businessLine[i] is not in the allowed set
+2. Store each remaining coupon as a pair (businessLine[i], code[i])
+3. Define a priority map, e.g. {"electronics":0, "grocery":1, "pharmacy":2, "restaurant":3}
+4. Sort the list of pairs by (priority[businessLine], code) and return the code values in order
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareString(const void* str1, const void* str2) {
+    // ascending order
+    return strcmp(*(char**)str1, *(char**)str2);
+}
+bool check(const char* code, bool isActive) {
+    bool retVal = isActive;
+
+    for (int i = 0; code[i] != '\0'; i++) {
+        if ((code[i] != '_') && (isalnum(code[i]) == 0)) {
+            retVal = false;
+            break;
+        }
+    }
+
+    return retVal;
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+char** validateCoupons(char** code, int codeSize, char** businessLine, int businessLineSize, bool* isActive,
+                       int isActiveSize, int* returnSize) {
+    char** pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    char* groups[4][codeSize];
+    int groupsSize[4] = {0};
+    for (int i = 0; i < codeSize; i++) {
+        if (strlen(code[i]) <= 0) {
+            continue;
+        } else if (check(code[i], isActive[i]) == false) {
+            continue;
+        }
+
+        if (strcmp(businessLine[i], "electronics") == 0) {
+            groups[0][groupsSize[0]++] = code[i];
+        } else if (strcmp(businessLine[i], "grocery") == 0) {
+            groups[1][groupsSize[1]++] = code[i];
+        } else if (strcmp(businessLine[i], "pharmacy") == 0) {
+            groups[2][groupsSize[2]++] = code[i];
+        } else if (strcmp(businessLine[i], "restaurant") == 0) {
+            groups[3][groupsSize[3]++] = code[i];
+        }
+    }
+
+    int totalSize = 0;
+    for (int i = 0; i < 4; i++) {
+        qsort(groups[i], groupsSize[i], sizeof(char*), compareString);
+        totalSize += groupsSize[i];
+    }
+
+    pRetVal = malloc(sizeof(char*) * totalSize);
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    int pos = 0;
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < groupsSize[i]; j++) {
+            pRetVal[pos] = malloc(strlen(groups[i][j]) + 1);
+            if (pRetVal[pos] == NULL) {
+                perror("malloc");
+                for (int k = 0; k < pos; k++) {
+                    if (pRetVal[k] != NULL) {
+                        free(pRetVal[k]);
+                    }
+                    pRetVal[k] = NULL;
+                }
+                free(pRetVal);
+                pRetVal = NULL;
+                return pRetVal;
+            }
+            strcpy(pRetVal[pos], groups[i][j]);
+            pos++;
+        }
+    }
+    (*returnSize) = totalSize;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    bool check(string code, bool isActive) {
+        bool retVal = isActive;
+
+        for (auto it : code) {
+            if ((it != '_') && (isalnum(it) == 0)) {
+                retVal = false;
+                break;
+            }
+        }
+
+        return retVal;
+    }
+
+   public:
+    vector<string> validateCoupons(vector<string>& code, vector<string>& businessLine, vector<bool>& isActive) {
+        vector<string> retVal;
+
+        vector<string> groups[4];
+        int codeSize = code.size();
+        for (int i = 0; i < codeSize; i++) {
+            int len = code[i].size();
+            if (len == 0) {
+                continue;
+            } else if (check(code[i], isActive[i]) == false) {
+                continue;
+            }
+
+            if (businessLine[i] == "electronics") {
+                groups[0].emplace_back(code[i]);
+            } else if (businessLine[i] == "grocery") {
+                groups[1].emplace_back(code[i]);
+            } else if (businessLine[i] == "pharmacy") {
+                groups[2].emplace_back(code[i]);
+            } else if (businessLine[i] == "restaurant") {
+                groups[3].emplace_back(code[i]);
+            }
+        }
+        for (auto& group : groups) {
+            sort(group.begin(), group.end());
+            retVal.insert(retVal.end(), group.begin(), group.end());
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def check(self, code: str, isActive: bool) -> bool:
+        retVal = False
+
+        if not code:
+            return retVal
+
+        for char in code:
+            if (char != '_') and (not char.isalnum()):
+                return retVal
+
+        retVal = isActive
+
+        return retVal
+
+    def validateCoupons(self, code: List[str], businessLine: List[str], isActive: List[bool]) -> List[str]:
+        retVal = []
+
+        businessMapping = {
+            "electronics": 0,
+            "grocery": 1,
+            "pharmacy": 2,
+            "restaurant": 3
+        }
+
+        groups = [[] for _ in range(4)]
+        codeSize = len(code)
+        for i in range(codeSize):
+            if not code[i]:
+                continue
+            elif self.check(code[i], isActive[i]) is False:
+                continue
+
+            business = businessLine[i]
+            if business in businessMapping:
+                groups[businessMapping[business]].append(code[i])
+
+        for group in groups:
+            group.sort()
+            retVal.extend(group)
+
+        return retVal
+```
+
+</details>
