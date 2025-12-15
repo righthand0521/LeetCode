@@ -1,5 +1,135 @@
 # Dynamic Programming
 
+## [2110. Number of Smooth Descent Periods of a Stock](https://leetcode.com/problems/number-of-smooth-descent-periods-of-a-stock/)  1408
+
+- [Official](https://leetcode.com/problems/number-of-smooth-descent-periods-of-a-stock/editorial/)
+- [Official](https://leetcode.cn/problems/number-of-smooth-descent-periods-of-a-stock/solutions/1167833/gu-piao-ping-hua-xia-die-jie-duan-de-shu-w3hi/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array prices representing the daily price history of a stock,
+where prices[i] is the stock price on the ith day.
+
+A smooth descent period of a stock consists of one or more contiguous days
+such that the price on each day is lower than the price on the preceding day by exactly 1.
+The first day of the period is exempted from this rule.
+
+Return the number of smooth descent periods.
+
+Example 1:
+Input: prices = [3,2,1,4]
+Output: 7
+Explanation: There are 7 smooth descent periods:
+[3], [2], [1], [4], [3,2], [2,1], and [3,2,1]
+Note that a period with one day is a smooth descent period by the definition.
+
+Example 2:
+Input: prices = [8,6,7,7]
+Output: 4
+Explanation: There are 4 smooth descent periods: [8], [6], [7], and [7]
+Note that [8,6] is not a smooth descent period as 8 - 6 ≠ 1.
+
+Example 3:
+Input: prices = [1]
+Output: 1
+Explanation: There is 1 smooth descent period: [1]
+
+Constraints:
+1 <= prices.length <= 10^5
+1 <= prices[i] <= 10^5
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Any array is a series of adjacent longest possible smooth descent periods.
+   For example, [5,3,2,1,7,6] is [5] + [3,2,1] + [7,6].
+2. Think of a 2-pointer approach to traverse the array and find each longest possible period.
+3. Suppose you found the longest possible period with a length of k.
+   How many periods are within that period?
+   How can you count them quickly? Think of the formula to calculate the sum of 1, 2, 3, ..., k.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+long long getDescentPeriods(int* prices, int pricesSize) {
+    long long retVal = 1;  // total number of smooth descending periods, initial value is dp[0]
+
+    // total number of smooth descending periods ending with the previous element, initial value is dp[0]
+    int prev = 1;
+    // traverse the array starting from 1, and update prev and the total res according to the recurrence relation
+    for (int i = 1; i < pricesSize; ++i) {
+        if (prices[i] == prices[i - 1] - 1) {
+            ++prev;
+        } else {
+            prev = 1;
+        }
+        retVal += prev;
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    long long getDescentPeriods(vector<int>& prices) {
+        long long retVal = 1;  // total number of smooth descending periods, initial value is dp[0]
+
+        int pricesSize = prices.size();
+        // total number of smooth descending periods ending with the previous element, initial value is dp[0]
+        int prev = 1;
+        // traverse the array starting from 1, and update prev and the total res according to the recurrence relation
+        for (int i = 1; i < pricesSize; ++i) {
+            if (prices[i] == prices[i - 1] - 1) {
+                ++prev;
+            } else {
+                prev = 1;
+            }
+            retVal += prev;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def getDescentPeriods(self, prices: List[int]) -> int:
+        retVal = 1  # total number of smooth descending periods, initial value is dp[0]
+
+        pricesSize = len(prices)
+        prev = 1  # total number of smooth descending periods ending with the previous element, initial value is dp[0]
+        # traverse the array starting from 1, and update prev and the total retVal according to the recurrence relation
+        for i in range(1, pricesSize):
+            if prices[i] == prices[i - 1] - 1:
+                prev += 1
+            else:
+                prev = 1
+
+            retVal += prev
+
+        return retVal
+```
+
+</details>
+
 ## [2140. Solving Questions With Brainpower](https://leetcode.com/problems/solving-questions-with-brainpower/)  1709
 
 - [Official](https://leetcode.com/problems/solving-questions-with-brainpower/editorial/)
