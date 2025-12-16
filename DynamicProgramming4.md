@@ -2228,6 +2228,372 @@ class Solution:
 
 </details>
 
+## [3562. Maximum Profit from Trading Stocks with Discounts](https://leetcode.com/problems/maximum-profit-from-trading-stocks-with-discounts/)  2458
+
+- [Official](https://leetcode.com/problems/maximum-profit-from-trading-stocks-with-discounts/editorial/)
+- [Official](https://leetcode.cn/problems/maximum-profit-from-trading-stocks-with-discounts/solutions/3851959/zhe-kou-jie-jiao-yi-gu-piao-de-zui-da-li-c7l9/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer n, representing the number of employees in a company.
+Each employee is assigned a unique ID from 1 to n, and employee 1 is the CEO.
+You are given two 1-based integer arrays, present and future, each of length n, where:
+- present[i] represents the current price at which the ith employee can buy a stock today.
+- future[i] represents the expected price at which the ith employee can sell the stock tomorrow.
+
+The company's hierarchy is represented by a 2D integer array hierarchy,
+where hierarchy[i] = [ui, vi] means that employee ui is the direct boss of employee vi.
+
+Additionally, you have an integer budget representing the total funds available for investment.
+
+However, the company has a discount policy: if an employee's direct boss purchases their own stock,
+then the employee can buy their stock at half the original price (floor(present[v] / 2)).
+
+Return the maximum profit that can be achieved without exceeding the given budget.
+
+Note:
+- You may buy each stock at most once.
+- You cannot use any profit earned from future stock prices to fund additional investments and must buy only from budget.
+
+Example 1:
+Input: n = 2, present = [1,2], future = [4,3], hierarchy = [[1,2]], budget = 3
+Output: 5
+Explanation:
+- Employee 1 buys the stock at price 1 and earns a profit of 4 - 1 = 3.
+- Since Employee 1 is the direct boss of Employee 2, Employee 2 gets a discounted price of floor(2 / 2) = 1.
+- Employee 2 buys the stock at price 1 and earns a profit of 3 - 1 = 2.
+- The total buying cost is 1 + 1 = 2 <= budget. Thus, the maximum total profit achieved is 3 + 2 = 5.
+
+Example 2:
+Input: n = 2, present = [3,4], future = [5,8], hierarchy = [[1,2]], budget = 4
+Output: 4
+Explanation:
+- Employee 2 buys the stock at price 4 and earns a profit of 8 - 4 = 4.
+- Since both employees cannot buy together, the maximum profit is 4.
+
+Example 3:
+Input: n = 3, present = [4,6,8], future = [7,9,11], hierarchy = [[1,2],[1,3]], budget = 10
+Output: 10
+Explanation:
+- Employee 1 buys the stock at price 4 and earns a profit of 7 - 4 = 3.
+- Employee 3 would get a discounted price of floor(8 / 2) = 4 and earns a profit of 11 - 4 = 7.
+- Employee 1 and Employee 3 buy their stocks at a total cost of 4 + 4 = 8 <= budget.
+  Thus, the maximum total profit achieved is 3 + 7 = 10.
+
+Example 4:
+Input: n = 3, present = [5,2,3], future = [8,5,6], hierarchy = [[1,2],[2,3]], budget = 7
+Output: 12
+Explanation:
+- Employee 1 buys the stock at price 5 and earns a profit of 8 - 5 = 3.
+- Employee 2 would get a discounted price of floor(2 / 2) = 1 and earns a profit of 5 - 1 = 4.
+- Employee 3 would get a discounted price of floor(3 / 2) = 1 and earns a profit of 6 - 1 = 5.
+- The total cost becomes 5 + 1 + 1 = 7 <= budget. Thus, the maximum total profit achieved is 3 + 4 + 5 = 12.
+
+Constraints:
+1 <= n <= 160
+present.length, future.length == n
+1 <= present[i], future[i] <= 50
+hierarchy.length == n - 1
+hierarchy[i] == [ui, vi]
+1 <= ui, vi <= n
+ui != vi
+1 <= budget <= 160
+There are no duplicate edges.
+Employee 1 is the direct or indirect boss of every employee.
+The input graph hierarchy is guaranteed to have no cycles.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Compute max_profit[u] and max_profit1[u] for each node u
+2. max_profit[u] = maximum profit in the subtree of u assuming the parent of u has not bought the stock
+3. max_profit1[u] = maximum profit in the subtree of u assuming the parent of u has bought the stock
+4. For each node u, consider two cases:
+5. Buy the stock for u (at present[u] price if parent did not buy, or at floor(present[u]/2) if parent bought),
+   then add the best max_profit1 values of its children
+6. Skip buying for u, then add the best max_profit values of its children
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+typedef struct {
+    int* dp0;
+    int* dp1;
+    int size;
+} Result;
+struct ListNode* creatListNode(int val) {
+    struct ListNode* pRetVal = NULL;
+
+    pRetVal = (struct ListNode*)malloc(sizeof(struct ListNode));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    pRetVal->val = val;
+    pRetVal->next = NULL;
+
+    return pRetVal;
+}
+void freeList(struct ListNode* list) {
+    struct ListNode* p = NULL;
+    while (list) {
+        p = list;
+        list = list->next;
+        free(p);
+    }
+}
+void dfs(int u, int n, int* present, int* future, struct ListNode** g, int budget, Result* result, int* visited) {
+    if (visited[u]) {
+        return;
+    }
+    visited[u] = 1;
+
+    int cost = present[u];
+    int dCost = present[u] / 2;
+
+    // dp[u][state][budget]
+    // state = 0: Do not purchase parent node, state = 1: Must purchase parent node
+    int* dp0 = (int*)calloc(budget + 1, sizeof(int));
+    int* dp1 = (int*)calloc(budget + 1, sizeof(int));
+
+    // subProfit[state][budget]
+    // state = 0: discount not available, state = 1: discount available
+    int* subProfit0 = (int*)calloc(budget + 1, sizeof(int));
+    int* subProfit1 = (int*)calloc(budget + 1, sizeof(int));
+
+    int uSize = cost;
+
+    for (struct ListNode* p = g[u]; p; p = p->next) {
+        int v = p->val;
+        Result childResult;
+        childResult.dp0 = NULL;
+        childResult.dp1 = NULL;
+        childResult.size = 0;
+        dfs(v, n, present, future, g, budget, &childResult, visited);
+
+        uSize += childResult.size;
+        for (int j = budget; j >= 0; j--) {
+            for (int sub = 0; sub <= fmin(childResult.size, j); sub++) {
+                if (j - sub >= 0) {
+                    subProfit0[j] = fmax(subProfit0[j], subProfit0[j - sub] + childResult.dp0[sub]);
+                    subProfit1[j] = fmax(subProfit1[j], subProfit1[j - sub] + childResult.dp1[sub]);
+                }
+            }
+        }
+
+        free(childResult.dp0);
+        free(childResult.dp1);
+    }
+
+    for (int i = 0; i <= budget; i++) {
+        dp0[i] = subProfit0[i];
+        dp1[i] = subProfit0[i];
+        if (i >= dCost) {
+            dp1[i] = fmax(subProfit0[i], subProfit1[i - dCost] + future[u] - dCost);
+        }
+        if (i >= cost) {
+            dp0[i] = fmax(subProfit0[i], subProfit1[i - cost] + future[u] - cost);
+        }
+    }
+
+    result->dp0 = dp0;
+    result->dp1 = dp1;
+    result->size = uSize;
+
+    free(subProfit0);
+    free(subProfit1);
+}
+int maxProfit(int n, int* present, int presentSize, int* future, int futureSize, int** hierarchy, int hierarchySize,
+              int* hierarchyColSize, int budget) {
+    int retVal = 0;
+
+    struct ListNode** g = (struct ListNode**)malloc(n * sizeof(struct ListNode*));
+    if (g == NULL) {
+        perror("malloc");
+        return retVal;
+    }
+    for (int i = 0; i < n; i++) {
+        g[i] = NULL;
+    }
+    struct ListNode* p;
+    int u, v;
+    for (int i = 0; i < hierarchySize; i++) {
+        u = hierarchy[i][0] - 1;
+        v = hierarchy[i][1] - 1;
+        p = creatListNode(v);
+        if (p == NULL) {
+            for (int j = 0; j < n; j++) {
+                freeList(g[j]);
+            }
+            free(g);
+            return retVal;
+        }
+        p->next = g[u];
+        g[u] = p;
+    }
+
+    int* visited = (int*)calloc(n, sizeof(int));
+    if (visited == NULL) {
+        perror("malloc");
+        for (int j = 0; j < n; j++) {
+            freeList(g[j]);
+        }
+        free(g);
+        return retVal;
+    }
+
+    Result result;
+    result.dp0 = NULL;
+    result.dp1 = NULL;
+    result.size = 0;
+
+    dfs(0, n, present, future, g, budget, &result, visited);
+    retVal = result.dp0[budget];
+
+    //
+    free(result.dp0);
+    free(result.dp1);
+    free(visited);
+    for (int i = 0; i < n; i++) {
+        freeList(g[i]);
+    }
+    free(g);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    tuple<vector<int>, vector<int>, int> dfs(vector<int>& present, vector<int>& future, int budget,
+                                             vector<vector<int>>& g, int u) {
+        tuple<vector<int>, vector<int>, int> retVal;
+
+        int cost = present[u];
+        int dCost = present[u] / 2;  // discounted cost
+
+        // dp[u][state][budget]
+        // state = 0: Do not purchase parent node, state = 1: Must purchase parent node
+        auto dp0 = vector(budget + 1, 0);
+        auto dp1 = vector(budget + 1, 0);
+
+        // subProfit[state][budget]
+        // state = 0: discount not available, state = 1: discount available
+        auto subProfit0 = vector(budget + 1, 0);
+        auto subProfit1 = vector(budget + 1, 0);
+
+        int uSize = cost;
+
+        for (auto v : g[u]) {
+            auto [subDp0, subDp1, vSize] = dfs(present, future, budget, g, v);
+            uSize += vSize;
+            for (int i = budget; i >= 0; i--) {
+                for (int sub = 0; sub <= min(vSize, i); sub++) {
+                    subProfit0[i] = max(subProfit0[i], subProfit0[i - sub] + subDp0[sub]);
+                    subProfit1[i] = max(subProfit1[i], subProfit1[i - sub] + subDp1[sub]);
+                }
+            }
+        }
+
+        for (int i = 0; i <= budget; i++) {
+            dp0[i] = subProfit0[i];
+            dp1[i] = subProfit0[i];
+
+            if (i >= dCost) {
+                dp1[i] = max(subProfit0[i], subProfit1[i - dCost] + future[u] - dCost);
+            }
+
+            if (i >= cost) {
+                dp0[i] = max(subProfit0[i], subProfit1[i - cost] + future[u] - cost);
+            }
+        }
+
+        retVal = {dp0, dp1, uSize};
+
+        return retVal;
+    }
+
+   public:
+    int maxProfit(int n, vector<int>& present, vector<int>& future, vector<vector<int>>& hierarchy, int budget) {
+        int retVal = 0;
+
+        vector<vector<int>> g(n);
+        for (auto& e : hierarchy) {
+            g[e[0] - 1].emplace_back(e[1] - 1);
+        }
+        auto [dp0, dp1, uSize] = dfs(present, future, budget, g, 0);
+        retVal = dp0[budget];
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def dfs(self, g: List[List[int]], u: int, present: List[int], future: List[int], budget: int) -> tuple:
+        cost = present[u]
+        dCost = present[u] // 2
+
+        # dp[u][state][budget]
+        # state = 0: Do not purchase parent node, state = 1: Must purchase parent node
+        dp0 = [0] * (budget + 1)
+        dp1 = [0] * (budget + 1)
+
+        # subProfit[state][budget]
+        # state = 0: discount not available, state = 1: discount available
+        subProfit0 = [0] * (budget + 1)
+        subProfit1 = [0] * (budget + 1)
+        uSize = cost
+
+        for v in g[u]:
+            child_dp0, child_dp1, vSize = self.dfs(g, v, present, future, budget)
+            uSize += vSize
+            for i in range(budget, -1, -1):
+                for sub in range(min(vSize, i) + 1):
+                    if i - sub >= 0:
+                        subProfit0[i] = max(subProfit0[i], subProfit0[i - sub] + child_dp0[sub],)
+                        subProfit1[i] = max(subProfit1[i], subProfit1[i - sub] + child_dp1[sub],)
+
+        for i in range(budget + 1):
+            dp0[i] = subProfit0[i]
+            dp1[i] = subProfit0[i]
+            if i >= dCost:
+                dp1[i] = max(subProfit0[i], subProfit1[i - dCost] + future[u] - dCost)
+            if i >= cost:
+                dp0[i] = max(subProfit0[i], subProfit1[i - cost] + future[u] - cost)
+
+        return dp0, dp1, uSize
+
+    def maxProfit(self, n: int, present: List[int], future: List[int], hierarchy: List[List[int]], budget: int) -> int:
+        retVal = 0
+
+        g = [[] for _ in range(n)]
+        for e in hierarchy:
+            g[e[0] - 1].append(e[1] - 1)
+        retVal = self.dfs(g, 0, present, future, budget)[0][budget]
+
+        return retVal
+```
+
+</details>
+
 ## [3578. Count Partitions With Max-Min Difference at Most K](https://leetcode.com/problems/count-partitions-with-max-min-difference-at-most-k/)  2033
 
 - [Official](https://leetcode.com/problems/count-partitions-with-max-min-difference-at-most-k/)
