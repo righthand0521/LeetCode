@@ -4636,3 +4636,164 @@ class Solution:
 ```
 
 </details>
+
+## [3652. Best Time to Buy and Sell Stock using Strategy](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-using-strategy/)  1557
+
+- [Official](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-using-strategy/editorial/)
+- [Official](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-using-strategy/solutions/3852536/an-ce-lue-mai-mai-gu-piao-de-zui-jia-shi-9psd/)
+
+<details><summary>Description</summary>
+
+```text
+You are given two integer arrays prices and strategy, where:
+- prices[i] is the price of a given stock on the ith day.
+- strategy[i] represents a trading action on the ith day, where:
+  - -1 indicates buying one unit of the stock.
+  - 0 indicates holding the stock.
+  - 1 indicates selling one unit of the stock.
+
+You are also given an even integer k, and may perform at most one modification to strategy. A modification consists of:
+- Selecting exactly k consecutive elements in strategy.
+- Set the first k / 2 elements to 0 (hold).
+- Set the last k / 2 elements to 1 (sell).
+
+The profit is defined as the sum of strategy[i] * prices[i] across all days.
+
+Return the maximum possible profit you can achieve.
+
+Note: There are no constraints on budget or stock ownership,
+so all buy and sell operations are feasible regardless of past actions.
+
+Example 1:
+Input: prices = [4,2,8], strategy = [-1,0,1], k = 2
+Output: 10
+Explanation:
+Modification Strategy Profit Calculation Profit
+Original [-1, 0, 1] (-1 × 4) + (0 × 2) + (1 × 8) = -4 + 0 + 8 4
+Modify [0, 1] [0, 1, 1] (0 × 4) + (1 × 2) + (1 × 8) = 0 + 2 + 8 10
+Modify [1, 2] [-1, 0, 1] (-1 × 4) + (0 × 2) + (1 × 8) = -4 + 0 + 8 4
+Thus, the maximum possible profit is 10, which is achieved by modifying the subarray [0, 1]​​​​​​​.
+
+Example 2:
+Input: prices = [5,4,3], strategy = [1,1,0], k = 2
+Output: 9
+Explanation:
+Modification Strategy Profit Calculation Profit
+Original [1, 1, 0] (1 × 5) + (1 × 4) + (0 × 3) = 5 + 4 + 0 9
+Modify [0, 1] [0, 1, 0] (0 × 5) + (1 × 4) + (0 × 3) = 0 + 4 + 0 4
+Modify [1, 2] [1, 0, 1] (1 × 5) + (0 × 4) + (1 × 3) = 5 + 0 + 3 8
+Thus, the maximum possible profit is 9, which is achieved without any modification.
+
+Constraints:
+2 <= prices.length == strategy.length <= 10^5
+1 <= prices[i] <= 10^5
+-1 <= strategy[i] <= 1
+2 <= k <= prices.length
+k is even
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use prefix sums to precompute the base profit and to get fast range queries
+   (sums of prices and counts of each strategy value over any interval).
+2. Try every segment of length k: compute the profit delta caused by replacing
+   that segment (using the prefix queries) and take the maximum of base + delta.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+long long maxProfit(int* prices, int pricesSize, int* strategy, int strategySize, int k) {
+    long long retVal = 0;
+
+    long long profitSum[pricesSize + 1];
+    memset(profitSum, 0, sizeof(profitSum));
+    long long priceSum[pricesSize + 1];
+    memset(priceSum, 0, sizeof(priceSum));
+
+    for (int i = 0; i < pricesSize; i++) {
+        profitSum[i + 1] = profitSum[i] + (long long)prices[i] * strategy[i];
+        priceSum[i + 1] = priceSum[i] + prices[i];
+    }
+    retVal = profitSum[pricesSize];
+
+    long long leftProfit, rightProfit, changeProfit, total;
+    for (int i = k - 1; i < pricesSize; i++) {
+        leftProfit = profitSum[i - k + 1];
+        rightProfit = profitSum[pricesSize] - profitSum[i + 1];
+        changeProfit = priceSum[i + 1] - priceSum[i - k / 2 + 1];
+        total = leftProfit + changeProfit + rightProfit;
+        if (total > retVal) {
+            retVal = total;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    long long maxProfit(vector<int>& prices, vector<int>& strategy, int k) {
+        long long retVal = 0;
+
+        int pricesSize = prices.size();
+
+        vector<long long> profitSum(pricesSize + 1);
+        vector<long long> priceSum(pricesSize + 1);
+        for (int i = 0; i < pricesSize; i++) {
+            profitSum[i + 1] = profitSum[i] + prices[i] * strategy[i];
+            priceSum[i + 1] = priceSum[i] + prices[i];
+        }
+        retVal = profitSum[pricesSize];
+
+        for (int i = k - 1; i < pricesSize; i++) {
+            long long leftProfit = profitSum[i - k + 1];
+            long long rightProfit = profitSum[pricesSize] - profitSum[i + 1];
+            long long changeProfit = priceSum[i + 1] - priceSum[i - k / 2 + 1];
+            retVal = max(retVal, leftProfit + changeProfit + rightProfit);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxProfit(self, prices: List[int], strategy: List[int], k: int) -> int:
+        retVal = 0
+
+        pricesSize = len(prices)
+
+        profitSum = [0] * (pricesSize + 1)
+        priceSum = [0] * (pricesSize + 1)
+        for i in range(pricesSize):
+            profitSum[i + 1] = profitSum[i] + prices[i] * strategy[i]
+            priceSum[i + 1] = priceSum[i] + prices[i]
+        retVal = profitSum[pricesSize]
+
+        for i in range(k - 1, pricesSize):
+            leftProfit = profitSum[i - k + 1]
+            rightProfit = profitSum[pricesSize] - profitSum[i + 1]
+            changeProfit = priceSum[i + 1] - priceSum[i - k // 2 + 1]
+            retVal = max(retVal, leftProfit + changeProfit + rightProfit)
+
+        return retVal
+```
+
+</details>
