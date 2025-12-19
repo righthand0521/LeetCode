@@ -24,33 +24,38 @@ class Solution:
     def findAllPeople(self, n: int, meetings: List[List[int]], firstPerson: int) -> List[int]:
         retVal = []
 
-        #
-        graph = defaultdict(list)
-        for x, y, t in meetings:
-            graph[x].append((t, y))
-            graph[y].append((t, x))
+        meetingsSize = len(meetings)
+        meetings.sort(key=lambda x: x[2])
 
-        #
-        secretDefaultValue = float('inf')
-        secret = [secretDefaultValue] * n
-        secret[0] = 0
-        secret[firstPerson] = 0
+        secret = [False] * n
+        secret[0] = secret[firstPerson] = True
 
-        #
-        bfsQueue = deque()
-        bfsQueue.append((0, 0))
-        bfsQueue.append((firstPerson, 0))
-        while bfsQueue:
-            person, time = bfsQueue.popleft()
-            for t, nextPerson in graph[person]:
-                if t >= time and secret[nextPerson] > t:
-                    secret[nextPerson] = t
-                    bfsQueue.append((nextPerson, t))
+        i = 0
+        while i < meetingsSize:
+            j = i
+            while (j + 1 < meetingsSize) and (meetings[j + 1][2] == meetings[i][2]):
+                j += 1
 
-        #
-        for i in range(n):
-            if secret[i] != secretDefaultValue:
-                retVal.append(i)
+            vertices = set()
+            edges = defaultdict(list)
+            for k in range(i, j + 1):
+                x, y = meetings[k][0], meetings[k][1]
+                vertices.update([x, y])
+                edges[x].append(y)
+                edges[y].append(x)
+
+            bfsQueue = deque([u for u in vertices if secret[u]])
+            while bfsQueue:
+                u = bfsQueue.popleft()
+                for v in edges[u]:
+                    if secret[v] == False:
+                        secret[v] = True
+                        bfsQueue.append(v)
+                        bfsQueue.append(v)
+
+            i = j + 1
+
+        retVal = [i for i in range(n) if secret[i]]
 
         return retVal
 
@@ -63,11 +68,9 @@ if __name__ == "__main__":
         print()
 
         pSolution = Solution()
-        for n, meetings, firstPerson in zip([6, 4, 5],
-                                            [[[1, 2, 5], [2, 3, 8], [1, 5, 10]],
-                                             [[3, 1, 3], [1, 2, 2], [0, 3, 3]],
-                                             [[3, 4, 2], [1, 2, 1], [2, 3, 1]]],
-                                            [1, 3, 1]):
+        for n, meetings, firstPerson in [[6, [[1, 2, 5], [2, 3, 8], [1, 5, 10]], 1],
+                                         [4, [[3, 1, 3], [1, 2, 2], [0, 3, 3]], 3],
+                                         [5, [[3, 4, 2], [1, 2, 1], [2, 3, 1]], 1]]:
             # /* Example
             #  *  Input: n = 6, meetings = [[1,2,5],[2,3,8],[1,5,10]], firstPerson = 1
             #  *  Output: [0,1,2,3,5]
@@ -78,8 +81,7 @@ if __name__ == "__main__":
             #  *  Input: n = 5, meetings = [[3,4,2],[1,2,1],[2,3,1]], firstPerson = 1
             #  *  Output: [0,1,2,3,4]
             #  */
-            logging.info(
-                "Input: n = %s, meetings = %s, firstPerson = %s", n, meetings, firstPerson)
+            logging.info("Input: n = %s, meetings = %s, firstPerson = %s", n, meetings, firstPerson)
 
             retVal = pSolution.findAllPeople(n, meetings, firstPerson)
             logging.info("Output: %s", retVal)

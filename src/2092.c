@@ -1,33 +1,138 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-int compareInteger(const void* n1, const void* n2) {
-    // ascending order
-    return (*(int*)n1 > *(int*)n2);
-}
-int compareIntArray(const void* a1, const void* a2) {
-    const int* p1 = *(const int**)a1;
-    const int* p2 = *(const int**)a2;
+#include "uthash/uthash.h"  // https://troydhanson.github.io/uthash/
 
-    // ascending order
-    return (p1[2] > p2[2]);
-}
-void GetResult(int** meetings, int start, int num, int* returnValue, int* returnSize, int* flag) {
-    int people;
-    int i;
-    int rule = 1;
-    while (rule > 0) {
-        rule = 0;
-        for (i = 0; i < num; i++) {
-            if (flag[meetings[i + start][0]] != flag[meetings[i + start][1]]) {
-                people = flag[meetings[i + start][0]] ? meetings[i + start][1] : meetings[i + start][0];
-                returnValue[(*returnSize)++] = people;
-                flag[people] = 1;
-                rule = 1;
-            }
-        }
+#ifndef HASH_TABLE_H
+#define HASH_TABLE_H
+
+typedef struct {
+    int size;
+    int capacity;
+    int* data;
+} IntVector;
+typedef struct {
+    int key;
+    IntVector* val;
+    UT_hash_handle hh;
+} HashItem;
+IntVector* createIntVector() {
+    IntVector* pRetVal = NULL;
+
+    pRetVal = (IntVector*)malloc(sizeof(IntVector));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
     }
+    pRetVal->size = 0;
+    pRetVal->capacity = 64;
+    pRetVal->data = (int*)malloc(pRetVal->capacity * sizeof(int));
+    if (pRetVal->data == NULL) {
+        perror("malloc");
+        free(pRetVal);
+        pRetVal = NULL;
+        return pRetVal;
+    }
+
+    return pRetVal;
+}
+void pushBack(IntVector* vec, int value) {
+    if (vec->size == vec->capacity) {
+        vec->capacity *= 2;
+        vec->data = (int*)realloc(vec->data, vec->capacity * sizeof(int));
+    }
+    vec->data[vec->size++] = value;
+}
+void freeIntVector(IntVector* vec) {
+    free(vec->data);
+    free(vec);
+}
+HashItem* hashFindItem(HashItem** obj, int key) {
+    HashItem* pEntry = NULL;
+
+    HASH_FIND_INT(*obj, &key, pEntry);
+
+    return pEntry;
+}
+bool hashAddItem(HashItem** obj, int key, int val) {
+    bool retVal = true;
+
+    HashItem* pEntry = NULL;
+    HASH_FIND_INT(*obj, &key, pEntry);
+    if (pEntry != NULL) {
+        pushBack(pEntry->val, val);
+    } else {
+        pEntry = (HashItem*)malloc(sizeof(HashItem));
+        pEntry->key = key;
+        pEntry->val = createIntVector();
+        pushBack(pEntry->val, val);
+        HASH_ADD_INT(*obj, key, pEntry);
+    }
+
+    return retVal;
+}
+IntVector* hashGetItem(HashItem** obj, int key) {
+    IntVector* pRetVal = NULL;
+
+    HashItem* pEntry = hashFindItem(obj, key);
+    if (pEntry != NULL) {
+        pRetVal = pEntry->val;
+    }
+
+    return pRetVal;
+}
+void hashFree(HashItem** obj) {
+    HashItem* curr = NULL;
+    HashItem* tmp = NULL;
+    HASH_ITER(hh, *obj, curr, tmp) {
+        HASH_DEL(*obj, curr);
+        freeIntVector(curr->val);
+        free(curr);
+    }
+    *obj = NULL;
+}
+typedef struct {
+    int key;
+    UT_hash_handle hh;
+} HashSetItem;
+HashSetItem* hashSetFindItem(HashSetItem** obj, int key) {
+    HashSetItem* pEntry = NULL;
+
+    HASH_FIND_INT(*obj, &key, pEntry);
+
+    return pEntry;
+}
+bool hashSetAddItem(HashSetItem** obj, int key) {
+    bool retVal = false;
+
+    if (hashSetFindItem(obj, key)) {
+        return retVal;
+    }
+    HashSetItem* pEntry = (HashSetItem*)malloc(sizeof(HashSetItem));
+    pEntry->key = key;
+    HASH_ADD_INT(*obj, key, pEntry);
+    retVal = true;
+
+    return retVal;
+}
+void hashSetFree(HashSetItem** obj) {
+    HashSetItem* curr = NULL;
+    HashSetItem* tmp = NULL;
+    HASH_ITER(hh, *obj, curr, tmp) {
+        HASH_DEL(*obj, curr);
+        free(curr);
+    }
+    *obj = NULL;
+}
+
+#endif  // HASH_TABLE_H
+int compareIntArray(const void* a, const void* b) {
+    int* meetingA = *(int**)a;
+    int* meetingB = *(int**)b;
+
+    return meetingA[2] - meetingB[2];
 }
 /**
  * Note: The returned array must be malloced, assume caller calls free().
@@ -37,63 +142,78 @@ int* findAllPeople(int n, int** meetings, int meetingsSize, int* meetingsColSize
 
     (*returnSize) = 0;
 
-    //
+    qsort(meetings, meetingsSize, sizeof(int*), compareIntArray);
+
+    bool secret[n];
+    memset(secret, false, sizeof(secret));
+    secret[0] = secret[firstPerson] = true;
+
+    HashSetItem* vertices = NULL;
+    HashItem* edges = NULL;
+
+    int bfsQueue[n];
+
+    int x, y, front, rear, value;
+    for (int i = 0; i < meetingsSize;) {
+        int j = i;
+        while ((j + 1 < meetingsSize) && (meetings[j + 1][2] == meetings[i][2])) {
+            ++j;
+        }
+
+        hashFree(&edges);
+        hashSetFree(&vertices);
+        edges = NULL;
+        for (int k = i; k <= j; ++k) {
+            x = meetings[k][0];
+            y = meetings[k][1];
+            hashSetAddItem(&vertices, x);
+            hashSetAddItem(&vertices, y);
+            hashAddItem(&edges, x, y);
+            hashAddItem(&edges, y, x);
+        }
+
+        front = 0;
+        rear = 0;
+        for (HashSetItem* pEntry = vertices; pEntry != NULL; pEntry = pEntry->hh.next) {
+            value = pEntry->key;
+            if (secret[value] == true) {
+                bfsQueue[rear++] = value;
+            }
+        }
+
+        while (front < rear) {
+            value = bfsQueue[front++];
+            IntVector* neighbors = hashGetItem(&edges, value);
+            if (neighbors == NULL) {
+                continue;
+            }
+
+            for (int idx = 0; idx < neighbors->size; ++idx) {
+                value = neighbors->data[idx];
+                if (secret[value] == false) {
+                    secret[value] = true;
+                    bfsQueue[rear++] = value;
+                }
+            }
+        }
+
+        i = j + 1;
+    }
+
     pRetVal = (int*)malloc(n * sizeof(int));
     if (pRetVal == NULL) {
         perror("malloc");
-        return pRetVal;
-    }
-    memset(pRetVal, 0, (n * sizeof(int)));
-    pRetVal[0] = 0;
-    pRetVal[1] = firstPerson;
-    (*returnSize) = 2;
-
-    //
-    qsort(meetings, meetingsSize, sizeof(int*), compareIntArray);
-
-    //
-    int* flag = (int*)malloc(n * sizeof(int));
-    if (pRetVal == NULL) {
-        perror("malloc");
-        (*returnSize) = 0;
-        free(pRetVal);
-        pRetVal = NULL;
-        return pRetVal;
-    }
-    memset(flag, 0, (n * sizeof(int)));
-    flag[0] = 1;
-    flag[firstPerson] = 1;
-
-    int people;
-    int start = 0;
-    int num = 0;
-    int i;
-    for (i = 0; i < meetingsSize; i++) {
-        if ((i > 0) && (meetings[i][2] != meetings[i - 1][2])) {
-            start = i;
-            num = 1;
-        } else {
-            num++;
-        }
-
-        if (flag[meetings[i][0]] != flag[meetings[i][1]]) {
-            people = flag[meetings[i][0]] ? meetings[i][1] : meetings[i][0];
-            pRetVal[(*returnSize)] = people;
-            (*returnSize)++;
-            flag[people] = 1;
-        }
-
-        if (((i < (meetingsSize - 1)) && (meetings[i][2] != meetings[i + 1][2])) || (i == (meetingsSize - 1))) {
-            GetResult(meetings, start, num, pRetVal, returnSize, flag);
+    } else {
+        for (int i = 0; i < n; i++) {
+            if (secret[i] == true) {
+                pRetVal[(*returnSize)++] = i;
+            }
         }
     }
 
     //
-    free(flag);
-    flag = NULL;
-
-    //
-    qsort(pRetVal, (*returnSize), sizeof(int), compareInteger);
+    hashSetFree(&vertices);
+    hashFree(&edges);
 
     return pRetVal;
 }

@@ -1,8 +1,8 @@
 ﻿#include <algorithm>
 #include <iostream>
-#include <limits>
 #include <queue>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 using namespace std;
@@ -12,41 +12,58 @@ class Solution {
     vector<int> findAllPeople(int n, vector<vector<int>>& meetings, int firstPerson) {
         vector<int> retVal;
 
-        //
-        unordered_map<int, vector<pair<int, int>>> graph;
-        for (auto& meeting : meetings) {
-            int x = meeting[0];
-            int y = meeting[1];
-            int t = meeting[2];
-            graph[x].emplace_back(t, y);
-            graph[y].emplace_back(t, x);
-        }
+        int meetingsSize = meetings.size();
+        sort(meetings.begin(), meetings.end(), [&](const auto& x, const auto& y) {
+            //
+            return x[2] < y[2];
+        });
 
-        //
-        int secretDefaultValue = std::numeric_limits<int>::max();
-        vector<int> secret(n, secretDefaultValue);
-        secret[0] = 0;
-        secret[firstPerson] = 0;
+        vector<int> secret(n);
+        secret[0] = secret[firstPerson] = true;
 
-        //
-        queue<pair<int, int>> bfsQueue;
-        bfsQueue.emplace(0, 0);
-        bfsQueue.emplace(firstPerson, 0);
-        while (bfsQueue.empty() == false) {
-            auto [person, time] = bfsQueue.front();
-            bfsQueue.pop();
-            for (auto [t, nextPerson] : graph[person]) {
-                if ((t >= time) && (secret[nextPerson] > t)) {
-                    secret[nextPerson] = t;
-                    bfsQueue.emplace(nextPerson, t);
+        unordered_set<int> vertices;
+        unordered_map<int, vector<int>> edges;
+
+        for (int i = 0; i < meetingsSize;) {
+            int j = i;
+            while ((j + 1 < meetingsSize) && (meetings[j + 1][2] == meetings[i][2])) {
+                ++j;
+            }
+
+            vertices.clear();
+            edges.clear();
+            for (int k = i; k <= j; ++k) {
+                int x = meetings[k][0];
+                int y = meetings[k][1];
+                vertices.insert(x);
+                vertices.insert(y);
+                edges[x].push_back(y);
+                edges[y].push_back(x);
+            }
+
+            queue<int> bfsQueue;
+            for (int u : vertices) {
+                if (secret[u]) {
+                    bfsQueue.push(u);
                 }
             }
+            while (bfsQueue.empty() == false) {
+                int u = bfsQueue.front();
+                bfsQueue.pop();
+                for (int v : edges[u]) {
+                    if (secret[v] == false) {
+                        secret[v] = true;
+                        bfsQueue.push(v);
+                    }
+                }
+            }
+
+            i = j + 1;
         }
 
-        //
         for (int i = 0; i < n; ++i) {
-            if (secret[i] != secretDefaultValue) {
-                retVal.push_back(i);
+            if (secret[i] == true) {
+                retVal.emplace_back(i);
             }
         }
 
