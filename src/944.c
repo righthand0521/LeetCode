@@ -5,10 +5,9 @@
 int minDeletionSize(char** strs, int strsSize) {
     int retVal = 0;
 
-    int len = strlen(strs[0]);
-    int i, j;
-    for (i = 0; i < len; ++i) {
-        for (j = 1; j < strsSize; ++j) {
+    int strSize = strlen(strs[0]);
+    for (int i = 0; i < strSize; ++i) {
+        for (int j = 1; j < strsSize; ++j) {
             if (strs[j - 1][i] > strs[j][i]) {
                 ++retVal;
                 break;
@@ -26,6 +25,16 @@ int main(int argc, char** argv) {
         int strsSize;
     } testCase[] = {{{"cba", "daf", "ghi"}, 3}, {{"a", "b"}, 2}, {{"zyx", "wvu", "tsr"}, 3}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: strs = ["cba","daf","ghi"]
+     *  Output: 1
+     *
+     *  Input: strs = ["a","b"]
+     *  Output: 0
+     *
+     *  Input: strs = ["zyx","wvu","tsr"]
+     *  Output: 3
+     */
 
     int answer = 0;
     int i, j;

@@ -4558,7 +4558,6 @@ bool validMountainArray(int* arr, int arrSize){
 
 ## [944. Delete Columns to Make Sorted](https://leetcode.com/problems/delete-columns-to-make-sorted/)  1396
 
-- [Official](https://leetcode.com/problems/delete-columns-to-make-sorted/solutions/2868555/delete-columns-to-make-sorted/)
 - [Official](https://leetcode.cn/problems/delete-columns-to-make-sorted/solutions/1483008/shan-lie-zao-xu-by-leetcode-solution-bqyy/)
 
 <details><summary>Description</summary>
@@ -4619,10 +4618,9 @@ strs[i] consists of lowercase English letters.
 int minDeletionSize(char** strs, int strsSize) {
     int retVal = 0;
 
-    int len = strlen(strs[0]);
-    int i, j;
-    for (i = 0; i < len; ++i) {
-        for (j = 1; j < strsSize; ++j) {
+    int strSize = strlen(strs[0]);
+    for (int i = 0; i < strSize; ++i) {
+        for (int j = 1; j < strsSize; ++j) {
             if (strs[j - 1][i] > strs[j][i]) {
                 ++retVal;
                 break;
@@ -4632,6 +4630,52 @@ int minDeletionSize(char** strs, int strsSize) {
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minDeletionSize(vector<string>& strs) {
+        int retVal = 0;
+
+        int strsSize = strs.size();
+        int strSize = strs[0].size();
+        for (int i = 0; i < strSize; ++i) {
+            for (int j = 1; j < strsSize; ++j) {
+                if (strs[j - 1][i] > strs[j][i]) {
+                    ++retVal;
+                    break;
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minDeletionSize(self, strs: List[str]) -> int:
+        retVal = 0
+
+        strsSize = len(strs)
+        strSize = len(strs[0])
+        for i in range(strSize):
+            for j in range(1, strsSize):
+                if strs[j - 1][i] > strs[j][i]:
+                    retVal += 1
+                    break
+
+        return retVal
 ```
 
 </details>
