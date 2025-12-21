@@ -3425,3 +3425,180 @@ class Solution:
 ```
 
 </details>
+
+## [955. Delete Columns to Make Sorted II](https://leetcode.com/problems/delete-columns-to-make-sorted-ii/)  1876
+
+- [Official](https://leetcode.com/problems/delete-columns-to-make-sorted-ii/editorial/)
+- [Official](https://leetcode.cn/problems/delete-columns-to-make-sorted-ii/solutions/17880/shan-lie-zao-xu-ii-by-leetcode/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an array of n strings strs, all of the same length.
+
+We may choose any deletion indices, and we delete all the characters in those indices for each string.
+
+For example, if we have strs = ["abcdef","uvwxyz"]
+and deletion indices {0, 2, 3}, then the final array after deletions is ["bef", "vyz"].
+
+Suppose we chose a set of deletion indices answer such that after deletions,
+the final array has its elements in lexicographic order (i.e., strs[0] <= strs[1] <= strs[2] <= ... <= strs[n - 1]).
+Return the minimum possible value of answer.length.
+
+Example 1:
+Input: strs = ["ca","bb","ac"]
+Output: 1
+Explanation:
+After deleting the first column, strs = ["a", "b", "c"].
+Now strs is in lexicographic order (ie. strs[0] <= strs[1] <= strs[2]).
+We require at least 1 deletion since initially strs was not in lexicographic order, so the answer is 1.
+
+Example 2:
+Input: strs = ["xc","yb","za"]
+Output: 0
+Explanation:
+strs is already in lexicographic order, so we do not need to delete anything.
+Note that the rows of strs are not necessarily in lexicographic order:
+i.e., it is NOT necessarily true that (strs[0][0] <= strs[0][1] <= ...)
+
+Example 3:
+Input: strs = ["zyx","wvu","tsr"]
+Output: 3
+Explanation: We have to delete every column.
+
+Constraints:
+n == strs.length
+1 <= n <= 100
+1 <= strs[i].length <= 100
+strs[i] consists of lowercase English letters.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int minDeletionSize(char** strs, int strsSize) {
+    int retVal = 0;
+
+    if (strsSize <= 1) {
+        return retVal;
+    }
+
+    int strSize = strlen(strs[0]);
+
+    // # cuts[i] is True : we don't need to check col[i] <= col[i+1]
+    bool cuts[strsSize - 1];
+    memset(cuts, false, sizeof(cuts));
+
+    bool needDelete;
+    for (int j = 0; j < strSize; ++j) {
+        needDelete = false;
+
+        // Evaluate whether we can keep this column
+        for (int i = 0; i < strsSize - 1; ++i) {
+            if ((cuts[i] == false) && (strs[i][j] > strs[i + 1][j])) {
+                // Can't keep the column - delete and continue
+                retVal += 1;
+                needDelete = true;
+                break;
+            }
+        }
+        if (needDelete == true) {
+            continue;
+        }
+
+        // Update 'cuts' information
+        for (int i = 0; i < strsSize - 1; ++i) {
+            if (strs[i][j] < strs[i + 1][j]) {
+                cuts[i] = true;
+            }
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minDeletionSize(vector<string>& strs) {
+        int retVal = 0;
+
+        int strsSize = strs.size();
+        int strSize = strs[0].size();
+
+        // # cuts[i] is True : we don't need to check col[i] <= col[i+1]
+        vector<bool> cuts(strsSize - 1, false);
+
+        for (int j = 0; j < strSize; ++j) {
+            bool needDelete = false;
+
+            // Evaluate whether we can keep this column
+            for (int i = 0; i < strsSize - 1; ++i) {
+                if ((cuts[i] == false) && (strs[i][j] > strs[i + 1][j])) {
+                    // Can't keep the column - delete and continue
+                    retVal += 1;
+                    needDelete = true;
+                    break;
+                }
+            }
+            if (needDelete == true) {
+                continue;
+            }
+
+            // Update 'cuts' information
+            for (int i = 0; i < strsSize - 1; ++i) {
+                if (strs[i][j] < strs[i + 1][j]) {
+                    cuts[i] = true;
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minDeletionSize(self, strs: List[str]) -> int:
+        retVal = 0
+
+        strsSize = len(strs)
+        strSize = len(strs[0])
+
+        # cuts[i] is True : we don't need to check col[i] <= col[i+1]
+        cuts = [False] * (strsSize - 1)
+
+        for j in range(strSize):
+            needDelete = False
+
+            # Evaluate whether we can keep this column
+            for i in range(strsSize - 1):
+                if (cuts[i] == False) and (strs[i][j] > strs[i + 1][j]):
+                    # Can't keep the column - delete and continue
+                    retVal += 1
+                    needDelete = True
+                    break
+            if needDelete == True:
+                continue
+
+            # Update 'cuts' information
+            for i in range(strsSize - 1):
+                if strs[i][j] < strs[i + 1][j]:
+                    cuts[i] = True
+
+        return retVal
+```
+
+</details>
