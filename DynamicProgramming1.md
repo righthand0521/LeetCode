@@ -11622,6 +11622,161 @@ class Solution:
 
 </details>
 
+## [960. Delete Columns to Make Sorted III](https://leetcode.com/problems/delete-columns-to-make-sorted-iii/)  2247
+
+- [Official](https://leetcode.com/problems/delete-columns-to-make-sorted-iii/editorial/)
+- [Official](https://leetcode.cn/problems/delete-columns-to-make-sorted-iii/solutions/18943/shan-lie-zao-xu-iii-by-leetcode/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an array of n strings strs, all of the same length.
+
+We may choose any deletion indices, and we delete all the characters in those indices for each string.
+
+For example, if we have strs = ["abcdef","uvwxyz"] and deletion indices {0, 2, 3},
+then the final array after deletions is ["bef", "vyz"].
+
+Suppose we chose a set of deletion indices answer such that after deletions,
+the final array has every string (row) in lexicographic order.
+(i.e., (strs[0][0] <= strs[0][1] <= ... <= strs[0][strs[0].length - 1]),
+and (strs[1][0] <= strs[1][1] <= ... <= strs[1][strs[1].length - 1]), and so on).
+Return the minimum possible value of answer.length.
+
+Example 1:
+Input: strs = ["babca","bbazb"]
+Output: 3
+Explanation: After deleting columns 0, 1, and 4, the final array is strs = ["bc", "az"].
+Both these rows are individually in lexicographic order (ie. strs[0][0] <= strs[0][1] and strs[1][0] <= strs[1][1]).
+Note that strs[0] > strs[1] - the array strs is not necessarily in lexicographic order.
+
+Example 2:
+Input: strs = ["edcba"]
+Output: 4
+Explanation: If we delete less than 4 columns, the only row will not be lexicographically sorted.
+
+Example 3:
+Input: strs = ["ghi","def","abc"]
+Output: 0
+Explanation: All rows are already lexicographically sorted.
+
+Constraints:
+n == strs.length
+1 <= n <= 100
+1 <= strs[i].length <= 100
+strs[i] consists of lowercase English letters.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int minDeletionSize(char** strs, int strsSize) {
+    int retVal = 0;
+
+    int strSize = strlen(strs[0]);
+    if (strsSize == 0) {
+        return retVal;
+    }
+
+    int dp[strSize];
+    memset(dp, 0, sizeof(dp));
+    for (int i = 0; i < strSize; ++i) {
+        dp[i] = 1;
+    }
+
+    bool needUpdate;
+    for (int i = strSize - 2; i >= 0; --i) {
+        for (int j = i + 1; j < strSize; ++j) {
+            needUpdate = true;
+            for (int k = 0; k < strsSize; ++k) {
+                if (strs[k][i] > strs[k][j]) {
+                    needUpdate = false;
+                    break;
+                }
+            }
+            if (needUpdate == true) {
+                dp[i] = fmax(dp[i], 1 + dp[j]);
+            }
+        }
+    }
+
+    int maxDp = dp[0];
+    for (int i = 1; i < strSize; ++i) {
+        if (dp[i] > maxDp) {
+            maxDp = dp[i];
+        }
+    }
+    retVal = strSize - maxDp;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minDeletionSize(vector<string>& strs) {
+        int retVal = 0;
+
+        int strSize = strs[0].size();
+
+        vector<int> dp(strSize, 1);
+        for (int i = strSize - 2; i >= 0; --i) {
+            for (int j = i + 1; j < strSize; ++j) {
+                bool needUpdate = true;
+                for (const string& s : strs) {
+                    if (s[i] > s[j]) {
+                        needUpdate = false;
+                        break;
+                    }
+                }
+                if (needUpdate == true) {
+                    dp[i] = max(dp[i], 1 + dp[j]);
+                }
+            }
+        }
+        retVal = strSize - *max_element(dp.begin(), dp.end());
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minDeletionSize(self, strs: List[str]) -> int:
+        retVal = 0
+
+        strSize = len(strs[0])
+
+        dp = [1] * strSize
+        for i in range(strSize - 2, -1, -1):
+            for j in range(i + 1, strSize):
+                needUpdate = True
+                for s in strs:
+                    if s[i] > s[j]:
+                        needUpdate = False
+                        break
+                if needUpdate == True:
+                    dp[i] = max(dp[i], 1 + dp[j])
+
+        retVal = strSize - max(dp)
+
+        return retVal
+```
+
+</details>
+
 ## [983. Minimum Cost For Tickets](https://leetcode.com/problems/minimum-cost-for-tickets/)  1786
 
 - [Official](https://leetcode.com/problems/minimum-cost-for-tickets/editorial/)
