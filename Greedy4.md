@@ -473,6 +473,117 @@ class Solution {
 
 </details>
 
+## [3074. Apple Redistribution into Boxes](https://leetcode.com/problems/apple-redistribution-into-boxes/)  1198
+
+- [Official](https://leetcode.com/problems/apple-redistribution-into-boxes/editorial/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an array apple of size n and an array capacity of size m.
+
+There are n packs where the ith pack contains apple[i] apples.
+There are m boxes as well, and the ith box has a capacity of capacity[i] apples.
+
+Return the minimum number of boxes you need to select to redistribute these n packs of apples into boxes.
+
+Note that, apples from the same pack can be distributed into different boxes.
+
+Example 1:
+Input: apple = [1,3,2], capacity = [4,3,1,5,2]
+Output: 2
+Explanation: We will use boxes with capacities 4 and 5.
+It is possible to distribute the apples as the total capacity is greater than or equal to the total number of apples.
+
+Example 2:
+Input: apple = [5,5,5], capacity = [2,4,2,7]
+Output: 4
+Explanation: We will need to use all the boxes.
+
+Constraints:
+1 <= n == apple.length <= 50
+1 <= m == capacity.length <= 50
+1 <= apple[i], capacity[i] <= 50
+The input is generated such that it's possible to redistribute packs of apples into boxes.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Sort array capacity in non-decreasing order.
+2. Greedily select boxes with the largest capacities to redistribute apples optimally.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareInteger(const void* n1, const void* n2) {
+    // descending order
+    return (*(int*)n1 < *(int*)n2);
+}
+int minimumBoxes(int* apple, int appleSize, int* capacity, int capacitySize) {
+    int retVal = 0;
+
+    qsort(capacity, capacitySize, sizeof(int), compareInteger);
+    int totalApples = 0;
+    for (int i = 0; i < appleSize; i++) {
+        totalApples += apple[i];
+    }
+    while (totalApples > 0) {
+        totalApples -= capacity[retVal];
+        retVal += 1;
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minimumBoxes(vector<int>& apple, vector<int>& capacity) {
+        int retVal = 0;
+
+        sort(capacity.begin(), capacity.end(), greater<int>());
+        int totalApples = accumulate(apple.begin(), apple.end(), 0);
+        while (totalApples > 0) {
+            totalApples -= capacity[retVal];
+            retVal += 1;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minimumBoxes(self, apple: List[int], capacity: List[int]) -> int:
+        retVal = 0
+
+        capacity.sort(reverse=True)
+        totalApples = sum(apple)
+        while totalApples > 0:
+            totalApples -= capacity[retVal]
+            retVal += 1
+
+        return retVal
+```
+
+</details>
+
 ## [3075. Maximize Happiness of Selected Children](https://leetcode.com/problems/maximize-happiness-of-selected-children/)  1325
 
 - [Official](https://leetcode.com/problems/maximize-happiness-of-selected-children/editorial/)
