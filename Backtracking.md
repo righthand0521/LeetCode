@@ -3272,6 +3272,231 @@ class Solution:
 
 </details>
 
+## [756. Pyramid Transition Matrix](https://leetcode.com/problems/pyramid-transition-matrix/)  1990
+
+- [Official](https://leetcode.com/problems/pyramid-transition-matrix/editorial/)
+- [Official](https://leetcode.cn/problems/pyramid-transition-matrix/solutions/107781/jin-zi-ta-zhuan-huan-ju-zhen-by-leetcode/)
+
+<details><summary>Description</summary>
+
+```text
+You are stacking blocks to form a pyramid. Each block has a color, which is represented by a single letter.
+Each row of blocks contains one less block than the row beneath it and is centered on top.
+
+To make the pyramid aesthetically pleasing, there are only specific triangular patterns that are allowed.
+A triangular pattern consists of a single block stacked on top of two blocks.
+The patterns are given as a list of three-letter strings allowed,
+where the first two characters of a pattern represent the left and right bottom blocks respectively,
+and the third character is the top block.
+- For example, "ABC" represents a triangular pattern
+  with a 'C' block stacked on top of an 'A' (left) and 'B' (right) block.
+  Note that this is different from "BAC" where 'B' is on the left bottom and 'A' is on the right bottom.
+
+You start with a bottom row of blocks bottom, given as a single string, that you must use as the base of the pyramid.
+
+Given bottom and allowed, return true if you can build the pyramid all the way to the top
+such that every triangular pattern in the pyramid is in allowed, or false otherwise.
+
+Example 1:
+Input: bottom = "BCD", allowed = ["BCC","CDE","CEA","FFF"]
+Output: true
+Explanation: The allowed triangular patterns are shown on the right.
+Starting from the bottom (level 3), we can build "CE" on level 2 and then build "A" on level 1.
+There are three triangular patterns in the pyramid, which are "BCC", "CDE", and "CEA". All are allowed.
+
+Example 2:
+Input: bottom = "AAAA", allowed = ["AAB","AAC","BCD","BBE","DEF"]
+Output: false
+Explanation: The allowed triangular patterns are shown on the right.
+Starting from the bottom (level 4), there are multiple ways to build level 3,
+but trying all the possibilites, you will get always stuck before building level 1.
+
+Constraints:
+2 <= bottom.length <= 6
+0 <= allowed.length <= 216
+allowed[i].length == 3
+The letters in all input strings are from the set {'A', 'B', 'C', 'D', 'E', 'F'}.
+All the values of allowed are unique.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// https://leetcode.cn/problems/pyramid-transition-matrix/solutions/3866474/tu-jie-hui-su-vis-you-hua-pythonjavacgo-9kcb9/
+#define MAXN (20)
+#define MAXGROUP (7)
+#define MAXTOPS (10)
+bool dfs(int groups[MAXGROUP][MAXGROUP][MAXTOPS], int groupSize[MAXGROUP][MAXGROUP], int* pyramid, unsigned int* vis,
+         int i, int j) {
+    bool retVal = false;
+
+    if (i < 0) {
+        retVal = true;
+    } else if (vis[pyramid[i]]) {
+        retVal = false;
+    } else if (j == i + 1) {
+        vis[pyramid[i]] = 1;
+        retVal = dfs(groups, groupSize, pyramid, vis, i - 1, 0);
+    } else {
+        int left = (pyramid[i + 1] >> (j * 3)) & 7;
+        int right = (pyramid[i + 1] >> ((j + 1) * 3)) & 7;
+        for (int k = 0; k < groupSize[left][right]; k++) {
+            int top = groups[left][right][k];
+            pyramid[i] &= ~(7 << (j * 3));
+            pyramid[i] |= top << (j * 3);
+            if (dfs(groups, groupSize, pyramid, vis, i, j + 1)) {
+                retVal = true;
+                break;
+            }
+        }
+    }
+
+    return retVal;
+}
+bool pyramidTransition(const char* bottom, char** allowed, int allowedSize) {
+    bool retVal = false;
+
+    int groups[MAXGROUP][MAXGROUP][MAXTOPS];
+    int groupSize[MAXGROUP][MAXGROUP];
+    memset(groups, 0, sizeof(groups));
+    memset(groupSize, 0, sizeof(groupSize));
+
+    for (int idx = 0; idx < allowedSize; idx++) {
+        char* s = allowed[idx];
+        int a = s[0] & 31;
+        int b = s[1] & 31;
+        int c = s[2] & 31;
+        groups[a][b][groupSize[a][b]++] = c;
+    }
+
+    int bottomSize = strlen(bottom);
+    int pyramid[MAXN] = {0};
+    for (int i = 0; i < bottomSize; i++) {
+        pyramid[bottomSize - 1] |= (bottom[i] & 31) << (i * 3);
+    }
+
+    unsigned int* vis = (unsigned int*)calloc(1 << ((bottomSize - 1) * 3), sizeof(unsigned int));
+
+    retVal = dfs(groups, groupSize, pyramid, vis, bottomSize - 2, 0);
+
+    //
+    free(vis);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+// https://leetcode.cn/problems/pyramid-transition-matrix/solutions/3866474/tu-jie-hui-su-vis-you-hua-pythonjavacgo-9kcb9/
+class Solution {
+   private:
+    bool dfs(vector<vector<vector<int>>>& groups, vector<int>& pyramid, vector<unsigned int>& vis, int i, int j) {
+        bool retVal = false;
+
+        if (i < 0) {
+            retVal = true;
+        } else if (vis[pyramid[i]]) {
+            retVal = false;
+        } else if (j == i + 1) {
+            vis[pyramid[i]] = true;
+            retVal = dfs(groups, pyramid, vis, i - 1, 0);
+        } else {
+            for (int top : groups[pyramid[i + 1] >> (j * 3) & 7][pyramid[i + 1] >> ((j + 1) * 3) & 7]) {
+                pyramid[i] &= ~(7 << (j * 3));
+                pyramid[i] |= top << (j * 3);
+                if (dfs(groups, pyramid, vis, i, j + 1)) {
+                    retVal = true;
+                    break;
+                }
+            }
+        }
+
+        return retVal;
+    }
+
+   public:
+    bool pyramidTransition(string bottom, vector<string>& allowed) {
+        bool retVal = false;
+
+        vector<vector<vector<int>>> groups(7, vector<vector<int>>(7));
+        for (auto& s : allowed) {
+            groups[s[0] & 31][s[1] & 31].push_back(s[2] & 31);
+        }
+
+        int bottomSize = bottom.size();
+        vector<int> pyramid(bottomSize);
+        for (int i = 0; i < bottomSize; i++) {
+            pyramid[bottomSize - 1] |= (bottom[i] & 31) << (i * 3);
+        }
+
+        vector<unsigned int> vis(1 << ((bottomSize - 1) * 3));
+
+        retVal = dfs(groups, pyramid, vis, bottomSize - 2, 0);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# https://leetcode.cn/problems/pyramid-transition-matrix/solutions/3866474/tu-jie-hui-su-vis-you-hua-pythonjavacgo-9kcb9/
+class Solution:
+    def __init__(self):
+        self.groups = None
+        self.pyramid = None
+        self.vis = None
+
+    def dfs(self, i: int, j: int) -> bool:
+        retVal = False
+
+        if i < 0:
+            retVal = True
+        elif self.pyramid[i] in self.vis:
+            retVal = False
+        elif j == i + 1:
+            self.vis.add(self.pyramid[i])
+            retVal = self.dfs(i - 1, 0)
+        else:
+            for top in self.groups[self.pyramid[i + 1] >> (j * 3) & 7][self.pyramid[i + 1] >> ((j + 1) * 3) & 7]:
+                self.pyramid[i] &= ~(7 << (j * 3))
+                self.pyramid[i] |= top << (j * 3)
+                if self.dfs(i, j + 1):
+                    retVal = True
+                    break
+
+        return retVal
+
+    def pyramidTransition(self, bottom: str, allowed: List[str]) -> bool:
+        retVal = False
+
+        self.groups = [[[] for _ in range(7)] for _ in range(7)]
+        for a, b, c in allowed:
+            self.groups[ord(a) & 31][ord(b) & 31].append(ord(c) & 31)
+
+        bottomSize = len(bottom)
+        self.pyramid = [0] * bottomSize
+        for i, ch in enumerate(bottom):
+            self.pyramid[-1] |= (ord(ch) & 31) << (i * 3)
+
+        self.vis = set()
+
+        retVal = self.dfs(bottomSize - 2, 0)
+
+        return retVal
+```
+
+</details>
+
 ## [784. Letter Case Permutation](https://leetcode.com/problems/letter-case-permutation)  1341
 
 - [Official](https://leetcode.cn/problems/letter-case-permutation/solutions/1934375/zi-mu-da-xiao-xie-quan-pai-lie-by-leetco-cwpx/)
