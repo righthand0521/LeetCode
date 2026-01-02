@@ -6417,6 +6417,132 @@ class Solution:
 
 </details>
 
+## [961. N-Repeated Element in Size 2N Array](https://leetcode.com/problems/n-repeated-element-in-size-2n-array/)  1162
+
+- [Official](https://leetcode.com/problems/n-repeated-element-in-size-2n-array/editorial/)
+- [Official](https://leetcode.cn/problems/n-repeated-element-in-size-2n-array/solutions/1506096/zai-chang-du-2n-de-shu-zu-zhong-zhao-chu-w88a/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array nums with the following properties:
+- nums.length == 2 * n.
+- nums contains n + 1 unique elements.
+- Exactly one element of nums is repeated n times.
+
+Return the element that is repeated n times.
+
+Example 1:
+Input: nums = [1,2,3,3]
+Output: 3
+
+Example 2:
+Input: nums = [2,1,2,5,3,2]
+Output: 2
+
+Example 3:
+Input: nums = [5,1,5,2,5,3,5,4]
+Output: 5
+
+Constraints:
+2 <= n <= 5000
+nums.length == 2 * n
+0 <= nums[i] <= 10^4
+nums contains n + 1 unique elements and one of them is repeated exactly n times.
+```
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+struct hashTable {
+    int key;
+    int value;
+    UT_hash_handle hh;
+};
+void freeAll(struct hashTable* pFree) {
+    struct hashTable* current;
+    struct hashTable* tmp;
+    HASH_ITER(hh, pFree, current, tmp) {
+        // printf("%d: %d\n", pFree->key, pFree->value);
+        HASH_DEL(pFree, current);
+        free(current);
+    }
+}
+int repeatedNTimes(int* nums, int numsSize) {
+    int retVal = 0;
+
+    struct hashTable* pHashTable = NULL;
+    struct hashTable* pEntry = NULL;
+    for (int i = 0; i < numsSize; ++i) {
+        HASH_FIND_INT(pHashTable, &nums[i], pEntry);
+        if (pEntry == NULL) {
+            pEntry = (struct hashTable*)malloc(sizeof(struct hashTable));
+            if (pEntry == NULL) {
+                freeAll(pHashTable);
+                return retVal;
+            }
+            pEntry->key = nums[i];
+            pEntry->value = 1;
+            HASH_ADD_INT(pHashTable, key, pEntry);
+        } else {
+            retVal = nums[i];
+            break;
+        }
+    }
+
+    //
+    freeAll(pHashTable);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int repeatedNTimes(vector<int>& nums) {
+        int retVal = 0;
+
+        unordered_set<int> numSet;
+        for (const int& num : nums) {
+            if (numSet.find(num) != numSet.end()) {
+                retVal = num;
+                break;
+            }
+            numSet.insert(num);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def repeatedNTimes(self, nums: List[int]) -> int:
+        retVal = 0
+
+        countMap = Counter(nums)
+        for key, value in countMap.items():
+            if value > 1:
+                retVal = key
+                break
+
+        return retVal
+```
+
+</details>
+
 ## [966. Vowel Spellchecker](https://leetcode.com/problems/vowel-spellchecker/)  1795
 
 - [Official](https://leetcode.com/problems/vowel-spellchecker/editorial/)
