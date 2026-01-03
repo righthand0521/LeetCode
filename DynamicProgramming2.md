@@ -4797,6 +4797,123 @@ class Solution:
 
 </details>
 
+## [1411. Number of Ways to Paint N × 3 Grid](https://leetcode.com/problems/number-of-ways-to-paint-n-3-grid/)  1845
+
+- [Official](https://leetcode.cn/problems/number-of-ways-to-paint-n-3-grid/solutions/209389/gei-n-x-3-wang-ge-tu-tu-se-de-fang-an-shu-by-leetc/)
+
+<details><summary>Description</summary>
+
+```text
+You have a grid of size n x 3 and you want to paint each cell of the grid with exactly one of the three colors:
+Red, Yellow, or Green while making sure that no two adjacent cells have the same color
+(i.e., no two cells that share vertical or horizontal sides have the same color).
+
+Given n the number of rows of the grid, return the number of ways you can paint this grid.
+As the answer may grow large, the answer must be computed modulo 109 + 7.
+
+Example 1:
+Input: n = 1
+Output: 12
+Explanation: There are 12 possible way to paint the grid as shown.
+
+Example 2:
+Input: n = 5000
+Output: 30228214
+
+Constraints:
+n == grid.length
+1 <= n <= 5000
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. We will use Dynamic programming approach. we will try all possible configuration.
+2. Let dp[idx][prev1col][prev2col][prev3col] be the number of ways to color the rows of the grid
+   from idx to n-1 keeping in mind that the previous row (idx - 1) has colors prev1col, prev2col and prev3col.
+   Build the dp array to get the answer.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#define MODULO (int)(1e9 + 7)
+int numOfWays(int n) {
+    int retVal = 0;
+
+    long long fi0New, fi1New;
+    long long fi0 = 6;
+    long long fi1 = 6;
+    for (int i = 2; i <= n; ++i) {
+        fi0New = (2 * fi0 + 2 * fi1) % MODULO;
+        fi1New = (2 * fi0 + 3 * fi1) % MODULO;
+        fi0 = fi0New;
+        fi1 = fi1New;
+    }
+    retVal = (fi0 + fi1) % MODULO;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    static constexpr int MODULO = 1e9 + 7;
+
+   public:
+    int numOfWays(int n) {
+        int retVal = 0;
+
+        long long fi0 = 6;
+        long long fi1 = 6;
+        for (int i = 2; i <= n; ++i) {
+            long long fi0New = (2 * fi0 + 2 * fi1) % MODULO;
+            long long fi1New = (2 * fi0 + 3 * fi1) % MODULO;
+            fi0 = fi0New;
+            fi1 = fi1New;
+        }
+        retVal = (fi0 + fi1) % MODULO;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def __init__(self) -> None:
+        self.MODULO = 10 ** 9 + 7
+
+    def numOfWays(self, n: int) -> int:
+        retVal = 0
+
+        fi0 = 6
+        fi1 = 6
+        for _ in range(2, n + 1):
+            fi0New = (2 * fi0 + 2 * fi1) % self.MODULO
+            fi1New = (2 * fi0 + 3 * fi1) % self.MODULO
+            fi0 = fi0New
+            fi1 = fi1New
+        retVal = (fi0 + fi1) % self.MODULO
+
+        return retVal
+```
+
+</details>
+
 ## [1416. Restore The Array](https://leetcode.com/problems/restore-the-array/)  1919
 
 - [Official](https://leetcode.cn/problems/restore-the-array/solutions/223857/hui-fu-shu-zu-by-leetcode-solution/)
