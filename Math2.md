@@ -1141,6 +1141,145 @@ class Solution:
 
 </details>
 
+## [1390. Four Divisors](https://leetcode.com/problems/four-divisors/)  1478
+
+- [Official](https://leetcode.cn/problems/four-divisors/solutions/166486/si-yin-shu-by-leetcode-solution/)
+
+<details><summary>Description</summary>
+
+```text
+Given an integer array nums, return the sum of divisors of the integers in that array that have exactly four divisors.
+If there is no such integer in the array, return 0.
+
+Example 1:
+Input: nums = [21,4,7]
+Output: 32
+Explanation:
+21 has 4 divisors: 1, 3, 7, 21
+4 has 3 divisors: 1, 2, 4
+7 has 2 divisors: 1, 7
+The answer is the sum of divisors of 21 only.
+
+Example 2:
+Input: nums = [21,21]
+Output: 64
+
+Example 3:
+Input: nums = [1,2,3,4,5]
+Output: 0
+
+Constraints:
+1 <= nums.length <= 10^4
+1 <= nums[i] <= 10^5
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Find the divisors of each element in the array.
+2. You only need to loop to the square root of a number to find its divisors.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int sumFourDivisors(int* nums, int numsSize) {
+    int retVal = 0;
+
+    int num, factorCount, factorSum;
+    for (int i = 0; i < numsSize; ++i) {
+        num = nums[i];
+        factorCount = 0;
+        factorSum = 0;
+        for (int j = 1; j * j <= num; ++j) {
+            if (num % j != 0) {
+                continue;
+            }
+            factorCount++;
+            factorSum += j;
+            if (j * j != num) {
+                factorCount++;
+                factorSum += (num / j);
+            }
+        }
+        if (factorCount == 4) {
+            retVal += factorSum;
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int sumFourDivisors(vector<int>& nums) {
+        int retVal = 0;
+
+        for (int num : nums) {
+            int factorCount = 0;
+            int factorSum = 0;
+            for (int i = 1; i * i <= num; ++i) {
+                if (num % i != 0) {
+                    continue;
+                }
+                factorCount++;
+                factorSum += i;
+                if (i * i != num) {
+                    factorCount++;
+                    factorSum += (num / i);
+                }
+            }
+            if (factorCount == 4) {
+                retVal += factorSum;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def sumFourDivisors(self, nums: List[int]) -> int:
+        retVal = 0
+
+        for num in nums:
+            factorCount = 0
+            factorSum = 0
+
+            i = 1
+            while i * i <= num:
+                if num % i == 0:
+                    factorCount += 1
+                    factorSum += i
+                    if i * i != num:
+                        factorCount += 1
+                        factorSum += (num // i)
+                i += 1
+
+            if factorCount == 4:
+                retVal += factorSum
+
+        return retVal
+```
+
+</details>
+
 ## [1513. Number of Substrings With Only 1s](https://leetcode.com/problems/number-of-substrings-with-only-1s/)  1351
 
 - [Official](https://leetcode.com/problems/number-of-substrings-with-only-1s/editorial/)
