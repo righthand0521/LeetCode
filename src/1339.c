@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,14 +14,14 @@
  * };
  */
 #define MODULO (int)(1e9 + 7)
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
 int postOrder(struct TreeNode* root, int* pSubTreeSum, int* returnSubTreeSumCount) {
-    if (root == NULL) {
-        return 0;
-    }
+    int retVal = 0;
 
-    int retVal = postOrder(root->left, pSubTreeSum, returnSubTreeSumCount) +
-                 postOrder(root->right, pSubTreeSum, returnSubTreeSumCount) + root->val;
+    if (root == NULL) {
+        return retVal;
+    }
+    retVal = postOrder(root->left, pSubTreeSum, returnSubTreeSumCount) +
+             postOrder(root->right, pSubTreeSum, returnSubTreeSumCount) + root->val;
     pSubTreeSum[(*returnSubTreeSumCount)++] = retVal;
 
     return retVal;
@@ -34,12 +35,11 @@ int maxProduct(struct TreeNode* root) {
     int subTreeSumCount = 0;
 
     int treeSum = postOrder(root, subTreeSum, &subTreeSumCount);
-    long long tmpRet = 0;
-    int i;
-    for (i = 0; i < subTreeSumCount; ++i) {
-        tmpRet = MAX(tmpRet, ((long long)subTreeSum[i] * (long long)(treeSum - subTreeSum[i])));
+    long long maxValue = 0;
+    for (int i = 0; i < subTreeSumCount; ++i) {
+        maxValue = fmax(maxValue, ((long long)subTreeSum[i] * (long long)(treeSum - subTreeSum[i])));
     }
-    retVal = tmpRet % MODULO;
+    retVal = maxValue % MODULO;
 
     return retVal;
 }
