@@ -1115,6 +1115,534 @@ class Solution:
 
 </details>
 
+## [3454. Separate Squares II](https://leetcode.com/problems/separate-squares-ii/)  2671
+
+- [Official](https://leetcode.com/problems/separate-squares-ii/editorial/)
+- [Official](https://leetcode.cn/problems/separate-squares-ii/solutions/3878861/fen-ge-zheng-fang-xing-ii-by-leetcode-so-baas/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 2D integer array squares.
+Each squares[i] = [xi, yi, li] represents the coordinates of the bottom-left point
+and the side length of a square parallel to the x-axis.
+
+Find the minimum y-coordinate value of a horizontal line such that
+the total area covered by squares above the line equals the total area covered by squares below the line.
+
+Answers within 10-5 of the actual answer will be accepted.
+
+Note: Squares may overlap. Overlapping areas should be counted only once in this version.
+
+Example 1:
+Input: squares = [[0,0,1],[2,2,1]]
+Output: 1.00000
+Explanation:
+Any horizontal line between y = 1 and y = 2 results in an equal split,
+with 1 square unit above and 1 square unit below. The minimum y-value is 1.
+
+Example 2:
+Input: squares = [[0,0,2],[1,1,1]]
+Output: 1.00000
+Explanation:
+Since the blue square overlaps with the red square, it will not be counted again.
+Thus, the line y = 1 splits the squares into two equal parts.
+
+Constraints:
+1 <= squares.length <= 5 * 10^4
+squares[i] = [xi, yi, li]
+squares[i].length == 3
+0 <= xi, yi <= 10^9
+1 <= li <= 10^9
+The total area of all the squares will not exceed 10^15.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use a line sweep and a segment tree.
+2. The line must lie in one of the squares.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+typedef struct {
+    int* count;
+    int* covered;
+    int* xs;
+    int n;
+} SegmentTree;
+typedef struct {
+    int y;
+    int delta;
+    int xl;
+    int xr;
+} Event;
+SegmentTree* createSegmentTree(int* xs, int xsSize) {
+    SegmentTree* pObj = NULL;
+
+    pObj = (SegmentTree*)malloc(sizeof(SegmentTree));
+    if (pObj == NULL) {
+        perror("malloc");
+        return pObj;
+    }
+    memset(pObj, 0, sizeof(SegmentTree));
+
+    pObj->xs = (int*)malloc(sizeof(int) * xsSize);
+    if (pObj->xs == NULL) {
+        perror("malloc");
+        free(pObj);
+        pObj = NULL;
+        return pObj;
+    }
+    memcpy(pObj->xs, xs, sizeof(int) * xsSize);
+
+    pObj->n = xsSize - 1;
+    int size = 4 * pObj->n;
+
+    pObj->count = (int*)calloc(size, sizeof(int));
+    if (pObj->count == NULL) {
+        perror("calloc");
+        free(pObj->xs);
+        pObj->xs = NULL;
+        free(pObj);
+        pObj = NULL;
+        return pObj;
+    }
+
+    pObj->covered = (int*)calloc(size, sizeof(int));
+    if (pObj->covered == NULL) {
+        perror("calloc");
+        free(pObj->count);
+        pObj->count = NULL;
+        free(pObj->xs);
+        pObj->xs = NULL;
+        free(pObj);
+        pObj = NULL;
+        return pObj;
+    }
+
+    return pObj;
+}
+void freeSegmentTree(SegmentTree* st) {
+    free(st->count);
+    st->count = NULL;
+    free(st->covered);
+    st->covered = NULL;
+    free(st->xs);
+    st->xs = NULL;
+    free(st);
+    st = NULL;
+}
+void modify(SegmentTree* st, int qleft, int qright, int qval, int left, int right, int pos) {
+    if ((st->xs[right + 1] <= qleft) || (st->xs[left] >= qright)) {
+        return;
+    }
+
+    int middle;
+    if ((qleft <= st->xs[left]) && (st->xs[right + 1] <= qright)) {
+        st->count[pos] += qval;
+    } else {
+        middle = (left + right) / 2;
+        modify(st, qleft, qright, qval, left, middle, pos * 2 + 1);
+        modify(st, qleft, qright, qval, middle + 1, right, pos * 2 + 2);
+    }
+
+    if (st->count[pos] > 0) {
+        st->covered[pos] = st->xs[right + 1] - st->xs[left];
+    } else {
+        if (left == right) {
+            st->covered[pos] = 0;
+        } else {
+            st->covered[pos] = st->covered[pos * 2 + 1] + st->covered[pos * 2 + 2];
+        }
+    }
+}
+void updateSegmentTree(SegmentTree* st, int qleft, int qright, int qval) {
+    modify(st, qleft, qright, qval, 0, st->n - 1, 0);
+}
+int querySegmentTree(SegmentTree* st) {
+    int retVal = st->covered[0];
+
+    return retVal;
+}
+int compareEvents(const void* a, const void* b) {
+    int retVal = 0;
+
+    Event* e1 = (Event*)a;
+    Event* e2 = (Event*)b;
+    retVal = e1->y - e2->y;
+
+    return retVal;
+}
+int compareInts(const void* a, const void* b) {
+    int retVal = *(int*)a - *(int*)b;
+
+    return retVal;
+}
+int binarySearch(long long* arr, int size, long long target) {
+    int retVal = 0;
+
+    int middle;
+    int left = 0;
+    int right = size - 1;
+    while (left <= right) {
+        middle = left + (right - left) / 2;
+        if (arr[middle] < target) {
+            left = middle + 1;
+        } else {
+            right = middle - 1;
+        }
+    }
+    retVal = left - 1;  // return the last position less than targe
+
+    return retVal;
+}
+int unique(int* arr, int arrSize) {
+    int retVal = 0;
+
+    if (arrSize <= 1) {
+        retVal = arrSize;
+        return retVal;
+    }
+
+    int j = 0;
+    for (int i = 1; i < arrSize; i++) {
+        if (arr[i] != arr[j]) {
+            j++;
+            arr[j] = arr[i];
+        }
+    }
+    retVal = j + 1;
+
+    return retVal;
+}
+double separateSquares(int** squares, int squaresSize, int* squaresColSize) {
+    double retVal = 0;
+
+    Event* events = (Event*)malloc(sizeof(Event) * squaresSize * 2);
+    if (events == NULL) {
+        perror("malloc");
+        return retVal;
+    }
+    memset(events, 0, sizeof(Event) * squaresSize * 2);
+
+    int* xs = (int*)malloc(sizeof(int) * squaresSize * 4);
+    if (xs == NULL) {
+        perror("malloc");
+        free(events);
+        events = NULL;
+        return retVal;
+    }
+    memset(xs, 0, sizeof(int) * squaresSize * 4);
+
+    int eventsSize = 0;
+    int xsSize = 0;
+
+    // collect all events and x coordinates
+    int x, y, l, xr;
+    for (int i = 0; i < squaresSize; i++) {
+        x = squares[i][0];
+        y = squares[i][1];
+        l = squares[i][2];
+        xr = x + l;
+
+        xs[xsSize++] = x;
+        xs[xsSize++] = xr;
+        events[eventsSize++] = (Event){y, 1, x, xr};
+        events[eventsSize++] = (Event){y + l, -1, x, xr};
+    }
+
+    // sort events by y-coordinate
+    qsort(events, eventsSize, sizeof(Event), compareEvents);
+    // sort and remove duplicates x-coordinate
+    qsort(xs, xsSize, sizeof(int), compareInts);
+
+    xsSize = unique(xs, xsSize);
+
+    // create a segment tree
+    SegmentTree* segTree = createSegmentTree(xs, xsSize);
+    if (segTree == NULL) {
+        free(events);
+        events = NULL;
+        free(xs);
+        xs = NULL;
+        return retVal;
+    }
+
+    // save prefix sums and widths
+    long long* psum = (long long*)malloc(sizeof(long long) * eventsSize);
+    if (psum == NULL) {
+        perror("malloc");
+        free(events);
+        events = NULL;
+        free(xs);
+        xs = NULL;
+        freeSegmentTree(segTree);
+        segTree = NULL;
+        return retVal;
+    }
+    memset(psum, 0, sizeof(long long) * eventsSize);
+
+    int* widths = (int*)malloc(sizeof(int) * eventsSize);
+    if (widths == NULL) {
+        perror("malloc");
+        free(events);
+        events = NULL;
+        free(xs);
+        xs = NULL;
+        free(psum);
+        psum = NULL;
+        freeSegmentTree(segTree);
+        segTree = NULL;
+        return retVal;
+    }
+    memset(widths, 0, sizeof(int) * eventsSize);
+
+    long long totalArea = 0LL;
+    int prev = events[0].y;
+
+    // scan: calculate total area and record intermediate states
+    int eventY, eventDelta, eventXl, eventXr;
+    for (int i = 0; i < eventsSize; i++) {
+        eventY = events[i].y;
+        eventDelta = events[i].delta;
+        eventXl = events[i].xl;
+        eventXr = events[i].xr;
+
+        totalArea += (double)querySegmentTree(segTree) * (eventY - prev);
+        updateSegmentTree(segTree, eventXl, eventXr, eventDelta);
+
+        // record prefix sums and widths
+        psum[i] = totalArea;
+        widths[i] = querySegmentTree(segTree);
+        prev = eventY;
+    }
+
+    // calculate the target area (half rounded up)
+    long long target = (long long)(totalArea + 1) / 2;
+    // find the first position greater than or equal to target using binary search
+    int idx = binarySearch(psum, eventsSize, (double)target);
+    // get the corresponding area, width, and height
+    double area = psum[idx];
+    int width = widths[idx];
+    int height = events[idx].y;
+
+    retVal = height + (totalArea - area * 2) / (width * 2.0);
+
+    //
+    free(events);
+    events = NULL;
+    free(xs);
+    xs = NULL;
+    free(psum);
+    psum = NULL;
+    free(widths);
+    widths = NULL;
+    freeSegmentTree(segTree);
+    segTree = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class SegmentTree {
+   private:
+    vector<int> count;
+    vector<int> covered;
+    vector<int> xs;
+    int n;
+
+    void modify(int qleft, int qright, int qval, int left, int right, int pos) {
+        if (xs[right + 1] <= qleft || xs[left] >= qright) {
+            return;
+        }
+
+        if ((qleft <= xs[left]) && (xs[right + 1] <= qright)) {
+            count[pos] += qval;
+        } else {
+            int middle = (left + right) / 2;
+            modify(qleft, qright, qval, left, middle, pos * 2 + 1);
+            modify(qleft, qright, qval, middle + 1, right, pos * 2 + 2);
+        }
+
+        if (count[pos] > 0) {
+            covered[pos] = xs[right + 1] - xs[left];
+        } else {
+            if (left == right) {
+                covered[pos] = 0;
+            } else {
+                covered[pos] = covered[pos * 2 + 1] + covered[pos * 2 + 2];
+            }
+        }
+    }
+
+   public:
+    SegmentTree(vector<int>& xs_) : xs(xs_) {
+        n = xs.size() - 1;
+        count.resize(4 * n, 0);
+        covered.resize(4 * n, 0);
+    }
+    void update(int qleft, int qright, int qval) {
+        //
+        modify(qleft, qright, qval, 0, n - 1, 0);
+    }
+    int query() {
+        int retVal = covered[0];
+
+        return retVal;
+    }
+};
+class Solution {
+   public:
+    double separateSquares(vector<vector<int>>& squares) {
+        double retVal = 0;
+
+        vector<tuple<int, int, int, int>> events;
+        set<int> xsSet;
+        for (auto& sq : squares) {
+            int x = sq[0];
+            int y = sq[1];
+            int l = sq[2];
+            int xr = x + l;
+            events.emplace_back(y, 1, x, xr);
+            events.emplace_back(y + l, -1, x, xr);
+            xsSet.insert(x);
+            xsSet.insert(xr);
+        }
+        // sort events by y-coordinate
+        sort(events.begin(), events.end());
+        // discrete coordinates
+        vector<int> xs(xsSet.begin(), xsSet.end());
+        // initialize the segment tree
+        SegmentTree segTree(xs);
+
+        vector<double> psum;
+        vector<int> widths;
+        double totalarea = 0.0;
+        int prev = get<0>(events[0]);
+
+        // scan: calculate total area and record intermediate states
+        for (auto& [y, delta, xl, xr] : events) {
+            int len = segTree.query();
+            totalarea += (1LL * len * (y - prev));
+            segTree.update(xl, xr, delta);
+            // record prefix sums and widths
+            psum.push_back(totalarea);
+            widths.push_back(segTree.query());
+            prev = y;
+        }
+
+        // calculate the target area (half rounded up)
+        long long target = (long long)(totalarea + 1) / 2;
+        // find the first position greater than or equal to target using binary search
+        int i = lower_bound(psum.begin(), psum.end(), target) - psum.begin() - 1;
+        // get the corresponding area, width, and height
+        double area = psum[i];
+        int width = widths[i];
+        int height = get<0>(events[i]);
+
+        retVal = height + (totalarea - area * 2) / (width * 2.0);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class SegmentTree:
+    def __init__(self, xs: List[int]):
+        self.xs = xs
+        self.n = len(xs) - 1
+        self.count = [0] * (4 * self.n)
+        self.covered = [0] * (4 * self.n)
+
+    def update(self, qleft, qright, qval, left, right, pos) -> None:
+        if (self.xs[right + 1] <= qleft) or (self.xs[left] >= qright):
+            return
+
+        if (qleft <= self.xs[left]) and (self.xs[right + 1] <= qright):
+            self.count[pos] += qval
+        else:
+            middle = (left + right) // 2
+            self.update(qleft, qright, qval, left, middle, pos * 2 + 1)
+            self.update(qleft, qright, qval, middle + 1, right, pos * 2 + 2)
+
+        if self.count[pos] > 0:
+            self.covered[pos] = self.xs[right + 1] - self.xs[left]
+        else:
+            if left == right:
+                self.covered[pos] = 0
+            else:
+                self.covered[pos] = (self.covered[pos * 2 + 1] + self.covered[pos * 2 + 2])
+
+    def query(self) -> int:
+        retVal = self.covered[0]
+
+        return retVal
+
+
+class Solution:
+    def separateSquares(self, squares: List[List[int]]) -> float:
+        retVal = 0
+
+        events = []
+        xs = set()
+        for x, y, l in squares:
+            events.append((y, 1, x, x + l))
+            events.append((y + l, -1, x, x + l))
+            xs.update([x, x + l])
+        xs = sorted(xs)
+        psegmenttree = SegmentTree(xs)
+        events.sort()
+
+        psum = []
+        widths = []
+        totalarea = 0.0
+        previousy = events[0][0]
+
+        # scan: calculate total area and record intermediate states
+        for y, delta, xl, xr in events:
+            length = psegmenttree.query()
+            totalarea += (length * (y - previousy))
+            psegmenttree.update(xl, xr, delta, 0, psegmenttree.n - 1, 0)
+            # record prefix sums and widths
+            psum.append(totalarea)
+            widths.append(psegmenttree.query())
+            previousy = y
+
+        # calculate the target area (half rounded up)
+        target = (totalarea + 1) // 2
+
+        # find the first position greater than or equal to target using binary search
+        i = bisect_left(psum, target) - 1
+
+        # get the corresponding area, width, and height
+        area = psum[i]
+        width = widths[i]
+        height = events[i][0]
+
+        retVal = height + (totalarea - area * 2) / (width * 2.0)
+
+        return retVal
+```
+
+</details>
+
 ## [3477. Fruits Into Baskets II](https://leetcode.com/problems/fruits-into-baskets-ii/description/)  1296
 
 - [Official](https://leetcode.com/problems/fruits-into-baskets-ii/editorial/)

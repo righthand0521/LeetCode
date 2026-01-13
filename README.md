@@ -165,6 +165,13 @@
 
 </details>
 
+<details><summary>Separate Squares</summary>
+
+- [3453. Separate Squares I](https://leetcode.com/problems/separate-squares-i/)
+- [3454. Separate Squares II](https://leetcode.com/problems/separate-squares-ii/)
+
+</details>
+
 ## Bit Manipulation
 
 <details><summary>Single Number</summary>
