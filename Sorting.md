@@ -5108,6 +5108,192 @@ class Solution:
 
 </details>
 
+## [2943. Maximize Area of Square Hole in Grid](https://leetcode.com/problems/maximize-area-of-square-hole-in-grid/)  1677
+
+- [Official](https://leetcode.com/problems/maximize-area-of-square-hole-in-grid/editorial/)
+- [Official](https://leetcode.cn/problems/maximize-area-of-square-hole-in-grid/solutions/3878490/zui-da-hua-wang-ge-tu-zhong-zheng-fang-x-wbvk/)
+
+<details><summary>Description</summary>
+
+```text
+You are given the two integers, n and m and two integer arrays, hBars and vBars.
+The grid has n + 2 horizontal and m + 2 vertical bars, creating 1 x 1 unit cells. The bars are indexed starting from 1.
+
+You can remove some of the bars in hBars from horizontal bars and some of the bars in vBars from vertical bars.
+Note that other bars are fixed and cannot be removed.
+
+Return an integer denoting the maximum area of a square-shaped hole in the grid,
+after removing some bars (possibly none).
+
+Example 1:
+Input: n = 2, m = 1, hBars = [2,3], vBars = [2]
+Output: 4
+Explanation:
+The left image shows the initial grid formed by the bars.
+The horizontal bars are [1,2,3,4], and the vertical bars are [1,2,3].
+One way to get the maximum square-shaped hole is by removing horizontal bar 2 and vertical bar 2.
+
+Example 2:
+Input: n = 1, m = 1, hBars = [2], vBars = [2]
+Output: 4
+Explanation:
+To get the maximum square-shaped hole, we remove horizontal bar 2 and vertical bar 2.
+
+Example 3:
+Input: n = 2, m = 3, hBars = [2,3], vBars = [2,4]
+Output: 4
+Explanation:
+One way to get the maximum square-shaped hole is by removing horizontal bar 3, and vertical bar 4.
+
+Constraints:
+1 <= n <= 10^9
+1 <= m <= 10^9
+1 <= hBars.length <= 100
+2 <= hBars[i] <= n + 1
+1 <= vBars.length <= 100
+2 <= vBars[i] <= m + 1
+All values in hBars are distinct.
+All values in vBars are distinct.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Sort hBars and vBars and consider them separately.
+2. Compute the longest sequence of consecutive integer values in each array,
+   denoted as [hx, hy] and [vx, vy], respectively.
+3. The maximum square length we can get is min(hy - hx + 2, vy - vx + 2).
+4. Square the maximum square length to get the area.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareInteger(const void* n1, const void* n2) {
+    // ascending order
+    return (*(int*)n1 > *(int*)n2);
+}
+int maximizeSquareHoleArea(int n, int m, int* hBars, int hBarsSize, int* vBars, int vBarsSize) {
+    int retVal = 0;
+
+    qsort(hBars, hBarsSize, sizeof(int), compareInteger);
+    int hmax = 1;
+    int hcur = 1;
+    for (int i = 1; i < hBarsSize; i++) {
+        if (hBars[i] == hBars[i - 1] + 1) {
+            hcur++;
+        } else {
+            hcur = 1;
+        }
+        hmax = fmax(hmax, hcur);
+    }
+
+    qsort(vBars, vBarsSize, sizeof(int), compareInteger);
+    int vmax = 1;
+    int vcur = 1;
+    for (int i = 1; i < vBarsSize; i++) {
+        if (vBars[i] == vBars[i - 1] + 1) {
+            vcur++;
+        } else {
+            vcur = 1;
+        }
+        vmax = fmax(vmax, vcur);
+    }
+
+    int side = fmin(hmax, vmax) + 1;
+    retVal = side * side;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int maximizeSquareHoleArea(int n, int m, vector<int>& hBars, vector<int>& vBars) {
+        int retVal = 0;
+
+        sort(hBars.begin(), hBars.end());
+        int hBarsSize = hBars.size();
+        int hmax = 1;
+        int hcur = 1;
+        for (int i = 1; i < hBarsSize; i++) {
+            if (hBars[i] == hBars[i - 1] + 1) {
+                hcur++;
+            } else {
+                hcur = 1;
+            }
+            hmax = max(hmax, hcur);
+        }
+
+        sort(vBars.begin(), vBars.end());
+        int vBarsSize = vBars.size();
+        int vmax = 1;
+        int vcur = 1;
+        for (int i = 1; i < vBarsSize; i++) {
+            if (vBars[i] == vBars[i - 1] + 1) {
+                vcur++;
+            } else {
+                vcur = 1;
+            }
+            vmax = max(vmax, vcur);
+        }
+
+        int side = min(hmax, vmax) + 1;
+        retVal = side * side;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maximizeSquareHoleArea(self, n: int, m: int, hBars: List[int], vBars: List[int]) -> int:
+        retVal = 0
+
+        hBars.sort()
+        hBarsSize = len(hBars)
+        hmax = 1
+        hcur = 1
+        for i in range(1, hBarsSize):
+            if hBars[i] == hBars[i - 1] + 1:
+                hcur += 1
+            else:
+                hcur = 1
+            hmax = max(hmax, hcur)
+
+        vBars.sort()
+        vBarsSize = len(vBars)
+        vmax = 1
+        vcur = 1
+        for i in range(1, vBarsSize):
+            if vBars[i] == vBars[i - 1] + 1:
+                vcur += 1
+            else:
+                vcur = 1
+            vmax = max(vmax, vcur)
+
+        side = min(hmax, vmax) + 1
+        retVal = side * side
+
+        return retVal
+```
+
+</details>
+
 ## [2948. Make Lexicographically Smallest Array by Swapping Elements](https://leetcode.com/problems/make-lexicographically-smallest-array-by-swapping-elements/)  2047
 
 - [Official](https://leetcode.com/problems/make-lexicographically-smallest-array-by-swapping-elements/editorial/)
