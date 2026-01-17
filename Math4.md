@@ -1,5 +1,92 @@
 # Math
 
+## [3021. Alice and Bob Playing Flower Game](https://leetcode.com/problems/alice-and-bob-playing-flower-game/)  1581
+
+- [Official](https://leetcode.com/problems/alice-and-bob-playing-flower-game/editorial/)
+- [Official](https://leetcode.cn/problems/alice-and-bob-playing-flower-game/solutions/3753655/alice-he-bob-wan-xian-hua-you-xi-by-leet-pkhl/)
+
+<details><summary>Description</summary>
+
+```text
+Alice and Bob are playing a turn-based game on a field, with two lanes of flowers between them.
+There are x flowers in the first lane between Alice and Bob, and y flowers in the second lane between them.
+
+The game proceeds as follows:
+1. Alice takes the first turn.
+2. In each turn, a player must choose either one of the lane and pick one flower from that side.
+3. At the end of the turn, if there are no flowers left at
+   all, the current player captures their opponent and wins the game.
+
+Given two integers, n and m, the task is to compute the number of possible pairs (x, y) that satisfy the conditions:
+- Alice must win the game according to the described rules.
+- The number of flowers x in the first lane must be in the range [1,n].
+- The number of flowers y in the second lane must be in the range [1,m].
+
+Return the number of possible pairs (x, y) that satisfy the conditions mentioned in the statement.
+
+Example 1:
+Input: n = 3, m = 2
+Output: 3
+Explanation: The following pairs satisfy conditions described in the statement: (1,2), (3,2), (2,1).
+
+Example 2:
+Input: n = 1, m = 1
+Output: 0
+Explanation: No pairs satisfy the conditions described in the statement.
+
+Constraints:
+1 <= n, m <= 10^5
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. (x, y) is valid if and only if they have different parities.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+long long flowerGame(int n, int m) {
+    long long retVal = (long long)m * n / 2;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    long long flowerGame(int n, int m) {
+        long long retVal = (long long)m * n / 2;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def flowerGame(self, n: int, m: int) -> int:
+        retVal = (m * n) // 2
+
+        return retVal
+```
+
+</details>
+
 ## [3024. Type of Triangle](https://leetcode.com/problems/type-of-triangle/)  1134
 
 - [Official](https://leetcode.com/problems/type-of-triangle/editorial/)
@@ -138,48 +225,72 @@ class Solution:
 
 </details>
 
-## [3021. Alice and Bob Playing Flower Game](https://leetcode.com/problems/alice-and-bob-playing-flower-game/)  1581
+## [3047. Find the Largest Area of Square Inside Two Rectangles](https://leetcode.com/problems/find-the-largest-area-of-square-inside-two-rectangles/)  1602
 
-- [Official](https://leetcode.com/problems/alice-and-bob-playing-flower-game/editorial/)
-- [Official](https://leetcode.cn/problems/alice-and-bob-playing-flower-game/solutions/3753655/alice-he-bob-wan-xian-hua-you-xi-by-leet-pkhl/)
+- [Official](https://leetcode.com/problems/find-the-largest-area-of-square-inside-two-rectangles/editorial/)
+- [Official](https://leetcode.cn/problems/find-the-largest-area-of-square-inside-two-rectangles/solutions/3878877/qiu-jiao-ji-qu-yu-nei-de-zui-da-zheng-fa-90ch/)
 
 <details><summary>Description</summary>
 
 ```text
-Alice and Bob are playing a turn-based game on a field, with two lanes of flowers between them.
-There are x flowers in the first lane between Alice and Bob, and y flowers in the second lane between them.
+There exist n rectangles in a 2D plane with edges parallel to the x and y axis.
+You are given two 2D integer arrays bottomLeft and topRight
+where bottomLeft[i] = [a_i, b_i] and topRight[i] = [c_i, d_i]
+represent the bottom-left and top-right coordinates of the ith rectangle, respectively.
 
-The game proceeds as follows:
-1. Alice takes the first turn.
-2. In each turn, a player must choose either one of the lane and pick one flower from that side.
-3. At the end of the turn, if there are no flowers left at
-   all, the current player captures their opponent and wins the game.
-
-Given two integers, n and m, the task is to compute the number of possible pairs (x, y) that satisfy the conditions:
-- Alice must win the game according to the described rules.
-- The number of flowers x in the first lane must be in the range [1,n].
-- The number of flowers y in the second lane must be in the range [1,m].
-
-Return the number of possible pairs (x, y) that satisfy the conditions mentioned in the statement.
+You need to find the maximum area of a square that can fit inside the intersecting region of at least two rectangles.
+Return 0 if such a square does not exist.
 
 Example 1:
-Input: n = 3, m = 2
-Output: 3
-Explanation: The following pairs satisfy conditions described in the statement: (1,2), (3,2), (2,1).
+Input: bottomLeft = [[1,1],[2,2],[3,1]], topRight = [[3,3],[4,4],[6,6]]
+Output: 1
+Explanation:
+A square with side length 1 can fit inside either the intersecting region of rectangles 0 and 1
+or the intersecting region of rectangles 1 and 2.
+Hence the maximum area is 1.
+It can be shown that a square with a greater side length can not fit inside any intersecting region of two rectangles.
 
 Example 2:
-Input: n = 1, m = 1
+Input: bottomLeft = [[1,1],[1,3],[1,5]], topRight = [[5,5],[5,7],[5,9]]
+Output: 4
+Explanation:
+A square with side length 2 can fit inside either the intersecting region of rectangles 0 and 1
+or the intersecting region of rectangles 1 and 2.
+Hence the maximum area is 2 * 2 = 4.
+It can be shown that a square with a greater side length can not fit inside any intersecting region of two rectangles.
+
+Example 3:
+Input: bottomLeft = [[1,1],[2,2],[1,2]], topRight = [[3,3],[4,4],[3,4]]
+Output: 1
+Explanation:
+A square with side length 1 can fit inside the intersecting region of any two rectangles.
+Also, no larger square can, so the maximum area is 1.
+Note that the region can be formed by the intersection of more than 2 rectangles.
+
+Example 4:
+Input: bottomLeft = [[1,1],[3,3],[3,1]], topRight = [[2,2],[4,4],[4,2]]
 Output: 0
-Explanation: No pairs satisfy the conditions described in the statement.
+Explanation:
+No pair of rectangles intersect, hence, the answer is 0.
 
 Constraints:
-1 <= n, m <= 10^5
+n == bottomLeft.length == topRight.length
+2 <= n <= 10^3
+bottomLeft[i].length == topRight[i].length == 2
+1 <= bottomLeft[i][0], bottomLeft[i][1] <= 10^7
+1 <= topRight[i][0], topRight[i][1] <= 10^7
+bottomLeft[i][0] < topRight[i][0]
+bottomLeft[i][1] < topRight[i][1]
 ```
 
 <details><summary>Hint</summary>
 
 ```text
-1. (x, y) is valid if and only if they have different parities.
+1. Brute Force the intersection area of each pair of rectangles.
+2. Two rectangles will not overlap when the bottom left x coordinate of one rectangle
+   is greater than the top right x coordinate of the other rectangle.
+   The same is true for the y coordinate.
+3. The intersection area (if any) is also a rectangle. Find its corners.
 ```
 
 </details>
@@ -189,8 +300,27 @@ Constraints:
 <details><summary>C</summary>
 
 ```c
-long long flowerGame(int n, int m) {
-    long long retVal = (long long)m * n / 2;
+long long largestSquareArea(int** bottomLeft, int bottomLeftSize, int* bottomLeftColSize, int** topRight,
+                            int topRightSize, int* topRightColSize) {
+    long long retVal = 0;
+
+    long long maxSide = 0;
+    int weight, high, side;
+    for (int i = 0; i < bottomLeftSize; i++) {
+        for (int j = i + 1; j < bottomLeftSize; j++) {
+            weight = fmin(topRight[i][0], topRight[j][0]) - fmax(bottomLeft[i][0], bottomLeft[j][0]);
+            high = fmin(topRight[i][1], topRight[j][1]) - fmax(bottomLeft[i][1], bottomLeft[j][1]);
+            if ((weight < 0) || (high < 0)) {
+                continue;
+            }
+
+            side = fmin(weight, high);
+            if ((long long)side > maxSide) {
+                maxSide = (long long)side;
+            }
+        }
+    }
+    retVal = maxSide * maxSide;
 
     return retVal;
 }
@@ -203,8 +333,20 @@ long long flowerGame(int n, int m) {
 ```c++
 class Solution {
    public:
-    long long flowerGame(int n, int m) {
-        long long retVal = (long long)m * n / 2;
+    long long largestSquareArea(vector<vector<int>>& bottomLeft, vector<vector<int>>& topRight) {
+        long long retVal = 0;
+
+        int bottomLeftSize = bottomLeft.size();
+        int maxSide = 0;
+        for (int i = 0; i < bottomLeftSize; i++) {
+            for (int j = i + 1; j < bottomLeftSize; j++) {
+                int weight = min(topRight[i][0], topRight[j][0]) - max(bottomLeft[i][0], bottomLeft[j][0]);
+                int high = min(topRight[i][1], topRight[j][1]) - max(bottomLeft[i][1], bottomLeft[j][1]);
+
+                maxSide = max(maxSide, min(weight, high));
+            }
+        }
+        retVal = 1LL * maxSide * maxSide;
 
         return retVal;
     }
@@ -217,8 +359,15 @@ class Solution {
 
 ```python
 class Solution:
-    def flowerGame(self, n: int, m: int) -> int:
-        retVal = (m * n) // 2
+    def largestSquareArea(self, bottomLeft: List[List[int]], topRight: List[List[int]]) -> int:
+        retVal = 0
+
+        maxSide = 0
+        for (bottomleftX, toprightX), (bottomleftY, topRightY,) in combinations(zip(bottomLeft, topRight), 2):
+            weight = min(toprightX[0], topRightY[0]) - max(bottomleftX[0], bottomleftY[0])
+            high = min(toprightX[1], topRightY[1]) - max(bottomleftX[1], bottomleftY[1])
+            maxSide = max(maxSide, min(weight, high))
+        retVal = maxSide * maxSide
 
         return retVal
 ```
