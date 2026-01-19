@@ -575,6 +575,198 @@ class Solution:
 
 </details>
 
+## [1292. Maximum Side Length of a Square with Sum Less than or Equal to Threshold](https://leetcode.com/problems/maximum-side-length-of-a-square-with-sum-less-than-or-equal-to-threshold/)  1735
+
+- [Official](https://leetcode.com/problems/maximum-side-length-of-a-square-with-sum-less-than-or-equal-to-threshold/editorial/)
+- [Official](https://leetcode.cn/problems/maximum-side-length-of-a-square-with-sum-less-than-or-equal-to-threshold/solutions/101737/yuan-su-he-xiao-yu-deng-yu-yu-zhi-de-zheng-fang-2/)
+
+<details><summary>Description</summary>
+
+```text
+Given a m x n matrix mat and an integer threshold,
+return the maximum side-length of a square with a sum less than or equal to threshold
+or return 0 if there is no such square.
+
+Example 1:
+Input: mat = [[1,1,3,2,4,3,2],[1,1,3,2,4,3,2],[1,1,3,2,4,3,2]], threshold = 4
+Output: 2
+Explanation: The maximum side length of square with sum less than 4 is 2 as shown.
+
+Example 2:
+Input: mat = [[2,2,2,2,2],[2,2,2,2,2],[2,2,2,2,2],[2,2,2,2,2],[2,2,2,2,2]], threshold = 1
+Output: 0
+
+Constraints:
+m == mat.length
+n == mat[i].length
+1 <= m, n <= 300
+0 <= mat[i][j] <= 10^4
+0 <= threshold <= 10^5
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Store prefix sum of all grids in another 2D array.
+2. Try all possible solutions and if you cannot find one return -1.
+3. If x is a valid answer then any y < x is also valid answer. Use binary search to find answer.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int getRect(int** P, int x1, int y1, int x2, int y2) {
+    int retVal = P[x2][y2] - P[x1 - 1][y2] - P[x2][y1 - 1] + P[x1 - 1][y1 - 1];
+
+    return retVal;
+}
+int maxSideLength(int** mat, int matSize, int* matColSize, int threshold) {
+    int retVal = 0;
+
+    int rowSize = matSize;
+    int colSize = matColSize[0];
+
+    int** P = (int**)malloc((rowSize + 1) * sizeof(int*));
+    if (P == NULL) {
+        perror("malloc");
+        return retVal;
+    }
+    for (int i = 0; i <= rowSize; i++) {
+        P[i] = (int*)calloc(colSize + 1, sizeof(int));
+        if (P[i] == NULL) {
+            perror("calloc");
+            goto exit;
+        }
+    }
+    for (int i = 1; i <= rowSize; i++) {
+        for (int j = 1; j <= colSize; j++) {
+            P[i][j] = P[i - 1][j] + P[i][j - 1] - P[i - 1][j - 1] + mat[i - 1][j - 1];
+        }
+    }
+
+    int r = (rowSize < colSize) ? (rowSize) : (colSize);
+    for (int i = 1; i <= rowSize; i++) {
+        for (int j = 1; j <= colSize; j++) {
+            for (int c = retVal + 1; c <= r; c++) {
+                if (i + c - 1 > rowSize) {
+                    break;
+                } else if (j + c - 1 > colSize) {
+                    break;
+                } else if (getRect(P, i, j, i + c - 1, j + c - 1) > threshold) {
+                    break;
+                }
+                retVal = c;
+            }
+        }
+    }
+
+exit:
+    for (int i = 0; i <= rowSize; i++) {
+        if (P[i] != NULL) {
+            free(P[i]);
+            P[i] = NULL;
+        }
+    }
+    free(P);
+    P = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int getRect(const vector<vector<int>>& P, int x1, int y1, int x2, int y2) {
+        int retVal = P[x2][y2] - P[x1 - 1][y2] - P[x2][y1 - 1] + P[x1 - 1][y1 - 1];
+
+        return retVal;
+    }
+
+   public:
+    int maxSideLength(vector<vector<int>>& mat, int threshold) {
+        int retVal = 0;
+
+        int rowSize = mat.size();
+        int colSize = mat[0].size();
+
+        vector<vector<int>> P(rowSize + 1, vector<int>(colSize + 1));
+        for (int i = 1; i <= rowSize; ++i) {
+            for (int j = 1; j <= colSize; ++j) {
+                P[i][j] = P[i - 1][j] + P[i][j - 1] - P[i - 1][j - 1] + mat[i - 1][j - 1];
+            }
+        }
+
+        int r = min(rowSize, colSize);
+        for (int i = 1; i <= rowSize; ++i) {
+            for (int j = 1; j <= colSize; ++j) {
+                for (int c = retVal + 1; c <= r; ++c) {
+                    if (i + c - 1 > rowSize) {
+                        break;
+                    } else if (j + c - 1 > colSize) {
+                        break;
+                    } else if (getRect(P, i, j, i + c - 1, j + c - 1) > threshold) {
+                        break;
+                    }
+
+                    ++retVal;
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def getRect(self, P: List[List[int]], x1: int, y1: int, x2: int, y2: int) -> int:
+        retVal = P[x2][y2] - P[x1 - 1][y2] - P[x2][y1 - 1] + P[x1 - 1][y1 - 1]
+
+        return retVal
+
+    def maxSideLength(self, mat: List[List[int]], threshold: int) -> int:
+        retVal = 0
+
+        rowSize = len(mat)
+        colSize = len(mat[0])
+
+        P = [[0] * (colSize + 1) for _ in range(rowSize + 1)]
+        for i in range(1, rowSize + 1):
+            for j in range(1, colSize + 1):
+                P[i][j] = P[i - 1][j] + P[i][j - 1] - P[i - 1][j - 1] + mat[i - 1][j - 1]
+
+        r = min(rowSize, colSize)
+        for i in range(1, rowSize + 1):
+            for j in range(1, colSize + 1):
+                for c in range(retVal + 1, r + 1):
+                    if i + c - 1 > rowSize:
+                        break
+                    elif j + c - 1 > colSize:
+                        break
+                    elif self.getRect(P, i, j, i + c - 1, j + c - 1) > threshold:
+                        break
+
+                    retVal += 1
+
+        return retVal
+```
+
+</details>
+
 ## [1337. The K Weakest Rows in a Matrix](https://leetcode.com/problems/the-k-weakest-rows-in-a-matrix/)  1224
 
 - [Official](https://leetcode.cn/problems/the-k-weakest-rows-in-a-matrix/solutions/130589/fang-zhen-zhong-zhan-dou-li-zui-ruo-de-k-xing-by-l/)
