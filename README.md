@@ -197,6 +197,13 @@
 
 </details>
 
+<details><summary>Construct the Minimum Bitwise Array</summary>
+
+- [3314. Construct the Minimum Bitwise Array I](https://leetcode.com/problems/construct-the-minimum-bitwise-array-i/)
+- [3315. Construct the Minimum Bitwise Array II](https://leetcode.com/problems/construct-the-minimum-bitwise-array-ii/)
+
+</details>
+
 ## Design
 
 <details><summary><a href="https://en.wikipedia.org/wiki/Cache_replacement_policies" target="_blank" style="color:gray">Cache replacement policies</a></summary>
