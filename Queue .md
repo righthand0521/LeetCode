@@ -8207,3 +8207,555 @@ class Solution:
 ```
 
 </details>
+
+## [3510. Minimum Pair Removal to Sort Array II](https://leetcode.com/problems/minimum-pair-removal-to-sort-array-ii/description/)  2608
+
+- [Official](https://leetcode.com/problems/minimum-pair-removal-to-sort-array-ii/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-pair-removal-to-sort-array-ii/solutions/3880129/yi-chu-zui-xiao-shu-dui-shi-shu-zu-you-x-klaf/)
+
+<details><summary>Description</summary>
+
+```text
+Given an array nums, you can perform the following operation any number of times:
+- Select the adjacent pair with the minimum sum in nums. If multiple such pairs exist, choose the leftmost one.
+- Replace the pair with their sum.
+
+Return the minimum number of operations needed to make the array non-decreasing.
+
+An array is said to be non-decreasing if each element is greater than or equal to its previous element (if it exists).
+
+Example 1:
+Input: nums = [5,2,3,1]
+Output: 2
+Explanation:
+The pair (3,1) has the minimum sum of 4. After replacement, nums = [5,2,4].
+The pair (2,4) has the minimum sum of 6. After replacement, nums = [5,6].
+The array nums became non-decreasing in two operations.
+
+Example 2:
+Input: nums = [1,2,2]
+Output: 0
+Explanation:
+The array nums is already sorted.
+
+Constraints:
+1 <= nums.length <= 10^5
+-10^9 <= nums[i] <= 10^9
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. We can perform the simulation using data structures.
+2. Maintain an array index and value using a map since we need to find the next and previous ones.
+3. Maintain the indices to be removed using a hash set.
+4. Maintain the neighbor sums with the smaller indices (set or priority queue).
+5. Keep the 3 structures in sync during the removals.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#ifndef HEAP_H
+#define HEAP_H
+
+#define MIN_QUEUE_SIZE (4096)
+typedef struct Node {
+    long long value;
+    int left;
+    struct Node* prev;
+    struct Node* next;
+} Node;
+Node* createNode(long long value, int left) {
+    Node* pObj = NULL;
+
+    pObj = (Node*)malloc(sizeof(Node));
+    if (pObj == NULL) {
+        perror("malloc");
+        return pObj;
+    }
+    pObj->value = value;
+    pObj->left = left;
+    pObj->prev = NULL;
+    pObj->next = NULL;
+
+    return pObj;
+}
+typedef struct QueueItem {
+    Node* first;
+    Node* second;
+    long long cost;
+    int firstLeft;
+    int secondLeft;
+} QueueItem;
+typedef struct Element {
+    QueueItem item;
+} Element;
+typedef bool (*CompareFunc)(const void*, const void*);
+static bool itemLess(const void* a, const void* b) {
+    bool retVal = false;
+
+    const Element* e1 = (const Element*)a;
+    const Element* e2 = (const Element*)b;
+    const QueueItem* item1 = &e1->item;
+    const QueueItem* item2 = &e2->item;
+
+    retVal = (item1->firstLeft > item2->firstLeft);
+    if (item1->cost != item2->cost) {
+        retVal = (item1->cost > item2->cost);
+    }
+
+    return retVal;
+}
+static void swap(Element* arr, int i, int j) {
+    Element t = arr[i];
+    arr[i] = arr[j];
+    arr[j] = t;
+}
+typedef struct PriorityQueue {
+    Element* arr;
+    int capacity;
+    int queueSize;
+    CompareFunc lessFunc;
+} PriorityQueue;
+PriorityQueue* createPriorityQueue(CompareFunc cmpFunc) {
+    PriorityQueue* pObj = NULL;
+
+    pObj = (PriorityQueue*)malloc(sizeof(PriorityQueue));
+    if (pObj == NULL) {
+        perror("malloc");
+        return pObj;
+    }
+    pObj->capacity = MIN_QUEUE_SIZE;
+    pObj->arr = (Element*)malloc(sizeof(Element) * pObj->capacity);
+    pObj->queueSize = 0;
+    pObj->lessFunc = cmpFunc;
+
+    return pObj;
+}
+static void down(Element* arr, int size, int i, CompareFunc cmpFunc) {
+    int left, right, smallest;
+    while (true) {
+        left = 2 * i + 1;
+        right = 2 * i + 2;
+        smallest = i;
+        if (left < size && cmpFunc(&arr[smallest], &arr[left])) {
+            smallest = left;
+        }
+        if (right < size && cmpFunc(&arr[smallest], &arr[right])) {
+            smallest = right;
+        }
+        if (smallest == i) {
+            break;
+        }
+        swap(arr, i, smallest);
+        i = smallest;
+    }
+}
+void enQueue(PriorityQueue* obj, const QueueItem* item) {
+    if (obj->queueSize == obj->capacity) {
+        obj->capacity *= 2;
+        obj->arr = (Element*)realloc(obj->arr, sizeof(Element) * obj->capacity);
+    }
+
+    obj->arr[obj->queueSize].item = *item;
+
+    int parent;
+    int i = obj->queueSize;
+    while (i > 0) {
+        parent = (i - 1) / 2;
+        if (!obj->lessFunc(&obj->arr[parent], &obj->arr[i])) {
+            break;
+        }
+        swap(obj->arr, i, parent);
+        i = parent;
+    }
+
+    obj->queueSize++;
+}
+QueueItem* deQueue(PriorityQueue* obj) {
+    QueueItem* pRetVal = NULL;
+
+    if (obj->queueSize == 0) {
+        return pRetVal;
+    }
+
+    swap(obj->arr, 0, obj->queueSize - 1);
+    pRetVal = &obj->arr[obj->queueSize - 1].item;
+    obj->queueSize--;
+    if (obj->queueSize > 0) {
+        down(obj->arr, obj->queueSize, 0, obj->lessFunc);
+    }
+
+    return pRetVal;
+}
+QueueItem* front(const PriorityQueue* obj) {
+    QueueItem* pRetVal = NULL;
+
+    if (obj->queueSize != 0) {
+        pRetVal = &obj->arr[0].item;
+    }
+
+    return pRetVal;
+}
+bool isEmpty(const PriorityQueue* obj) {
+    bool retVal = (obj->queueSize == 0);
+
+    return retVal;
+}
+int size(const PriorityQueue* obj) {
+    int retVal = obj->queueSize;
+
+    return retVal;
+}
+void freeQueue(PriorityQueue* obj) {
+    free(obj->arr);
+    obj->arr = NULL;
+    free(obj);
+    obj = NULL;
+}
+
+#endif  // HEAP_H
+int minimumPairRemoval(int* nums, int numsSize) {
+    int retVal = 0;
+
+    Node** nodes = (Node**)malloc(numsSize * sizeof(Node*));
+    if (nodes == NULL) {
+        perror("malloc");
+        return retVal;
+    }
+    for (int i = 0; i < numsSize; i++) {
+        nodes[i] = createNode(nums[i], i);
+        if (nodes[i] == NULL) {
+            perror("malloc");
+            goto exit_nodes;
+        }
+        if (i > 0) {
+            nodes[i - 1]->next = nodes[i];
+            nodes[i]->prev = nodes[i - 1];
+        }
+    }
+
+    PriorityQueue* pq = createPriorityQueue(itemLess);
+    if (pq == NULL) {
+        perror("malloc");
+        goto exit_nodes;
+    }
+    int decreaseCount = 0;
+    for (int i = 1; i < numsSize; i++) {
+        QueueItem item;
+        item.first = nodes[i - 1];
+        item.second = nodes[i];
+        item.cost = item.first->value + item.second->value;
+        item.firstLeft = item.first->left;
+        item.secondLeft = item.second->left;
+        enQueue(pq, &item);
+        if (nums[i - 1] > nums[i]) {
+            decreaseCount++;
+        }
+    }
+
+    bool* merged = (bool*)calloc(numsSize, sizeof(bool));
+    if (merged == NULL) {
+        perror("calloc");
+        goto exit_pq;
+    }
+    while (decreaseCount > 0 && !isEmpty(pq)) {
+        QueueItem* itemPtr = deQueue(pq);
+        if (itemPtr == NULL) {
+            break;
+        }
+
+        QueueItem item = *itemPtr;
+        if ((merged[item.firstLeft] == true) || (merged[item.secondLeft] == true)) {
+            continue;
+        }
+
+        Node* first = item.first;
+        Node* second = item.second;
+        long long cost = item.cost;
+        if ((first == NULL) || (second == NULL)) {
+            continue;
+        }
+        if (first->next != second) {
+            continue;
+        }
+        if (first->value + second->value != cost) {
+            continue;
+        }
+
+        retVal++;
+
+        if (first->value > second->value) {
+            decreaseCount--;
+        }
+
+        Node* prevNode = first->prev;
+        Node* nextNode = second->next;
+        first->next = nextNode;
+        if (nextNode != NULL) {
+            nextNode->prev = first;
+        }
+        second->prev = NULL;
+        second->next = NULL;
+
+        if (prevNode != NULL) {
+            if (prevNode->value > first->value && prevNode->value <= cost) {
+                decreaseCount--;
+            }
+            if (prevNode->value <= first->value && prevNode->value > cost) {
+                decreaseCount++;
+            }
+
+            QueueItem newItem;
+            newItem.first = prevNode;
+            newItem.second = first;
+            newItem.cost = prevNode->value + cost;
+            newItem.firstLeft = prevNode->left;
+            newItem.secondLeft = first->left;
+            enQueue(pq, &newItem);
+        }
+
+        if (nextNode != NULL) {
+            if (second->value > nextNode->value && cost <= nextNode->value) {
+                decreaseCount--;
+            }
+            if (second->value <= nextNode->value && cost > nextNode->value) {
+                decreaseCount++;
+            }
+
+            QueueItem newItem;
+            newItem.first = first;
+            newItem.second = nextNode;
+            newItem.cost = cost + nextNode->value;
+            newItem.firstLeft = first->left;
+            newItem.secondLeft = nextNode->left;
+            enQueue(pq, &newItem);
+        }
+
+        first->value = cost;
+        merged[second->left] = true;
+    }
+
+    //
+    free(merged);
+    merged = NULL;
+exit_pq:
+    freeQueue(pq);
+    pq = NULL;
+exit_nodes:
+    for (int i = 0; i < numsSize; i++) {
+        if (nodes[i]) {
+            free(nodes[i]);
+            nodes[i] = NULL;
+        }
+    }
+    free(nodes);
+    nodes = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+const int MAX_NODE = 100005;
+struct Node {
+    long long value;
+    int left;
+};
+using ListIt = std::list<Node>::iterator;
+struct Pair {
+    ListIt first;
+    ListIt second;
+    int firstLeft;
+    int secondLeft;
+    long long cost;
+
+    Pair() {}
+    Pair(ListIt fi, ListIt se, long long cost)
+        : first(fi), second(se), firstLeft(fi->left), secondLeft(se->left), cost(cost) {}
+};
+struct ComparePair {
+    bool operator()(const Pair& a, const Pair& b) {
+        bool retVal = (a.firstLeft > b.firstLeft);
+
+        if (a.cost != b.cost) {
+            retVal = (a.cost > b.cost);
+        }
+
+        return retVal;
+    }
+};
+class Solution {
+   public:
+    int minimumPairRemoval(vector<int>& nums) {
+        int retVal = 0;
+
+        int numsSize = nums.size();
+
+        list<Node> list;
+        list.push_back({nums[0], 0});
+        priority_queue<Pair, vector<Pair>, ComparePair> pq;
+        int decreaseCount = 0;
+        for (int i = 1; i < numsSize; ++i) {
+            list.push_back({nums[i], (int)i});
+
+            auto current = prev(list.end());
+            auto previous = prev(current);
+
+            pq.push({previous, current, previous->value + current->value});
+
+            if (nums[i - 1] > nums[i]) {
+                decreaseCount++;
+            }
+        }
+
+        bitset<MAX_NODE> merged;
+        while ((decreaseCount > 0) && (pq.empty() == false)) {
+            auto top = pq.top();
+            pq.pop();
+
+            if ((merged[top.firstLeft] == true) || (merged[top.secondLeft] == true)) {
+                continue;
+            }
+
+            auto first = top.first;
+            auto second = top.second;
+            auto cost = top.cost;
+            if (first->value + second->value != cost) {
+                continue;
+            }
+
+            retVal++;
+
+            if (first->value > second->value) {
+                decreaseCount--;
+            }
+
+            ListIt previous = (first == list.begin()) ? list.end() : prev(first);
+            ListIt next = std::next(second);
+            if (previous != list.end()) {
+                if ((previous->value > first->value) && (previous->value <= cost)) {
+                    decreaseCount--;
+                }
+                if ((previous->value <= first->value) && (previous->value > cost)) {
+                    decreaseCount++;
+                }
+                pq.push({previous, first, previous->value + cost});
+            }
+
+            if (next != list.end()) {
+                if ((second->value > next->value) && (cost <= next->value)) {
+                    decreaseCount--;
+                }
+                if ((second->value <= next->value) && (cost > next->value)) {
+                    decreaseCount++;
+                }
+                pq.push({first, next, cost + next->value});
+            }
+
+            first->value = cost;
+            merged[second->left] = 1;
+            list.erase(second);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Node:
+    def __init__(self, value: int, left: int) -> None:
+        self.value = value
+        self.left = left
+        self.prev = None
+        self.next = None
+
+
+class PQItem:
+    def __init__(self, first: Node, second: Node, cost: int) -> None:
+        self.first = first
+        self.second = second
+        self.cost = cost
+
+    def __lt__(self, other: "PQItem") -> bool:
+        retVal = (self.cost < other.cost)
+
+        if self.cost == other.cost:
+            retVal = (self.first.left < other.first.left)
+
+        return retVal
+
+
+class Solution:
+    def minimumPairRemoval(self, nums: List[int]) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+
+        pq = []
+        head = Node(nums[0], 0)
+        current = head
+        decreaseCount = 0
+        for i in range(1, numsSize):
+            newNode = Node(nums[i], i)
+            current.next = newNode
+            newNode.prev = current
+            heappush(pq, PQItem(current, newNode, current.value + newNode.value))
+            if nums[i - 1] > nums[i]:
+                decreaseCount += 1
+            current = newNode
+
+        merged = [False] * numsSize
+        while decreaseCount > 0:
+            item = heappop(pq)
+            first = item.first
+            second = item.second
+            cost = item.cost
+
+            if (merged[first.left] == True) or (merged[second.left] == True) or (first.value + second.value != cost):
+                continue
+
+            retVal += 1
+
+            if first.value > second.value:
+                decreaseCount -= 1
+
+            prevNode = first.prev
+            nextNode = second.next
+            first.next = nextNode
+            if nextNode:
+                nextNode.prev = first
+            if prevNode:
+                if (prevNode.value > first.value) and (prevNode.value <= cost):
+                    decreaseCount -= 1
+                elif (prevNode.value <= first.value) and (prevNode.value > cost):
+                    decreaseCount += 1
+                heappush(pq, PQItem(prevNode, first, prevNode.value + cost))
+            if nextNode:
+                if (second.value > nextNode.value) and (cost <= nextNode.value):
+                    decreaseCount -= 1
+                elif (second.value <= nextNode.value) and (cost > nextNode.value):
+                    decreaseCount += 1
+                heappush(pq, PQItem(first, nextNode, cost + nextNode.value))
+
+            first.value = cost
+            merged[second.left] = True
+
+        return retVal
+```
+
+</details>

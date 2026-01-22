@@ -622,6 +622,15 @@
 
 </details>
 
+## Queue
+
+<details><summary>Minimum Pair Removal to Sort Array</summary>
+
+- [3507. Minimum Pair Removal to Sort Array I](https://leetcode.com/problems/minimum-pair-removal-to-sort-array-i/)
+- [3510. Minimum Pair Removal to Sort Array II](https://leetcode.com/problems/minimum-pair-removal-to-sort-array-ii/description/)
+
+</details>
+
 ## Sliding Window
 
 <details><summary>Minimum Size</summary>
