@@ -3585,6 +3585,126 @@ class Solution:
 
 </details>
 
+## [1984. Minimum Difference Between Highest and Lowest of K Scores](https://leetcode.com/problems/minimum-difference-between-highest-and-lowest-of-k-scores/)  1306
+
+- [Official](https://leetcode.com/problems/minimum-difference-between-highest-and-lowest-of-k-scores/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-difference-between-highest-and-lowest-of-k-scores/solutions/1252772/xue-sheng-fen-shu-de-zui-xiao-chai-zhi-b-oodu/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed integer array nums, where nums[i] represents the score of the ith student.
+You are also given an integer k.
+
+Pick the scores of any k students from the array
+so that the difference between the highest and the lowest of the k scores is minimized.
+
+Return the minimum possible difference.
+
+Example 1:
+Input: nums = [90], k = 1
+Output: 0
+Explanation: There is one way to pick score(s) of one student:
+- [90]. The difference between the highest and lowest score is 90 - 90 = 0.
+The minimum possible difference is 0.
+
+Example 2:
+Input: nums = [9,4,1,7], k = 2
+Output: 2
+Explanation: There are six ways to pick score(s) of two students:
+- [9,4,1,7]. The difference between the highest and lowest score is 9 - 4 = 5.
+- [9,4,1,7]. The difference between the highest and lowest score is 9 - 1 = 8.
+- [9,4,1,7]. The difference between the highest and lowest score is 9 - 7 = 2.
+- [9,4,1,7]. The difference between the highest and lowest score is 4 - 1 = 3.
+- [9,4,1,7]. The difference between the highest and lowest score is 7 - 4 = 3.
+- [9,4,1,7]. The difference between the highest and lowest score is 7 - 1 = 6.
+The minimum possible difference is 2.
+
+Constraints:
+1 <= k <= nums.length <= 1000
+0 <= nums[i] <= 10^5
+```
+
+<details><summary>Hint</summary>
+
+```text
+1, For the difference between the highest and lowest element to be minimized,
+   the k chosen scores need to be as close to each other as possible.
+2. What if the array was sorted?
+3. After sorting the scores, any contiguous k scores are as close to each other as possible.
+4. Apply a sliding window solution to iterate over each contiguous k scores,
+   and find the minimum of the differences of all windows.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareInteger(const void* n1, const void* n2) {
+    // ascending order
+    return (*(int*)n1 > *(int*)n2);
+}
+int minimumDifference(int* nums, int numsSize, int k) {
+    int retVal = 0;
+
+    qsort(nums, numsSize, sizeof(int), compareInteger);
+
+    retVal = INT_MAX;
+    for (int i = 0; i <= numsSize - k; ++i) {
+        retVal = fmin(retVal, nums[i + k - 1] - nums[i]);
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minimumDifference(vector<int>& nums, int k) {
+        int retVal = 0;
+
+        sort(nums.begin(), nums.end());
+
+        retVal = numeric_limits<int>::max();
+        int numsSize = nums.size();
+        for (int i = 0; i <= numsSize - k; ++i) {
+            retVal = min(retVal, nums[i + k - 1] - nums[i]);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minimumDifference(self, nums: List[int], k: int) -> int:
+        retVal = 0
+
+        nums.sort()
+
+        retVal = sys.maxsize
+        numsSize = len(nums)
+        for i in range(numsSize - k + 1):
+            retVal = min(retVal, nums[i + k - 1] - nums[i])
+
+        return retVal
+```
+
+</details>
+
 ## [2033. Minimum Operations to Make a Uni-Value Grid](https://leetcode.com/problems/minimum-operations-to-make-a-uni-value-grid/)  1671
 
 - [Official](https://leetcode.com/problems/minimum-operations-to-make-a-uni-value-grid/editorial/)
