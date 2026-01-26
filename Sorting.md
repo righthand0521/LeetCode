@@ -2451,6 +2451,185 @@ class Solution:
 
 </details>
 
+## [1200. Minimum Absolute Difference](https://leetcode.com/problems/minimum-absolute-difference/)  1199
+
+- [Official](https://leetcode.cn/problems/minimum-absolute-difference/solutions/1641099/zui-xiao-jue-dui-chai-by-leetcode-soluti-7g0e/)
+
+<details><summary>Description</summary>
+
+```text
+Given an array of distinct integers arr,
+find all pairs of elements with the minimum absolute difference of any two elements.
+
+Return a list of pairs in ascending order(with respect to pairs), each pair [a, b] follows
+- a, b are from arr
+- a < b
+- b - a equals to the minimum absolute difference of any two elements in arr
+
+Example 1:
+Input: arr = [4,2,1,3]
+Output: [[1,2],[2,3],[3,4]]
+Explanation: The minimum absolute difference is 1. List all pairs with difference equal to 1 in ascending order.
+
+Example 2:
+Input: arr = [1,3,6,10,15]
+Output: [[1,3]]
+
+Example 3:
+Input: arr = [3,8,-10,23,19,-4,-14,27]
+Output: [[-14,-10],[19,23],[23,27]]
+
+Constraints:
+2 <= arr.length <= 10^5
+-10^6 <= arr[i] <= 10^6
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Find the minimum absolute difference between two elements in the array.
+2. The minimum absolute difference must be a difference between two consecutive elements in the sorted array.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int compareInteger(const void* n1, const void* n2) {
+    // ascending order
+    return (*(int*)n1 > *(int*)n2);
+}
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int** minimumAbsDifference(int* arr, int arrSize, int* returnSize, int** returnColumnSizes) {
+    int** pRetVal = NULL;
+
+    (*returnSize) = 0;
+    (*returnColumnSizes) = NULL;
+
+    pRetVal = (int**)malloc(arrSize * sizeof(int*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+
+    qsort(arr, arrSize, sizeof(int), compareInteger);
+    int minDiff = INT_MAX;
+    for (int i = 1; i < arrSize; ++i) {
+        int diff = arr[i] - arr[i - 1];
+        if (diff < minDiff) {
+            minDiff = diff;
+            for (int j = 0; j < (*returnSize); ++j) {
+                free(pRetVal[j]);
+                pRetVal[j] = NULL;
+            }
+            (*returnSize) = 0;
+            pRetVal[(*returnSize)] = (int*)malloc(2 * sizeof(int));
+            if (pRetVal[(*returnSize)] == NULL) {
+                perror("malloc");
+                goto exit;
+            }
+            pRetVal[(*returnSize)][0] = arr[i - 1];
+            pRetVal[(*returnSize)][1] = arr[i];
+            (*returnSize)++;
+        } else if (diff == minDiff) {
+            pRetVal[(*returnSize)] = (int*)malloc(2 * sizeof(int));
+            if (pRetVal[(*returnSize)] == NULL) {
+                perror("malloc");
+                goto exit;
+            }
+            pRetVal[(*returnSize)][0] = arr[i - 1];
+            pRetVal[(*returnSize)][1] = arr[i];
+            (*returnSize)++;
+        }
+    }
+
+    (*returnColumnSizes) = (int*)malloc((*returnSize) * sizeof(int));
+    if ((*returnColumnSizes) == NULL) {
+        perror("malloc");
+        goto exit;
+    }
+    for (int i = 0; i < (*returnSize); ++i) {
+        (*returnColumnSizes)[i] = 2;
+    }
+
+    return pRetVal;
+
+exit:
+    for (int i = 0; i < (*returnSize); ++i) {
+        free(pRetVal[i]);
+        pRetVal[i] = NULL;
+    }
+    free(pRetVal);
+    pRetVal = NULL;
+    (*returnSize) = 0;
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<vector<int>> minimumAbsDifference(vector<int>& arr) {
+        vector<vector<int>> retVal;
+
+        int arrSize = arr.size();
+
+        sort(arr.begin(), arr.end());
+        int minDiff = numeric_limits<int>::max();
+        for (int i = 1; i < arrSize; ++i) {
+            int diff = arr[i] - arr[i - 1];
+            if (diff < minDiff) {
+                minDiff = diff;
+                retVal.clear();
+                retVal.push_back({arr[i - 1], arr[i]});
+            } else if (diff == minDiff) {
+                retVal.push_back({arr[i - 1], arr[i]});
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minimumAbsDifference(self, arr: List[int]) -> List[List[int]]:
+        retVal = []
+
+        arrSize = len(arr)
+
+        arr.sort()
+        minDiff = sys.maxsize
+        for i in range(1, arrSize):
+            diff = arr[i] - arr[i - 1]
+            if diff < minDiff:
+                minDiff = diff
+                retVal = [[arr[i - 1], arr[i]]]
+            elif diff == minDiff:
+                retVal.append([arr[i - 1], arr[i]])
+
+        return retVal
+```
+
+</details>
+
 ## [1365. How Many Numbers Are Smaller Than the Current Number](https://leetcode.com/problems/how-many-numbers-are-smaller-than-the-current-number/)  1152
 
 - [Official](https://leetcode.cn/problems/how-many-numbers-are-smaller-than-the-current-number/solutions/122909/you-duo-shao-xiao-yu-dang-qian-shu-zi-de-shu-zi--2/)
