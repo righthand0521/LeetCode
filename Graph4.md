@@ -2126,3 +2126,444 @@ class Solution:
 ```
 
 </details>
+
+## [3650. Minimum Cost Path with Edge Reversals](https://leetcode.com/problems/minimum-cost-path-with-edge-reversals/)  1854
+
+- [Official](https://leetcode.com/problems/minimum-cost-path-with-edge-reversals/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-cost-path-with-edge-reversals/solutions/3887138/bian-fan-zhuan-de-zui-xiao-lu-jing-zong-5yugt/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a directed, weighted graph with n nodes labeled from 0 to n - 1,
+and an array edges where edges[i] = [ui, vi, wi] represents a directed edge from node ui to node vi with cost wi.
+
+Each node ui has a switch that can be used at most once: when you arrive at ui and have not yet used its switch,
+you may activate it on one of its incoming edges vi → ui reverse that edge to ui → vi and immediately traverse it.
+
+The reversal is only valid for that single move, and using a reversed edge costs 2 * wi.
+
+Return the minimum total cost to travel from node 0 to node n - 1. If it is not possible, return -1.
+
+Example 1:
+Input: n = 4, edges = [[0,1,3],[3,1,1],[2,3,4],[0,2,2]]
+Output: 5
+Explanation:
+Use the path 0 → 1 (cost 3).
+At node 1 reverse the original edge 3 → 1 into 1 → 3 and traverse it at cost 2 * 1 = 2.
+Total cost is 3 + 2 = 5.
+
+Example 2:
+Input: n = 4, edges = [[0,2,1],[2,1,1],[1,3,1],[2,3,3]]
+Output: 3
+Explanation:
+No reversal is needed. Take the path 0 → 2 (cost 1), then 2 → 1 (cost 1), then 1 → 3 (cost 1).
+Total cost is 1 + 1 + 1 = 3.
+
+Constraints:
+2 <= n <= 5 * 10^4
+1 <= edges.length <= 10^5
+edges[i] = [ui, vi, wi]
+0 <= ui, vi <= n - 1
+1 <= wi <= 1000
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Do we only need to reverse at most one edge for each node?
+   If so, can we add reversed edges for each node and use the one that helps in the shortest path?
+2. Add reverse edges: {u, v, w} -> {v, u, 2 * w}, and use Dijkstra.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#ifndef PRIORITYQUEUE_H
+#define PRIORITYQUEUE_H
+
+#define MIN_QUEUE_SIZE (64)
+
+typedef struct Element {
+    int data[2];
+} Element;
+typedef bool (*compare)(const void*, const void*);
+typedef struct PriorityQueue {
+    Element* arr;
+    int capacity;
+    int queueSize;
+    compare lessFunc;
+} PriorityQueue;
+Element* createElement(int x, int y) {
+    Element* pObj = NULL;
+
+    pObj = (Element*)malloc(sizeof(Element));
+    if (pObj == NULL) {
+        perror("malloc");
+        return pObj;
+    }
+    pObj->data[0] = x;
+    pObj->data[1] = y;
+
+    return pObj;
+}
+static bool less(const void* a, const void* b) {
+    bool retVal = false;
+
+    Element* e1 = (Element*)a;
+    Element* e2 = (Element*)b;
+    retVal = e1->data[0] > e2->data[0];
+
+    return retVal;
+}
+#if 0
+static bool greater(const void* a, const void* b) {
+    bool retVal = false;
+
+    Element* e1 = (Element*)a;
+    Element* e2 = (Element*)b;
+    retVal = e1->data[0] < e2->data[0];
+
+    return retVal;
+}
+#endif
+static void memswap(void* m1, void* m2, size_t size) {
+    unsigned char* a = (unsigned char*)m1;
+    unsigned char* b = (unsigned char*)m2;
+    while (size--) {
+        *b ^= *a;
+        *a ^= *b;
+        *b ^= *a;
+        a++;
+        b++;
+    }
+}
+static void swap(Element* arr, int i, int j) {
+    //
+    memswap(&arr[i], &arr[j], sizeof(Element));
+}
+static void down(Element* arr, int size, int i, compare cmpFunc) {
+    for (int k = 2 * i + 1; k < size; k = 2 * k + 1) {
+        if (k + 1 < size && cmpFunc(&arr[k], &arr[k + 1])) {
+            k++;
+        }
+
+        if (cmpFunc(&arr[k], &arr[(k - 1) / 2])) {
+            break;
+        }
+
+        swap(arr, k, (k - 1) / 2);
+    }
+}
+PriorityQueue* createPriorityQueue(compare cmpFunc) {
+    PriorityQueue* pObj = NULL;
+
+    pObj = (PriorityQueue*)malloc(sizeof(PriorityQueue));
+    if (pObj == NULL) {
+        perror("malloc");
+        return pObj;
+    }
+    pObj->capacity = MIN_QUEUE_SIZE;
+    pObj->arr = (Element*)malloc(sizeof(Element) * pObj->capacity);
+    pObj->queueSize = 0;
+    pObj->lessFunc = cmpFunc;
+
+    return pObj;
+}
+void heapfiy(PriorityQueue* obj) {
+    for (int i = obj->queueSize / 2 - 1; i >= 0; i--) {
+        down(obj->arr, obj->queueSize, i, obj->lessFunc);
+    }
+}
+void enQueue(PriorityQueue* obj, Element* e) {
+    // we need to alloc more space, just twice space size
+    if (obj->queueSize == obj->capacity) {
+        obj->capacity *= 2;
+        obj->arr = realloc(obj->arr, sizeof(Element) * obj->capacity);
+    }
+    memcpy(&obj->arr[obj->queueSize], e, sizeof(Element));
+
+    for (int i = obj->queueSize; i > 0 && obj->lessFunc(&obj->arr[(i - 1) / 2], &obj->arr[i]); i = (i - 1) / 2) {
+        swap(obj->arr, i, (i - 1) / 2);
+    }
+    obj->queueSize++;
+}
+Element* deQueue(PriorityQueue* obj) {
+    swap(obj->arr, 0, obj->queueSize - 1);
+    down(obj->arr, obj->queueSize - 1, 0, obj->lessFunc);
+    Element* e = &obj->arr[obj->queueSize - 1];
+    obj->queueSize--;
+
+    return e;
+}
+bool isEmpty(const PriorityQueue* obj) {
+    bool retVal = (obj->queueSize == 0);
+
+    return retVal;
+}
+Element* front(const PriorityQueue* obj) {
+    Element* pRetVal = NULL;
+
+    if (obj->queueSize != 0) {
+        pRetVal = &obj->arr[0];
+    }
+
+    return pRetVal;
+}
+void clear(PriorityQueue* obj) {
+    //
+    obj->queueSize = 0;
+}
+int size(const PriorityQueue* obj) {
+    int retVal = obj->queueSize;
+
+    return retVal;
+}
+void freeQueue(PriorityQueue* obj) {
+    free(obj->arr);
+    obj->arr = NULL;
+    free(obj);
+    obj = NULL;
+}
+
+#endif  // PRIORITYQUEUE_H
+#ifndef GRAPH_H
+#define GRAPH_H
+
+typedef struct AdjNode {
+    int vertex;
+    int weight;
+    struct AdjNode* next;
+} AdjNode;
+typedef struct {
+    AdjNode** lists;
+    int n;
+} Graph;
+AdjNode* createAdjNode(int vertex, int weight) {
+    AdjNode* pObj = NULL;
+
+    pObj = (AdjNode*)malloc(sizeof(AdjNode));
+    if (pObj == NULL) {
+        perror("malloc");
+        return pObj;
+    }
+    pObj->vertex = vertex;
+    pObj->weight = weight;
+    pObj->next = NULL;
+
+    return pObj;
+}
+Graph* createGraph(int n) {
+    Graph* pObj = NULL;
+
+    pObj = (Graph*)malloc(sizeof(Graph));
+    if (pObj == NULL) {
+        perror("malloc");
+        return pObj;
+    }
+    pObj->n = n;
+    pObj->lists = (AdjNode**)malloc(n * sizeof(AdjNode*));
+    for (int i = 0; i < n; i++) {
+        pObj->lists[i] = NULL;
+    }
+
+    return pObj;
+}
+void addEdge(Graph* graph, int src, int dest, int weight) {
+    AdjNode* newNode = createAdjNode(dest, weight);
+    if (newNode == NULL) {
+        perror("createAdjNode");
+        return;
+    }
+    newNode->next = graph->lists[src];
+    graph->lists[src] = newNode;
+
+    AdjNode* reverseNode = createAdjNode(src, 2 * weight);
+    if (reverseNode == NULL) {
+        perror("createAdjNode");
+        return;
+    }
+    reverseNode->next = graph->lists[dest];
+    graph->lists[dest] = reverseNode;
+}
+void freeGraph(Graph* graph) {
+    if (graph == NULL) {
+        return;
+    }
+
+    AdjNode *current, *temp;
+    for (int i = 0; i < graph->n; i++) {
+        current = graph->lists[i];
+        while (current != NULL) {
+            temp = current;
+            current = current->next;
+            free(temp);
+            temp = NULL;
+        }
+    }
+    free(graph->lists);
+    graph->lists = NULL;
+    free(graph);
+    graph = NULL;
+}
+
+#endif  // GRAPH_H
+int minCost(int n, int** edges, int edgesSize, int* edgesColSize) {
+    int retVal = -1;
+
+    Graph* adjacency = createGraph(n);
+    int src, dest, weight;
+    for (int i = 0; i < edgesSize; i++) {
+        src = edges[i][0];
+        dest = edges[i][1];
+        weight = edges[i][2];
+        addEdge(adjacency, src, dest, weight);
+    }
+
+    int* distance = (int*)malloc(n * sizeof(int));
+    for (int i = 0; i < n; i++) {
+        distance[i] = INT_MAX;
+    }
+    distance[0] = 0;
+
+    bool* visited = (bool*)calloc(n, sizeof(bool));
+
+    PriorityQueue* heap = createPriorityQueue(less);
+    Element startElem;
+    startElem.data[0] = 0;
+    startElem.data[1] = 0;
+    enQueue(heap, &startElem);
+
+    Element *current, newElem;
+    int currentDistance, x, y, w;
+    while (isEmpty(heap) != true) {
+        current = front(heap);
+        currentDistance = current->data[0];
+        x = current->data[1];
+        deQueue(heap);
+
+        if (x == n - 1) {
+            retVal = currentDistance;
+            break;
+        }
+
+        if (visited[x] == true) {
+            continue;
+        }
+        visited[x] = true;
+
+        for (AdjNode* neighbor = adjacency->lists[x]; neighbor != NULL; neighbor = neighbor->next) {
+            y = neighbor->vertex;
+            w = neighbor->weight;
+            if (currentDistance + w < distance[y]) {
+                distance[y] = currentDistance + w;
+
+                newElem.data[0] = distance[y];
+                newElem.data[1] = y;
+                enQueue(heap, &newElem);
+            }
+        }
+    }
+
+    //
+    free(distance);
+    free(visited);
+    freeQueue(heap);
+    freeGraph(adjacency);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minCost(int n, vector<vector<int>>& edges) {
+        int retVal = -1;
+
+        vector<vector<pair<int, int>>> adjacency(n);
+        for (auto& e : edges) {
+            int x = e[0];
+            int y = e[1];
+            int w = e[2];
+            adjacency[x].emplace_back(y, w);
+            adjacency[y].emplace_back(x, 2 * w);
+        }
+
+        vector<int> distance(n, numeric_limits<int>::max());
+        distance[0] = 0;
+        vector<bool> visited(n, false);
+        priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> heap;
+        heap.emplace(0, 0);
+        while (heap.empty() == false) {
+            int x = heap.top().second;
+            heap.pop();
+            if (x == n - 1) {
+                retVal = distance[x];
+                break;
+            }
+
+            if (visited[x] == true) {
+                continue;
+            }
+            visited[x] = true;
+
+            for (auto& [y, w] : adjacency[x]) {
+                if (distance[x] + w < distance[y]) {
+                    distance[y] = distance[x] + w;
+                    heap.emplace(distance[y], y);
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minCost(self, n: int, edges: List[List[int]]) -> int:
+        retVal = -1
+
+        adjacency = [[] for _ in range(n)]
+        for x, y, w in edges:
+            adjacency[x].append((y, w))
+            adjacency[y].append((x, 2 * w))
+
+        distance = [float('inf')] * n
+        distance[0] = 0
+        visited = [False] * n
+        heap = [(0, 0)]  # (Distance, Node)
+        while heap:
+            currentDistance, x = heappop(heap)
+            if x == n - 1:
+                retVal = currentDistance
+                break
+
+            if visited[x] == True:
+                continue
+            visited[x] = True
+
+            for y, w in adjacency[x]:
+                newDistance = currentDistance + w
+                if newDistance < distance[y]:
+                    distance[y] = newDistance
+                    heappush(heap, (newDistance, y))
+
+        return retVal
+```
+
+</details>
