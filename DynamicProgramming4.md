@@ -3036,3 +3036,273 @@ class Solution:
 ```
 
 </details>
+
+## [3651. Minimum Cost Path with Teleportations](https://leetcode.com/problems/minimum-cost-path-with-teleportations/)  2411
+
+- [Official](https://leetcode.com/problems/minimum-cost-path-with-teleportations/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-cost-path-with-teleportations/solutions/3883954/dai-chuan-song-de-zui-xiao-lu-jing-cheng-gc8s/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a m x n 2D integer array grid and an integer k.
+You start at the top-left cell (0, 0) and your goal is to reach the bottom‐right cell (m - 1, n - 1).
+
+There are two types of moves available:
+- Normal move:
+  You can move right or down from your current cell (i, j),
+  i.e. you can move to (i, j + 1) (right) or (i + 1, j) (down).
+  The cost is the value of the destination cell.
+- Teleportation:
+  You can teleport from any cell (i, j), to any cell (x, y) such that grid[x][y] <= grid[i][j];
+  the cost of this move is 0.
+  You may teleport at most k times.
+
+Return the minimum total cost to reach cell (m - 1, n - 1) from (0, 0).
+
+Example 1:
+Input: grid = [[1,3,3],[2,5,4],[4,3,5]], k = 2
+Output: 7
+Explanation:
+Initially we are at (0, 0) and cost is 0.
++------------------+--------------------+--------------+------------+
+| Current Position |        Move        | New Position | Total Cost |
+|           (0, 0) | Move Down          |       (1, 0) |  0 + 2 = 2 |
+|           (1, 0) | Move Right         |       (1, 1) |  2 + 5 = 7 |
+|           (1, 1) | Teleport to (2, 2) |       (2, 2) |  7 + 0 = 7 |
++------------------+--------------------+--------------+------------+
+The minimum cost to reach bottom-right cell is 7.
+
+Example 2:
+Input: grid = [[1,2],[2,3],[3,4]], k = 1
+Output: 9
+Explanation:
+Initially we are at (0, 0) and cost is 0.
++------------------+------------+--------------+------------+
+| Current Position |    Move    | New Position | Total Cost |
+|           (0, 0) | Move Down  |       (1, 0) |  0 + 2 = 2 |
+|           (1, 0) | Move Right |       (1, 1) |  2 + 3 = 5 |
+|           (1, 1) | Move Down  |       (2, 1) |  5 + 4 = 9 |
++------------------+------------+--------------+------------+
+The minimum cost to reach bottom-right cell is 9.
+
+Constraints:
+2 <= m, n <= 80
+m == grid.length
+n == grid[i].length
+0 <= grid[i][j] <= 10^4
+0 <= k <= 10
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use dynamic programming to solve the problem efficiently.
+2. Think of the solution in terms of up to k teleportation steps.
+   At each step, compute the minimum cost to reach each cell,
+   either through a normal move or a teleportation from the previous step.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+static int** gridPtr = NULL;
+int compareIntArray(const void* a, const void* b) {
+    int retVal = 0;
+
+    int* pa = (int*)a;
+    int* pb = (int*)b;
+    retVal = gridPtr[pa[0]][pa[1]] - gridPtr[pb[0]][pb[1]];
+
+    return retVal;
+}
+int minCost(int** grid, int gridSize, int* gridColSize, int k) {
+    int retVal = 0;
+
+    int rowSize = gridSize;
+    int colSize = gridColSize[0];
+
+    gridPtr = grid;
+    int points[rowSize * colSize][2], idx = 0;
+    for (int i = 0; i < rowSize; i++) {
+        for (int j = 0; j < colSize; j++) {
+            points[idx][0] = i;
+            points[idx++][1] = j;
+        }
+    }
+    qsort(points, rowSize * colSize, sizeof(points[0]), compareIntArray);
+
+    int costs[rowSize][colSize];
+    for (int i = 0; i < rowSize; i++) {
+        for (int j = 0; j < colSize; j++) {
+            costs[i][j] = INT_MAX;
+        }
+    }
+
+    int minCost, x, y;
+    for (int t = 0; t <= k; t++) {
+        minCost = INT_MAX;
+        for (int i = 0, j = 0; i < rowSize * colSize; i++) {
+            x = points[i][0];
+            y = points[i][1];
+            minCost = fmin(minCost, costs[x][y]);
+
+            if ((i + 1 < rowSize * colSize) && (grid[x][y] == grid[points[i + 1][0]][points[i + 1][1]])) {
+                continue;
+            }
+
+            for (int r = j; r <= i; r++) {
+                costs[points[r][0]][points[r][1]] = minCost;
+            }
+
+            j = i + 1;
+        }
+
+        for (int i = rowSize - 1; i >= 0; i--) {
+            for (int j = colSize - 1; j >= 0; j--) {
+                if ((i == rowSize - 1) && (j == colSize - 1)) {
+                    costs[i][j] = 0;
+                    continue;
+                }
+
+                if (i != rowSize - 1) {
+                    costs[i][j] = fmin(costs[i][j], costs[i + 1][j] + grid[i + 1][j]);
+                }
+
+                if (j != colSize - 1) {
+                    costs[i][j] = fmin(costs[i][j], costs[i][j + 1] + grid[i][j + 1]);
+                }
+            }
+        }
+    }
+    retVal = costs[0][0];
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int minCost(vector<vector<int>>& grid, int k) {
+        int retVal = 0;
+
+        int rowSize = grid.size();
+        int colSize = grid[0].size();
+
+        vector<pair<int, int>> points;
+        for (int i = 0; i < rowSize; i++) {
+            for (int j = 0; j < colSize; j++) {
+                points.push_back({i, j});
+            }
+        }
+        sort(points.begin(), points.end(), [&](const auto& p1, const auto& p2) -> bool {
+            return grid[p1.first][p1.second] < grid[p2.first][p2.second];
+        });
+        int pointsSize = points.size();
+
+        vector<vector<int>> costs(rowSize, vector<int>(colSize, numeric_limits<int>::max()));
+        for (int t = 0; t <= k; t++) {
+            int minCost = numeric_limits<int>::max();
+
+            for (int i = 0, j = 0; i < pointsSize; i++) {
+                int x = points[i].first;
+                int y = points[i].second;
+
+                minCost = min(minCost, costs[x][y]);
+
+                if ((i + 1 < pointsSize) && (grid[x][y] == grid[points[i + 1].first][points[i + 1].second])) {
+                    continue;
+                }
+
+                for (int r = j; r <= i; r++) {
+                    costs[points[r].first][points[r].second] = minCost;
+                }
+
+                j = i + 1;
+            }
+
+            for (int i = rowSize - 1; i >= 0; i--) {
+                for (int j = colSize - 1; j >= 0; j--) {
+                    if ((i == rowSize - 1) && (j == colSize - 1)) {
+                        costs[i][j] = 0;
+                        continue;
+                    }
+
+                    if (i != rowSize - 1) {
+                        costs[i][j] = min(costs[i][j], costs[i + 1][j] + grid[i + 1][j]);
+                    }
+
+                    if (j != colSize - 1) {
+                        costs[i][j] = min(costs[i][j], costs[i][j + 1] + grid[i][j + 1]);
+                    }
+                }
+            }
+        }
+        retVal = costs[0][0];
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def minCost(self, grid: List[List[int]], k: int) -> int:
+        retVal = 0
+
+        rowSize = len(grid)
+        colSize = len(grid[0])
+
+        points = [(i, j) for i in range(rowSize) for j in range(colSize)]
+        points.sort(key=lambda p: grid[p[0]][p[1]])
+        pointsSize = len(points)
+        costs = [[float("inf")] * colSize for _ in range(rowSize)]
+        for _ in range(k + 1):
+            minCost = float("inf")
+
+            j = 0
+            for i in range(pointsSize):
+                x = points[i][0]
+                y = points[i][1]
+                minCost = min(minCost, costs[x][y])
+
+                if ((i + 1 < pointsSize) and (grid[x][y] == grid[points[i + 1][0]][points[i + 1][1]])):
+                    i += 1
+                    continue
+
+                for r in range(j, i + 1):
+                    costs[points[r][0]][points[r][1]] = minCost
+
+                j = i + 1
+
+            for i in range(rowSize - 1, -1, -1):
+                for j in range(colSize - 1, -1, -1):
+                    if (i == rowSize - 1) and (j == colSize - 1):
+                        costs[i][j] = 0
+                        continue
+
+                    if i != rowSize - 1:
+                        costs[i][j] = min(costs[i][j], costs[i + 1][j] + grid[i + 1][j])
+
+                    if j != colSize - 1:
+                        costs[i][j] = min(costs[i][j], costs[i][j + 1] + grid[i][j + 1])
+
+        retVal = costs[0][0]
+
+        return retVal
+```
+
+</details>
