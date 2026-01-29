@@ -413,6 +413,13 @@
 
 </details>
 
+<details><summary>Minimum Cost to Convert String</summary>
+
+- [2976. Minimum Cost to Convert String I](https://leetcode.com/problems/minimum-cost-to-convert-string-i/)
+- [2977. Minimum Cost to Convert String II](https://leetcode.com/problems/minimum-cost-to-convert-string-ii/)
+
+</details>
+
 ## Greedy
 
 <details><summary>Greedy</summary>

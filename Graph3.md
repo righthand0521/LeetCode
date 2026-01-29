@@ -9120,3 +9120,425 @@ class Solution:
 ```
 
 </details>
+
+## [2977. Minimum Cost to Convert String II](https://leetcode.com/problems/minimum-cost-to-convert-string-ii/)  2696
+
+- [Official](https://leetcode.com/problems/minimum-cost-to-convert-string-ii/editorial/)
+- [Official](https://leetcode.cn/problems/minimum-cost-to-convert-string-ii/solutions/3889117/zhuan-huan-zi-fu-chuan-de-zui-xiao-cheng-fdp8/)
+
+<details><summary>Description</summary>
+
+```text
+You are given two 0-indexed strings source and target, both of length n and consisting of lowercase English characters.
+You are also given two 0-indexed string arrays original and changed, and an integer array cost,
+where cost[i] represents the cost of converting the string original[i] to the string changed[i].
+
+You start with the string source. In one operation, you can pick a substring x from the string,
+and change it to y at a cost of z if there exists any index j such that cost[j] == z,
+original[j] == x, and changed[j] == y.
+You are allowed to do any number of operations, but any pair of operations must satisfy either of these two conditions:
+- The substrings picked in the operations are source[a..b] and source[c..d] with either b < c or d < a.
+  In other words, the indices picked in both operations are disjoint.
+- The substrings picked in the operations are source[a..b] and source[c..d] with a == c and b == d.
+  In other words, the indices picked in both operations are identical.
+
+Return the minimum cost to convert the string source to the string target using any number of operations.
+If it is impossible to convert source to target, return -1.
+
+Note that there may exist indices i, j such that original[j] == original[i] and changed[j] == changed[i].
+
+Example 1:
+Input: source = "abcd", target = "acbe", original = ["a","b","c","c","e","d"],
+changed = ["b","c","b","e","b","e"], cost = [2,5,5,1,2,20]
+Output: 28
+Explanation: To convert "abcd" to "acbe", do the following operations:
+- Change substring source[1..1] from "b" to "c" at a cost of 5.
+- Change substring source[2..2] from "c" to "e" at a cost of 1.
+- Change substring source[2..2] from "e" to "b" at a cost of 2.
+- Change substring source[3..3] from "d" to "e" at a cost of 20.
+The total cost incurred is 5 + 1 + 2 + 20 = 28.
+It can be shown that this is the minimum possible cost.
+
+Example 2:
+Input: source = "abcdefgh", target = "acdeeghh", original = ["bcd","fgh","thh"],
+changed = ["cde","thh","ghh"], cost = [1,3,5]
+Output: 9
+Explanation: To convert "abcdefgh" to "acdeeghh", do the following operations:
+- Change substring source[1..3] from "bcd" to "cde" at a cost of 1.
+- Change substring source[5..7] from "fgh" to "thh" at a cost of 3.
+  We can do this operation because indices [5,7] are disjoint with indices picked in the first operation.
+- Change substring source[5..7] from "thh" to "ghh" at a cost of 5.
+  We can do this operation because indices [5,7] are disjoint with indices picked in the first operation,
+  and identical with indices picked in the second operation.
+The total cost incurred is 1 + 3 + 5 = 9.
+It can be shown that this is the minimum possible cost.
+
+Example 3:
+Input: source = "abcdefgh", target = "addddddd", original = ["bcd","defgh"],
+changed = ["ddd","ddddd"], cost = [100,1578]
+Output: -1
+Explanation: It is impossible to convert "abcdefgh" to "addddddd".
+If you select substring source[1..3] as the first operation to change "abcdefgh" to "adddefgh",
+you cannot select substring source[3..7] as the second operation because it has a common index, 3,
+with the first operation.
+If you select substring source[3..7] as the first operation to change "abcdefgh" to "abcddddd",
+you cannot select substring source[1..3] as the second operation because it has a common index, 3,
+with the first operation.
+
+Constraints:
+1 <= source.length == target.length <= 1000
+source, target consist only of lowercase English characters.
+1 <= cost.length == original.length == changed.length <= 100
+1 <= original[i].length == changed[i].length <= source.length
+original[i], changed[i] consist only of lowercase English characters.
+original[i] != changed[i]
+1 <= cost[i] <= 10^6
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Give each unique string in original and changed arrays a unique id.
+   There are at most 2 * m unique strings in total where m is the length of the arrays.
+   We can put them into a hash map to assign ids.
+2. We can pre-compute the smallest costs between all pairs of unique strings
+   using Floyd Warshall algorithm in O(m ^ 3) time complexity.
+3. Let dp[i] be the smallest cost to change the first i characters (prefix) of source into target,
+   leaving the suffix untouched.
+   We have dp[0] = 0. dp[i] = min(dp[i - 1] if (source[i - 1] == target[i - 1]),
+   dp[j-1] + cost[x][y] where x is the id of source[j..(i - 1)] and y is the id of target e[j..(i - 1)])).
+   If neither of the two conditions is satisfied, dp[i] = infinity.
+4. We can use Trie to check for the second condition in O(1).
+5. The answer is dp[n] where n is source.length.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+// https://leetcode.cn/problems/minimum-cost-to-convert-string-ii/solutions/2577877/zi-dian-shu-floyddp-by-endlesscheng-oi2r/
+typedef struct Node {
+    struct Node* son[26];
+    int sid;
+} Node;
+Node* root = NULL;
+int sid = 0;
+Node* createNode() {
+    Node* pObj = NULL;
+
+    pObj = (Node*)malloc(sizeof(Node));
+    if (pObj == NULL) {
+        perror("malloc failed");
+        return pObj;
+    }
+    pObj->sid = -1;
+    for (int i = 0; i < 26; i++) {
+        pObj->son[i] = NULL;
+    }
+
+    return pObj;
+}
+int put(const char* s) {
+    int retVal = -1;
+
+    int idx;
+    Node* o = root;
+    for (int i = 0; s[i]; i++) {
+        idx = s[i] - 'a';
+        if (o->son[idx] == NULL) {
+            o->son[idx] = createNode();
+        }
+        o = o->son[idx];
+    }
+
+    if (o->sid < 0) {
+        o->sid = sid++;
+    }
+    retVal = o->sid;
+
+    return retVal;
+}
+void freeNode(Node* node) {
+    if (node == NULL) {
+        return;
+    }
+
+    for (int i = 0; i < 26; i++) {
+        if (node->son[i] != NULL) {
+            freeNode(node->son[i]);
+            node->son[i] = NULL;
+        }
+    }
+
+    free(node);
+    node = NULL;
+}
+long long minimumCost(char* source, char* target, char** original, int originalSize, char** changed, int changedSize,
+                      int* cost, int costSize) {
+    long long retVal = -1;
+
+    root = createNode();
+    sid = 0;
+
+    int maxNodes = costSize * 2;
+
+    int** dis = (int**)malloc(maxNodes * sizeof(int*));
+    for (int i = 0; i < maxNodes; i++) {
+        dis[i] = (int*)malloc(maxNodes * sizeof(int));
+        for (int j = 0; j < maxNodes; j++) {
+            dis[i][j] = INT_MAX / 2;
+        }
+        dis[i][i] = 0;
+    }
+
+    int x, y;
+    for (int i = 0; i < costSize; i++) {
+        x = put(original[i]);
+        y = put(changed[i]);
+        if (cost[i] < dis[x][y]) {
+            dis[x][y] = cost[i];
+        }
+    }
+
+    for (int k = 0; k < sid; k++) {
+        for (int i = 0; i < sid; i++) {
+            if (dis[i][k] == INT_MAX / 2) {
+                continue;
+            }
+
+            for (int j = 0; j < sid; j++) {
+                if (dis[i][j] > dis[i][k] + dis[k][j]) {
+                    dis[i][j] = dis[i][k] + dis[k][j];
+                }
+            }
+        }
+    }
+
+    int sourceSize = strlen(source);
+    long long* dp = (long long*)malloc((sourceSize + 1) * sizeof(long long));
+    dp[sourceSize] = 0;
+
+    Node *p, *q;
+    int d;
+    long long candidate;
+    for (int i = sourceSize - 1; i >= 0; i--) {
+        dp[i] = LLONG_MAX / 2;
+        if (source[i] == target[i]) {
+            dp[i] = dp[i + 1];
+        }
+
+        p = root;
+        q = root;
+        for (int j = i; j < sourceSize; j++) {
+            p = p->son[source[j] - 'a'];
+            q = q->son[target[j] - 'a'];
+            if ((p == NULL) || (q == NULL)) {
+                break;
+            }
+
+            if ((p->sid < 0) || (q->sid < 0)) {
+                continue;
+            }
+
+            d = dis[p->sid][q->sid];
+            if (d < INT_MAX / 2) {
+                candidate = (long long)d + dp[j + 1];
+                if (candidate < dp[i]) {
+                    dp[i] = candidate;
+                }
+            }
+        }
+    }
+
+    if (dp[0] < LLONG_MAX / 2) {
+        retVal = dp[0];
+    }
+
+    //
+    freeNode(root);
+    root = NULL;
+    for (int i = 0; i < maxNodes; i++) {
+        free(dis[i]);
+        dis[i] = NULL;
+    }
+    free(dis);
+    dis = NULL;
+    free(dp);
+    dp = NULL;
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+// https://leetcode.cn/problems/minimum-cost-to-convert-string-ii/solutions/2577877/zi-dian-shu-floyddp-by-endlesscheng-oi2r/
+class Solution {
+   private:
+    struct Node {
+        Node* son[26]{};
+        int sid = -1;
+    };
+
+    Node* root;
+    int sid;
+
+    int put(string& s) {
+        int retVal = 0;
+
+        Node* o = root;
+        for (char b : s) {
+            int i = b - 'a';
+            if (o->son[i] == nullptr) {
+                o->son[i] = new Node();
+            }
+            o = o->son[i];
+        }
+        if (o->sid < 0) {
+            o->sid = sid++;
+        }
+        retVal = o->sid;
+
+        return retVal;
+    }
+    void freeNode(Node* node) {
+        if (node == nullptr) {
+            return;
+        }
+
+        for (int i = 0; i < 26; i++) {
+            if (node->son[i] != nullptr) {
+                freeNode(node->son[i]);
+                node->son[i] = nullptr;
+            }
+        }
+
+        delete node;
+        node = nullptr;
+    }
+
+   public:
+    long long minimumCost(string source, string target, vector<string>& original, vector<string>& changed,
+                          vector<int>& cost) {
+        long long retVal = -1;
+
+        root = new Node();
+        sid = 0;
+
+        int costSize = cost.size();
+
+        vector<vector<int>> dis(costSize * 2, vector<int>(costSize * 2, numeric_limits<int>::max() / 2));
+        for (int i = 0; i < costSize * 2; i++) {
+            dis[i][i] = 0;
+        }
+        for (int i = 0; i < costSize; i++) {
+            int x = put(original[i]);
+            int y = put(changed[i]);
+            dis[x][y] = min(dis[x][y], cost[i]);
+        }
+
+        for (int k = 0; k < sid; k++) {
+            for (int i = 0; i < sid; i++) {
+                if (dis[i][k] == numeric_limits<int>::max() / 2) {
+                    continue;
+                }
+
+                for (int j = 0; j < sid; j++) {
+                    dis[i][j] = min(dis[i][j], dis[i][k] + dis[k][j]);
+                }
+            }
+        }
+
+        int sourceSize = source.size();
+        vector<long long> dp(sourceSize + 1);
+        for (int i = sourceSize - 1; i >= 0; i--) {
+            dp[i] = numeric_limits<long long>::max() / 2;
+            if (source[i] == target[i]) {
+                dp[i] = dp[i + 1];
+            }
+
+            Node* p = root;
+            Node* q = root;
+            for (int j = i; j < sourceSize; j++) {
+                p = p->son[source[j] - 'a'];
+                q = q->son[target[j] - 'a'];
+                if ((p == nullptr) || (q == nullptr)) {
+                    break;
+                }
+
+                if ((p->sid < 0) || (q->sid < 0)) {
+                    continue;
+                }
+
+                int d = dis[p->sid][q->sid];
+                if (d < numeric_limits<int>::max() / 2) {
+                    dp[i] = min(dp[i], dis[p->sid][q->sid] + dp[j + 1]);
+                }
+            }
+        }
+        if (dp[0] < numeric_limits<long long>::max() / 2) {
+            retVal = dp[0];
+        }
+
+        //
+        freeNode(root);
+        root = nullptr;
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    # https://leetcode.cn/problems/minimum-cost-to-convert-string-ii/solutions/2577877/zi-dian-shu-floyddp-by-endlesscheng-oi2r/
+    def minimumCost(self, source: str, target: str, original: List[str], changed: List[str], cost: List[int]) -> int:
+        retVal = -1
+
+        len_to_strs = defaultdict(set)
+        dis = defaultdict(lambda: defaultdict(lambda: float('inf')))
+        for x, y, c in zip(original, changed, cost):
+            len_to_strs[len(x)].add(x)
+            len_to_strs[len(y)].add(y)
+            dis[x][y] = min(dis[x][y], c)
+            dis[x][x] = 0
+            dis[y][y] = 0
+
+        for strs in len_to_strs.values():
+            for k in strs:
+                for i in strs:
+                    if dis[i][k] == float('inf'):
+                        continue
+                    for j in strs:
+                        dis[i][j] = min(dis[i][j], dis[i][k] + dis[k][j])
+
+        sourceSize = len(source)
+        dp = [0] + [float('inf')] * sourceSize
+        for i in range(1, sourceSize + 1):
+            if source[i - 1] == target[i - 1]:
+                dp[i] = dp[i - 1]
+            for size, strs in len_to_strs.items():
+                if i < size:
+                    continue
+                s = source[i - size: i]
+                t = target[i - size: i]
+                if (s in strs) and (t in strs):
+                    dp[i] = min(dp[i], dis[s][t] + dp[i - size])
+
+        if dp[sourceSize] < float('inf'):
+            retVal = dp[sourceSize]
+
+        return retVal
+```
+
+</details>
