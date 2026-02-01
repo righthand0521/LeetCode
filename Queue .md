@@ -6914,6 +6914,634 @@ class Solution:
 
 </details>
 
+## [3013. Divide an Array Into Subarrays With Minimum Cost II](https://leetcode.com/problems/divide-an-array-into-subarrays-with-minimum-cost-ii/)  2540
+
+- [Official](https://leetcode.cn/problems/divide-an-array-into-subarrays-with-minimum-cost-ii/solutions/3891863/jiang-shu-zu-fen-cheng-zui-xiao-zong-dai-b5mh/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a 0-indexed array of integers nums of length n, and two positive integers k and dist.
+
+The cost of an array is the value of its first element.
+or example, the cost of [1,2,3] is 1 while the cost of [3,4,1] is 3.
+
+You need to divide nums into k disjoint contiguous subarrays,
+such that the difference between the starting index of the second subarray
+and the starting index of the kth subarray should be less than or equal to dist.
+In other words, if you divide nums into the subarrays
+nums[0..(i1 - 1)], nums[i1..(i2 - 1)], ..., nums[ik-1..(n - 1)], then ik-1 - i1 <= dist.
+
+Return the minimum possible sum of the cost of these subarrays.
+
+Example 1:
+Input: nums = [1,3,2,6,4,2], k = 3, dist = 3
+Output: 5
+Explanation:
+The best possible way to divide nums into 3 subarrays is: [1,3], [2,6,4], and [2].
+This choice is valid because ik-1 - i1 is 5 - 2 = 3 which is equal to dist.
+The total cost is nums[0] + nums[2] + nums[5] which is 1 + 2 + 2 = 5.
+It can be shown that there is no possible way to divide nums into 3 subarrays at a cost lower than 5.
+
+Example 2:
+Input: nums = [10,1,2,2,2,1], k = 4, dist = 3
+Output: 15
+Explanation:
+The best possible way to divide nums into 4 subarrays is: [10], [1], [2], and [2,2,1].
+This choice is valid because ik-1 - i1 is 3 - 1 = 2 which is less than dist.
+The total cost is nums[0] + nums[1] + nums[2] + nums[3] which is 10 + 1 + 2 + 2 = 15.
+The division [10], [1], [2,2,2], and [1] is not valid,
+because the difference between ik-1 and i1 is 5 - 1 = 4, which is greater than dist.
+It can be shown that there is no possible way to divide nums into 4 subarrays at a cost lower than 15.
+
+Example 3:
+Input: nums = [10,8,18,9], k = 3, dist = 1
+Output: 36
+Explanation:
+The best possible way to divide nums into 4 subarrays is: [10], [8], and [18,9].
+This choice is valid because ik-1 - i1 is 2 - 1 = 1 which is equal to dist.
+The total cost is nums[0] + nums[1] + nums[2] which is 10 + 8 + 18 = 36.
+The division [10], [8,18], and [9] is not valid, because the difference between ik-1 and i1 is 3 - 1 = 2,
+which is greater than dist.
+It can be shown that there is no possible way to divide nums into 3 subarrays at a cost lower than 36.
+
+Constraints:
+3 <= n <= 10^5
+1 <= nums[i] <= 10^9
+3 <= k <= n
+k - 2 <= dist <= n - 2
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. For each i > 0, try each nums[i] as the first element of the second subarray.
+   We need to find the sum of k - 2 smallest values in the index range [i + 1, min(i + dist, n - 1)].
+2. Typically, we use a max heap to maintain the top k - 2 smallest values dynamically.
+   Here we also have a sliding window, which is the index range [i + 1, min(i + dist, n - 1)].
+   We can use another min heap to put unselected values for future use.
+3. Update the two heaps when iteration over i.
+   Ordered/Tree sets are also a good choice since we have to delete elements.
+4. If the max heap’s size is less than k - 2, use the min heap’s value to fill it.
+   If the maximum value in the max heap is larger than the smallest value in the min heap, swap them in the two heaps.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#ifndef HEAP_H
+#define HEAP_H
+
+#define MIN_QUEUE_SIZE (64)
+typedef struct Element {
+    int data[2];
+} Element;
+typedef bool (*compare)(const void*, const void*);
+typedef struct PriorityQueue {
+    Element* arr;
+    int capacity;
+    int queueSize;
+    compare cmpFunc;
+} PriorityQueue;
+static bool minHeapCmp(const void* a, const void* b) {
+    bool retVal = false;
+
+    Element* e1 = (Element*)a;
+    Element* e2 = (Element*)b;
+    retVal = (e1->data[0] > e2->data[0]);
+
+    return retVal;
+}
+static bool maxHeapCmp(const void* a, const void* b) {
+    bool retVal = false;
+
+    Element* e1 = (Element*)a;
+    Element* e2 = (Element*)b;
+    retVal = (e1->data[0] < e2->data[0]);
+
+    return retVal;
+}
+static void memswap(void* m1, void* m2, size_t size) {
+    unsigned char* a = (unsigned char*)m1;
+    unsigned char* b = (unsigned char*)m2;
+    while (size--) {
+        *b ^= *a;
+        *a ^= *b;
+        *b ^= *a;
+
+        a++;
+        b++;
+    }
+}
+static void swap(Element* arr, int i, int j) {
+    //
+    memswap(&arr[i], &arr[j], sizeof(Element));
+}
+static void down(Element* arr, int size, int i, compare cmpFunc) {
+    for (int k = 2 * i + 1; k < size; k = 2 * k + 1) {
+        if (k + 1 < size && cmpFunc(&arr[k], &arr[k + 1])) {
+            k++;
+        }
+        if (cmpFunc(&arr[k], &arr[(k - 1) / 2])) {
+            break;
+        }
+        swap(arr, k, (k - 1) / 2);
+    }
+}
+PriorityQueue* createPriorityQueue(compare cmpFunc) {
+    PriorityQueue* pObj = NULL;
+
+    pObj = (PriorityQueue*)malloc(sizeof(PriorityQueue));
+    if (pObj == NULL) {
+        perror("malloc");
+        return pObj;
+    }
+    pObj->capacity = MIN_QUEUE_SIZE;
+    pObj->arr = (Element*)malloc(sizeof(Element) * pObj->capacity);
+    pObj->queueSize = 0;
+    pObj->cmpFunc = cmpFunc;
+
+    return pObj;
+}
+void heapify(PriorityQueue* obj) {
+    for (int i = obj->queueSize / 2 - 1; i >= 0; i--) {
+        down(obj->arr, obj->queueSize, i, obj->cmpFunc);
+    }
+}
+void enQueue(PriorityQueue* obj, Element* e) {
+    if (obj->queueSize == obj->capacity) {
+        obj->capacity *= 2;
+        obj->arr = realloc(obj->arr, sizeof(Element) * obj->capacity);
+    }
+    memcpy(&obj->arr[obj->queueSize], e, sizeof(Element));
+    for (int i = obj->queueSize; i > 0 && obj->cmpFunc(&obj->arr[(i - 1) / 2], &obj->arr[i]); i = (i - 1) / 2) {
+        swap(obj->arr, i, (i - 1) / 2);
+    }
+    obj->queueSize++;
+}
+Element* deQueue(PriorityQueue* obj) {
+    Element* pRetVal = NULL;
+
+    if (obj->queueSize == 0) {
+        return pRetVal;
+    }
+
+    swap(obj->arr, 0, obj->queueSize - 1);
+    down(obj->arr, obj->queueSize - 1, 0, obj->cmpFunc);
+    pRetVal = &obj->arr[obj->queueSize - 1];
+    obj->queueSize--;
+
+    return pRetVal;
+}
+bool isEmpty(const PriorityQueue* obj) {
+    bool retVal = (obj->queueSize == 0);
+
+    return retVal;
+}
+Element* top(const PriorityQueue* obj) {
+    Element* pRetVal = NULL;
+
+    if (obj->queueSize != 0) {
+        pRetVal = &obj->arr[0];
+    }
+
+    return pRetVal;
+}
+int size(const PriorityQueue* obj) {
+    int retVal = obj->queueSize;
+
+    return retVal;
+}
+void clear(PriorityQueue* obj) {
+    //
+    obj->queueSize = 0;
+}
+void freeQueue(PriorityQueue* obj) {
+    free(obj->arr);
+    free(obj);
+}
+
+#endif  // HEAP_H
+#ifndef HASH_H
+#define HASH_H
+
+typedef struct HashItem {
+    int key;
+    int val;
+    UT_hash_handle hh;
+} HashItem;
+HashItem* hashFindItem(HashItem** obj, int key) {
+    HashItem* pEntry = NULL;
+
+    HASH_FIND_INT(*obj, &key, pEntry);
+
+    return pEntry;
+}
+bool hashAddItem(HashItem** obj, int key, int val) {
+    bool retVal = false;
+
+    if (hashFindItem(obj, key)) {
+        return retVal;
+    }
+    HashItem* pEntry = (HashItem*)malloc(sizeof(HashItem));
+    if (pEntry == NULL) {
+        perror("malloc");
+        return retVal;
+    }
+    pEntry->key = key;
+    pEntry->val = val;
+    HASH_ADD_INT(*obj, key, pEntry);
+    retVal = true;
+
+    return retVal;
+}
+void hashSetItem(HashItem** obj, int key, int val) {
+    HashItem* pEntry = hashFindItem(obj, key);
+    if (pEntry == NULL) {
+        hashAddItem(obj, key, val);
+    } else {
+        pEntry->val = val;
+    }
+}
+int hashGetItem(HashItem** obj, int key, int defaultVal) {
+    int retVal = defaultVal;
+
+    HashItem* pEntry = hashFindItem(obj, key);
+    if (pEntry != NULL) {
+        retVal = pEntry->val;
+    }
+
+    return retVal;
+}
+void hashEraseItem(HashItem** obj, int key) {
+    HashItem* pEntry = NULL;
+    HASH_FIND_INT(*obj, &key, pEntry);
+    if (pEntry != NULL) {
+        HASH_DEL(*obj, pEntry);
+        free(pEntry);
+    }
+}
+void hashFree(HashItem** obj) {
+    HashItem* curr = NULL;
+    HashItem* tmp = NULL;
+    HASH_ITER(hh, *obj, curr, tmp) {
+        HASH_DEL(*obj, curr);
+        free(curr);
+    }
+}
+
+#endif  // HASH_H
+typedef struct {
+    int k;
+    HashItem* st1;
+    HashItem* st2;
+    PriorityQueue* tree1;
+    PriorityQueue* tree2;
+    int st1Size;
+    int st2Size;
+    long long sm;
+} Container;
+Container* createContainer(int k) {
+    Container* pObj = NULL;
+
+    pObj = (Container*)malloc(sizeof(Container));
+    if (pObj == NULL) {
+        perror("malloc");
+        return pObj;
+    }
+    pObj->k = k;
+    pObj->st1 = NULL;
+    pObj->st2 = NULL;
+    pObj->tree1 = createPriorityQueue(maxHeapCmp);
+    pObj->tree2 = createPriorityQueue(minHeapCmp);
+    pObj->st1Size = 0;
+    pObj->st2Size = 0;
+    pObj->sm = 0;
+
+    return pObj;
+}
+void addOne(HashItem** map, PriorityQueue* heap, int key) {
+    int count = hashGetItem(map, key, 0);
+    hashSetItem(map, key, count + 1);
+    if (count == 0) {
+        Element e;
+        e.data[0] = key;
+        e.data[1] = 0;
+        enQueue(heap, &e);
+    }
+}
+void removeOne(HashItem** map, PriorityQueue* heap, int key) {
+    HashItem* entry = hashFindItem(map, key);
+    if (entry == NULL) {
+        return;
+    }
+    entry->val--;
+    if (entry->val == 0) {
+        hashEraseItem(map, key);
+    }
+}
+void adjust(Container* cnt) {
+    while (cnt->st1Size < cnt->k && cnt->st2Size > 0) {
+        while (isEmpty(cnt->tree2) == false) {
+            Element* topElem = top(cnt->tree2);
+            if ((topElem == NULL) || (hashGetItem(&cnt->st2, topElem->data[0], 0) == 0)) {
+                deQueue(cnt->tree2);
+            } else {
+                break;
+            }
+        }
+
+        if (isEmpty(cnt->tree2) == true) {
+            break;
+        }
+
+        int x = top(cnt->tree2)->data[0];
+        removeOne(&cnt->st2, cnt->tree2, x);
+        cnt->st2Size--;
+        addOne(&cnt->st1, cnt->tree1, x);
+        cnt->st1Size++;
+        cnt->sm += x;
+    }
+
+    while (cnt->st1Size > cnt->k) {
+        while (isEmpty(cnt->tree1) == false) {
+            Element* topElem = top(cnt->tree1);
+            if ((topElem == NULL) || (hashGetItem(&cnt->st1, topElem->data[0], 0) == 0)) {
+                deQueue(cnt->tree1);
+            } else {
+                break;
+            }
+        }
+
+        if (isEmpty(cnt->tree1) == true) {
+            break;
+        }
+        int x = top(cnt->tree1)->data[0];
+        removeOne(&cnt->st1, cnt->tree1, x);
+        cnt->st1Size--;
+        cnt->sm -= x;
+
+        addOne(&cnt->st2, cnt->tree2, x);
+        cnt->st2Size++;
+    }
+}
+void containerAdd(Container* cnt, int x) {
+    while (isEmpty(cnt->tree2) == false) {
+        Element* topElem = top(cnt->tree2);
+        if ((topElem == NULL) || (hashGetItem(&cnt->st2, topElem->data[0], 0) == 0)) {
+            deQueue(cnt->tree2);
+        } else {
+            break;
+        }
+    }
+
+    if (cnt->st2Size > 0 && !isEmpty(cnt->tree2) && x >= top(cnt->tree2)->data[0]) {
+        addOne(&cnt->st2, cnt->tree2, x);
+        cnt->st2Size++;
+    } else {
+        addOne(&cnt->st1, cnt->tree1, x);
+        cnt->st1Size++;
+        cnt->sm += x;
+    }
+
+    adjust(cnt);
+}
+void containerErase(Container* cnt, int x) {
+    if (hashGetItem(&cnt->st1, x, 0) > 0) {
+        removeOne(&cnt->st1, cnt->tree1, x);
+        cnt->st1Size--;
+        cnt->sm -= x;
+    } else if (hashGetItem(&cnt->st2, x, 0) > 0) {
+        removeOne(&cnt->st2, cnt->tree2, x);
+        cnt->st2Size--;
+    }
+
+    adjust(cnt);
+}
+long long containerSum(Container* cnt) {
+    long long retVal = cnt->sm;
+
+    return retVal;
+}
+void freeContainer(Container* cnt) {
+    hashFree(&cnt->st1);
+    hashFree(&cnt->st2);
+    freeQueue(cnt->tree1);
+    freeQueue(cnt->tree2);
+    free(cnt);
+}
+long long minimumCost(int* nums, int numsSize, int k, int dist) {
+    long long retVal = 0;
+
+    Container* cnt = createContainer(k - 2);
+    for (int i = 1; i < k - 1; i++) {
+        containerAdd(cnt, nums[i]);
+    }
+
+    retVal = containerSum(cnt) + nums[k - 1];
+    for (int i = k; i < numsSize; i++) {
+        int j = i - dist - 1;
+        if (j > 0) {
+            containerErase(cnt, nums[j]);
+        }
+        containerAdd(cnt, nums[i - 1]);
+
+        long long current = containerSum(cnt) + nums[i];
+        if (current < retVal) {
+            retVal = current;
+        }
+    }
+    retVal += nums[0];
+
+    //
+    freeContainer(cnt);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Container {
+   private:
+    int k;
+    multiset<int> st1;
+    multiset<int> st2;
+    long long sm;
+
+   public:
+    Container(int k) : k(k), sm(0) {
+        //
+    }
+
+    void adjust() {
+        while (1) {
+            int st1Size = st1.size();
+            int st2Size = st2.size();
+            if (st1Size >= k) {
+                break;
+            } else if (st2Size <= 0) {
+                break;
+            }
+            int x = *(st2.begin());
+            st1.emplace(x);
+            sm += x;
+            st2.erase(st2.begin());
+        }
+
+        while (1) {
+            int st1Size = st1.size();
+            if (st1Size <= k) {
+                break;
+            }
+            int x = *prev(st1.end());
+            st2.emplace(x);
+            st1.erase(prev(st1.end()));
+            sm -= x;
+        }
+    }
+    void add(int x) {
+        if ((st2.empty() == false) && (x >= *(st2.begin()))) {
+            st2.emplace(x);
+        } else {
+            st1.emplace(x);
+            sm += x;
+        }
+
+        adjust();
+    }
+    void erase(int x) {
+        auto it = st1.find(x);
+        if (it != st1.end()) {
+            st1.erase(it), sm -= x;
+        } else {
+            st2.erase(st2.find(x));
+        }
+
+        adjust();
+    }
+    long long sum() {
+        long long retVal = sm;
+
+        return retVal;
+    }
+};
+class Solution {
+   public:
+    long long minimumCost(vector<int>& nums, int k, int dist) {
+        long long retVal = 0;
+
+        int numsSize = nums.size();
+
+        Container cnt(k - 2);
+        for (int i = 1; i < k - 1; i++) {
+            cnt.add(nums[i]);
+        }
+
+        retVal = cnt.sum() + nums[k - 1];
+        for (int i = k; i < numsSize; i++) {
+            int j = i - dist - 1;
+            if (j > 0) {
+                cnt.erase(nums[j]);
+            }
+            cnt.add(nums[i - 1]);
+            retVal = min(retVal, cnt.sum() + nums[i]);
+        }
+        retVal += nums[0];
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Container:
+    def __init__(self, k: int):
+        self.k = k
+        self.st1 = SortedList()
+        self.st2 = SortedList()
+        self.sm = 0
+
+    def adjust(self) -> None:
+        while True:
+            st1Size = len(self.st1)
+            st2Size = len(self.st2)
+            if st1Size >= self.k:
+                break
+            elif st2Size <= 0:
+                break
+            x = self.st2[0]
+            self.st1.add(x)
+            self.st2.remove(x)
+            self.sm += x
+
+        while True:
+            st1Size = len(self.st1)
+            if st1Size <= self.k:
+                break
+            x = self.st1[-1]
+            self.st2.add(x)
+            self.st1.remove(x)
+            self.sm -= x
+
+    def add(self, x: int) -> None:
+        st2Size = len(self.st2)
+        if (st2Size > 0) and (x >= self.st2[0]):
+            self.st2.add(x)
+        else:
+            self.st1.add(x)
+            self.sm += x
+        self.adjust()
+
+    def erase(self, x: int) -> None:
+        if x in self.st1:
+            self.st1.remove(x)
+            self.sm -= x
+        elif x in self.st2:
+            self.st2.remove(x)
+        self.adjust()
+
+    def sum(self) -> int:
+        retVal = self.sm
+
+        return retVal
+
+
+class Solution:
+    def minimumCost(self, nums: List[int], k: int, dist: int) -> int:
+        retVal = 0
+
+        numsSize = len(nums)
+
+        cnt = Container(k - 2)
+        for i in range(1, k - 1):
+            cnt.add(nums[i])
+
+        retVal = cnt.sum() + nums[k - 1]
+        for i in range(k, numsSize):
+            j = i - dist - 1
+            if j > 0:
+                cnt.erase(nums[j])
+            cnt.add(nums[i - 1])
+            retVal = min(retVal, cnt.sum() + nums[i])
+        retVal += nums[0]
+
+        return retVal
+```
+
+</details>
+
 ## [3066. Minimum Operations to Exceed Threshold Value II](https://leetcode.com/problems/minimum-operations-to-exceed-threshold-value-ii/)  1399
 
 - [Official](https://leetcode.com/problems/minimum-operations-to-exceed-threshold-value-ii/editorial/)
