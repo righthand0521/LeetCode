@@ -60,6 +60,13 @@
 
 </details>
 
+<details><summary>Adjacent Increasing Subarrays Detection</summary>
+
+- [3637. Trionic Array I](https://leetcode.com/problems/trionic-array-i/)
+- [3640. Trionic Array II](https://leetcode.com/problems/trionic-array-ii/)
+
+</details>
+
 ## Backtracking
 
 <details><summary>Combination Sum</summary>

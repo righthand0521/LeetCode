@@ -2688,3 +2688,255 @@ class Solution:
 ```
 
 </details>
+
+## [3640. Trionic Array II](https://leetcode.com/problems/trionic-array-ii/)  2278
+
+- [Official](https://leetcode.com/problems/trionic-array-ii/editorial/)
+- [Official](https://leetcode.cn/problems/trionic-array-ii/solutions/3895084/san-duan-shi-shu-zu-ii-by-leetcode-solut-3gz7/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array nums of length n.
+
+A trionic subarray is a contiguous subarray nums[l...r] (with 0 <= l < r < n)
+for which there exist indices l < p < q < r such that:
+- nums[l...p] is strictly increasing,
+- nums[p...q] is strictly decreasing,
+- nums[q...r] is strictly increasing.
+
+Return the maximum sum of any trionic subarray in nums.
+
+Example 1:
+Input: nums = [0,-2,-1,-3,0,2,-1]
+Output: -4
+Explanation:
+Pick l = 1, p = 2, q = 3, r = 5:
+nums[l...p] = nums[1...2] = [-2, -1] is strictly increasing (-2 < -1).
+nums[p...q] = nums[2...3] = [-1, -3] is strictly decreasing (-1 > -3)
+nums[q...r] = nums[3...5] = [-3, 0, 2] is strictly increasing (-3 < 0 < 2).
+Sum = (-2) + (-1) + (-3) + 0 + 2 = -4.
+
+Example 2:
+Input: nums = [1,4,2,7]
+Output: 14
+Explanation:
+Pick l = 0, p = 1, q = 2, r = 3:
+nums[l...p] = nums[0...1] = [1, 4] is strictly increasing (1 < 4).
+nums[p...q] = nums[1...2] = [4, 2] is strictly decreasing (4 > 2).
+nums[q...r] = nums[2...3] = [2, 7] is strictly increasing (2 < 7).
+Sum = 1 + 4 + 2 + 7 = 14.
+
+Constraints:
+4 <= n = nums.length <= 10^5
+-10^9 <= nums[i] <= 10^9
+It is guaranteed that at least one trionic subarray exists.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use dynamic programming
+2. Let four arrays dp0...dp3 where dpk[i] is the max sum of a subarray ending at i
+   after finishing k of the four phases (start -> inc -> dec -> inc)
+3. Process each i>0
+4. If nums[i] > nums[i‑1], set dp1[i]=max(dp1[i‑1]+nums[i], dp0[i‑1]+nums[i]),
+   dp3[i]=max(dp3[i‑1]+nums[i], dp2[i‑1]+nums[i])
+5. If nums[i] < nums[i‑1], set dp2[i]=max(dp2[i‑1]+nums[i], dp1[i‑1]+nums[i])
+6. Always carry over dp0[i]=dp0[i‑1]+nums[i] when nums[i]>nums[i‑1]
+7. Return the maximum value in dp3
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+long long maxSumTrionic(int* nums, int numsSize) {
+    long long retVal = LLONG_MIN;
+
+    int p, q, j;
+    long long maxSum, currrentSum, res;
+    for (int i = 0; i < numsSize; i++) {
+        j = i + 1;
+        res = 0;
+
+        // first segment
+        for (; ((j < numsSize) && (nums[j - 1] < nums[j])); j++);
+        p = j - 1;
+        if (p == i) {
+            continue;
+        }
+
+        // second segment
+        res += (nums[p] + nums[p - 1]);
+        for (; ((j < numsSize) && (nums[j - 1] > nums[j])); j++) {
+            res += nums[j];
+        }
+        q = j - 1;
+        if (q == p || q == numsSize - 1 || (nums[j] <= nums[q])) {
+            i = q;
+            continue;
+        }
+
+        // third segment
+        res += nums[q + 1];
+
+        // find the maximum sum of the third segment
+        maxSum = 0;
+        currrentSum = 0;
+        for (int k = q + 2; k < numsSize && nums[k] > nums[k - 1]; k++) {
+            currrentSum += nums[k];
+            maxSum = fmax(maxSum, currrentSum);
+        }
+        res += maxSum;
+
+        // find the maximum sum of the first segment
+        maxSum = 0;
+        currrentSum = 0;
+        for (int k = p - 2; k >= i; k--) {
+            currrentSum += nums[k];
+            maxSum = fmax(maxSum, currrentSum);
+        }
+        res += maxSum;
+
+        // update answer
+        retVal = fmax(retVal, res);
+        i = q - 1;
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    long long maxSumTrionic(vector<int>& nums) {
+        long long retVal = numeric_limits<long long>::min();
+
+        int numsSize = nums.size();
+
+        int p, q, j;
+        long long maxSum, currrentSum, res;
+        for (int i = 0; i < numsSize; i++) {
+            j = i + 1;
+            res = 0;
+
+            // first segment
+            for (; ((j < numsSize) && (nums[j - 1] < nums[j])); j++);
+            p = j - 1;
+            if (p == i) {
+                continue;
+            }
+
+            // second segment
+            res += (nums[p] + nums[p - 1]);
+            for (; ((j < numsSize) && (nums[j - 1] > nums[j])); j++) {
+                res += nums[j];
+            }
+            q = j - 1;
+            if (q == p || q == numsSize - 1 || (nums[j] <= nums[q])) {
+                i = q;
+                continue;
+            }
+
+            // third segment
+            res += nums[q + 1];
+
+            // find the maximum sum of the third segment
+            maxSum = 0;
+            currrentSum = 0;
+            for (int k = q + 2; k < numsSize && nums[k] > nums[k - 1]; k++) {
+                currrentSum += nums[k];
+                maxSum = max(maxSum, currrentSum);
+            }
+            res += maxSum;
+
+            // find the maximum sum of the first segment
+            maxSum = 0;
+            currrentSum = 0;
+            for (int k = p - 2; k >= i; k--) {
+                currrentSum += nums[k];
+                maxSum = max(maxSum, currrentSum);
+            }
+            res += maxSum;
+
+            // update answer
+            retVal = max(retVal, res);
+            i = q - 1;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def maxSumTrionic(self, nums: List[int]) -> int:
+        retVal = float("-inf")
+
+        numsSize = len(nums)
+
+        i = 0
+        while i < numsSize:
+            j = i + 1
+            res = 0
+
+            # first segment: increasing segment
+            while (j < numsSize) and (nums[j - 1] < nums[j]):
+                j += 1
+            p = j - 1
+            if p == i:
+                i += 1
+                continue
+
+            # second segment: decreasing segment
+            res += (nums[p] + nums[p - 1])
+            while (j < numsSize) and (nums[j - 1] > nums[j]):
+                res += nums[j]
+                j += 1
+            q = j - 1
+            if (q == p) or (q == numsSize - 1) or (j < numsSize and nums[j] <= nums[q]):
+                i = q
+                continue
+
+            # third segment: increasing segment
+            res += nums[q + 1]
+
+            # find the maximum sum of the third segment
+            maxSum = 0
+            currrentSum = 0
+            k = q + 2
+            while (k < numsSize) and (nums[k] > nums[k - 1]):
+                currrentSum += nums[k]
+                maxSum = max(maxSum, currrentSum)
+                k += 1
+            res += maxSum
+
+            # find the maximum sum of the first segment
+            maxSum = 0
+            currrentSum = 0
+            for k in range(p - 2, i - 1, -1):
+                currrentSum += nums[k]
+                maxSum = max(maxSum, currrentSum)
+            res += maxSum
+
+            retVal = max(retVal, res)
+            i = q
+
+        return retVal
+```
+
+</details>
