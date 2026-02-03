@@ -2516,3 +2516,175 @@ class Solution:
 ```
 
 </details>
+
+## [3637. Trionic Array I](https://leetcode.com/problems/trionic-array-i/)  1264
+
+- [Official](https://leetcode.com/problems/trionic-array-i/editorial/)
+- [Official](https://leetcode.cn/problems/trionic-array-i/solutions/3891865/san-duan-shi-shu-zu-i-by-leetcode-soluti-e0f1/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array nums of length n.
+
+An array is trionic if there exist indices 0 < p < q < n − 1 such that:
+- nums[0...p] is strictly increasing,
+- nums[p...q] is strictly decreasing,
+- nums[q...n − 1] is strictly increasing.
+
+Return true if nums is trionic, otherwise return false.
+
+Example 1:
+Input: nums = [1,3,5,4,2,6]
+Output: true
+Explanation:
+Pick p = 2, q = 4:
+nums[0...2] = [1, 3, 5] is strictly increasing (1 < 3 < 5).
+nums[2...4] = [5, 4, 2] is strictly decreasing (5 > 4 > 2).
+nums[4...5] = [2, 6] is strictly increasing (2 < 6).
+
+Example 2:
+Input: nums = [2,1,3]
+Output: false
+Explanation:
+There is no way to pick p and q to form the required three segments.
+
+Constraints:
+3 <= n <= 100
+-1000 <= nums[i] <= 1000
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use brute force
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+bool isTrionic(int* nums, int numsSize) {
+    int retVal = false;
+
+    int i = 1;
+
+    while ((i < numsSize) && (nums[i - 1] < nums[i])) {
+        i += 1;
+    }
+    int p = i - 1;
+    if (p == 0) {
+        return retVal;
+    }
+
+    while ((i < numsSize) && (nums[i - 1] > nums[i])) {
+        i += 1;
+    }
+    int q = i - 1;
+    if (q == p) {
+        return retVal;
+    }
+
+    while ((i < numsSize) && (nums[i - 1] < nums[i])) {
+        i += 1;
+    }
+    i -= 1;
+    if (i != (numsSize - 1)) {
+        return retVal;
+    } else if (i == q) {
+        return retVal;
+    } else {
+        retVal = true;
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool isTrionic(vector<int>& nums) {
+        bool retVal = false;
+
+        int numsSize = nums.size();
+        int i = 1;
+
+        while ((i < numsSize) && (nums[i - 1] < nums[i])) {
+            i += 1;
+        }
+        int p = i - 1;
+        if (p == 0) {
+            return retVal;
+        }
+
+        while ((i < numsSize) && (nums[i - 1] > nums[i])) {
+            i += 1;
+        }
+        int q = i - 1;
+        if (q == p) {
+            return retVal;
+        }
+
+        while ((i < numsSize) && (nums[i - 1] < nums[i])) {
+            i += 1;
+        }
+        i -= 1;
+        if (i != (numsSize - 1)) {
+            return retVal;
+        } else if (i == q) {
+            return retVal;
+        } else {
+            retVal = true;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def isTrionic(self, nums: List[int]) -> bool:
+        retVal = False
+
+        numsSize = len(nums)
+        i = 1
+
+        while (i < numsSize) and (nums[i - 1] < nums[i]):
+            i += 1
+        p = i - 1
+        if p == 0:
+            return retVal
+
+        while (i < numsSize) and (nums[i - 1] > nums[i]):
+            i += 1
+        q = i - 1
+        if q == p:
+            return retVal
+
+        while (i < numsSize) and (nums[i - 1] < nums[i]):
+            i += 1
+        i -= 1
+        if i != (numsSize - 1):
+            return retVal
+        elif i == q:
+            return retVal
+        else:
+            retVal = True
+
+        return retVal
+```
+
+</details>
