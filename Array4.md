@@ -1584,6 +1584,132 @@ class Solution:
 
 </details>
 
+## [3379. Transformed Array](https://leetcode.com/problems/transformed-array/)  1257
+
+- [Official](https://leetcode.com/problems/transformed-array/editorial/)
+- [Official](https://leetcode.cn/problems/transformed-array/solutions/3892290/zhuan-huan-shu-zu-by-leetcode-solution-xkww/)
+
+<details><summary>Description</summary>
+
+```text
+You are given an integer array nums that represents a circular array.
+Your task is to create a new array result of the same size, following these rules:
+
+For each index i (where 0 <= i < nums.length), perform the following independent actions:
+- If nums[i] > 0: Start at index i and move nums[i] steps to the right in the circular array.
+  Set result[i] to the value of the index where you land.
+- If nums[i] < 0: Start at index i and move abs(nums[i]) steps to the left in the circular array.
+  Set result[i] to the value of the index where you land.
+- If nums[i] == 0: Set result[i] to nums[i].
+
+Return the new array result.
+
+Note: Since nums is circular, moving past the last element wraps around to the beginning,
+and moving before the first element wraps back to the end.
+
+Example 1:
+Input: nums = [3,-2,1,1]
+Output: [1,1,1,3]
+Explanation:
+- For nums[0] that is equal to 3, If we move 3 steps to right, we reach nums[3]. So result[0] should be 1.
+- For nums[1] that is equal to -2, If we move 2 steps to left, we reach nums[3]. So result[1] should be 1.
+- For nums[2] that is equal to 1, If we move 1 step to right, we reach nums[3]. So result[2] should be 1.
+- For nums[3] that is equal to 1, If we move 1 step to right, we reach nums[0]. So result[3] should be 3.
+
+Example 2:
+Input: nums = [-1,4,-1]
+Output: [-1,-1,4]
+Explanation:
+- For nums[0] that is equal to -1, If we move 1 step to left, we reach nums[2]. So result[0] should be -1.
+- For nums[1] that is equal to 4, If we move 4 steps to right, we reach nums[2]. So result[1] should be -1.
+- For nums[2] that is equal to -1, If we move 1 step to left, we reach nums[1]. So result[2] should be 4.
+
+Constraints:
+1 <= nums.length <= 100
+-100 <= nums[i] <= 100
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Simulate the operations as described in the statement
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* constructTransformedArray(int* nums, int numsSize, int* returnSize) {
+    int* pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    pRetVal = (int*)malloc(numsSize * sizeof(int));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+    memset(pRetVal, 0, (numsSize * sizeof(int)));
+    (*returnSize) = numsSize;
+
+    int index;
+    for (int i = 0; i < numsSize; ++i) {
+        index = ((i + nums[i]) % numsSize + numsSize) % numsSize;
+        pRetVal[i] = nums[index];
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<int> constructTransformedArray(vector<int>& nums) {
+        vector<int> retVal;
+
+        int numsSize = nums.size();
+
+        for (int i = 0; i < numsSize; ++i) {
+            int index = ((i + nums[i]) % numsSize + numsSize) % numsSize;
+            retVal.push_back(nums[index]);
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def constructTransformedArray(self, nums: List[int]) -> List[int]:
+        retVal = []
+
+        numsSize = len(nums)
+
+        for i in range(numsSize):
+            index = ((i + nums[i]) % numsSize + numsSize) % numsSize
+            retVal.append(nums[index])
+
+        return retVal
+```
+
+</details>
+
 ## [3392. Count Subarrays of Length Three With a Condition](https://leetcode.com/problems/count-subarrays-of-length-three-with-a-condition/)  1200
 
 - [Official](https://leetcode.com/problems/count-subarrays-of-length-three-with-a-condition/editorial/)
