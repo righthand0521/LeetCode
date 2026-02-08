@@ -6,25 +6,34 @@
 #include "tree.h"
 
 int height(struct TreeNode* root) {
+    int retVal = 0;
+
     if (root == NULL) {
-        return 0;
+        return retVal;
     }
+    retVal = -1;
 
     int left = height(root->left);
     if (left == -1) {
-        return -1;
+        return retVal;
     }
 
     int right = height(root->right);
     if (right == -1) {
-        return -1;
+        return retVal;
     }
 
     if (abs(left - right) > 1) {
-        return -1;
+        return retVal;
     }
 
-    return ((left > right) ? (left + 1) : (right + 1));
+    if (left > right) {
+        retVal = left + 1;
+    } else {
+        retVal = right + 1;
+    }
+
+    return retVal;
 }
 /**
  * Definition for a binary tree node.
@@ -40,10 +49,7 @@ bool isBalanced(struct TreeNode* root) {
     if (root == NULL) {
         return retVal;
     }
-
-    if (height(root) == -1) {
-        retVal = false;
-    }
+    retVal = (height(root) != -1);
 
     return retVal;
 }

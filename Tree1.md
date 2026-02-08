@@ -2248,7 +2248,7 @@ class Solution {
 
 ## [110. Balanced Binary Tree](https://leetcode.com/problems/balanced-binary-tree/)
 
-- [Balanced Binary Tree](https://www.tutorialcup.com/interview/tree/balanced-binary-tree.htm)
+- [Official](https://leetcode.cn/problems/balanced-binary-tree/solutions/377216/ping-heng-er-cha-shu-by-leetcode-solution/)
 
 <details><summary>Description</summary>
 
@@ -2293,25 +2293,34 @@ The number of nodes in the tree is in the range [0, 5000].
 
 ```c
 int height(struct TreeNode* root) {
+    int retVal = 0;
+
     if (root == NULL) {
-        return 0;
+        return retVal;
     }
+    retVal = -1;
 
     int left = height(root->left);
     if (left == -1) {
-        return -1;
+        return retVal;
     }
 
     int right = height(root->right);
     if (right == -1) {
-        return -1;
+        return retVal;
     }
 
     if (abs(left - right) > 1) {
-        return -1;
+        return retVal;
     }
 
-    return ((left > right) ? (left + 1) : (right + 1));
+    if (left > right) {
+        retVal = left + 1;
+    } else {
+        retVal = right + 1;
+    }
+
+    return retVal;
 }
 /**
  * Definition for a binary tree node.
@@ -2327,13 +2336,119 @@ bool isBalanced(struct TreeNode* root) {
     if (root == NULL) {
         return retVal;
     }
-
-    if (height(root) == -1) {
-        retVal = false;
-    }
+    retVal = (height(root) != -1);
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+   private:
+    int height(struct TreeNode* root) {
+        int retVal = 0;
+
+        if (root == nullptr) {
+            return retVal;
+        }
+        retVal = -1;
+
+        int left = height(root->left);
+        if (left == -1) {
+            return retVal;
+        }
+
+        int right = height(root->right);
+        if (right == -1) {
+            return retVal;
+        }
+
+        if (abs(left - right) > 1) {
+            return retVal;
+        }
+
+        if (left > right) {
+            retVal = left + 1;
+        } else {
+            retVal = right + 1;
+        }
+
+        return retVal;
+    }
+
+   public:
+    bool isBalanced(TreeNode* root) {
+        bool retVal = true;
+
+        if (root == nullptr) {
+            return retVal;
+        }
+        retVal = (height(root) != -1);
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def height(self, root: Optional[TreeNode]) -> int:
+        retVal = 0
+
+        if root == None:
+            return retVal
+
+        retVal = -1
+
+        leftHeight = self.height(root.left)
+        if leftHeight == -1:
+            return retVal
+
+        rightHeight = self.height(root.right)
+        if rightHeight == -1:
+            return retVal
+
+        if abs(leftHeight - rightHeight) > 1:
+            return retVal
+
+        retVal = max(leftHeight, rightHeight) + 1
+
+        return retVal
+
+    def isBalanced(self, root: Optional[TreeNode]) -> bool:
+        retVal = True
+
+        if root == None:
+            return retVal
+
+        retVal = (self.height(root) != -1)
+
+        return retVal
 ```
 
 </details>
