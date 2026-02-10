@@ -773,6 +773,13 @@
 
 </details>
 
+<details><summary>Longest Balanced Subarray</summary>
+
+- [3719. Longest Balanced Subarray I](https://leetcode.com/problems/longest-balanced-subarray-i/)
+- [3721. Longest Balanced Subarray II](https://leetcode.com/problems/longest-balanced-subarray-ii/)
+
+</details>
+
 ## Two Pointers
 
 <details><summary>3Sum</summary>
