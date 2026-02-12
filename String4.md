@@ -1724,3 +1724,147 @@ class Solution:
 ```
 
 </details>
+
+## [3713. Longest Balanced Substring I](https://leetcode.com/problems/longest-balanced-substring-i/)  1490
+
+- [Official](https://leetcode.com/problems/longest-balanced-substring-i/editorial/)
+- [Official](https://leetcode.cn/problems/longest-balanced-substring-i/solutions/3895131/zui-chang-de-ping-heng-zi-chuan-i-by-lee-a90a/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string s consisting of lowercase English letters.
+
+A substring of s is called balanced if all distinct characters in the substring appear the same number of times.
+
+Return the length of the longest balanced substring of s.
+
+Example 1:
+Input: s = "abbac"
+Output: 4
+Explanation:
+The longest balanced substring is "abba" because both distinct characters 'a' and 'b' each appear exactly 2 times.
+
+Example 2:
+Input: s = "zzabccy"
+Output: 4
+Explanation:
+The longest balanced substring is "zabc"
+because the distinct characters 'z', 'a', 'b', and 'c' each appear exactly 1 time.​​​​​​​
+
+Example 3:
+Input: s = "aba"
+Output: 2
+Explanation:
+​​​​​​​One of the longest balanced substrings is "ab"
+because both distinct characters 'a' and 'b' each appear exactly 1 time. Another longest balanced substring is "ba".
+
+Constraints:
+1 <= s.length <= 1000
+s consists of lowercase English letters.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Use bruteforce over all substrings
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int longestBalanced(char* s) {
+    int retVal = 0;
+
+    int sSize = strlen(s);
+
+#define MAX_CHAR (26)  // s consists of lowercase English letters.
+    int hashTable[MAX_CHAR];
+    bool flag;
+    int c;
+    for (int i = 0; i < sSize; i++) {
+        memset(hashTable, 0, sizeof(hashTable));
+        for (int j = i; j < sSize; j++) {
+            flag = true;
+            c = s[j] - 'a';
+            hashTable[c]++;
+            for (int k = 0; k < MAX_CHAR; k++) {
+                if (hashTable[k] > 0 && hashTable[k] != hashTable[c]) {
+                    flag = false;
+                    break;
+                }
+            }
+
+            if (flag == true) {
+                retVal = fmax(retVal, j - i + 1);
+            }
+        }
+    }
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int longestBalanced(string s) {
+        int retVal = 0;
+
+        int sSize = s.size();
+
+        vector<int> hashTable(26);  // s consists of lowercase English letters.
+        for (int i = 0; i < sSize; i++) {
+            fill(hashTable.begin(), hashTable.end(), 0);
+            for (int j = i; j < sSize; j++) {
+                bool flag = true;
+                int c = s[j] - 'a';
+                hashTable[c]++;
+                for (auto x : hashTable) {
+                    if ((x > 0) && (x != hashTable[c])) {
+                        flag = false;
+                        break;
+                    }
+                }
+
+                if (flag == true) {
+                    retVal = max(retVal, j - i + 1);
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def longestBalanced(self, s: str) -> int:
+        retVal = 0
+
+        sSize = len(s)
+        for i in range(sSize):
+            hashTable = defaultdict(int)
+            for j in range(i, sSize):
+                hashTable[s[j]] += 1
+                hashTableSize = len(set(hashTable.values()))
+                if hashTableSize == 1:
+                    retVal = max(retVal, j - i + 1)
+
+        return retVal
+```
+
+</details>
