@@ -712,6 +712,13 @@
 
 </details>
 
+<details><summary>Longest Balanced Substring</summary>
+
+- [3713. Longest Balanced Substring I](https://leetcode.com/problems/longest-balanced-substring-i/)
+- [3714. Longest Balanced Substring II](https://leetcode.com/problems/longest-balanced-substring-ii/)
+
+</details>
+
 ## Tree
 
 <details><summary>Serialize and Deserialize Binary Tree</summary>

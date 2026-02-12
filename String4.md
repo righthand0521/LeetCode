@@ -1868,3 +1868,379 @@ class Solution:
 ```
 
 </details>
+
+## [3714. Longest Balanced Substring II](https://leetcode.com/problems/longest-balanced-substring-ii/)  2202
+
+- [Official](https://leetcode.cn/problems/longest-balanced-substring-ii/solutions/3896558/zui-chang-de-ping-heng-zi-chuan-ii-by-le-0g8o/)
+
+<details><summary>Description</summary>
+
+```text
+You are given a string s consisting only of the characters 'a', 'b', and 'c'.
+
+A substring of s is called balanced if all distinct characters in the substring appear the same number of times.
+
+Return the length of the longest balanced substring of s.
+
+Example 1:
+Input: s = "abbac"
+Output: 4
+Explanation:
+The longest balanced substring is "abba" because both distinct characters 'a' and 'b' each appear exactly 2 times.
+
+Example 2:
+Input: s = "aabcc"
+Output: 3
+Explanation:
+The longest balanced substring is "abc" because all distinct characters 'a', 'b' and 'c' each appear exactly 1 time.
+
+Example 3:
+Input: s = "aba"
+Output: 2
+Explanation:
+One of the longest balanced substrings is "ab" because both distinct characters 'a' and 'b' each appear exactly 1 time.
+Another longest balanced substring is "ba".
+
+Constraints:
+1 <= s.length <= 10^5
+s contains only the characters 'a', 'b', and 'c'.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Solve for three cases: all-equal characters, exactly two distinct characters, and all three characters present.
+   Treat each case separately and take the maximum length.
+2. Case 1: single character:
+   the longest balanced substring is the longest run of the same character; report its length.
+3. Case 2: two distinct characters:
+   reduce to that pair (ignore the third character) and use prefix differences of their counts;
+   equal counts between two indices mean the substring between them is balanced for those two chars.
+4. Case 3: all three characters:
+   use prefix counts and hash the pair (count_b - count_a, count_c - count_a) for each prefix;
+   if the same pair appears at two indices the substring between them has equal counts for a, b, and c.
+   Store earliest index per pair to get maximal length.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+#ifndef HASH_H
+#define HASH_H
+
+typedef struct {
+    long long key;
+    int val;
+    UT_hash_handle hh;
+} HashItem;
+HashItem* hashFindItem(HashItem** obj, long long key) {
+    HashItem* pEntry = NULL;
+
+    HASH_FIND(hh, *obj, &key, sizeof(long long), pEntry);
+
+    return pEntry;
+}
+bool hashAddItem(HashItem** obj, long long key, int val) {
+    bool retVal = false;
+
+    if (hashFindItem(obj, key)) {
+        return retVal;
+    }
+
+    HashItem* pEntry = (HashItem*)malloc(sizeof(HashItem));
+    if (pEntry == NULL) {
+        perror("malloc");
+        return retVal;
+    }
+    pEntry->key = key;
+    pEntry->val = val;
+    HASH_ADD_KEYPTR(hh, *obj, &pEntry->key, sizeof(long long), pEntry);
+    retVal = true;
+
+    return retVal;
+}
+void hashSetItem(HashItem** obj, long long key, int val) {
+    HashItem* pEntry = hashFindItem(obj, key);
+    if (pEntry == NULL) {
+        hashAddItem(obj, key, val);
+    } else {
+        pEntry->val = val;
+    }
+}
+int hashGetItem(HashItem** obj, long long key, int defaultVal) {
+    int retVal = defaultVal;
+
+    HashItem* pEntry = hashFindItem(obj, key);
+    if (pEntry != NULL) {
+        retVal = pEntry->val;
+    }
+
+    return retVal;
+}
+void hashFree(HashItem** obj) {
+    HashItem* curr = NULL;
+    HashItem* tmp = NULL;
+    HASH_ITER(hh, *obj, curr, tmp) {
+        HASH_DEL(*obj, curr);
+        free(curr);
+    }
+}
+
+#endif  // HASH_H
+int case2Helper(char* s, char x, char y) {
+    int retVal = 0;
+
+    int sSize = strlen(s);
+
+    HashItem *h, *prevEntry;
+    int j, diff, length;
+    for (int i = 0; i < sSize; i++) {
+        if ((s[i] != x) && (s[i] != y)) {
+            continue;
+        }
+
+        h = NULL;
+        hashAddItem(&h, 0, i - 1);
+
+        diff = 0;
+        j = i;
+        while ((j < sSize) && ((s[j] == x) || (s[j] == y))) {
+            diff += (s[j] == x) ? 1 : -1;
+
+            prevEntry = hashFindItem(&h, diff);
+            if (prevEntry != NULL) {
+                length = j - prevEntry->val;
+                retVal = fmax(retVal, length);
+            } else {
+                hashAddItem(&h, diff, j);
+            }
+
+            j++;
+        }
+        hashFree(&h);
+
+        i = j - 1;
+    }
+
+    return retVal;
+}
+int longestBalanced(char* s) {
+    int retVal = 0;
+
+    int sSize = strlen(s);
+
+    // Case 1: single character
+    int last = 0;
+    for (int i = 0; i < sSize; i++) {
+        if ((i > 0) && (s[i] == s[i - 1])) {
+            last++;
+        } else {
+            last = 1;
+        }
+        if (last > retVal) {
+            retVal = last;
+        }
+    }
+
+    // Case 2: two distinct characters
+    retVal = fmax(retVal, case2Helper(s, 'a', 'b'));
+    retVal = fmax(retVal, case2Helper(s, 'b', 'c'));
+    retVal = fmax(retVal, case2Helper(s, 'a', 'c'));
+
+    // Case 3: all three characters
+    HashItem* h = NULL;
+    long long initKey = ((long long)sSize << 32) | sSize;
+    hashAddItem(&h, initKey, -1);
+    //
+    int diffAB = 0;
+    int diffBC = 0;
+    char c;
+    long long key;
+    HashItem* prevEntry;
+    int length;
+    for (int i = 0; i < sSize; i++) {
+        c = s[i];
+        switch (c) {
+            case 'a':
+                diffAB--;
+                break;
+            case 'b':
+                diffAB++;
+                diffBC++;
+                break;
+            case 'c':
+                diffBC--;
+                break;
+        }
+
+        key = ((long long)(diffAB + sSize) << 32) | (diffBC + sSize);
+        prevEntry = hashFindItem(&h, key);
+        if (prevEntry != NULL) {
+            length = i - prevEntry->val;
+            retVal = fmax(retVal, length);
+        } else {
+            hashAddItem(&h, key, i);
+        }
+    }
+    //
+    hashFree(&h);
+
+    return retVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   private:
+    int case2Helper(string& s, char x, char y) {
+        int retVal = 0;
+
+        int sSize = s.size();
+        unordered_map<int, int> h;
+        for (int i = 0; i < sSize; i++) {
+            if ((s[i] != x) && (s[i] != y)) {
+                continue;
+            }
+
+            h.clear();
+            h[0] = i - 1;
+            int diff = 0;
+            while ((i < sSize) && ((s[i] == x) || (s[i] == y))) {
+                diff += (s[i] == x) ? (1) : (-1);
+                if (h.find(diff) != h.end()) {
+                    retVal = max(retVal, i - h[diff]);
+                } else {
+                    h[diff] = i;
+                }
+
+                i++;
+            }
+        }
+
+        return retVal;
+    }
+    long long getId(int x, int y, int sSize) {
+        long long retVal = 1ll * (x + sSize) << 32 | (y + sSize);
+
+        return retVal;
+    }
+
+   public:
+    int longestBalanced(string s) {
+        int retVal = 0;
+
+        int sSize = s.size();
+
+        // Case 1: single character
+        int last = 0;
+        for (int i = 0; i < sSize; i++) {
+            if ((i > 0) && (s[i] == s[i - 1])) {
+                last++;
+            } else {
+                last = 1;
+            }
+
+            retVal = max(retVal, last);
+        }
+
+        // Case 2: two distinct characters
+        retVal = max(retVal, case2Helper(s, 'a', 'b'));
+        retVal = max(retVal, case2Helper(s, 'b', 'c'));
+        retVal = max(retVal, case2Helper(s, 'a', 'c'));
+
+        // Case 3: all three characters
+        unordered_map<long long, int> h = {{getId(0, 0, sSize), -1}};
+        int pre[3] = {0, 0, 0};
+        for (int i = 0; i < sSize; i++) {
+            pre[s[i] - 'a']++;
+
+            long long id = getId(pre[1] - pre[0], pre[1] - pre[2], sSize);
+            if (h.find(id) != h.end()) {
+                retVal = max(retVal, i - h[id]);
+            } else {
+                h[id] = i;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def helper(self, s: str, x: str, y: str) -> int:
+        retVal = 0
+
+        sSize = len(s)
+
+        i = 0
+        while i < sSize:
+            if s[i] != x and s[i] != y:
+                i += 1
+                continue
+
+            h = {0: i-1}
+            diff = 0
+            while (i < sSize) and ((s[i] == x) or (s[i] == y)):
+                if s[i] == x:
+                    diff += 1
+                else:
+                    diff -= 1
+
+                if diff in h:
+                    retVal = max(retVal, i - h[diff])
+                else:
+                    h[diff] = i
+
+                i += 1
+
+            i += 1
+
+        return retVal
+
+    def longestBalanced(self, s: str) -> int:
+        retVal = 0
+
+        sSize = len(s)
+
+        # Case 1: single character
+        last = 0
+        for i in range(sSize):
+            if (i > 0) and (s[i] == s[i-1]):
+                last += 1
+            else:
+                last = 1
+
+            retVal = max(retVal, last)
+
+        # Case 2: two distinct characters
+        retVal = max(retVal, self.helper(s, 'a', 'b'), self.helper(s, 'b', 'c'), self.helper(s, 'a', 'c'))
+
+        # Case 3: all three characters
+        pre = [0, 0, 0]
+        h = {(0, 0): -1}
+        for i, ch in enumerate(s):
+            pre[ord(ch) - 97] += 1
+            key = (pre[0] - pre[1], pre[1] - pre[2])
+            if key in h:
+                retVal = max(retVal, i - h[key])
+            else:
+                h[key] = i
+
+        return retVal
+```
+
+</details>
