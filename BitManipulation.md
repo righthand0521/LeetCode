@@ -1540,6 +1540,136 @@ class Solution:
 
 </details>
 
+## [401. Binary Watch](https://leetcode.com/problems/binary-watch/)
+
+- [Official](https://leetcode.com/problems/binary-watch/editorial/)
+- [Official](https://leetcode.cn/problems/binary-watch/solutions/837337/er-jin-zhi-shou-biao-by-leetcode-solutio-3559/)
+
+<details><summary>Description</summary>
+
+```text
+A binary watch has 4 LEDs on the top to represent the hours (0-11),
+and 6 LEDs on the bottom to represent the minutes (0-59).
+Each LED represents a zero or one, with the least significant bit on the right.
+
+For example, the below binary watch reads "4:51".
+
+Given an integer turnedOn which represents the number of LEDs that are currently on (ignoring the PM),
+return all possible times the watch could represent.
+You may return the answer in any order.
+
+The hour must not contain a leading zero.
+
+For example, "01:00" is not valid. It should be "1:00".
+The minute must consist of two digits and may contain a leading zero.
+
+For example, "10:2" is not valid. It should be "10:02".
+
+Example 1:
+Input: turnedOn = 1
+Output: ["0:01","0:02","0:04","0:08","0:16","0:32","1:00","2:00","4:00","8:00"]
+
+Example 2:
+Input: turnedOn = 9
+Output: []
+
+Constraints:
+0 <= turnedOn <= 10
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Simplify by seeking for solutions that involve comparing bit counts.
+2. Consider calculating all possible times for comparison purposes.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+char** readBinaryWatch(int turnedOn, int* returnSize) {
+    char** pRetVal = NULL;
+
+    (*returnSize) = 0;
+
+    int maxReturnSize = 12 * 60;  // represent the hours (0-11) and minutes (0-59)
+    pRetVal = (char**)malloc(maxReturnSize * sizeof(char*));
+    if (pRetVal == NULL) {
+        perror("malloc");
+        return pRetVal;
+    }
+
+    int maxRepresentSize = 6;                          // H:MM\0"
+    for (int hours = 0; hours < 12; ++hours) {         // represent the hours (0-11)
+        for (int minute = 0; minute < 60; ++minute) {  // represent the minutes (0-59)
+            if (__builtin_popcount(hours) + __builtin_popcount(minute) != turnedOn) {
+                continue;
+            }
+
+            pRetVal[(*returnSize)] = (char*)malloc(maxRepresentSize * sizeof(char));
+            if (pRetVal[(*returnSize)] == NULL) {
+                perror("malloc");
+                return pRetVal;
+            }
+            memset(pRetVal[(*returnSize)], 0, (maxRepresentSize * sizeof(char)));
+            sprintf(pRetVal[(*returnSize)], "%d:%02d", hours, minute);
+            (*returnSize)++;
+        }
+    }
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    vector<string> readBinaryWatch(int turnedOn) {
+        vector<string> retVal;
+
+        for (int hours = 0; hours < 12; ++hours) {         // represent the hours (0-11)
+            for (int minute = 0; minute < 60; ++minute) {  // represent the minutes (0-59)
+                if (__builtin_popcount(hours) + __builtin_popcount(minute) == turnedOn) {
+                    retVal.push_back(to_string(hours) + ":" + ((minute < 10) ? ("0") : ("")) + to_string(minute));
+                }
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def readBinaryWatch(self, turnedOn: int) -> List[str]:
+        retVal = []
+
+        for hour in range(12):  # represent the hours (0-11)
+            for minute in range(60):  # represent the minutes (0-59)
+                if (bin(hour).count('1')) + (bin(minute).count('1')) == turnedOn:
+                    retVal.append(f"{hour}:{minute:02d}")
+
+        return retVal
+```
+
+</details>
+
 ## [405. Convert a Number to Hexadecimal](https://leetcode.com/problems/convert-a-number-to-hexadecimal/)
 
 <details><summary>Description</summary>
