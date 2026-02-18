@@ -1967,6 +1967,9 @@ int totalHammingDistance(int* nums, int numsSize) {
 
 ## [693. Binary Number with Alternating Bits](https://leetcode.com/problems/binary-number-with-alternating-bits/)
 
+- [Official](https://leetcode.com/problems/binary-number-with-alternating-bits/editorial/)
+- [Official](https://leetcode.cn/problems/binary-number-with-alternating-bits/solutions/1368822/jiao-ti-wei-er-jin-zhi-shu-by-leetcode-s-bmxd/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -1997,37 +2000,52 @@ Constraints:
 <details><summary>C</summary>
 
 ```c
-bool hasAlternatingBits(int n){
+bool hasAlternatingBits(int n) {
     bool retVal = false;
 
-#if 1
-    /* right shift 2 bit will become all 2^n
-     *    000101010
-     *  ^ 000001010
-     *  = 000100000
-     */
-    n ^= (n >> 2);
-    unsigned int m = (unsigned int)(n) - 1;
-    if ((n & m) == 0)
-    {
+    long a = n ^ (n >> 1);
+    if ((a & (a + 1)) == 0) {
         retVal = true;
     }
-#else
-    /* right shift 1 bit will become 2^n-1
-     *    000101010
-     *  ^ 000010101
-     *  = 000111111
-     */
-    n ^= (n >> 1);
-    unsigned int m = (unsigned int)(n) + 1;
-    if ((n & m) == 0)
-    {
-        retVal = true;
-    }
-#endif
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    bool hasAlternatingBits(int n) {
+        bool retVal = false;
+
+        long a = n ^ (n >> 1);
+        if ((a & (a + 1)) == 0) {
+            retVal = true;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def hasAlternatingBits(self, n: int) -> bool:
+        retVal = False
+
+        a = n ^ (n >> 1)
+        if a & (a + 1) == 0:
+            retVal = True
+
+        return retVal
 ```
 
 </details>
