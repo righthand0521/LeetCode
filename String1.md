@@ -3568,6 +3568,218 @@ char* toLowerCase(char* s) {
 
 </details>
 
+## [761. Special Binary String](https://leetcode.com/problems/special-binary-string/)  2292
+
+- [Official](https://leetcode.cn/problems/special-binary-string/solutions/1728412/te-shu-de-er-jin-zhi-xu-lie-by-leetcode-sb7ry/)
+
+<details><summary>Description</summary>
+
+```text
+Special binary strings are binary strings with the following two properties:
+- The number of 0's is equal to the number of 1's.
+- Every prefix of the binary string has at least as many 1's as 0's.
+
+You are given a special binary string s.
+
+A move consists of choosing two consecutive, non-empty, special substrings of s, and swapping them.
+Two strings are consecutive if the last character of the first string is exactly one index
+before the first character of the second string.
+
+Return the lexicographically largest resulting string possible after applying the mentioned operations on the string.
+
+Example 1:
+Input: s = "11011000"
+Output: "11100100"
+Explanation: The strings "10" [occuring at s[1]] and "1100" [at s[3]] are swapped.
+This is the lexicographically largest string possible after some number of swaps.
+
+Example 2:
+Input: s = "10"
+Output: "10"
+
+Constraints:
+1 <= s.length <= 50
+s[i] is either '0' or '1'.
+s is a special binary string.
+```
+
+<details><summary>Hint</summary>
+
+```text
+1. Draw a line from (x, y) to (x+1, y+1) if we see a "1", else to (x+1, y-1).
+   A special substring is just a line that starts and ends at the same y-coordinate,
+   and that is the lowest y-coordinate reached.
+   Call a mountain a special substring with no special prefixes -
+   ie. only at the beginning and end is the lowest y-coordinate reached.
+   If F is the answer function, and S has mountain decomposition M1,M2,M3,...,Mk,
+   then the answer is: reverse_sorted(F(M1), F(M2), ..., F(Mk)).
+   However, you'll also need to deal with the case that S is a mountain, such as 11011000 -> 11100100.
+```
+
+</details>
+
+</details>
+
+<details><summary>C</summary>
+
+```c
+int qsort_compareString(const void* str1, const void* str2) {
+    // descending order
+    return strcmp(*(char**)str2, *(char**)str1);
+}
+char* helper(char* s, int start, int end) {
+    char* pRetVal = NULL;
+
+    int len = end - start + 1;
+    if (len <= 2) {
+        pRetVal = (char*)malloc((len + 1) * sizeof(char));
+        if (pRetVal == NULL) {
+            perror("malloc");
+            return pRetVal;
+        }
+        memset(pRetVal, 0, (len + 1) * sizeof(char));
+        strncpy(pRetVal, s + start, len);
+        pRetVal[len] = '\0';
+
+        return pRetVal;
+    }
+
+    int cnt = 0;
+    int left = start;
+    char** subs = (char**)malloc(len * sizeof(char*));
+    int subsSize = 0;
+    char* helpReturn = NULL;
+    int helpReturnSize = 0;
+    for (int i = start; i <= end; ++i) {
+        if (s[i] == '1') {
+            ++cnt;
+            continue;
+        }
+
+        --cnt;
+        if (cnt != 0) {
+            continue;
+        }
+
+        helpReturn = helper(s, left + 1, i - 1);
+        if (helpReturn == NULL) {
+            for (int j = 0; j < subsSize; ++j) {
+                free(subs[j]);
+                subs[j] = NULL;
+            }
+            free(subs);
+            subs = NULL;
+            return pRetVal;
+        }
+        helpReturnSize = strlen(helpReturn);
+
+        subs[subsSize] = (char*)malloc(sizeof(char) * (helpReturnSize + 3));
+        sprintf(subs[subsSize], "%s%s%s", "1", helpReturn, "0");
+        free(helpReturn);
+        helpReturn = NULL;
+        left = i + 1;
+        subsSize++;
+    }
+    qsort(subs, subsSize, sizeof(char*), qsort_compareString);
+
+    pRetVal = (char*)malloc((len + 1) * sizeof(char));
+    int pos = 0;
+    for (int i = 0; i < subsSize; i++) {
+        pos += sprintf(pRetVal + pos, "%s", subs[i]);
+        free(subs[i]);
+        subs[i] = NULL;
+    }
+    pRetVal[pos] = '\0';
+
+    //
+    free(subs);
+    subs = NULL;
+
+    return pRetVal;
+}
+char* makeLargestSpecial(char* s) {
+    char* pRetVal = NULL;
+
+    int sSize = strlen(s);
+    pRetVal = helper(s, 0, sSize - 1);
+
+    return pRetVal;
+}
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    string makeLargestSpecial(string s) {
+        string retVal = "";
+
+        int sSize = s.size();
+        if (sSize <= 2) {
+            retVal = s;
+            return retVal;
+        }
+
+        int cnt = 0;
+        int left = 0;
+        vector<string> subs;
+        for (int i = 0; i < sSize; ++i) {
+            if (s[i] == '1') {
+                cnt++;
+                continue;
+            }
+            cnt--;
+            if (cnt == 0) {
+                subs.push_back("1" + makeLargestSpecial(s.substr(left + 1, i - left - 1)) + "0");
+                left = i + 1;
+            }
+        }
+        sort(subs.begin(), subs.end(), greater<string>());
+        for (const auto& sub : subs) {
+            retVal += sub;
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def makeLargestSpecial(self, s: str) -> str:
+        retVal = ""
+
+        sSize = len(s)
+        if sSize <= 2:
+            retVal = s
+            return retVal
+
+        cnt = 0
+        left = 0
+        subs = list()
+        for i, ch in enumerate(s):
+            if ch == "1":
+                cnt += 1
+                continue
+            cnt -= 1
+            if cnt == 0:
+                subs.append("1" + self.makeLargestSpecial(s[left+1:i]) + "0")
+                left = i + 1
+        subs.sort(reverse=True)
+        retVal = "".join(subs)
+
+        return retVal
+```
+
+</details>
+
 ## [767. Reorganize String](https://leetcode.com/problems/reorganize-string/)  1681
 
 - [Official](https://leetcode.com/problems/reorganize-string/editorial/)
