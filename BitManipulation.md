@@ -2052,6 +2052,9 @@ class Solution:
 
 ## [762. Prime Number of Set Bits in Binary Representation](https://leetcode.com/problems/prime-number-of-set-bits-in-binary-representation/)  1383
 
+- [Official](https://leetcode.com/problems/prime-number-of-set-bits-in-binary-representation/editorial/)
+- [Official](https://leetcode.cn/problems/prime-number-of-set-bits-in-binary-representation/solutions/1389365/er-jin-zhi-biao-shi-zhong-zhi-shu-ge-ji-jy35g/)
+
 <details><summary>Description</summary>
 
 ```text
@@ -2089,30 +2092,34 @@ Constraints:
 0 <= right - left <= 10^4
 ```
 
+<details><summary>Hint</summary>
+
+```text
+1. Write a helper function to count the number of set bits in a number,
+   then check whether the number of set bits is 2, 3, 5, 7, 11, 13, 17 or 19.
+```
+
+</details>
+
 </details>
 
 <details><summary>C</summary>
 
 ```c
-int isPrime(int num)
-{
+int isPrime(int num) {
     int retVal = 0;
 
-    if (num <= 1)
-    {
+    if (num <= 1) {
         return retVal;
     }
 
-    if ((num > 2) && (num % 2 == 0))
-    {
+    if ((num > 2) && (num % 2 == 0)) {
         return retVal;
     }
 
     int i;
-    for(i=3; i<num/2; i+=2)
-    {
-        if (num % i == 0)
-        {
+    for (i = 3; i < num / 2; i += 2) {
+        if (num % i == 0) {
             return retVal;
         }
     }
@@ -2120,15 +2127,11 @@ int isPrime(int num)
 
     return retVal;
 }
-
-int countBits(int n)
-{
+int countBits(int n) {
     int retVal = 0;
 
-    while (n)
-    {
-        if (n & 1)
-        {
+    while (n) {
+        if (n & 1) {
             retVal++;
         }
         n >>= 1;
@@ -2136,20 +2139,92 @@ int countBits(int n)
 
     return retVal;
 }
-
-int countPrimeSetBits(int left, int right){
+int countPrimeSetBits(int left, int right) {
     int retVal = 0;
 
     int setBits;
     int i;
-    for (i=left; i<=right; ++i)
-    {
+    for (i = left; i <= right; ++i) {
         setBits = countBits(i);
         retVal += isPrime(setBits);
     }
 
     return retVal;
 }
+```
+
+</details>
+
+<details><summary>C++</summary>
+
+```c++
+class Solution {
+   public:
+    int countPrimeSetBits(int left, int right) {
+        int retVal = 0;
+
+        auto isPrime = [](int n) -> bool {
+            if (n < 2) {
+                return false;
+            }
+            for (int i = 2; i * i <= n; ++i) {
+                if (n % i == 0) {
+                    return false;
+                }
+            }
+            return true;
+        };
+
+        auto countBits = [](int n) -> int {
+            int count = 0;
+            while (n) {
+                count += n & 1;
+                n >>= 1;
+            }
+            return count;
+        };
+
+        for (int i = left; i <= right; ++i) {
+            int setBits = countBits(i);
+            if (isPrime(setBits)) {
+                ++retVal;
+            }
+        }
+
+        return retVal;
+    }
+};
+```
+
+</details>
+
+<details><summary>Python3</summary>
+
+```python
+class Solution:
+    def countPrimeSetBits(self, left: int, right: int) -> int:
+        def isPrime(n):
+            if n < 2:
+                return False
+            for i in range(2, int(n**0.5) + 1):
+                if n % i == 0:
+                    return False
+            return True
+
+        def countBits(n):
+            count = 0
+            while n:
+                count += n & 1
+                n >>= 1
+            return count
+
+        retVal = 0
+        for i in range(left, right + 1):
+            setBits = countBits(i)
+            if isPrime(setBits):
+                retVal += 1
+
+        return retVal
 ```
 
 </details>

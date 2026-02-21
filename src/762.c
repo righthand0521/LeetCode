@@ -48,12 +48,19 @@ int countPrimeSetBits(int left, int right) {
     return retVal;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
     struct testCaseType {
         int left;
         int right;
     } testCase[] = {{6, 10}, {10, 15}};
     int numberOfTestCase = sizeof(testCase) / sizeof(testCase[0]);
+    /* Example
+     *  Input: left = 6, right = 10
+     *  Output: 4
+     *
+     *  Input: left = 10, right = 15
+     *  Output: 5
+     */
 
     int answer;
     int i;
